@@ -1,7 +1,8 @@
 import enum
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Enum, DateTime, Column
+from typing import Optional
+from sqlalchemy import String, Enum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
@@ -23,6 +24,9 @@ class User(Base):
     phone_whatsapp: Mapped[str] = mapped_column(String(20), nullable=False)
     
     # Geography Point (SRID 4326 for WGS84)
-    location = Column(Geometry(geometry_type='POINT', srid=4326), nullable=True)
+    location: Mapped[Optional[Geometry]] = mapped_column(
+        Geometry(geometry_type="POINT", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
+        nullable=True
+    )
     
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
