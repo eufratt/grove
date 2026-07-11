@@ -3,6 +3,7 @@ import { Cormorant_Garamond } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { FilmGrain } from "@/components/effects/film-grain";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import "./globals.css";
 
 const cormorantGaramond = Cormorant_Garamond({
@@ -28,8 +29,10 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable} ${cormorantGaramond.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <FilmGrain />
-        {children}
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+          <FilmGrain />
+          {children}
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

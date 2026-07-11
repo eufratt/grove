@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Loader2, X } from 'lucide-react';
-import { searchApi } from '@/lib/api/auth'; // Actually we need searchApi from its own file
 import { searchApi as semanticSearchApi } from '@/lib/api/search';
 
 interface SearchBarProps {

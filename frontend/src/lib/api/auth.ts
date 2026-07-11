@@ -1,18 +1,18 @@
 import { apiClient } from './client';
 
 export const authApi = {
-  register: async (data: any) => {
-    const response = await apiClient('/auth/register', {
+  loginWithGoogle: async (idToken: string) => {
+    const response = await apiClient('/auth/google', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ id_token: idToken }),
     });
     return response.json();
   },
 
-  login: async (data: any) => {
-    const response = await apiClient('/auth/login', {
+  completeProfile: async (role: string, phone: string) => {
+    const response = await apiClient('/auth/complete-profile', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ role, phone_whatsapp: phone }),
     });
     return response.json();
   },
