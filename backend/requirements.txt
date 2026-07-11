@@ -34,7 +34,7 @@ narwhals==2.23.0
 networkx==3.6.1
 numpy==2.5.1
 packaging==26.2
-passlib==1.7.4
+google-auth==2.30.0
 pgvector==0.5.0
 playwright==1.61.0
 psutil==7.2.2
@@ -53,6 +53,7 @@ python-jose==3.5.0
 python-multipart==0.0.32
 PyYAML==6.0.3
 regex==2026.7.10
+requests==2.32.3
 rich==15.0.0
 rsa==4.9.1
 safetensors==0.8.0
@@ -76,4 +77,3 @@ typing_extensions==4.16.0
 tzdata==2026.3
 tzlocal==5.4.4
 uvicorn==0.51.0
-webauthn==3.0.0

@@ -18,10 +18,11 @@ class User(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    google_sub: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
-    phone_whatsapp: Mapped[str] = mapped_column(String(20), nullable=False)
+    avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    role: Mapped[Optional[UserRole]] = mapped_column(Enum(UserRole), nullable=True)
+    phone_whatsapp: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     
     # Geography Point (SRID 4326 for WGS84)
     location: Mapped[Optional[Geometry]] = mapped_column(

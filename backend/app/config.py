@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = "https://placeholder.supabase.co"
     SUPABASE_SERVICE_KEY: str = "placeholder_service_key"
     SUPABASE_STORAGE_BUCKET: str = "product-photos"
+    GOOGLE_CLIENT_ID: str = "placeholder_google_client_id"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

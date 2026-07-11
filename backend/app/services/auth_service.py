@@ -1,8 +1,8 @@
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Any, Union
+import hashlib
 from jose import jwt, JWTError
-from passlib.context import CryptContext
 from fastapi import Request, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -11,13 +11,11 @@ from app.db import get_db
 from app.models.user import User
 from app.models.token import RefreshToken
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return hash_password(plain_password) == hashed_password
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

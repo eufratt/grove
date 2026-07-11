@@ -1,24 +1,24 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from datetime import datetime
+from typing import Optional
 from app.models.user import UserRole
 
-class UserBase(BaseModel):
+class UserResponse(BaseModel):
+    id: UUID
     email: EmailStr
     full_name: str
-    role: UserRole
-    phone_whatsapp: str
-
-class UserCreate(UserBase):
-    password: str
-
-class UserResponse(UserBase):
-    id: UUID
+    avatar_url: Optional[str] = None
+    role: Optional[UserRole] = None
+    phone_whatsapp: Optional[str] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+class GoogleLoginRequest(BaseModel):
+    id_token: str
+
+class CompleteProfileRequest(BaseModel):
+    role: UserRole
+    phone_whatsapp: str
