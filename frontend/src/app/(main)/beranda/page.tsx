@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { SearchBar } from '@/components/search/search-bar';
 import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react';
 import { SwipeDeck } from '@/components/products/swipe-deck';
+import { cn } from '@/lib/utils';
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import('@/components/products/map-view'), { 
