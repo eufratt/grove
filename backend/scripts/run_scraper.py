@@ -40,12 +40,6 @@ async def scrape_data() -> list[dict]:
         await page.screenshot(path="debug_screenshot.png")
         print("Screenshot saved to debug_screenshot.png")
         
-        # Dump HTML source for debugging
-        html_content = await page.content()
-        print("HTML Source Length:", len(html_content))
-        print("First 1000 characters of HTML source:")
-        print(html_content[:1000])
-        
         # 1. Wait for DevExpress dropdown container controls
         print("Waiting for cboProvince and CommodityTree controls...")
         await page.wait_for_selector("#cboProvince", timeout=20000)
@@ -78,6 +72,20 @@ async def scrape_data() -> list[dict]:
         # Save post-interaction screenshot for verification
         await page.screenshot(path="debug_screenshot.png")
         
+        # Extract commodity name from the report header #info table
+        print("Extracting commodity name from report header...")
+        info_rows = await page.query_selector_all("#info tr")
+        commodity_name = "Beras" # Default fallback
+        for info_row in info_rows:
+            tds = await info_row.query_selector_all("td")
+            if len(tds) >= 2:
+                label = (await tds[0].inner_text()).strip()
+                if "Komoditas" in label:
+                    value = (await tds[1].inner_text()).strip()
+                    commodity_name = value.lstrip(":").replace("(kg)", "").strip()
+                    break
+        print(f"Extracted commodity name: '{commodity_name}'")
+        
         print("Extracting table rows...")
         rows = await page.query_selector_all("#grid1 .dx-datagrid-rowsview tr.dx-data-row")
         extracted_data = []
@@ -85,12 +93,14 @@ async def scrape_data() -> list[dict]:
         for row in rows:
             cells = await row.query_selector_all("td")
             if len(cells) >= 2:
-                commodity = (await cells[1].inner_text()).strip()
+                # Use text_content() to read hidden cells
+                region_raw = (await cells[1].text_content()).strip()
+                region = "Nasional" if "SEMUA" in region_raw else region_raw.title()
                 
-                # DevExpress columns might contain multiple date columns. We get the latest non-empty date value.
+                # Get the latest price value (last non-empty cell in row)
                 price_str = None
                 for cell in reversed(cells[2:]):
-                    text_val = (await cell.inner_text()).strip()
+                    text_val = (await cell.text_content()).strip()
                     if text_val and text_val != "-" and any(c.isdigit() for c in text_val):
                         price_str = text_val
                         break
@@ -100,10 +110,10 @@ async def scrape_data() -> list[dict]:
                     price_cleaned = price_str.replace("Rp", "").replace(".", "").replace(",", "").strip()
                     if price_cleaned.isdigit():
                         extracted_data.append({
-                            "commodity_name": commodity,
+                            "commodity_name": commodity_name,
                             "price_per_kg": float(price_cleaned),
                             "source": "PIHPS BI",
-                            "region": "Nasional",
+                            "region": region,
                             "scraped_at": datetime.utcnow()
                         })
         
