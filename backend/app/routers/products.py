@@ -58,7 +58,7 @@ async def list_products(
         SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
                ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
         FROM products 
-        WHERE status = 'tersedia'
+        WHERE status = 'TERSEDIA'
         ORDER BY created_at DESC
         OFFSET :skip
         LIMIT :limit
@@ -98,7 +98,7 @@ async def get_nearby_products(
                ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude,
                ST_Distance(location, ST_MakePoint(:lng, :lat)::geography) / 1000 as distance_km
         FROM products 
-        WHERE status = 'tersedia' 
+        WHERE status = 'TERSEDIA' 
           AND ST_DWithin(location, ST_MakePoint(:lng, :lat)::geography, :radius_meters)
         ORDER BY distance_km ASC
     """)

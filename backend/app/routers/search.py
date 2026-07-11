@@ -25,7 +25,7 @@ async def semantic_search(
     sql = text("""
         SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at
         FROM products 
-        WHERE status = 'tersedia'
+        WHERE status = 'TERSEDIA'
         ORDER BY embedding <=> :embedding
         LIMIT 20
     """)
