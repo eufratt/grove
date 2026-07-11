@@ -1,9 +1,19 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, WebSocket, WebSocketDisconnect
 from app.routers import auth, products, search, orders
 from app.agents.scheduler import setup_scheduler, stop_scheduler
 from app.agents.price_scraper import get_scraper_status, scrape_reference_prices
+from app.services import connection_manager
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Grove API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], # Ganti dengan URL frontend Anda
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup_event():
@@ -12,6 +22,16 @@ async def startup_event():
 @app.on_event("shutdown")
 def shutdown_event():
     stop_scheduler()
+
+@app.websocket("/ws/orders/{order_id}")
+async def websocket_endpoint(websocket: WebSocket, order_id: str):
+    await connection_manager.manager.connect(websocket, order_id)
+    try:
+        while True:
+            # Keep connection alive, though we only broadcast from server to client
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        connection_manager.manager.disconnect(websocket, order_id)
 
 app.include_router(auth.router)
 app.include_router(products.router)
