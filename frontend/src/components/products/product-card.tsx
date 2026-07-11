@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { PriceGauge } from './price-gauge';
+import Link from 'next/link';
 
 interface ProductCardProps {
   product: any;
@@ -21,6 +23,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
       }}
       className="group relative flex flex-col space-y-3"
     >
+      <Link href={`/produk/${product.id}`} className="absolute inset-0 z-10" />
       {/* Photo Container */}
       <div className="relative aspect-[4/5] overflow-hidden bg-white/5 border border-white/10 transition-all duration-500 group-hover:border-gr-green/30">
         <img
@@ -55,6 +58,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         <h3 className="font-display text-2xl font-medium text-gr-text-primary group-hover:text-gr-green transition-colors">
           {product.name}
         </h3>
+
+        {product.reference_price_per_kg && (
+          <div className="py-1">
+            <PriceGauge 
+              hargaProduk={product.price_per_kg} 
+              hargaReferensi={product.reference_price_per_kg} 
+              isMini={true} 
+            />
+          </div>
+        )}
         
         <div className="mt-2 flex items-baseline justify-between border-t border-white/5 pt-2">
           <div className="flex flex-col">
