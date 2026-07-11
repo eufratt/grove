@@ -34,7 +34,7 @@ class Product(Base):
     status: Mapped[ProductStatus] = mapped_column(Enum(ProductStatus), default=ProductStatus.TERSEDIA)
     photo_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     
-    # pgvector embedding (dimensi 384)
-    embedding: Mapped[Optional[Vector]] = mapped_column(Vector(384), nullable=True)
+    # pgvector embedding (dimensi 768)
+    embedding: Mapped[Optional[Vector]] = mapped_column(Vector(768), nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

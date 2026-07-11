@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_KEY: str = "placeholder_service_key"
     SUPABASE_STORAGE_BUCKET: str = "product-photos"
     GOOGLE_CLIENT_ID: str = "placeholder_google_client_id"
+    GEMINI_API_KEY: str = "placeholder_gemini_api_key"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

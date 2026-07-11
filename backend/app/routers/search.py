@@ -16,7 +16,7 @@ async def semantic_search(
     db: AsyncSession = Depends(get_db)
 ):
     # Generate embedding for the search query
-    query_embedding = embedding_service.generate_embedding(q)
+    query_embedding = await embedding_service.generate_embedding(q)
     
     # Execute semantic search using pgvector cosine distance operator (<=>)
     # We use raw SQL because pgvector-sqlalchemy integration with async sessions 

@@ -30,7 +30,7 @@ async def create_product(
     
     # Generate semantic embedding from name and category
     embedding_text = f"{name} {category}"
-    embedding = embedding_service.embedding_service.generate_embedding(embedding_text)
+    embedding = await embedding_service.embedding_service.generate_embedding(embedding_text)
     
     new_product = Product(
         seller_id=current_user.id,
