@@ -6,14 +6,30 @@ import { ProductCard } from '@/components/products/product-card';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
+import dynamic from 'next/dynamic';
 import { SearchBar } from '@/components/search/search-bar';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Map as MapIcon, List as ListIcon } from 'lucide-react';
+
+// Dynamic import for MapView to avoid SSR issues
+const MapView = dynamic(() => import('@/components/products/map-view'), { 
+  ssr: false,
+  loading: () => (
+    <div className="h-[600px] w-full flex items-center justify-center bg-white/5 rounded-2xl animate-pulse">
+      <Loader2 className="h-8 w-8 text-gr-green animate-spin opacity-20" />
+    </div>
+  )
+});
 
 export default function BerandaPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [initialProducts, setInitialProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // New state for map and geolocation
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [radiusKm, setRadiusKm] = useState(10);
 
   const fetchInitialProducts = async () => {
     setIsLoading(true);
@@ -28,16 +44,59 @@ export default function BerandaPage() {
     }
   };
 
+  const fetchNearbyProducts = async (lat: number, lng: number, radius: number) => {
+    setIsSearching(true);
+    try {
+      const data = await productsApi.getNearbyProducts(lat, lng, radius);
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to fetch nearby products:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   useEffect(() => {
     fetchInitialProducts();
+    
+    // Get user location
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
+      });
+    }
   }, []);
 
   const handleSearchResults = (results: any[]) => {
     setProducts(results);
+    setViewMode('list'); // Switch to list view for search results unless we want to show them on map
   };
 
   const handleClearSearch = () => {
-    setProducts(initialProducts);
+    if (viewMode === 'map' && userLocation) {
+      fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
+    } else {
+      setProducts(initialProducts);
+    }
+  };
+
+  const toggleViewMode = () => {
+    const newMode = viewMode === 'list' ? 'map' : 'list';
+    setViewMode(newMode);
+    
+    if (newMode === 'map' && userLocation) {
+      fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
+    } else if (newMode === 'list') {
+      setProducts(initialProducts);
+    }
+  };
+
+  const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newRadius = parseInt(e.target.value);
+    setRadiusKm(newRadius);
+    if (userLocation) {
+      fetchNearbyProducts(userLocation[0], userLocation[1], newRadius);
+    }
   };
 
   return (
@@ -64,13 +123,54 @@ export default function BerandaPage() {
             </div>
           </div>
           
-          <div className="mt-12">
-            <SearchBar 
-              onResults={handleSearchResults} 
-              onLoading={setIsSearching} 
-              onClear={handleClearSearch} 
-            />
+          <div className="mt-12 flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-1 w-full">
+              <SearchBar 
+                onResults={handleSearchResults} 
+                onLoading={setIsSearching} 
+                onClear={handleClearSearch} 
+              />
+            </div>
+            
+            <div className="flex items-center gap-4 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
+              <button
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
+                  viewMode === 'list' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                )}
+              >
+                <ListIcon size={16} />
+                List
+              </button>
+              <button
+                onClick={toggleViewMode}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
+                  viewMode === 'map' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                )}
+              >
+                <MapIcon size={16} />
+                Peta
+              </button>
+            </div>
           </div>
+
+          {viewMode === 'map' && userLocation && (
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+                Radius: {radiusKm} KM
+              </span>
+              <input 
+                type="range" 
+                min="1" 
+                max="50" 
+                value={radiusKm} 
+                onChange={handleRadiusChange}
+                className="w-48 accent-gr-green"
+              />
+            </div>
+          )}
 
           <div className="mt-12 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
         </header>
@@ -79,8 +179,16 @@ export default function BerandaPage() {
           <div className="flex flex-col items-center justify-center py-32">
             <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
             <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-text-primary/30">
-              {isSearching ? 'Mencari secara semantik...' : 'Memuat produk...'}
+              {isSearching ? 'Mencari hasil terdekat...' : 'Memuat produk...'}
             </span>
+          </div>
+        ) : viewMode === 'map' ? (
+          <div className="space-y-8">
+            <MapView 
+              products={products} 
+              center={userLocation || [-6.2000, 106.8166]} 
+              zoom={11}
+            />
           </div>
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

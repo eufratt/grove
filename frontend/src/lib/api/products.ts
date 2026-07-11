@@ -32,6 +32,13 @@ export const productsApi = {
     return response.json();
   },
 
+  getNearbyProducts: async (lat: number, lng: number, radiusKm: number) => {
+    const response = await apiClient(`/products/nearby?lat=${lat}&lng=${lng}&radius_km=${radiusKm}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
   updateProduct: async (id: string, data: any) => {
     const response = await apiClient(`/products/${id}`, {
       method: 'PATCH',
