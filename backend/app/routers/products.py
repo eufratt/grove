@@ -9,7 +9,7 @@ from app.db import get_db
 from app.models.user import User, UserRole
 from app.models.product import Product, ProductStatus
 from app.schemas.product import ProductResponse, ProductUpdate
-from app.services import auth_service, storage_service
+from app.services import auth_service, storage_service, embedding_service
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -28,6 +28,10 @@ async def create_product(
     
     photo_url = await storage_service.upload_product_photo(photo)
     
+    # Generate semantic embedding from name and category
+    embedding_text = f"{name} {category}"
+    embedding = embedding_service.embedding_service.generate_embedding(embedding_text)
+    
     new_product = Product(
         seller_id=current_user.id,
         name=name,
@@ -35,7 +39,8 @@ async def create_product(
         quantity_kg=quantity_kg,
         price_per_kg=price_per_kg,
         photo_url=photo_url,
-        status=ProductStatus.TERSEDIA
+        status=ProductStatus.TERSEDIA,
+        embedding=embedding
     )
     
     db.add(new_product)
