@@ -8,7 +8,8 @@ import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import dynamic from 'next/dynamic';
 import { SearchBar } from '@/components/search/search-bar';
-import { Loader2, Map as MapIcon, List as ListIcon } from 'lucide-react';
+import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react';
+import { SwipeDeck } from '@/components/products/swipe-deck';
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import('@/components/products/map-view'), { 
@@ -27,9 +28,12 @@ export default function BerandaPage() {
   const [isSearching, setIsSearching] = useState(false);
   
   // New state for map and geolocation
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map' | 'explore'>('list');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [radiusKm, setRadiusKm] = useState(10);
+  
+  // Cart state for the session
+  const [cart, setCart] = useState<string[]>([]);
 
   const fetchInitialProducts = async () => {
     setIsLoading(true);
@@ -80,15 +84,23 @@ export default function BerandaPage() {
     }
   };
 
-  const toggleViewMode = () => {
-    const newMode = viewMode === 'list' ? 'map' : 'list';
-    setViewMode(newMode);
+  const toggleViewMode = (mode: 'list' | 'map' | 'explore') => {
+    setViewMode(mode);
     
-    if (newMode === 'map' && userLocation) {
+    if (mode === 'map' && userLocation) {
       fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
-    } else if (newMode === 'list') {
+    } else if (mode === 'explore') {
+      // Potentially filter or just show list in explore style
+      setProducts(initialProducts);
+    } else if (mode === 'list') {
       setProducts(initialProducts);
     }
+  };
+
+  const handleAddToCart = (product: any) => {
+    setCart(prev => [...prev, product.id]);
+    console.log(`Added to cart: ${product.name}`);
+    // Optional: show a toast notification
   };
 
   const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +146,7 @@ export default function BerandaPage() {
             
             <div className="flex items-center gap-4 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
               <button
-                onClick={() => setViewMode('list')}
+                onClick={() => toggleViewMode('list')}
                 className={cn(
                   "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
                   viewMode === 'list' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
@@ -144,7 +156,17 @@ export default function BerandaPage() {
                 List
               </button>
               <button
-                onClick={toggleViewMode}
+                onClick={() => toggleViewMode('explore')}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
+                  viewMode === 'explore' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                )}
+              >
+                <Compass size={16} />
+                Jelajah
+              </button>
+              <button
+                onClick={() => toggleViewMode('map')}
                 className={cn(
                   "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
                   viewMode === 'map' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
@@ -190,6 +212,13 @@ export default function BerandaPage() {
               zoom={11}
             />
           </div>
+        ) : viewMode === 'explore' ? (
+          <SwipeDeck 
+            products={products} 
+            onSwipeRight={handleAddToCart}
+            onSwipeLeft={(p) => console.log(`Skipped: ${p.name}`)}
+            onEmpty={fetchInitialProducts}
+          />
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product: any, index: number) => (
