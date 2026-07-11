@@ -26,6 +26,9 @@ class ProductResponse(ProductBase):
     seller_id: UUID
     photo_url: Optional[str]
     created_at: datetime
+    distance_km: Optional[float] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     class Config:
         from_attributes = True

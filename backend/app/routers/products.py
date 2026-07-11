@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, text
 from typing import List, Optional
 from uuid import UUID
 
@@ -54,22 +54,106 @@ async def list_products(
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(
-        select(Product)
-        .where(Product.status == ProductStatus.TERSEDIA)
-        .offset(skip)
-        .limit(limit)
-        .order_by(Product.created_at.desc())
-    )
-    return result.scalars().all()
+    sql = text("""
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
+               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
+        FROM products 
+        WHERE status = 'tersedia'
+        ORDER BY created_at DESC
+        OFFSET :skip
+        LIMIT :limit
+    """)
+    result = await db.execute(sql, {"skip": skip, "limit": limit})
+    
+    products = []
+    for row in result:
+        products.append({
+            "id": row.id,
+            "seller_id": row.seller_id,
+            "name": row.name,
+            "category": row.category,
+            "quantity_kg": row.quantity_kg,
+            "price_per_kg": row.price_per_kg,
+            "status": row.status,
+            "photo_url": row.photo_url,
+            "created_at": row.created_at,
+            "latitude": row.latitude,
+            "longitude": row.longitude
+        })
+    return products
+
+@router.get("/nearby", response_model=List[ProductResponse])
+async def get_nearby_products(
+    lat: float = Query(...),
+    lng: float = Query(...),
+    radius_km: float = Query(10, ge=1, le=100),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Find products within a radius using PostGIS.
+    """
+    # Use raw SQL to leverage PostGIS geography functions
+    sql = text("""
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
+               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude,
+               ST_Distance(location, ST_MakePoint(:lng, :lat)::geography) / 1000 as distance_km
+        FROM products 
+        WHERE status = 'tersedia' 
+          AND ST_DWithin(location, ST_MakePoint(:lng, :lat)::geography, :radius_meters)
+        ORDER BY distance_km ASC
+    """)
+    
+    result = await db.execute(sql, {
+        "lng": lng, 
+        "lat": lat, 
+        "radius_meters": radius_km * 1000
+    })
+    
+    products = []
+    for row in result:
+        products.append({
+            "id": row.id,
+            "seller_id": row.seller_id,
+            "name": row.name,
+            "category": row.category,
+            "quantity_kg": row.quantity_kg,
+            "price_per_kg": row.price_per_kg,
+            "status": row.status,
+            "photo_url": row.photo_url,
+            "created_at": row.created_at,
+            "distance_km": row.distance_km,
+            "latitude": row.latitude,
+            "longitude": row.longitude
+        })
+        
+    return products
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Product).where(Product.id == product_id))
-    product = result.scalar_one_or_none()
-    if not product:
+    sql = text("""
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
+               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
+        FROM products 
+        WHERE id = :product_id
+    """)
+    result = await db.execute(sql, {"product_id": product_id})
+    row = result.first()
+    if not row:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+        
+    return {
+        "id": row.id,
+        "seller_id": row.seller_id,
+        "name": row.name,
+        "category": row.category,
+        "quantity_kg": row.quantity_kg,
+        "price_per_kg": row.price_per_kg,
+        "status": row.status,
+        "photo_url": row.photo_url,
+        "created_at": row.created_at,
+        "latitude": row.latitude,
+        "longitude": row.longitude
+    }
 
 @router.patch("/{product_id}", response_model=ProductResponse)
 async def update_product(
