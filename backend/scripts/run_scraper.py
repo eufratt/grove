@@ -25,45 +25,87 @@ AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_
 async def scrape_data() -> list[dict]:
     async with async_playwright() as p:
         # Launch headless browser
+        print("Launching browser...")
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         
-        print("Navigating to PIHPS...")
-        await page.goto("https://www.bi.go.id/hargapangan/TabelHarga/ProdusenKomoditas", timeout=60000)
+        url = "https://www.bi.go.id/hargapangan/TabelHarga/ProdusenKomoditas"
+        print(f"Navigating to {url}...")
+        response = await page.goto(url, timeout=60000)
         
-        # Wait for "Lihat Laporan" button to be ready
-        button_selector = "input[type='submit'][value='Lihat Laporan']"
+        print("Response Status:", response.status if response else "No response")
+        print("Page Title:", await page.title())
+        
+        # Save pre-interaction screenshot for debugging
+        await page.screenshot(path="debug_screenshot.png")
+        print("Screenshot saved to debug_screenshot.png")
+        
+        # Dump HTML source for debugging
+        html_content = await page.content()
+        print("HTML Source Length:", len(html_content))
+        print("First 1000 characters of HTML source:")
+        print(html_content[:1000])
+        
+        # 1. Wait for DevExpress dropdown container controls
+        print("Waiting for cboProvince and CommodityTree controls...")
+        await page.wait_for_selector("#cboProvince", timeout=20000)
+        await page.wait_for_selector("#CommodityTree", timeout=20000)
+        
+        # 2. Interact with CommodityTree: click first row/element to select it
+        print("Selecting first commodity in CommodityTree...")
+        await page.locator("#CommodityTree .dx-treelist-rowsview td").first.click()
+        
+        # 3. Interact with cboProvince: check first checkbox/element to select it
+        print("Selecting first province in cboProvince...")
+        await page.locator("#cboProvince .dx-select-checkbox").first.click()
+        
+        # Wait a short moment for callbacks to run
+        await asyncio.sleep(2)
+        
+        # 4. Wait for report button and click it
+        button_selector = "button#btnReport"
+        print(f"Waiting for report button: {button_selector}...")
         await page.wait_for_selector(button_selector, timeout=20000)
         
         print("Clicking Lihat Laporan...")
         await page.click(button_selector)
         
-        # Wait for results table to render
-        table_selector = ".table-report, table#MainContent_gridMain"
-        await page.wait_for_selector(table_selector, timeout=30000)
+        # 5. Wait for results grid to render
+        grid_selector = "#grid1 .dx-datagrid-rowsview"
+        print(f"Waiting for grid to render: {grid_selector}...")
+        await page.wait_for_selector(grid_selector, timeout=30000)
         
-        print("Extracting data...")
-        rows = await page.query_selector_all("tr")
+        # Save post-interaction screenshot for verification
+        await page.screenshot(path="debug_screenshot.png")
+        
+        print("Extracting table rows...")
+        rows = await page.query_selector_all("#grid1 .dx-datagrid-rowsview tr.dx-data-row")
         extracted_data = []
         
         for row in rows:
-            cols = await row.query_selector_all("td")
-            if len(cols) >= 2:
-                commodity = await cols[0].inner_text()
-                price_str = await cols[1].inner_text()
+            cells = await row.query_selector_all("td")
+            if len(cells) >= 2:
+                commodity = (await cells[1].inner_text()).strip()
                 
-                commodity = commodity.strip()
-                # Clean price string (e.g. "Rp 15.000" or "15,000" -> 15000)
-                price_cleaned = price_str.replace("Rp", "").replace(".", "").replace(",", "").strip()
-                
-                if commodity and price_cleaned.isdigit():
-                    extracted_data.append({
-                        "commodity_name": commodity,
-                        "price_per_kg": float(price_cleaned),
-                        "source": "PIHPS BI",
-                        "region": "Nasional",
-                        "scraped_at": datetime.utcnow()
-                    })
+                # DevExpress columns might contain multiple date columns. We get the latest non-empty date value.
+                price_str = None
+                for cell in reversed(cells[2:]):
+                    text_val = (await cell.inner_text()).strip()
+                    if text_val and text_val != "-" and any(c.isdigit() for c in text_val):
+                        price_str = text_val
+                        break
+                        
+                if price_str:
+                    # Clean price formatting
+                    price_cleaned = price_str.replace("Rp", "").replace(".", "").replace(",", "").strip()
+                    if price_cleaned.isdigit():
+                        extracted_data.append({
+                            "commodity_name": commodity,
+                            "price_per_kg": float(price_cleaned),
+                            "source": "PIHPS BI",
+                            "region": "Nasional",
+                            "scraped_at": datetime.utcnow()
+                        })
         
         await browser.close()
         return extracted_data
@@ -109,6 +151,10 @@ async def main():
             print("Logged scraper status to database.")
     except Exception as db_err:
         print(f"Failed to log scraper status to DB: {db_err}")
+        
+    # Mandatory exit code propagation for GitHub Actions
+    if status == ScrapeStatusEnum.FAILED:
+        sys.exit(1)
 
 if __name__ == '__main__':
     asyncio.run(main())
