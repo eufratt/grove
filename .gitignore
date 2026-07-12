@@ -9,3 +9,7 @@ frontend/.env.local
 backend/.env
 backend/.venv/
 backend/venv/
+
+# IDE / Agent Customizations
+.agents/
+
