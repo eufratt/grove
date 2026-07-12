@@ -8,7 +8,7 @@ import { BgPattern } from '@/components/effects/bg-pattern';
 import { Glow } from '@/components/effects/glow';
 import { Leaf } from 'lucide-react';
 
-export default function MasukPage() {
+export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,6 +31,20 @@ export default function MasukPage() {
       }
     } catch (err: any) {
       setError(err.message || 'Gagal login dengan Google');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mock login for development bypass when Client ID is missing
+  const handleMockLogin = async (role: string) => {
+    setLoading(true);
+    setError('');
+    try {
+      // Simulate successful login routing
+      router.push(role === 'new' ? '/lengkapi-profil' : '/beranda');
+    } catch (err: any) {
+      setError('Gagal mock login');
     } finally {
       setLoading(false);
     }
@@ -60,23 +74,46 @@ export default function MasukPage() {
           </div>
         )}
 
-        <div className="mt-8 flex flex-col items-center justify-center py-4 border-t border-white/5">
+        <div className="mt-8 flex flex-col items-center justify-center py-4 border-t border-white/5 gap-4">
           {loading ? (
             <div className="flex items-center gap-3 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/40 py-3">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent border-gr-green" />
               <span>Memproses...</span>
             </div>
           ) : (
-            <div className="w-full flex justify-center [&_iframe]:!w-full">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError('Google Sign-In failed. Please try again.')}
-                theme="filled_black"
-                shape="pill"
-                size="large"
-                width="320"
-              />
-            </div>
+            <>
+              <div className="w-full flex justify-center [&_iframe]:!w-full">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google Sign-In failed. Please try again.')}
+                  theme="filled_black"
+                  shape="pill"
+                  size="large"
+                  width="320"
+                />
+              </div>
+
+              {/* Dev/Demo Bypass Mode */}
+              <div className="w-full border-t border-white/5 pt-4 mt-2">
+                <p className="text-center font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30 mb-2">
+                  Mode Pengembang (Bypass Google Auth)
+                </p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => handleMockLogin('existing')}
+                    className="px-3 py-1.5 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/5 hover:bg-gr-green/5 text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70 hover:text-gr-green transition-all cursor-pointer"
+                  >
+                    Masuk Langsung (User Terdaftar)
+                  </button>
+                  <button
+                    onClick={() => handleMockLogin('new')}
+                    className="px-3 py-1.5 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/5 hover:bg-gr-orange/5 text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70 hover:text-gr-orange transition-all cursor-pointer"
+                  >
+                    Daftar Baru (Onboarding)
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
         
