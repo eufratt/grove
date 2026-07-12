@@ -15,6 +15,20 @@ export default function LengkapiProfilPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const getCurrentPosition = (): Promise<GeolocationPosition | null> => {
+    return new Promise((resolve) => {
+      if (typeof window === 'undefined' || !navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve(position),
+        () => resolve(null),
+        { timeout: 5000 }
+      );
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone) {
@@ -25,12 +39,24 @@ export default function LengkapiProfilPage() {
     setLoading(true);
     setError('');
 
+    let lat: number | null = null;
+    let lng: number | null = null;
+
     try {
-      await authApi.completeProfile(role, phone);
+      const position = await getCurrentPosition();
+      if (position) {
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      }
+    } catch (err) {
+      console.warn('Failed to get geolocation:', err);
+    }
+
+    try {
+      await authApi.completeProfile(role, phone, lat, lng);
       router.push('/beranda');
     } catch (err: any) {
       setError(err.message || 'Gagal melengkapi profil');
-    } finally {
       setLoading(false);
     }
   };

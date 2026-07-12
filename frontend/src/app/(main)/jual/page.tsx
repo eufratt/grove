@@ -24,6 +24,33 @@ export default function JualPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationStatus, setLocationStatus] = useState('');
+
+  const handleGetLocation = () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      setLocationStatus('Browser tidak mendukung geolokasi');
+      return;
+    }
+    setLocating(true);
+    setLocationStatus('Mencari lokasi...');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLat(position.coords.latitude);
+        setLng(position.coords.longitude);
+        setLocating(false);
+        setLocationStatus(`Lokasi terisi: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+      },
+      (error) => {
+        setLocating(false);
+        setLocationStatus(`Gagal: ${error.message}`);
+      },
+      { timeout: 8000 }
+    );
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -63,6 +90,12 @@ export default function JualPage() {
     data.append('quantity_kg', formData.quantity_kg);
     data.append('price_per_kg', formData.price_per_kg);
     data.append('photo', photo);
+    if (lat !== null) {
+      data.append('lat', lat.toString());
+    }
+    if (lng !== null) {
+      data.append('lng', lng.toString());
+    }
 
     try {
       await productsApi.createProduct(data);
@@ -216,6 +249,32 @@ export default function JualPage() {
                     value={formData.price_per_kg}
                     onChange={handleInputChange}
                   />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
+                  Lokasi Produk
+                </label>
+                <div className="mt-3 flex flex-col gap-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={locating}
+                      className="px-4 py-2 border border-white/10 hover:border-gr-green text-xs font-mono uppercase tracking-wider bg-white/5 hover:bg-gr-green/10 text-gr-text-primary transition-all duration-200"
+                    >
+                      {locating ? 'Mencari...' : 'Gunakan Lokasi Saat Ini'}
+                    </button>
+                    {locationStatus && (
+                      <span className="font-mono text-[10px] text-gr-green">
+                        {locationStatus}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-sans text-[10px] text-gr-text-primary/40 italic">
+                    Kalau tidak diisi, produk akan pakai lokasi profil kamu.
+                  </span>
                 </div>
               </div>
             </div>

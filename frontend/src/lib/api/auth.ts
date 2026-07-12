@@ -9,10 +9,23 @@ export const authApi = {
     return response.json();
   },
 
-  completeProfile: async (role: string, phone: string) => {
+  completeProfile: async (role: string, phone: string, lat?: number | null, lng?: number | null) => {
     const response = await apiClient('/auth/complete-profile', {
       method: 'POST',
-      body: JSON.stringify({ role, phone_whatsapp: phone }),
+      body: JSON.stringify({
+        role,
+        phone_whatsapp: phone,
+        lat: lat ?? null,
+        lng: lng ?? null
+      }),
+    });
+    return response.json();
+  },
+
+  updateLocation: async (lat: number, lng: number) => {
+    const response = await apiClient('/users/me/location', {
+      method: 'PATCH',
+      body: JSON.stringify({ lat, lng }),
     });
     return response.json();
   },
