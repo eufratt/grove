@@ -11,6 +11,7 @@ import { SearchBar } from '@/components/search/search-bar';
 import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react';
 import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
+import { CartSummary } from '@/components/products/cart-summary';
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import('@/components/products/map-view'), { 
@@ -109,9 +110,9 @@ export default function BerandaPage() {
   };
 
   const handleAddToCart = (product: any) => {
+    if (cart.includes(product.id)) return;
     setCart(prev => [...prev, product.id]);
     console.log(`Added to cart: ${product.name}`);
-    // Optional: show a toast notification
   };
 
   const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,6 +248,15 @@ export default function BerandaPage() {
           </div>
         )}
       </div>
+
+      {viewMode === 'explore' && cart.length > 0 && (
+        <CartSummary
+          cart={cart}
+          products={products}
+          onRemoveFromCart={(id) => setCart((prev) => prev.filter((item) => item !== id))}
+          onCheckoutSuccess={(succeededIds) => setCart((prev) => prev.filter((item) => !succeededIds.includes(item)))}
+        />
+      )}
     </main>
   );
 }

@@ -1,23 +1,69 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { productsApi } from '@/lib/api/products';
+import { ordersApi } from '@/lib/api/orders';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { PriceGauge } from '@/components/products/price-gauge';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag } from 'lucide-react';
+import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
+export default function ProductDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
+  const resolvedParams = React.use(params);
   const { id } = resolvedParams;
-  let product = null;
-  try {
-    product = await productsApi.getProductById(id);
-  } catch (error) {
-    console.error('Failed to fetch product:', error);
+  const router = useRouter();
+
+  const [product, setProduct] = useState<any>(null);
+  const [loadingProduct, setLoadingProduct] = useState(true);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [error, setError] = useState('');
+  const [successToast, setSuccessToast] = useState('');
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoadingProduct(true);
+      setError('');
+      try {
+        const data = await productsApi.getProductById(id);
+        setProduct(data);
+      } catch (err: any) {
+        console.error('Failed to fetch product:', err);
+      } finally {
+        setLoadingProduct(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  const handleBuyNow = async () => {
+    if (!product || product.status !== 'TERSEDIA') return;
+
+    setCheckingOut(true);
+    setError('');
+    try {
+      await ordersApi.createOrder({ product_id: id, quantity_kg: 1 });
+      setSuccessToast('Pesanan berhasil dibuat! Mengalihkan...');
+      setTimeout(() => {
+        router.push('/pesanan');
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Gagal membuat pesanan. Silakan coba lagi.');
+    } finally {
+      setCheckingOut(false);
+    }
+  };
+
+  if (loadingProduct) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gr-bg">
+        <BgPattern />
+        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+      </div>
+    );
   }
 
   if (!product) {
@@ -34,11 +80,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     );
   }
 
+  const isAvailable = product.status === 'TERSEDIA';
+
   return (
     <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10" />
+
+      {/* Floating Success Toast */}
+      {successToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gr-green text-gr-bg px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest shadow-2xl animate-bounce">
+          {successToast}
+        </div>
+      )}
       
       <div className="relative z-10 mx-auto max-w-6xl">
         <Link 
@@ -47,7 +102,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         >
           ← Kembali ke Beranda
         </Link>
-
+ 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           {/* Left: Polaroid Style Image */}
           <div className="flex flex-col items-center">
@@ -66,7 +121,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
           </div>
-
+ 
           {/* Right: Info Section */}
           <div className="flex flex-col space-y-10">
             <div>
@@ -92,7 +147,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </span>
               </div>
             </div>
-
+ 
             {/* Price Gauge Section */}
             {product.reference_price_per_kg && (
               <div className="rounded-2xl bg-white/5 p-8 border border-white/10 backdrop-blur-md">
@@ -125,7 +180,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </p>
               </div>
             )}
-
+ 
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-8 border-y border-white/5 py-10">
               <div className="flex items-center gap-4">
@@ -161,11 +216,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
 
+            {/* Error Alert Banner */}
+            {error && (
+              <div className="bg-gr-price-unfair/10 border border-gr-price-unfair/20 text-gr-price-unfair text-xs px-4 py-3 rounded-md animate-pulse">
+                {error}
+              </div>
+            )}
+ 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em]">
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Beli Sekarang
+              <Button 
+                onClick={handleBuyNow}
+                disabled={checkingOut || !isAvailable}
+                className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {checkingOut ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Memproses...
+                  </>
+                ) : !isAvailable ? (
+                  "Sudah Terjual"
+                ) : (
+                  <>
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Beli Sekarang
+                  </>
+                )}
               </Button>
               <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-gr-text-primary">
                 <MessageCircle className="mr-2 h-5 w-5" />
