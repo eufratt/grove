@@ -7,11 +7,20 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db import Base
 
 class OrderStatus(str, enum.Enum):
-    DIPESAN = "dipesan"
-    DIKONFIRMASI = "dikonfirmasi"
-    SIAP_DIAMBIL = "siap_diambil"
-    SELESAI = "selesai"
-    BATAL = "batal"
+    DIPESAN = "DIPESAN"
+    DIKONFIRMASI = "DIKONFIRMASI"
+    SIAP_DIAMBIL = "SIAP_DIAMBIL"
+    SELESAI = "SELESAI"
+    BATAL = "BATAL"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            val = value.upper()
+            for member in cls:
+                if member.value == val or member.name == val:
+                    return member
+        return None
 
 class Order(Base):
     __tablename__ = "orders"

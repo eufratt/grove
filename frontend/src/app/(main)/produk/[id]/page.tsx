@@ -10,10 +10,12 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
   let product = null;
   try {
-    product = await productsApi.getProductById(params.id);
+    product = await productsApi.getProductById(id);
   } catch (error) {
     console.error('Failed to fetch product:', error);
   }

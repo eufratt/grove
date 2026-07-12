@@ -9,9 +9,18 @@ from geoalchemy2 import Geometry
 from app.db import Base
 
 class UserRole(str, enum.Enum):
-    PETANI = "petani"
-    PEMBELI = "pembeli"
-    AGEN = "agen"
+    PETANI = "PETANI"
+    PEMBELI = "PEMBELI"
+    AGEN = "AGEN"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            val = value.upper()
+            for member in cls:
+                if member.value == val or member.name == val:
+                    return member
+        return None
 
 class User(Base):
     __tablename__ = "users"

@@ -13,6 +13,7 @@ async def upload_product_photo(file: UploadFile) -> str:
     storage_url = f"{settings.SUPABASE_URL}/storage/v1/object/{settings.SUPABASE_STORAGE_BUCKET}/{file_name}"
     
     headers = {
+        "apikey": settings.SUPABASE_SERVICE_KEY,
         "Authorization": f"Bearer {settings.SUPABASE_SERVICE_KEY}",
         "Content-Type": file.content_type,
     }

@@ -10,9 +10,18 @@ from pgvector.sqlalchemy import Vector
 from app.db import Base
 
 class ProductStatus(str, enum.Enum):
-    TERSEDIA = "tersedia"
-    TERJUAL = "terjual"
-    DITUTUP = "ditutup"
+    TERSEDIA = "TERSEDIA"
+    TERJUAL = "TERJUAL"
+    DITUTUP = "DITUTUP"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            val = value.upper()
+            for member in cls:
+                if member.value == val or member.name == val:
+                    return member
+        return None
 
 class Product(Base):
     __tablename__ = "products"

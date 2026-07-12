@@ -8,8 +8,17 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db import Base
 
 class ScrapeStatusEnum(str, enum.Enum):
-    SUCCESS = "success"
-    FAILED = "failed"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            val = value.upper()
+            for member in cls:
+                if member.value == val or member.name == val:
+                    return member
+        return None
 
 class ScraperStatus(Base):
     __tablename__ = "scraper_statuses"
