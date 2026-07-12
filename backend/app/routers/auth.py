@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.token import RefreshToken
 from app.services import auth_service
 from app.config import settings
+from geoalchemy2 import WKTElement
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -117,6 +118,8 @@ async def complete_profile(
 ):
     current_user.role = profile_data.role
     current_user.phone_whatsapp = profile_data.phone_whatsapp
+    if profile_data.lat is not None and profile_data.lng is not None:
+        current_user.location = WKTElement(f"POINT({profile_data.lng} {profile_data.lat})", srid=4326)
     await db.commit()
     await db.refresh(current_user)
     return current_user

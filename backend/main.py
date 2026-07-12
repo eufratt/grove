@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from app.routers import auth, products, search, orders, admin
+from app.routers import auth, products, search, orders, admin, users
 from app.services import connection_manager
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
@@ -32,6 +32,7 @@ app.include_router(products.router)
 app.include_router(search.router)
 app.include_router(orders.router)
 app.include_router(admin.router)
+app.include_router(users.router)
 
 @app.get("/health")
 async def health_check():

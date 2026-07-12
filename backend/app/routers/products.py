@@ -10,6 +10,7 @@ from app.models.user import User, UserRole
 from app.models.product import Product, ProductStatus
 from app.schemas.product import ProductResponse, ProductUpdate
 from app.services import auth_service, storage_service, embedding_service
+from geoalchemy2 import WKTElement
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -20,6 +21,8 @@ async def create_product(
     quantity_kg: float = Form(...),
     price_per_kg: float = Form(...),
     photo: UploadFile = File(...),
+    lat: Optional[float] = Form(None),
+    lng: Optional[float] = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
@@ -32,6 +35,12 @@ async def create_product(
     embedding_text = f"{name} {category}"
     embedding = await embedding_service.embedding_service.generate_embedding(embedding_text)
     
+    product_location = None
+    if lat is not None and lng is not None:
+        product_location = WKTElement(f"POINT({lng} {lat})", srid=4326)
+    elif current_user.location is not None:
+        product_location = current_user.location
+
     new_product = Product(
         seller_id=current_user.id,
         name=name,
@@ -40,7 +49,8 @@ async def create_product(
         price_per_kg=price_per_kg,
         photo_url=photo_url,
         status=ProductStatus.TERSEDIA,
-        embedding=embedding
+        embedding=embedding,
+        location=product_location
     )
     
     db.add(new_product)

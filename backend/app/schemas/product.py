@@ -12,7 +12,8 @@ class ProductBase(BaseModel):
     status: Optional[ProductStatus] = ProductStatus.TERSEDIA
 
 class ProductCreate(ProductBase):
-    pass
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None

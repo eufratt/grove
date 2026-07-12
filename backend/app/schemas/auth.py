@@ -22,3 +22,9 @@ class GoogleLoginRequest(BaseModel):
 class CompleteProfileRequest(BaseModel):
     role: UserRole
     phone_whatsapp: str
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+
+class UserLocationUpdate(BaseModel):
+    lat: float
+    lng: float
