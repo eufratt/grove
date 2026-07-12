@@ -1,18 +1,33 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, Leaf, PlusCircle, ClipboardList } from 'lucide-react';
+import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList } from 'lucide-react';
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await authApi.getMe();
+        setIsAuthenticated(true);
+      } catch (err) {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
       await authApi.logout();
+      setIsAuthenticated(false);
       router.push('/login');
     } catch (err) {
       console.error('Logout failed:', err);
@@ -67,13 +82,23 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/2 hover:bg-gr-orange/5 px-4 py-2 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-orange transition-all duration-300 cursor-pointer"
-            >
-              <LogOut size={14} />
-              <span>Keluar</span>
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/2 hover:bg-gr-orange/5 px-4 py-2 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-orange transition-all duration-300 cursor-pointer"
+              >
+                <LogOut size={14} />
+                <span>Keluar</span>
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-2 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/2 hover:bg-gr-green/5 px-4 py-2 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-green transition-all duration-300 cursor-pointer"
+              >
+                <LogIn size={14} />
+                <span>Masuk</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

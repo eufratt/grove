@@ -92,6 +92,10 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
         "user": UserResponse.model_validate(user)
     }
 
+@router.get("/me", response_model=UserResponse)
+async def get_me(current_user: User = Depends(auth_service.get_current_user)):
+    return current_user
+
 @router.post("/complete-profile", response_model=UserResponse)
 async def complete_profile(
     profile_data: CompleteProfileRequest,
