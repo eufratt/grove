@@ -2,12 +2,16 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from app.routers import auth, products, search, orders, admin
 from app.services import connection_manager
 from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
 
 app = FastAPI(title="Grove API")
 
+# Parse ALLOWED_ORIGINS to a list of stripped strings
+origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"], # Ganti dengan URL frontend Anda
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
