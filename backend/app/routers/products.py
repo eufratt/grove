@@ -9,7 +9,7 @@ from app.db import get_db
 from app.models.user import User, UserRole
 from app.models.product import Product, ProductStatus
 from app.schemas.product import ProductResponse, ProductUpdate
-from app.services import auth_service, storage_service, embedding_service
+from app.services import auth_service, storage_service, embedding_service, price_matching_service
 from geoalchemy2 import WKTElement
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -41,6 +41,13 @@ async def create_product(
     elif current_user.location is not None:
         product_location = current_user.location
 
+    reference_price = None
+    try:
+        ref_prices = await price_matching_service.get_latest_reference_prices(db)
+        reference_price = price_matching_service.find_reference_price(name, category, ref_prices)
+    except Exception as e:
+        print(f"Failed to match reference price: {e}")
+
     new_product = Product(
         seller_id=current_user.id,
         name=name,
@@ -50,7 +57,8 @@ async def create_product(
         photo_url=photo_url,
         status=ProductStatus.TERSEDIA,
         embedding=embedding,
-        location=product_location
+        location=product_location,
+        reference_price_per_kg=reference_price
     )
     
     db.add(new_product)
@@ -65,7 +73,7 @@ async def list_products(
     db: AsyncSession = Depends(get_db)
 ):
     sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
                ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
         FROM products 
         WHERE status = 'TERSEDIA'
@@ -84,6 +92,7 @@ async def list_products(
             "category": row.category,
             "quantity_kg": row.quantity_kg,
             "price_per_kg": row.price_per_kg,
+            "reference_price_per_kg": row.reference_price_per_kg,
             "status": row.status,
             "photo_url": row.photo_url,
             "created_at": row.created_at,
@@ -104,7 +113,7 @@ async def get_nearby_products(
     """
     # Use raw SQL to leverage PostGIS geography functions
     sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
                ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude,
                ST_Distance(location, ST_MakePoint(:lng, :lat)::geography) / 1000 as distance_km
         FROM products 
@@ -128,6 +137,7 @@ async def get_nearby_products(
             "category": row.category,
             "quantity_kg": row.quantity_kg,
             "price_per_kg": row.price_per_kg,
+            "reference_price_per_kg": row.reference_price_per_kg,
             "status": row.status,
             "photo_url": row.photo_url,
             "created_at": row.created_at,
@@ -141,7 +151,7 @@ async def get_nearby_products(
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
     sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at,
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
                ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
         FROM products 
         WHERE id = :product_id
@@ -158,6 +168,7 @@ async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
         "category": row.category,
         "quantity_kg": row.quantity_kg,
         "price_per_kg": row.price_per_kg,
+        "reference_price_per_kg": row.reference_price_per_kg,
         "status": row.status,
         "photo_url": row.photo_url,
         "created_at": row.created_at,
@@ -188,3 +199,51 @@ async def update_product(
     await db.commit()
     await db.refresh(product)
     return product
+
+@router.post("/{product_id}/refresh-reference-price", response_model=ProductResponse)
+async def refresh_product_reference_price(
+    product_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    product = result.scalar_one_or_none()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+        
+    if product.seller_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only refresh your own products")
+        
+    ref_prices = await price_matching_service.get_latest_reference_prices(db)
+    matched_price = price_matching_service.find_reference_price(product.name, product.category, ref_prices)
+    
+    product.reference_price_per_kg = matched_price
+    await db.commit()
+    
+    # We fetch it again using standard SELECT to populate ST_X/ST_Y/latitude/longitude/etc correctly
+    sql = text("""
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
+               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
+        FROM products 
+        WHERE id = :product_id
+    """)
+    result_refetched = await db.execute(sql, {"product_id": product.id})
+    row = result_refetched.first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Product not found after update")
+        
+    return {
+        "id": row.id,
+        "seller_id": row.seller_id,
+        "name": row.name,
+        "category": row.category,
+        "quantity_kg": row.quantity_kg,
+        "price_per_kg": row.price_per_kg,
+        "reference_price_per_kg": row.reference_price_per_kg,
+        "status": row.status,
+        "photo_url": row.photo_url,
+        "created_at": row.created_at,
+        "latitude": row.latitude,
+        "longitude": row.longitude
+    }

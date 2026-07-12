@@ -30,6 +30,7 @@ class ProductResponse(ProductBase):
     distance_km: Optional[float] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    reference_price_per_kg: Optional[float] = None
 
     class Config:
         from_attributes = True
