@@ -195,7 +195,7 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ product, isFront, index, onSwipe 
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-gr-text-paper/40">
               {product.category}
             </span>
-            {product.distance_km !== undefined && (
+            {product.distance_km !== undefined && product.distance_km !== null && (
               <span className="flex items-center gap-1 font-mono text-[10px] font-bold text-gr-orange">
                 <MapPin size={10} />
                 {product.distance_km.toFixed(1)} KM

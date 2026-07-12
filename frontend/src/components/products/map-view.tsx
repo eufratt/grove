@@ -73,7 +73,7 @@ const MapView: React.FC<MapViewProps> = ({
                   <p className="font-sans text-[10px] text-gray-500 mt-1">
                     Stok: {product.quantity_kg} KG
                   </p>
-                  {product.distance_km !== undefined && (
+                  {product.distance_km !== undefined && product.distance_km !== null && (
                     <p className="font-sans text-[10px] text-gr-orange font-bold mt-1">
                       {product.distance_km.toFixed(1)} km dari Anda
                     </p>

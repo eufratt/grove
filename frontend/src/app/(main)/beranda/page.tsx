@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { productsApi } from '@/lib/api/products';
 import { ProductCard } from '@/components/products/product-card';
 import { BgPattern } from '@/components/effects/bg-pattern';
@@ -72,18 +72,18 @@ export default function BerandaPage() {
     }
   }, []);
 
-  const handleSearchResults = (results: any[]) => {
+  const handleSearchResults = useCallback((results: any[]) => {
     setProducts(results);
     setViewMode('list'); // Switch to list view for search results unless we want to show them on map
-  };
+  }, []);
 
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     if (viewMode === 'map' && userLocation) {
       fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
     } else {
       setProducts(initialProducts);
     }
-  };
+  }, [viewMode, userLocation, radiusKm, initialProducts]);
 
   const toggleViewMode = (mode: 'list' | 'map' | 'explore') => {
     setViewMode(mode);

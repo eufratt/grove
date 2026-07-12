@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, Loader2, X } from 'lucide-react';
 import { searchApi as semanticSearchApi } from '@/lib/api/search';
 
@@ -13,6 +13,8 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = ({ onResults, onLoading, onClear }) => {
   const [query, setQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const isFirstRender = useRef(true);
+  const prevQuery = useRef('');
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -33,6 +35,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onResults, onLoading, onCl
   }, [onResults, onLoading, onClear]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (query === prevQuery.current) {
+      return;
+    }
+
+    prevQuery.current = query;
+
     const timer = setTimeout(() => {
       if (query) {
         handleSearch(query);
