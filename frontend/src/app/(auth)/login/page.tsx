@@ -41,10 +41,15 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      // Simulate successful login routing
-      router.push(role === 'new' ? '/lengkapi-profil' : '/beranda');
+      const mockToken = role === 'new' ? 'mock_token_new' : 'mock_token_existing';
+      const res = await authApi.loginWithGoogle(mockToken);
+      if (res.need_onboarding) {
+        router.push('/lengkapi-profil');
+      } else {
+        router.push('/beranda');
+      }
     } catch (err: any) {
-      setError('Gagal mock login');
+      setError(err.message || 'Gagal mock login');
     } finally {
       setLoading(false);
     }

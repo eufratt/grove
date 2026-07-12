@@ -2,7 +2,7 @@ import { apiClient } from './client';
 
 export const productsApi = {
   createProduct: async (formData: FormData) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/products`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products`, {
       method: 'POST',
       body: formData,
       // Note: Do not set Content-Type header when sending FormData, 

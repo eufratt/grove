@@ -64,11 +64,21 @@ export default function BerandaPage() {
   useEffect(() => {
     fetchInitialProducts();
     
-    // Get user location
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setUserLocation([position.coords.latitude, position.coords.longitude]);
-      });
+    // Get user location safely
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation([position.coords.latitude, position.coords.longitude]);
+          },
+          (error) => {
+            console.warn("Geolocation warning:", error.message);
+          },
+          { timeout: 5000 }
+        );
+      } catch (err) {
+        console.warn("Geolocation failed to initialize:", err);
+      }
     }
   }, []);
 

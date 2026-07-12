@@ -10,15 +10,15 @@ import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList } from 'lucide-react';
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await authApi.getMe();
-        setIsAuthenticated(true);
+        const userData = await authApi.getMe();
+        setUser(userData);
       } catch (err) {
-        setIsAuthenticated(false);
+        setUser(null);
       }
     };
     checkAuth();
@@ -27,7 +27,7 @@ export function Navbar() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-      setIsAuthenticated(false);
+      setUser(null);
       router.push('/login');
     } catch (err) {
       console.error('Logout failed:', err);
@@ -82,14 +82,19 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/2 hover:bg-gr-orange/5 px-4 py-2 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-orange transition-all duration-300 cursor-pointer"
-              >
-                <LogOut size={14} />
-                <span>Keluar</span>
-              </button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/60 bg-white/5 border border-white/10 px-3 py-2 rounded-full">
+                  {user.full_name || user.email || 'Pengguna'}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center h-8 w-8 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/2 hover:bg-gr-orange/5 text-gr-text-primary/70 hover:text-gr-orange transition-all duration-300 cursor-pointer"
+                  title="Keluar"
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
             ) : (
               <Link
                 href="/login"

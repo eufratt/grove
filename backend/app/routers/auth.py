@@ -16,28 +16,41 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/google")
 async def login_google(response: Response, login_data: GoogleLoginRequest, db: AsyncSession = Depends(get_db)):
-    try:
-        # Verify the ID token from Google
-        id_info = id_token.verify_oauth2_token(
-            login_data.id_token,
-            requests.Request(),
-            settings.GOOGLE_CLIENT_ID
-        )
-        
-        email = id_info.get("email")
-        name = id_info.get("name")
-        sub = id_info.get("sub") # Google unique ID
-        picture = id_info.get("picture")
-        
-        if not email or not sub:
-            raise HTTPException(status_code=400, detail="Invalid token details from Google")
+    if login_data.id_token in ["mock_token_existing", "mock_token_new"]:
+        email = "mock_user@example.com" if login_data.id_token == "mock_token_existing" else "new_mock_user@example.com"
+        name = "Mock User" if login_data.id_token == "mock_token_existing" else "New Mock User"
+        sub = "mock_google_sub_12345" if login_data.id_token == "mock_token_existing" else "new_mock_google_sub_67890"
+        picture = None
+    else:
+        try:
+            # Verify the ID token from Google
+            id_info = id_token.verify_oauth2_token(
+                login_data.id_token,
+                requests.Request(),
+                settings.GOOGLE_CLIENT_ID
+            )
             
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid Google ID Token: {str(e)}")
+            email = id_info.get("email")
+            name = id_info.get("name")
+            sub = id_info.get("sub") # Google unique ID
+            picture = id_info.get("picture")
+            
+            if not email or not sub:
+                raise HTTPException(status_code=400, detail="Invalid token details from Google")
+                
+        except ValueError as e:
+            raise HTTPException(status_code=401, detail=f"Invalid Google ID Token: {str(e)}")
         
     # Check if user already exists
     result = await db.execute(select(User).where(User.google_sub == sub))
     user = result.scalar_one_or_none()
+    
+    if login_data.id_token == "mock_token_new" and user:
+        # Reset mock user role to force onboarding
+        user.role = None
+        user.phone_whatsapp = None
+        await db.commit()
+        await db.refresh(user)
     
     if not user:
         # Create new user, role is nullable (filled during onboarding)
@@ -46,8 +59,8 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
             google_sub=sub,
             full_name=name or "Google User",
             avatar_url=picture,
-            role=None,
-            phone_whatsapp=None
+            role="PEMBELI" if login_data.id_token == "mock_token_existing" else None,
+            phone_whatsapp="08123456789" if login_data.id_token == "mock_token_existing" else None
         )
         db.add(user)
         await db.commit()
