@@ -99,25 +99,27 @@ export default function LoginPage() {
               </div>
 
               {/* Dev/Demo Bypass Mode */}
-              <div className="w-full border-t border-white/5 pt-4 mt-2">
-                <p className="text-center font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30 mb-2">
-                  Mode Pengembang (Bypass Google Auth)
-                </p>
-                <div className="flex gap-2 justify-center">
-                  <button
-                    onClick={() => handleMockLogin('existing')}
-                    className="px-3 py-1.5 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/5 hover:bg-gr-green/5 text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70 hover:text-gr-green transition-all cursor-pointer"
-                  >
-                    Masuk Langsung (User Terdaftar)
-                  </button>
-                  <button
-                    onClick={() => handleMockLogin('new')}
-                    className="px-3 py-1.5 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/5 hover:bg-gr-orange/5 text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70 hover:text-gr-orange transition-all cursor-pointer"
-                  >
-                    Daftar Baru (Onboarding)
-                  </button>
+              {process.env.NODE_ENV === 'development' && (
+                <div className="w-full border-t border-white/5 pt-4 mt-2">
+                  <p className="text-center font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30 mb-2">
+                    Mode Pengembang (Bypass Google Auth)
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => handleMockLogin('existing')}
+                      className="px-3 py-1.5 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/5 hover:bg-gr-green/5 text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70 hover:text-gr-green transition-all cursor-pointer"
+                    >
+                      Masuk Langsung (User Terdaftar)
+                    </button>
+                    <button
+                      onClick={() => handleMockLogin('new')}
+                      className="px-3 py-1.5 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/5 hover:bg-gr-orange/5 text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70 hover:text-gr-orange transition-all cursor-pointer"
+                    >
+                      Daftar Baru (Onboarding)
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>

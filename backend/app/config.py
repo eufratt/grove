@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     SUPABASE_STORAGE_BUCKET: str = "product-photos"
     GOOGLE_CLIENT_ID: str = "placeholder_google_client_id"
     GEMINI_API_KEY: str = "placeholder_gemini_api_key"
+    APP_ENV: str = "production"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

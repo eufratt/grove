@@ -16,7 +16,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/google")
 async def login_google(response: Response, login_data: GoogleLoginRequest, db: AsyncSession = Depends(get_db)):
-    if login_data.id_token in ["mock_token_existing", "mock_token_new"]:
+    if settings.APP_ENV == "development" and login_data.id_token in ["mock_token_existing", "mock_token_new"]:
         email = "mock_user@example.com" if login_data.id_token == "mock_token_existing" else "new_mock_user@example.com"
         name = "Mock User" if login_data.id_token == "mock_token_existing" else "New Mock User"
         sub = "mock_google_sub_12345" if login_data.id_token == "mock_token_existing" else "new_mock_google_sub_67890"
