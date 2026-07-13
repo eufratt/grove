@@ -23,7 +23,8 @@ async def semantic_search(
     # can be tricky depending on the version, and raw SQL is explicit.
     
     sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, status, photo_url, created_at
+        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
+               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
         FROM products 
         WHERE status = 'TERSEDIA'
         ORDER BY embedding <=> :embedding
@@ -42,9 +43,12 @@ async def semantic_search(
             "category": row.category,
             "quantity_kg": row.quantity_kg,
             "price_per_kg": row.price_per_kg,
+            "reference_price_per_kg": row.reference_price_per_kg,
             "status": row.status,
             "photo_url": row.photo_url,
-            "created_at": row.created_at
+            "created_at": row.created_at,
+            "latitude": row.latitude,
+            "longitude": row.longitude
         })
         
     return products
