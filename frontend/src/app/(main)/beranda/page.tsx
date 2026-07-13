@@ -112,7 +112,9 @@ export default function BerandaPage() {
   const handleAddToCart = (product: any) => {
     if (cart.includes(product.id)) return;
     setCart(prev => [...prev, product.id]);
-    console.log(`Added to cart: ${product.name}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Added to cart: ${product.name}`);
+    }
   };
 
   const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,7 +230,11 @@ export default function BerandaPage() {
           <SwipeDeck 
             products={products} 
             onSwipeRight={handleAddToCart}
-            onSwipeLeft={(p) => console.log(`Skipped: ${p.name}`)}
+            onSwipeLeft={(p) => {
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`Skipped: ${p.name}`);
+              }
+            }}
             onEmpty={fetchInitialProducts}
           />
         ) : products.length > 0 ? (
