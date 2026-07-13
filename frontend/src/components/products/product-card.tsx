@@ -76,17 +76,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ 
-        scale: 1.02,
-        rotate: cardRotation,
-        transition: { duration: 0.2, ease: 'easeOut' }
-      }}
       transition={{ 
         duration: 0.5, 
         delay: index * 0.1,
         ease: [0.21, 0.47, 0.32, 0.98] 
       }}
-      className="group relative flex flex-col space-y-3 bg-white/[0.01] border border-white/5 p-4 rounded-3xl hover:bg-white/[0.03] hover:border-white/10 hover:shadow-2xl transition-all duration-300"
+      style={{ '--card-rot': `${cardRotation}deg` } as React.CSSProperties}
+      className="group relative flex flex-col space-y-3 bg-white/[0.01] border border-white/5 p-4 rounded-3xl hover:bg-white/[0.03] hover:border-white/10 hover:shadow-2xl hover:scale-[1.02] hover:rotate-[var(--card-rot)] transition-all duration-300 ease-out"
     >
       <Link href={`/produk/${product.id}`} className="absolute inset-0 z-10" />
       {/* Photo Container */}
