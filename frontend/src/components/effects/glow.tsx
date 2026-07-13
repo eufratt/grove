@@ -23,7 +23,7 @@ export const Glow: React.FC<GlowProps> = ({
   return (
     <div
       className={cn(
-        'pointer-events-none absolute h-[500px] w-[500px] rounded-full opacity-20 blur-[60px]',
+        'pointer-events-none absolute h-[500px] w-[500px] rounded-full opacity-20 blur-[100px]',
         positionClasses[position],
         className
       )}
