@@ -25,8 +25,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const price = product.price_per_kg;
   const refPrice = product.reference_price_per_kg;
 
-  // SVG params for 48px circle
-  const size = 48;
+  // SVG params for 60px circle
+  const size = 60;
   const strokeWidth = 3;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -108,46 +108,49 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
             </span>
           )}
         </div>
-
-        {/* Circular Price ring in top right corner */}
-        <div 
-          className="absolute top-4 right-4 z-20 h-12 w-12 cursor-help relative group/tooltip"
-        >
-          {/* Tooltip */}
-          <div className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 w-48 hidden group-hover/tooltip:block bg-gr-bg-elevated border border-white/10 text-gr-text-primary text-[10px] p-2 rounded shadow-xl backdrop-blur-md text-center z-30 font-mono">
-            {tooltipText}
-          </div>
-          
-          <svg width="48" height="48" className="transform -rotate-90">
-            {/* Background circle track */}
-            <circle
-              cx="24"
-              cy="24"
-              r={radius}
-              className="fill-gr-bg/90 stroke-white/10"
-              strokeWidth={strokeWidth}
-            />
-            {/* Progress circle */}
-            {refPrice && (
-              <circle
-                cx="24"
-                cy="24"
-                r={radius}
-                className={cn("fill-transparent transition-all duration-500", ringColor)}
-                strokeWidth={strokeWidth}
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-              />
-            )}
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center font-mono text-[10px] font-bold text-gr-text-primary">
-            {formatPriceShorthand(price)}
-          </div>
-        </div>
-        
         {/* Hover Overlay */}
         <div className="absolute inset-0 bg-gr-bg/20 opacity-0 transition-opacity group-hover:opacity-100" />
+      </div>
+
+      {/* Circular Price ring positioned outside the photo container to prevent overflow clipping */}
+      <div 
+        className="absolute top-8 right-8 z-20 h-[60px] w-[60px] cursor-help relative group/tooltip"
+      >
+        {/* Tooltip */}
+        <div className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 w-48 hidden group-hover/tooltip:block bg-gr-bg-elevated border border-white/10 text-gr-text-primary text-[10px] p-2 rounded shadow-xl backdrop-blur-md text-center z-30 font-mono">
+          {tooltipText}
+        </div>
+        
+        <svg width="60" height="60" className="transform -rotate-90">
+          {/* Background circle track */}
+          <circle
+            cx="30"
+            cy="30"
+            r={radius}
+            className="fill-gr-bg/90 stroke-white/10"
+            strokeWidth={strokeWidth}
+          />
+          {/* Progress circle */}
+          {refPrice && (
+            <circle
+              cx="30"
+              cy="30"
+              r={radius}
+              className={cn("fill-transparent transition-all duration-500", ringColor)}
+              strokeWidth={strokeWidth}
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+            />
+          )}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center leading-none text-gr-text-primary z-20 pointer-events-none">
+          <span className="text-[8px] opacity-75 uppercase tracking-wider font-mono">Rp</span>
+          <span className="text-[12px] font-bold font-mono text-gr-green tracking-tighter">
+            {price.toLocaleString('id-ID')}
+          </span>
+          <span className="text-[8px] opacity-75 font-mono">/kg</span>
+        </div>
       </div>
 
       {/* Info Section */}
