@@ -107,27 +107,6 @@ export function Navbar() {
           </div>
         </div>
       </div>
-      
-      {/* Mobile Navigation bar */}
-      <div className="sm:hidden flex justify-around border-t border-white/5 bg-gr-bg/95 py-3">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center gap-1 px-3 py-1 font-sans text-[10px] font-bold uppercase tracking-wider transition-all",
-                isActive ? "text-gr-green" : "text-gr-text-primary/45"
-              )}
-            >
-              <Icon size={16} />
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
-      </div>
     </nav>
   );
 }

@@ -13,6 +13,7 @@ import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
 import { CartSummary } from '@/components/products/cart-summary';
 import { LiveStatsHero } from '@/components/live-stats-hero';
+import { useSearchParams } from 'next/navigation';
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import('@/components/products/map-view'), { 
@@ -24,7 +25,7 @@ const MapView = dynamic(() => import('@/components/products/map-view'), {
   )
 });
 
-export default function BerandaPage() {
+function BerandaContent() {
   const [products, setProducts] = useState<any[]>([]);
   const [initialProducts, setInitialProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +38,17 @@ export default function BerandaPage() {
   
   // Cart state for the session
   const [cart, setCart] = useState<string[]>([]);
+
+  const searchParams = useSearchParams();
+  const mode = searchParams.get('mode');
+
+  useEffect(() => {
+    if (mode === 'jelajah') {
+      setViewMode('explore');
+    } else if (mode === null) {
+      setViewMode('list');
+    }
+  }, [mode]);
 
   const fetchInitialProducts = async () => {
     setIsLoading(true);
@@ -268,5 +280,19 @@ export default function BerandaPage() {
         />
       )}
     </main>
+  );
+}
+
+import { Suspense } from 'react';
+
+export default function BerandaPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gr-bg">
+        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+      </div>
+    }>
+      <BerandaContent />
+    </Suspense>
   );
 }
