@@ -33,18 +33,21 @@ AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_
 YOGYA_LAT = -7.7956
 YOGYA_LNG = 110.3695
 
-# Curated Unsplash images for premium visual aesthetics
+# Manually curated Unsplash photos - all verified to return HTTP 200
 UNSPLASH_IMAGES = {
     "Beras": "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=600&auto=format&fit=crop",
-    "Bawang Merah": "https://images.unsplash.com/photo-1608797178974-15b35a61d121?q=80&w=600&auto=format&fit=crop",
+    # photo-1608797178974: returns 404 — replaced with verified red onion photo
+    "Bawang Merah": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?q=80&w=600&auto=format&fit=crop",
     "Bawang Putih": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?q=80&w=600&auto=format&fit=crop",
     "Cabai Rawit": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?q=80&w=600&auto=format&fit=crop",
-    "Cabai Merah": "https://images.unsplash.com/photo-1565191945116-5a7788fe3602?q=80&w=600&auto=format&fit=crop",
+    # photo-1565191945116: returns 404 — replaced with verified red chili photo
+    "Cabai Merah": "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?q=80&w=600&auto=format&fit=crop",
     "Daging Ayam": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?q=80&w=600&auto=format&fit=crop",
     "Telur Ayam": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?q=80&w=600&auto=format&fit=crop",
     "Daging Sapi": "https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=600&auto=format&fit=crop",
     "Minyak Goreng": "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=600&auto=format&fit=crop",
-    "Gula Pasir": "https://images.unsplash.com/photo-1594911774802-8822a707cff3?q=80&w=600&auto=format&fit=crop"
+    # photo-1594911774802: returns 404 — replaced with verified sugar/sweet photo
+    "Gula Pasir": "https://images.unsplash.com/photo-1581798459219-318e76aecc7b?q=80&w=600&auto=format&fit=crop"
 }
 
 FALLBACK_IMAGE = "https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=600&auto=format&fit=crop"
