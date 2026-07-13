@@ -52,32 +52,61 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
+  const getCardRotation = (id: string) => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const rot = (hash % 5) - 2; // returns value between -2 and 2
+    return rot;
+  };
+  const cardRotation = getCardRotation(product.id);
+
+  const isNew = new Date().getTime() - new Date(product.created_at).getTime() < 24 * 60 * 60 * 1000;
+  const isLowStock = product.quantity_kg < 5;
+  let orangeBadgeText = "";
+  if (isNew) {
+    orangeBadgeText = "Baru";
+  } else if (isLowStock) {
+    orangeBadgeText = "Stok Menipis";
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        scale: 1.02,
+        rotate: cardRotation,
+        transition: { duration: 0.2, ease: 'easeOut' }
+      }}
       transition={{ 
         duration: 0.5, 
         delay: index * 0.1,
         ease: [0.21, 0.47, 0.32, 0.98] 
       }}
-      className="group relative flex flex-col space-y-3"
+      className="group relative flex flex-col space-y-3 bg-white/[0.01] border border-white/5 p-4 rounded-3xl hover:bg-white/[0.03] hover:border-white/10 hover:shadow-2xl transition-all duration-300"
     >
       <Link href={`/produk/${product.id}`} className="absolute inset-0 z-10" />
       {/* Photo Container */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-white/5 border border-white/10 transition-all duration-500 group-hover:border-gr-green/30">
+      <div className="relative overflow-hidden bg-white/5 border border-white/10 transition-all duration-500 group-hover:border-gr-green/30 rounded-2xl">
         <img
           src={product.photo_url || '/placeholder-crop.jpg'}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="h-auto w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         
-        {/* Status Tag */}
-        <div className="absolute top-4 left-4">
-          <span className="bg-gr-bg/80 backdrop-blur-md border border-white/10 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-gr-live flex items-center gap-1.5">
+        {/* Tags Container */}
+        <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 items-start">
+          <span className="bg-gr-bg/80 backdrop-blur-md border border-white/10 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-gr-live flex items-center gap-1.5 rounded-sm">
             <span className="h-1 w-1 rounded-full bg-gr-live animate-pulse" />
             {product.status}
           </span>
+          {orangeBadgeText && (
+            <span className="bg-gr-orange text-[#07080F] font-bold px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest rounded-sm shadow-md">
+              {orangeBadgeText}
+            </span>
+          )}
         </div>
 
         {/* Circular Price ring in top right corner */}

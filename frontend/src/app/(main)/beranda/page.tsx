@@ -12,7 +12,7 @@ import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react
 import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
 import { CartSummary } from '@/components/products/cart-summary';
-import { LiveStatsHero } from '@/components/live-stats-hero';
+import { ScatteredHero } from '@/components/scattered-hero';
 import { PersonalGreeting } from '@/components/personal-greeting';
 import { useSearchParams } from 'next/navigation';
 
@@ -155,69 +155,68 @@ function BerandaContent() {
       
       <div className="relative z-10 mx-auto max-w-7xl">
         <header className="mb-8 text-center lg:text-left">
-          <PersonalGreeting />
-
-          {/* Live dynamic stats hero component */}
-          <LiveStatsHero />
-          
-          <div className="mt-12 flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-1 w-full">
-              <SearchBar 
-                onResults={handleSearchResults} 
-                onLoading={setIsSearching} 
-                onClear={handleClearSearch} 
-              />
-            </div>
+          <ScatteredHero products={products}>
+            <PersonalGreeting />
             
-            <div className="flex items-center gap-4 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
-              <button
-                onClick={() => toggleViewMode('list')}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
-                  viewMode === 'list' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
-                )}
-              >
-                <ListIcon size={16} />
-                List
-              </button>
-              <button
-                onClick={() => toggleViewMode('explore')}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
-                  viewMode === 'explore' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
-                )}
-              >
-                <Compass size={16} />
-                Jelajah
-              </button>
-              <button
-                onClick={() => toggleViewMode('map')}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all",
-                  viewMode === 'map' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
-                )}
-              >
-                <MapIcon size={16} />
-                Peta
-              </button>
+            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full">
+              <div className="flex-1 w-full">
+                <SearchBar 
+                  onResults={handleSearchResults} 
+                  onLoading={setIsSearching} 
+                  onClear={handleClearSearch} 
+                />
+              </div>
+              
+              <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
+                <button
+                  onClick={() => toggleViewMode('list')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all",
+                    viewMode === 'list' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                  )}
+                >
+                  <ListIcon size={12} />
+                  List
+                </button>
+                <button
+                  onClick={() => toggleViewMode('explore')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all",
+                    viewMode === 'explore' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                  )}
+                >
+                  <Compass size={12} />
+                  Jelajah
+                </button>
+                <button
+                  onClick={() => toggleViewMode('map')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all",
+                    viewMode === 'map' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                  )}
+                >
+                  <MapIcon size={12} />
+                  Peta
+                </button>
+              </div>
             </div>
-          </div>
 
-          {viewMode === 'map' && userLocation && (
-            <div className="mt-8 flex items-center justify-center gap-4">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
-                Radius: {radiusKm} KM
-              </span>
-              <input 
-                type="range" 
-                min="1" 
-                max="50" 
-                value={radiusKm} 
-                onChange={handleRadiusChange}
-                className="w-48 accent-gr-green"
-              />
-            </div>
-          )}
+            {viewMode === 'map' && userLocation && (
+              <div className="mt-6 flex items-center justify-center lg:justify-start gap-4">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+                  Radius: {radiusKm} KM
+                </span>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="50" 
+                  value={radiusKm} 
+                  onChange={handleRadiusChange}
+                  className="w-48 accent-gr-green"
+                />
+              </div>
+            )}
+          </ScatteredHero>
 
           <div className="mt-12 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
         </header>
@@ -252,9 +251,11 @@ function BerandaContent() {
             onEmpty={fetchInitialProducts}
           />
         ) : products.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-8 space-y-8 [column-fill:_balance]">
             {products.map((product: any, index: number) => (
-              <ProductCard key={product.id} product={product} index={index} />
+              <div key={product.id} className="break-inside-avoid inline-block w-full mb-8">
+                <ProductCard product={product} index={index} />
+              </div>
             ))}
           </div>
         ) : (
