@@ -47,7 +47,15 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
     return rot;
   };
 
-
+  // Only show discount badge on the single card with the best deal (highest % off, min 10%)
+  const bestDealId = scatteredProducts.reduce<{ id: string; pct: number } | null>((best, p) => {
+    const ref = p.reference_price_per_kg;
+    const price = p.price_per_kg;
+    if (!ref || price >= ref) return best;
+    const pct = Math.round(((ref - price) / ref) * 100);
+    if (pct < 10) return best;
+    return !best || pct > best.pct ? { id: p.id, pct } : best;
+  }, null);
 
   return (
     <div className="flex flex-col md:flex-row gap-8 items-stretch justify-between w-full min-h-[480px]">
@@ -64,13 +72,8 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
         {scatteredProducts.map((product, idx) => {
           const preset = cardPresets[idx % cardPresets.length];
           const rotation = getRotation(product.id);
-          const refPrice = product.reference_price_per_kg;
-          const price = product.price_per_kg;
-          let discountPercentage = 0;
-          if (refPrice && price < refPrice) {
-            discountPercentage = Math.round(((refPrice - price) / refPrice) * 100);
-          }
-          const showDiscountBadge = discountPercentage >= 10;
+          const showDiscountBadge = bestDealId?.id === product.id;
+          const discountPercentage = bestDealId?.pct ?? 0;
 
           return (
             <motion.div
@@ -108,10 +111,10 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
                 </div>
               )}
 
-              {/* Deal/Urgent Badge for qualified card */}
+              {/* Deal/Urgent Badge — only the single best-deal card */}
               {showDiscountBadge && (
-                <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#EDE8DC] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce">
-                  🔥 {discountPercentage}% di bawah harga pasar
+                <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#EDE8DC] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce whitespace-nowrap">
+                  🔥 {discountPercentage}% lebih murah
                 </div>
               )}
 
