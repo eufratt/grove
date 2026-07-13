@@ -10,7 +10,6 @@ import { UserCheck } from 'lucide-react';
 
 export default function LengkapiProfilPage() {
   const router = useRouter();
-  const [role, setRole] = useState('pembeli');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,10 +28,20 @@ export default function LengkapiProfilPage() {
     });
   };
 
+  const validatePhone = (num: string) => {
+    const cleaned = num.replace(/[\s\-()]/g, '');
+    return /^(\+628|628|08)[0-9]{7,11}$/.test(cleaned);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone) {
       setError('Nomor WhatsApp wajib diisi');
+      return;
+    }
+
+    if (!validatePhone(phone)) {
+      setError('Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)');
       return;
     }
 
@@ -53,7 +62,7 @@ export default function LengkapiProfilPage() {
     }
 
     try {
-      await authApi.completeProfile(role, phone, lat, lng);
+      await authApi.completeProfile(phone, lat, lng);
       router.push('/beranda');
     } catch (err: any) {
       setError(err.message || 'Gagal melengkapi profil');
@@ -75,7 +84,7 @@ export default function LengkapiProfilPage() {
             Lengkapi Profil
           </h2>
           <p className="mt-3 font-sans text-sm text-gr-text-primary/60 max-w-xs leading-relaxed">
-            Pilih peran Anda di komunitas Grove dan lengkapi kontak WhatsApp untuk bertransaksi.
+            Lengkapi kontak WhatsApp Anda untuk bertransaksi di Grove.
           </p>
         </div>
 
@@ -87,23 +96,6 @@ export default function LengkapiProfilPage() {
           )}
 
           <div className="space-y-4">
-            <div>
-              <label htmlFor="role" className="block font-sans text-xs font-semibold uppercase tracking-wider text-gr-text-primary/50 mb-2">
-                Pilih Peran Anda
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="block w-full rounded-md border border-white/10 bg-white/5 px-3 py-3 font-mono text-xs uppercase tracking-widest text-gr-text-primary focus:border-gr-orange focus:outline-none focus:ring-1 focus:ring-gr-orange sm:text-sm"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="pembeli" className="bg-gr-bg text-gr-text-primary">PEMBELI (Buyer)</option>
-                <option value="petani" className="bg-gr-bg text-gr-text-primary">PETANI (Farmer)</option>
-                <option value="agen" className="bg-gr-bg text-gr-text-primary">AGEN (Agent)</option>
-              </select>
-            </div>
-
             <div>
               <label htmlFor="phone" className="block font-sans text-xs font-semibold uppercase tracking-wider text-gr-text-primary/50 mb-2">
                 Nomor WhatsApp

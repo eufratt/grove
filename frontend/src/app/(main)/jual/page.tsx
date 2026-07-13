@@ -1,17 +1,36 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { productsApi } from '@/lib/api/products';
+import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { cn } from '@/lib/utils';
-import { Camera, Plus, X } from 'lucide-react';
+import { Camera, Plus, X, Loader2 } from 'lucide-react';
 
 export default function JualPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const userData = await authApi.getMe();
+        if (userData.role !== 'PETANI') {
+          router.push('/settings/upgrade-to-farmer');
+        } else {
+          setCheckingAuth(false);
+        }
+      } catch (err) {
+        router.push('/login');
+      }
+    };
+    checkRole();
+  }, [router]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -106,6 +125,15 @@ export default function JualPage() {
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gr-bg">
+        <BgPattern />
+        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50 z-10" />
+      </main>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-gr-bg py-12 px-4 sm:px-6 lg:px-8">

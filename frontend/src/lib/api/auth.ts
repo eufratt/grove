@@ -9,14 +9,23 @@ export const authApi = {
     return response.json();
   },
 
-  completeProfile: async (role: string, phone: string, lat?: number | null, lng?: number | null) => {
+  completeProfile: async (phone: string, lat?: number | null, lng?: number | null) => {
     const response = await apiClient('/auth/complete-profile', {
       method: 'POST',
       body: JSON.stringify({
-        role,
         phone_whatsapp: phone,
         lat: lat ?? null,
         lng: lng ?? null
+      }),
+    });
+    return response.json();
+  },
+
+  upgradeToFarmer: async (phone: string) => {
+    const response = await apiClient('/users/upgrade-to-farmer', {
+      method: 'POST',
+      body: JSON.stringify({
+        phone_whatsapp: phone
       }),
     });
     return response.json();

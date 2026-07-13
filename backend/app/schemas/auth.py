@@ -20,10 +20,14 @@ class GoogleLoginRequest(BaseModel):
     id_token: str
 
 class CompleteProfileRequest(BaseModel):
-    role: UserRole
+    role: Optional[UserRole] = None
     phone_whatsapp: str
     lat: Optional[float] = None
     lng: Optional[float] = None
+
+class UpgradeToFarmerRequest(BaseModel):
+    phone_whatsapp: str
+
 
 class UserLocationUpdate(BaseModel):
     lat: float

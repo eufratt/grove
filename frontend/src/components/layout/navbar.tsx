@@ -84,6 +84,11 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-3">
+                {user.role === 'PETANI' && (
+                  <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gr-green bg-gr-green/10 border border-gr-green/20 px-2.5 py-1.5 rounded-full">
+                    Farmer
+                  </span>
+                )}
                 <span className="font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/60 bg-white/5 border border-white/10 px-3 py-2 rounded-full">
                   {user.full_name || user.email || 'Pengguna'}
                 </span>

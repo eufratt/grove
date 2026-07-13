@@ -7,7 +7,7 @@ from google.auth.transport import requests
 
 from app.db import get_db
 from app.schemas.auth import UserResponse, GoogleLoginRequest, CompleteProfileRequest
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.models.token import RefreshToken
 from app.services import auth_service
 from app.config import settings
@@ -116,7 +116,7 @@ async def complete_profile(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    current_user.role = profile_data.role
+    current_user.role = profile_data.role or UserRole.PEMBELI
     current_user.phone_whatsapp = profile_data.phone_whatsapp
     if profile_data.lat is not None and profile_data.lng is not None:
         current_user.location = WKTElement(f"POINT({profile_data.lng} {profile_data.lat})", srid=4326)
