@@ -13,6 +13,7 @@ import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
 import { CartSummary } from '@/components/products/cart-summary';
 import { LiveStatsHero } from '@/components/live-stats-hero';
+import { PersonalGreeting } from '@/components/personal-greeting';
 import { useSearchParams } from 'next/navigation';
 
 // Dynamic import for MapView to avoid SSR issues
@@ -154,21 +155,7 @@ function BerandaContent() {
       
       <div className="relative z-10 mx-auto max-w-7xl">
         <header className="mb-8 text-center lg:text-left">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            <div>
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live">
-                Live Marketplace
-              </span>
-              <h1 className="mt-4 font-display text-6xl font-medium tracking-tight text-gr-text-primary">
-                Hasil Panen Terbaru
-              </h1>
-            </div>
-            <div className="lg:text-right">
-              <p className="font-sans text-sm text-gr-text-primary/40 max-w-xs italic mx-auto lg:ml-auto">
-                "Menghubungkan langsung ladang petani dengan dapur Anda tanpa rantai tengkulak yang panjang."
-              </p>
-            </div>
-          </div>
+          <PersonalGreeting />
 
           {/* Live dynamic stats hero component */}
           <LiveStatsHero />

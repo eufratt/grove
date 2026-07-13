@@ -53,4 +53,11 @@ export const productsApi = {
     });
     return response.json();
   },
+
+  getPersonalStats: async () => {
+    const response = await apiClient('/products/personal-stats', {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };
