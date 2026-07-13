@@ -16,6 +16,20 @@ export const ordersApi = {
     return response.json();
   },
 
+  getIncomingOrders: async (skip = 0, limit = 20) => {
+    const response = await apiClient(`/orders/incoming?skip=${skip}&limit=${limit}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  getMyPurchases: async (skip = 0, limit = 20) => {
+    const response = await apiClient(`/orders/my-purchases?skip=${skip}&limit=${limit}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
   updateOrderStatus: async (orderId: string, status: string) => {
     const response = await apiClient(`/orders/${orderId}/status?status=${status}`, {
       method: 'PATCH',

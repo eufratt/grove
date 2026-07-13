@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
-from typing import List
+from sqlalchemy.orm import aliased
+from typing import List, Optional
 from uuid import UUID
 
 from app.db import get_db
@@ -25,6 +26,15 @@ class OrderResponse(BaseModel):
     quantity_kg: float
     status: OrderStatus
     created_at: datetime
+    
+    # Joined metadata fields
+    product_name: Optional[str] = None
+    product_photo_url: Optional[str] = None
+    price_per_kg: Optional[float] = None
+    buyer_name: Optional[str] = None
+    buyer_phone: Optional[str] = None
+    seller_name: Optional[str] = None
+    seller_phone: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -62,16 +72,160 @@ async def list_orders(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    # Show orders where user is either buyer or seller
-    stmt = select(Order).join(Product).where(
-        or_(
-            Order.buyer_id == current_user.id,
-            Product.seller_id == current_user.id
+    BuyerUser = aliased(User, name="buyer")
+    SellerUser = aliased(User, name="seller")
+    
+    stmt = (
+        select(
+            Order,
+            Product.name.label("product_name"),
+            Product.photo_url.label("product_photo_url"),
+            Product.price_per_kg.label("price_per_kg"),
+            BuyerUser.full_name.label("buyer_name"),
+            BuyerUser.phone_whatsapp.label("buyer_phone"),
+            SellerUser.full_name.label("seller_name"),
+            SellerUser.phone_whatsapp.label("seller_phone")
         )
-    ).order_by(Order.created_at.desc())
+        .join(Product, Order.product_id == Product.id)
+        .join(BuyerUser, Order.buyer_id == BuyerUser.id)
+        .join(SellerUser, Product.seller_id == SellerUser.id)
+        .where(
+            or_(
+                Order.buyer_id == current_user.id,
+                Product.seller_id == current_user.id
+            )
+        )
+        .order_by(Order.created_at.desc())
+    )
     
     result = await db.execute(stmt)
-    return result.scalars().all()
+    orders_data = []
+    for row in result:
+        order = row.Order
+        orders_data.append(OrderResponse(
+            id=order.id,
+            product_id=order.product_id,
+            buyer_id=order.buyer_id,
+            quantity_kg=order.quantity_kg,
+            status=order.status,
+            created_at=order.created_at,
+            product_name=row.product_name,
+            product_photo_url=row.product_photo_url,
+            price_per_kg=row.price_per_kg,
+            buyer_name=row.buyer_name,
+            buyer_phone=row.buyer_phone,
+            seller_name=row.seller_name,
+            seller_phone=row.seller_phone
+        ))
+    return orders_data
+
+@router.get("/incoming", response_model=List[OrderResponse])
+async def list_incoming_orders(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    if current_user.role != UserRole.PETANI:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya petani yang dapat melihat pesanan masuk"
+        )
+    
+    BuyerUser = aliased(User, name="buyer")
+    SellerUser = aliased(User, name="seller")
+    
+    stmt = (
+        select(
+            Order,
+            Product.name.label("product_name"),
+            Product.photo_url.label("product_photo_url"),
+            Product.price_per_kg.label("price_per_kg"),
+            BuyerUser.full_name.label("buyer_name"),
+            BuyerUser.phone_whatsapp.label("buyer_phone"),
+            SellerUser.full_name.label("seller_name"),
+            SellerUser.phone_whatsapp.label("seller_phone")
+        )
+        .join(Product, Order.product_id == Product.id)
+        .join(BuyerUser, Order.buyer_id == BuyerUser.id)
+        .join(SellerUser, Product.seller_id == SellerUser.id)
+        .where(Product.seller_id == current_user.id)
+        .order_by(Order.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    
+    result = await db.execute(stmt)
+    orders_data = []
+    for row in result:
+        order = row.Order
+        orders_data.append(OrderResponse(
+            id=order.id,
+            product_id=order.product_id,
+            buyer_id=order.buyer_id,
+            quantity_kg=order.quantity_kg,
+            status=order.status,
+            created_at=order.created_at,
+            product_name=row.product_name,
+            product_photo_url=row.product_photo_url,
+            price_per_kg=row.price_per_kg,
+            buyer_name=row.buyer_name,
+            buyer_phone=row.buyer_phone,
+            seller_name=row.seller_name,
+            seller_phone=row.seller_phone
+        ))
+    return orders_data
+
+@router.get("/my-purchases", response_model=List[OrderResponse])
+async def list_my_purchases(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    BuyerUser = aliased(User, name="buyer")
+    SellerUser = aliased(User, name="seller")
+    
+    stmt = (
+        select(
+            Order,
+            Product.name.label("product_name"),
+            Product.photo_url.label("product_photo_url"),
+            Product.price_per_kg.label("price_per_kg"),
+            BuyerUser.full_name.label("buyer_name"),
+            BuyerUser.phone_whatsapp.label("buyer_phone"),
+            SellerUser.full_name.label("seller_name"),
+            SellerUser.phone_whatsapp.label("seller_phone")
+        )
+        .join(Product, Order.product_id == Product.id)
+        .join(BuyerUser, Order.buyer_id == BuyerUser.id)
+        .join(SellerUser, Product.seller_id == SellerUser.id)
+        .where(Order.buyer_id == current_user.id)
+        .order_by(Order.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    
+    result = await db.execute(stmt)
+    orders_data = []
+    for row in result:
+        order = row.Order
+        orders_data.append(OrderResponse(
+            id=order.id,
+            product_id=order.product_id,
+            buyer_id=order.buyer_id,
+            quantity_kg=order.quantity_kg,
+            status=order.status,
+            created_at=order.created_at,
+            product_name=row.product_name,
+            product_photo_url=row.product_photo_url,
+            price_per_kg=row.price_per_kg,
+            buyer_name=row.buyer_name,
+            buyer_phone=row.buyer_phone,
+            seller_name=row.seller_name,
+            seller_phone=row.seller_phone
+        ))
+    return orders_data
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
 async def update_order_status(
@@ -86,14 +240,6 @@ async def update_order_status(
     
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    
-    # Check if product exists to find seller (already joined)
-    # result_prod = await db.execute(select(Product).where(Product.id == order.product_id))
-    # product = result_prod.scalar_one()
-    
-    # Simple check: only seller can update status (usually)
-    # For some status (like 'selesai' or 'batal'), maybe buyer can too? 
-    # Let's stick to seller for now as per instructions.
     
     # Find the seller_id from the joined Product table in the first query
     # To be safe, let's explicitly get the product
@@ -114,3 +260,4 @@ async def update_order_status(
     )
     
     return order
+
