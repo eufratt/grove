@@ -1,8 +1,9 @@
 import json
 import logging
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, text
+from sqlalchemy import select, update, text, func
 from typing import List, Optional
 from uuid import UUID
 
@@ -249,4 +250,35 @@ async def refresh_product_reference_price(
         "created_at": row.created_at,
         "latitude": row.latitude,
         "longitude": row.longitude
+    }
+
+@router.get("/personal-stats")
+async def get_personal_stats(
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(auth_service.get_optional_current_user)
+):
+    # Calculate WIB start of today in UTC
+    now_utc = datetime.utcnow()
+    wib_now = now_utc + timedelta(hours=7)
+    wib_today_start = datetime(wib_now.year, wib_now.month, wib_now.day)
+    utc_today_start = wib_today_start - timedelta(hours=7)
+
+    # Count products created today
+    stmt_today = select(func.count(Product.id)).where(Product.created_at >= utc_today_start)
+    result_today = await db.execute(stmt_today)
+    new_products_today_count = result_today.scalar() or 0
+
+    # Count user active products if they are a farmer
+    user_active_products_count = 0
+    if current_user and current_user.role == UserRole.PETANI:
+        stmt_user = select(func.count(Product.id)).where(
+            Product.seller_id == current_user.id,
+            Product.status == ProductStatus.TERSEDIA
+        )
+        result_user = await db.execute(stmt_user)
+        user_active_products_count = result_user.scalar() or 0
+
+    return {
+        "user_active_products_count": user_active_products_count,
+        "new_products_today_count": new_products_today_count
     }
