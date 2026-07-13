@@ -35,6 +35,7 @@ function BerandaContent() {
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'explore'>('list');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [radiusKm, setRadiusKm] = useState(10);
+  const [locationError, setLocationError] = useState<string | null>(null);
   
   // Cart state for the session
   const [cart, setCart] = useState<string[]>([]);
@@ -49,6 +50,28 @@ function BerandaContent() {
       setViewMode('list');
     }
   }, [mode]);
+
+  const requestLocation = () => {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
+          setLocationError(null);
+        },
+        (error) => {
+          console.warn("Geolocation warning:", error.message);
+          if (error.code === error.PERMISSION_DENIED) {
+            setLocationError("Aktifkan izin lokasi untuk melihat produk terdekat dari kamu.");
+          } else {
+            setLocationError("Gagal mengambil lokasi. Pastikan GPS/lokasi browser aktif.");
+          }
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      setLocationError("Browser Anda tidak mendukung layanan lokasi geolokasi.");
+    }
+  };
 
   const fetchInitialProducts = async () => {
     setIsLoading(true);
@@ -77,23 +100,7 @@ function BerandaContent() {
 
   useEffect(() => {
     fetchInitialProducts();
-    
-    // Get user location safely
-    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
-      try {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserLocation([position.coords.latitude, position.coords.longitude]);
-          },
-          (error) => {
-            console.warn("Geolocation warning:", error.message);
-          },
-          { timeout: 5000 }
-        );
-      } catch (err) {
-        console.warn("Geolocation failed to initialize:", err);
-      }
-    }
+    requestLocation();
   }, []);
 
   const handleSearchResults = useCallback((results: any[]) => {
@@ -111,11 +118,12 @@ function BerandaContent() {
 
   const toggleViewMode = (mode: 'list' | 'map' | 'explore') => {
     setViewMode(mode);
-    
-    if (mode === 'map' && userLocation) {
-      fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
+    if (mode === 'map') {
+      requestLocation();
+      if (userLocation) {
+        fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
+      }
     } else if (mode === 'explore') {
-      // Potentially filter or just show list in explore style
       setProducts(initialProducts);
     } else if (mode === 'list') {
       setProducts(initialProducts);
@@ -239,7 +247,10 @@ function BerandaContent() {
             <MapView 
               products={products} 
               center={userLocation || [-6.2000, 106.8166]} 
-              zoom={11}
+              userLocation={userLocation}
+              radiusKm={radiusKm}
+              locationError={locationError}
+              zoom={userLocation ? 12 : 11}
             />
           </div>
         ) : viewMode === 'explore' ? (
