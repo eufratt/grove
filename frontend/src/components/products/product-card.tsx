@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 import { PriceGauge } from './price-gauge';
 import Link from 'next/link';
 
@@ -90,9 +91,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
       <Link href={`/produk/${product.id}`} className="absolute inset-0 z-10" />
       {/* Photo Container */}
       <div className="relative overflow-hidden bg-white/5 border border-white/10 transition-all duration-500 group-hover:border-gr-green/30 rounded-2xl">
-        <img
+        <Image
           src={product.photo_url || '/placeholder-crop.jpg'}
           alt={product.name}
+          width={400}
+          height={320}
+          sizes="(max-width: 768px) 50vw, 25vw"
           className="h-auto w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         

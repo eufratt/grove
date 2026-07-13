@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { productsApi } from '@/lib/api/products';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface ScatteredHeroProps {
   products: any[];
@@ -119,9 +120,12 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
 
               {/* Polaroid Photo Container */}
               <div className="relative aspect-square overflow-hidden bg-black/5 border border-black/5 mb-3">
-                <img
+                <Image
                   src={product.photo_url || '/placeholder-crop.jpg'}
                   alt={product.name}
+                  width={200}
+                  height={200}
+                  sizes="200px"
                   className="h-full w-full object-cover pointer-events-none"
                 />
               </div>
