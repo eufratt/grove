@@ -1,52 +1,44 @@
-import io
 import httpx
 import uuid
+import io
+from PIL import Image
 from fastapi import UploadFile
-from PIL import Image, ImageOps
 from app.config import settings
 
 async def upload_product_photo(file: UploadFile) -> str:
     """
     Uploads a photo to Supabase Storage and returns the public URL.
-    Resizes the image to a max of 1600px on the longest side and compresses to JPEG quality 80.
     """
-    raw_content = await file.read()
+    file_content = await file.read()
+    content_type = file.content_type
+    file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
     
+    # Try to resize and compress using Pillow
     try:
-        # Load image into Pillow
-        img = Image.open(io.BytesIO(raw_content))
+        img = Image.open(io.BytesIO(file_content))
         
-        # Auto-rotate image based on EXIF tags if present
-        img = ImageOps.exif_transpose(img)
-        
-        # Convert RGBA/P to RGB if saving to JPEG
+        # Convert transparent / RGBA to RGB for JPEG compatibility
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
             
-        # Resize preserving aspect ratio
         max_size = 1600
-        w, h = img.size
-        if w > max_size or h > max_size:
-            if w > h:
-                new_w = max_size
-                new_h = int(h * (max_size / w))
+        width, height = img.size
+        if width > max_size or height > max_size:
+            if width > height:
+                new_width = max_size
+                new_height = int(height * (max_size / width))
             else:
-                new_h = max_size
-                new_w = int(w * (max_size / h))
-            img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+                new_height = max_size
+                new_width = int(width * (max_size / height))
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
             
-        # Compress and save as JPEG quality 80 to memory
         output_buffer = io.BytesIO()
-        img.save(output_buffer, format="JPEG", quality=80, optimize=True)
+        img.save(output_buffer, format="JPEG", quality=80)
         file_content = output_buffer.getvalue()
         content_type = "image/jpeg"
         file_extension = "jpg"
     except Exception as e:
-        # Fallback to uploading original content if Pillow fails
-        print(f"Failed to compress image, uploading original: {e}")
-        file_content = raw_content
-        content_type = file.content_type
-        file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+        print(f"Pillow image optimization failed, uploading original: {e}")
 
     file_name = f"{uuid.uuid4()}.{file_extension}"
     storage_url = f"{settings.SUPABASE_URL}/storage/v1/object/{settings.SUPABASE_STORAGE_BUCKET}/{file_name}"

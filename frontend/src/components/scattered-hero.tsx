@@ -72,69 +72,75 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
           return (
             <motion.div
               key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              style={{
+                top: preset.top,
+                left: preset.left,
+                transformOrigin: 'center center',
+              }}
+              initial={{ 
+                opacity: 0, 
+                scale: 0.8,
+                rotate: rotation + (rotation > 0 ? 15 : -15) 
+              }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1,
+                rotate: rotation 
+              }}
+              whileHover={{ 
+                rotate: 0,
+                scale: 1.06,
+                zIndex: 50,
+                transition: { duration: 0.3, ease: 'easeOut' }
+              }}
               transition={{ 
                 duration: 0.6, 
                 delay: idx * 0.1,
                 ease: [0.21, 0.47, 0.32, 0.98]
               }}
-              style={{
-                position: 'absolute',
-                top: preset.top,
-                left: preset.left,
-                zIndex: preset.zIndex === 'z-30' ? 30 : preset.zIndex === 'z-20' ? 20 : 10
-              }}
+              className={cn(
+                "absolute bg-[#f9f7f1] border border-black/10 p-3 pb-5 shadow-2xl flex flex-col select-none cursor-pointer",
+                preset.size,
+                preset.zIndex
+              )}
             >
-              <div
-                style={{
-                  '--card-rot': `${rotation}deg`,
-                  transform: 'rotate(var(--card-rot)) scale(1)',
-                } as React.CSSProperties}
-                className={cn(
-                  "bg-[#f9f7f1] border border-black/10 p-3 pb-5 shadow-2xl flex flex-col select-none cursor-pointer transform origin-center transition-all duration-300 ease-out hover:rotate-0 hover:scale-[1.06] hover:!z-50 hover:shadow-2xl rounded-sm",
-                  preset.size
-                )}
-              >
-                {/* Stat Badge for front/main card */}
-                {preset.isFront && liveStats && (
-                  <div className="absolute -top-3 -right-3 z-50 bg-[#07080F]/90 border border-gr-green/30 text-gr-green px-2.5 py-1 rounded-full text-[9px] font-mono tracking-wider shadow-lg backdrop-blur-md">
-                    🟢 {liveStats.total_commodities} harga acuan terpantau
-                  </div>
-                )}
-
-                {/* Deal/Urgent Badge for qualified card */}
-                {isDeal && (
-                  <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#07080F] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce">
-                    🔥 Harga Terbaik Hari Ini
-                  </div>
-                )}
-
-                {/* Polaroid Photo Container */}
-                <div className="relative aspect-square overflow-hidden bg-black/5 border border-black/5 mb-3">
-                  <Image
-                    src={product.photo_url || '/placeholder-crop.jpg'}
-                    alt={product.name}
-                    width={200}
-                    height={200}
-                    sizes="200px"
-                    className="h-full w-full object-cover pointer-events-none"
-                  />
+              {/* Stat Badge for front/main card */}
+              {preset.isFront && liveStats && (
+                <div className="absolute -top-3 -right-3 z-50 bg-[#07080F]/90 border border-gr-green/30 text-gr-green px-2.5 py-1 rounded-full text-[9px] font-mono tracking-wider shadow-lg backdrop-blur-md">
+                  🟢 {liveStats.total_commodities} harga acuan terpantau
                 </div>
+              )}
 
-                {/* Polaroid Caption */}
-                <div className="flex flex-col text-left">
-                  <span className="font-sans text-[11px] font-bold text-black/80 truncate">
-                    {product.name}
+              {/* Deal/Urgent Badge for qualified card */}
+              {isDeal && (
+                <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#07080F] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce">
+                  🔥 Harga Terbaik Hari Ini
+                </div>
+              )}
+
+              {/* Polaroid Photo Container */}
+              <div className="relative aspect-square overflow-hidden bg-black/5 border border-black/5 mb-3">
+                <Image
+                  src={product.photo_url || '/placeholder-crop.jpg'}
+                  alt={product.name}
+                  fill
+                  sizes="200px"
+                  className="object-cover pointer-events-none"
+                />
+              </div>
+
+              {/* Polaroid Caption */}
+              <div className="flex flex-col text-left">
+                <span className="font-sans text-[11px] font-bold text-black/80 truncate">
+                  {product.name}
+                </span>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="font-mono text-[9px] text-black/40 uppercase tracking-widest">
+                    {product.category}
                   </span>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="font-mono text-[9px] text-black/40 uppercase tracking-widest">
-                      {product.category}
-                    </span>
-                    <span className="font-mono text-[10px] font-bold text-gr-green/90 bg-[#07080F]/90 px-1.5 py-0.5 rounded-sm">
-                      {product.price_per_kg >= 1000 ? `${(product.price_per_kg / 1000).toFixed(0)}rb` : product.price_per_kg}/kg
-                    </span>
-                  </div>
+                  <span className="font-mono text-[10px] font-bold text-gr-green/90 bg-[#07080F]/90 px-1.5 py-0.5 rounded-sm">
+                    {product.price_per_kg >= 1000 ? `${(product.price_per_kg / 1000).toFixed(0)}rb` : product.price_per_kg}/kg
+                  </span>
                 </div>
               </div>
             </motion.div>
