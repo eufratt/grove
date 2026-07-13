@@ -62,7 +62,7 @@ export function PersonalGreeting() {
 
     if (!user) {
       return (
-        <p className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/40 mt-1">
+        <p className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/70 mt-3">
           Temukan hasil panen segar langsung dari petani lokal di sekitarmu.
         </p>
       );
@@ -72,13 +72,13 @@ export function PersonalGreeting() {
       const activeCount = stats?.user_active_products_count ?? 0;
       if (activeCount === 0) {
         return (
-          <p className="font-sans text-sm text-gr-text-primary/60 mt-1">
+          <p className="font-sans text-sm text-gr-text-primary/75 mt-3">
             Belum ada hasil panen yang kamu pasang. Yuk mulai jual.
           </p>
         );
       }
       return (
-        <p className="font-sans text-sm text-gr-text-primary/60 mt-1">
+        <p className="font-sans text-sm text-gr-text-primary/75 mt-3">
           <span className="text-gr-green font-mono font-bold">{activeCount}</span> hasil panenmu sedang dicari pembeli.
         </p>
       );
@@ -88,13 +88,13 @@ export function PersonalGreeting() {
     const newCount = stats?.new_products_today_count ?? 0;
     if (newCount === 0) {
       return (
-        <p className="font-sans text-sm text-gr-text-primary/50 mt-1">
+        <p className="font-sans text-sm text-gr-text-primary/70 mt-3">
           Lihat apa yang segar hari ini.
         </p>
       );
     }
     return (
-      <p className="font-sans text-sm text-gr-text-primary/60 mt-1">
+      <p className="font-sans text-sm text-gr-text-primary/75 mt-3">
         <span className="text-gr-green font-mono font-bold">{newCount}</span> produk baru diposting hari ini.
       </p>
     );
@@ -106,7 +106,7 @@ export function PersonalGreeting() {
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live">
           Live Marketplace
         </span>
-        <h1 className="mt-4 font-sans text-5xl font-medium tracking-tight text-gr-text-primary">
+        <h1 className="mt-4 font-sans text-5xl md:text-6xl font-medium tracking-tight text-gr-text-primary">
           {user ? (
             <>
               {greeting}, <span className="font-display italic text-gr-green">{firstName}</span>
@@ -121,7 +121,7 @@ export function PersonalGreeting() {
       </div>
       
       <div className="lg:text-right flex items-center lg:items-end justify-center lg:justify-end">
-        <p className="font-sans text-[11px] text-gr-text-primary/30 max-w-xs italic mx-auto lg:ml-auto border-l lg:border-l-0 lg:border-r border-white/5 pl-4 lg:pl-0 lg:pr-4">
+        <p className="font-sans text-[10px] text-gr-text-primary/20 max-w-[200px] leading-normal italic mx-auto lg:ml-auto border-l lg:border-l-0 lg:border-r border-white/5 pl-4 lg:pl-0 lg:pr-4">
           "Menghubungkan langsung ladang petani dengan dapur Anda tanpa rantai tengkulak yang panjang."
         </p>
       </div>
