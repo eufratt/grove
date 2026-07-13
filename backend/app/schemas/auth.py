@@ -21,9 +21,14 @@ class GoogleLoginRequest(BaseModel):
 
 class CompleteProfileRequest(BaseModel):
     role: Optional[UserRole] = None
-    phone_whatsapp: str
+    phone_whatsapp: Optional[str] = None
     lat: Optional[float] = None
     lng: Optional[float] = None
+
+class UpdateProfileRequest(BaseModel):
+    phone_whatsapp: Optional[str] = None
+    phone_number: Optional[str] = None
+
 
 class UpgradeToFarmerRequest(BaseModel):
     phone_whatsapp: str

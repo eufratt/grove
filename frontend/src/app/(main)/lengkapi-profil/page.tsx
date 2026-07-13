@@ -70,6 +70,33 @@ export default function LengkapiProfilPage() {
     }
   };
 
+  const handleSkip = async () => {
+    setLoading(true);
+    setError('');
+
+    let lat: number | null = null;
+    let lng: number | null = null;
+
+    try {
+      const position = await getCurrentPosition();
+      if (position) {
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      }
+    } catch (err) {
+      console.warn('Failed to get geolocation:', err);
+    }
+
+    try {
+      await authApi.completeProfile(null, lat, lng);
+      localStorage.setItem('profile_prompt_dismissed', 'true');
+      router.push('/beranda');
+    } catch (err: any) {
+      setError(err.message || 'Gagal melewati langkah ini');
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
       <BgPattern />
@@ -104,7 +131,6 @@ export default function LengkapiProfilPage() {
                 id="phone"
                 type="tel"
                 placeholder="0812..."
-                required
                 className="block w-full rounded-md border border-white/10 bg-white/5 px-3 py-3 font-sans text-gr-text-primary placeholder-white/20 focus:border-gr-orange focus:outline-none focus:ring-1 focus:ring-gr-orange sm:text-sm"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -112,14 +138,26 @@ export default function LengkapiProfilPage() {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gr-orange text-gr-bg hover:bg-gr-orange/90 font-sans font-bold uppercase tracking-widest py-6 shadow-lg shadow-gr-orange/20 cursor-pointer"
-          >
-            {loading ? 'Menyimpan...' : 'Simpan & Masuk'}
-          </Button>
+          <div className="flex flex-col gap-3">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gr-orange text-gr-bg hover:bg-gr-orange/90 font-sans font-bold uppercase tracking-widest py-6 shadow-lg shadow-gr-orange/20 cursor-pointer"
+            >
+              {loading ? 'Menyimpan...' : 'Simpan & Masuk'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading}
+              onClick={handleSkip}
+              className="w-full border-white/10 hover:bg-white/5 hover:text-white font-sans font-bold uppercase tracking-widest py-6 text-gr-text-primary/60 cursor-pointer transition-colors"
+            >
+              Nanti Saja
+            </Button>
+          </div>
         </form>
+
       </div>
     </main>
   );

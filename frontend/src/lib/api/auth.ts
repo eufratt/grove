@@ -9,7 +9,7 @@ export const authApi = {
     return response.json();
   },
 
-  completeProfile: async (phone: string, lat?: number | null, lng?: number | null) => {
+  completeProfile: async (phone: string | null, lat?: number | null, lng?: number | null) => {
     const response = await apiClient('/auth/complete-profile', {
       method: 'POST',
       body: JSON.stringify({
@@ -20,6 +20,15 @@ export const authApi = {
     });
     return response.json();
   },
+
+  updateProfile: async (data: { phone_whatsapp?: string | null; phone_number?: string | null }) => {
+    const response = await apiClient('/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
 
   upgradeToFarmer: async (phone: string) => {
     const response = await apiClient('/users/upgrade-to-farmer', {

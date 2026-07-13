@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { ShoppingCart, X, Trash2, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { ordersApi } from '@/lib/api/orders';
+import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { PhoneModal } from '../auth/phone-modal';
 
 interface CartSummaryProps {
   cart: string[];
@@ -19,6 +21,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
   const [isOpen, setIsOpen] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [currentItemName, setCurrentItemName] = useState('');
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [results, setResults] = useState<{
     succeeded: string[];
     failed: { id: string; name: string; reason: string }[];
@@ -32,6 +35,19 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price_per_kg, 0);
 
   const handleCheckoutAll = async () => {
+    try {
+      const user = await authApi.getMe();
+      if (!user.phone_whatsapp) {
+        setPhoneModalOpen(true);
+        return;
+      }
+      await proceedToCheckoutAll();
+    } catch (err) {
+      console.error('Failed to check user phone number:', err);
+    }
+  };
+
+  const proceedToCheckoutAll = async () => {
     setCheckingOut(true);
     setResults(null);
     const succeeded: string[] = [];
@@ -254,6 +270,14 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
           </div>
         )}
       </div>
+      <PhoneModal 
+        isOpen={phoneModalOpen}
+        onClose={() => setPhoneModalOpen(false)}
+        onSuccess={async () => {
+          setPhoneModalOpen(false);
+          await proceedToCheckoutAll();
+        }}
+      />
     </>
   );
 }

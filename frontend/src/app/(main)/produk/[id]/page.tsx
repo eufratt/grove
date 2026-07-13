@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { productsApi } from '@/lib/api/products';
 import { ordersApi } from '@/lib/api/orders';
+import { authApi } from '@/lib/api/auth';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PhoneModal } from '@/components/auth/phone-modal';
 
 export default function ProductDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = React.use(params);
@@ -22,6 +24,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState('');
   const [successToast, setSuccessToast] = useState('');
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -42,6 +45,19 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const handleBuyNow = async () => {
     if (!product || product.status !== 'TERSEDIA') return;
 
+    try {
+      const user = await authApi.getMe();
+      if (!user.phone_whatsapp) {
+        setPhoneModalOpen(true);
+        return;
+      }
+      await proceedToCheckout();
+    } catch (err: any) {
+      setError(err.message || 'Gagal memverifikasi pengguna');
+    }
+  };
+
+  const proceedToCheckout = async () => {
     setCheckingOut(true);
     setError('');
     try {
@@ -252,6 +268,14 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
           </div>
         </div>
       </div>
+      <PhoneModal
+        isOpen={phoneModalOpen}
+        onClose={() => setPhoneModalOpen(false)}
+        onSuccess={async () => {
+          setPhoneModalOpen(false);
+          await proceedToCheckout();
+        }}
+      />
     </main>
   );
 }

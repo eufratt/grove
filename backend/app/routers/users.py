@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import WKTElement
 
 from app.db import get_db
-from app.schemas.auth import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest
+from app.schemas.auth import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest, UpdateProfileRequest
 from app.models.user import User, UserRole
 from app.services import auth_service
 
@@ -46,3 +46,25 @@ async def upgrade_to_farmer(
     await db.commit()
     await db.refresh(current_user)
     return current_user
+
+@router.patch("/me", response_model=UserResponse)
+async def update_profile(
+    profile_data: UpdateProfileRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    phone = profile_data.phone_whatsapp or profile_data.phone_number
+    if phone is not None:
+        if phone == "":
+            current_user.phone_whatsapp = None
+        else:
+            if not validate_indonesian_phone(phone):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)"
+                )
+            current_user.phone_whatsapp = phone
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
+
