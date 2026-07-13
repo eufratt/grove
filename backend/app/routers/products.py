@@ -1,4 +1,5 @@
 import json
+import logging
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, text
@@ -11,6 +12,8 @@ from app.models.product import Product, ProductStatus
 from app.schemas.product import ProductResponse, ProductUpdate
 from app.services import auth_service, storage_service, embedding_service, price_matching_service
 from geoalchemy2 import WKTElement
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -46,7 +49,7 @@ async def create_product(
         ref_prices = await price_matching_service.get_latest_reference_prices(db)
         reference_price = price_matching_service.find_reference_price(name, category, ref_prices)
     except Exception as e:
-        print(f"Failed to match reference price: {e}")
+        logger.warning(f"Failed to match reference price: {e}")
 
     new_product = Product(
         seller_id=current_user.id,
