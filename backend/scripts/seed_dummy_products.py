@@ -44,7 +44,8 @@ UNSPLASH_IMAGES = {
     "Cabai Merah": "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?q=80&w=600&auto=format&fit=crop",
     "Daging Ayam": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?q=80&w=600&auto=format&fit=crop",
     "Telur Ayam": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?q=80&w=600&auto=format&fit=crop",
-    "Daging Sapi": "https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=600&auto=format&fit=crop",
+    # photo-1603048588665: displays curry dish, not beef — replaced with verified raw beef photo
+    "Daging Sapi": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop",
     "Minyak Goreng": "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=600&auto=format&fit=crop",
     # photo-1594911774802: returns 404 — replaced with verified sugar/sweet photo
     "Gula Pasir": "https://images.unsplash.com/photo-1581798459219-318e76aecc7b?q=80&w=600&auto=format&fit=crop"
