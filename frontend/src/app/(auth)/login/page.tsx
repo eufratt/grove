@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { authApi } from '@/lib/api/auth';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { Glow } from '@/components/effects/glow';
@@ -88,13 +88,15 @@ export default function LoginPage() {
           ) : (
             <>
               <div className="w-full flex justify-center [&_iframe]:!w-full">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
+                <GoogleSignInButton
+                  onSuccess={(credential) =>
+                    handleGoogleSuccess({ credential })
+                  }
                   onError={() => setError('Google Sign-In failed. Please try again.')}
                   theme="filled_black"
                   shape="pill"
                   size="large"
-                  width="320"
+                  width={320}
                 />
               </div>
 

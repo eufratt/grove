@@ -26,7 +26,7 @@ export default function JualPage() {
           setCheckingAuth(false);
         }
       } catch (err) {
-        router.push('/login');
+        router.replace('/login');
       }
     };
     checkRole();

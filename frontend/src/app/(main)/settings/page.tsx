@@ -26,7 +26,7 @@ export default function SettingsPage() {
         setPhone(userData.phone_whatsapp || '');
       } catch (err) {
         console.error('Failed to get user:', err);
-        router.push('/login');
+        router.replace('/login');
       } finally {
         setFetching(false);
       }
