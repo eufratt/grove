@@ -12,6 +12,7 @@ import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react
 import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
 import { CartSummary } from '@/components/products/cart-summary';
+import { LiveStatsHero } from '@/components/live-stats-hero';
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import('@/components/products/map-view'), { 
@@ -132,7 +133,7 @@ export default function BerandaPage() {
       <Glow color="var(--gr-green)" position="top" className="opacity-10" />
       
       <div className="relative z-10 mx-auto max-w-7xl">
-        <header className="mb-16 text-center lg:text-left">
+        <header className="mb-8 text-center lg:text-left">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
             <div>
               <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live">
@@ -148,6 +149,9 @@ export default function BerandaPage() {
               </p>
             </div>
           </div>
+
+          {/* Live dynamic stats hero component */}
+          <LiveStatsHero />
           
           <div className="mt-12 flex flex-col md:flex-row items-center gap-6">
             <div className="flex-1 w-full">

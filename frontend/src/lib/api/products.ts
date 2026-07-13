@@ -46,4 +46,11 @@ export const productsApi = {
     });
     return response.json();
   },
+  
+  getLiveStats: async () => {
+    const response = await apiClient('/reference-prices/count', {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };
