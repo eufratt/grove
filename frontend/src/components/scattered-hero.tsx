@@ -59,7 +59,7 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
       </div>
 
       {/* Kolom Kanan: Scattered Polaroid Photo Cards (~58%) */}
-      <div className="hidden md:block md:w-[55%] relative overflow-hidden h-[480px] border border-white/5 rounded-3xl bg-white/[0.01] backdrop-blur-3xs">
+      <div className="hidden md:block md:w-[55%] relative overflow-hidden h-[480px]">
         {/* Glow effect inside scattered container */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[300px] rounded-full bg-gr-green/5 blur-3xl pointer-events-none" />
         
