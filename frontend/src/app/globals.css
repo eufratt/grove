@@ -78,8 +78,8 @@
   --gr-text-paper: #1E1812;
   --gr-green: #5CFF9E;
   --gr-green-glow: rgba(92, 255, 158, 0.28);
-  --gr-orange: #FF6B1A;
-  --gr-orange-glow: rgba(255, 107, 26, 0.4);
+  --gr-orange: #FF6B1A; /* Vivid orange accent */
+  --gr-orange-glow: rgba(255, 107, 26, 0.4); /* Vivid orange accent glow */
   --gr-live: #4DFFC4;
   --gr-price-fair: #5CFF9E;
   --gr-price-warn: #FFD166;
