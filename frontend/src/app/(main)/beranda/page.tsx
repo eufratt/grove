@@ -251,11 +251,9 @@ function BerandaContent() {
             onEmpty={fetchInitialProducts}
           />
         ) : products.length > 0 ? (
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-8 space-y-8 [column-fill:_balance]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {products.map((product: any, index: number) => (
-              <div key={product.id} className="break-inside-avoid inline-block w-full mb-8">
-                <ProductCard product={product} index={index} />
-              </div>
+              <ProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
         ) : (
