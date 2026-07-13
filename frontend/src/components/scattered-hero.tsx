@@ -47,10 +47,7 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
     return rot;
   };
 
-  // Find the first product that has a bargain price
-  const dealProduct = scatteredProducts.find(
-    (p) => p.reference_price_per_kg && p.price_per_kg < p.reference_price_per_kg * 0.9
-  );
+
 
   return (
     <div className="flex flex-col md:flex-row gap-8 items-stretch justify-between w-full min-h-[480px]">
@@ -67,7 +64,13 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
         {scatteredProducts.map((product, idx) => {
           const preset = cardPresets[idx % cardPresets.length];
           const rotation = getRotation(product.id);
-          const isDeal = dealProduct?.id === product.id;
+          const refPrice = product.reference_price_per_kg;
+          const price = product.price_per_kg;
+          let discountPercentage = 0;
+          if (refPrice && price < refPrice) {
+            discountPercentage = Math.round(((refPrice - price) / refPrice) * 100);
+          }
+          const showDiscountBadge = discountPercentage >= 10;
 
           return (
             <motion.div
@@ -106,9 +109,9 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
               )}
 
               {/* Deal/Urgent Badge for qualified card */}
-              {isDeal && (
-                <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#07080F] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce">
-                  🔥 Harga Terbaik Hari Ini
+              {showDiscountBadge && (
+                <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#EDE8DC] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce">
+                  🔥 {discountPercentage}% di bawah harga pasar
                 </div>
               )}
 
