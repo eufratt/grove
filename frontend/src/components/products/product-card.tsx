@@ -11,7 +11,47 @@ interface ProductCardProps {
   index: number;
 }
 
+const formatPriceShorthand = (price: number) => {
+  if (price >= 1000000) {
+    return `${(price / 1000000).toFixed(1).replace('.0', '')}jt`;
+  }
+  if (price >= 1000) {
+    return `${(price / 1000).toFixed(0)}rb`;
+  }
+  return price.toString();
+};
+
 export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
+  const price = product.price_per_kg;
+  const refPrice = product.reference_price_per_kg;
+
+  // SVG params for 48px circle
+  const size = 48;
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  let percentage = 0;
+  let ringColor = "stroke-white/20"; // default grey
+  let tooltipText = "Belum ada data referensi";
+
+  if (refPrice) {
+    percentage = Math.min(100, (price / refPrice) * 100);
+    const ratio = price / refPrice;
+    if (ratio >= 1.0) {
+      ringColor = "stroke-gr-price-fair"; // green
+      tooltipText = `Harga Adil (100% dari referensi: Rp ${refPrice.toLocaleString('id-ID')}/kg)`;
+    } else if (ratio >= 0.9) {
+      ringColor = "stroke-gr-price-warn"; // yellow
+      tooltipText = `Harga Wajar (${Math.round(ratio * 100)}% dari referensi: Rp ${refPrice.toLocaleString('id-ID')}/kg)`;
+    } else {
+      ringColor = "stroke-gr-price-unfair"; // red
+      tooltipText = `Harga Murah (${Math.round(ratio * 100)}% dari referensi: Rp ${refPrice.toLocaleString('id-ID')}/kg)`;
+    }
+  }
+
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -39,6 +79,43 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
             {product.status}
           </span>
         </div>
+
+        {/* Circular Price ring in top right corner */}
+        <div 
+          className="absolute top-4 right-4 z-20 h-12 w-12 cursor-help relative group/tooltip"
+        >
+          {/* Tooltip */}
+          <div className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 w-48 hidden group-hover/tooltip:block bg-gr-bg-elevated border border-white/10 text-gr-text-primary text-[10px] p-2 rounded shadow-xl backdrop-blur-md text-center z-30 font-mono">
+            {tooltipText}
+          </div>
+          
+          <svg width="48" height="48" className="transform -rotate-90">
+            {/* Background circle track */}
+            <circle
+              cx="24"
+              cy="24"
+              r={radius}
+              className="fill-gr-bg/90 stroke-white/10"
+              strokeWidth={strokeWidth}
+            />
+            {/* Progress circle */}
+            {refPrice && (
+              <circle
+                cx="24"
+                cy="24"
+                r={radius}
+                className={cn("fill-transparent transition-all duration-500", ringColor)}
+                strokeWidth={strokeWidth}
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+              />
+            )}
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center font-mono text-[10px] font-bold text-gr-text-primary">
+            {formatPriceShorthand(price)}
+          </div>
+        </div>
         
         {/* Hover Overlay */}
         <div className="absolute inset-0 bg-gr-bg/20 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -58,32 +135,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         <h3 className="font-display text-2xl font-medium text-gr-text-primary group-hover:text-gr-green transition-colors">
           {product.name}
         </h3>
-
-        {product.reference_price_per_kg && (
-          <div className="py-1">
-            <PriceGauge 
-              hargaProduk={product.price_per_kg} 
-              hargaReferensi={product.reference_price_per_kg} 
-              isMini={true} 
-            />
-          </div>
-        )}
         
         <div className="mt-2 flex items-baseline justify-between border-t border-white/5 pt-2">
           <div className="flex flex-col">
-            <span className="font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30">
-              Harga / KG
-            </span>
-            <span className="font-mono text-xl text-gr-green">
-              Rp {product.price_per_kg.toLocaleString('id-ID')}
-            </span>
-          </div>
-          <div className="text-right">
             <span className="font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30">
               Stok
             </span>
             <span className="block font-mono text-sm text-gr-text-primary/80">
               {product.quantity_kg} KG
+            </span>
+          </div>
+          <div className="text-right">
+            <span className="font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30">
+              Harga / KG
+            </span>
+            <span className="block font-mono text-sm text-gr-green">
+              Rp {product.price_per_kg.toLocaleString('id-ID')}
             </span>
           </div>
         </div>
