@@ -87,19 +87,13 @@ export function ScatteredHero({ products, children }: ScatteredHeroProps) {
                 scale: 1,
                 rotate: rotation 
               }}
-              whileHover={{ 
-                rotate: 0,
-                scale: 1.06,
-                zIndex: 50,
-                transition: { duration: 0.3, ease: 'easeOut' }
-              }}
               transition={{ 
                 duration: 0.6, 
                 delay: idx * 0.1,
                 ease: [0.21, 0.47, 0.32, 0.98]
               }}
               className={cn(
-                "absolute bg-[#f9f7f1] border border-black/10 p-3 pb-5 shadow-2xl flex flex-col select-none cursor-pointer",
+                "absolute bg-[#f9f7f1] border border-black/10 p-3 pb-5 shadow-2xl flex flex-col select-none cursor-pointer transform origin-center transition-all duration-300 ease-out hover:!scale-[1.06] hover:!rotate-0 hover:!z-50 hover:shadow-3xl",
                 preset.size,
                 preset.zIndex
               )}
