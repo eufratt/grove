@@ -4,12 +4,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { productsApi } from '@/lib/api/products';
 import { Glow } from '@/components/effects/glow';
 import { useInView } from 'framer-motion';
+import Link from 'next/link';
 
 interface StatsData {
   total_commodities: number;
   last_updated: string | null;
   active_products: number;
 }
+
 
 function CountUp({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -95,7 +97,7 @@ export function LiveStatsHero() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mx-auto my-10 relative z-10">
       {/* Card 1: Total Reference Prices */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 group">
+      <Link href="/harga-pasar" className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 hover:bg-white/[0.03] group cursor-pointer">
         <Glow color="var(--gr-green)" position="center" className="opacity-5 pointer-events-none scale-[0.6] group-hover:opacity-10 transition-opacity" />
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1 z-10">
           Total Acuan Harga
@@ -103,7 +105,7 @@ export function LiveStatsHero() {
         <span className="font-display text-5xl font-semibold text-gr-green tracking-tight z-10">
           <CountUp value={stats.total_commodities} />
         </span>
-      </div>
+      </Link>
 
       {/* Card 2: Last Scraped Time */}
       <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 group">
