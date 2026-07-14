@@ -259,37 +259,8 @@ export default function HargaPasarPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-            {/* Map Area (Left - 3/5 width on desktop) */}
-            <div className="lg:col-span-3 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
-                  {activeTab === 'pricing' ? 'Sebaran Peta Provinsi' : 'Peta Jangkauan Produk'}
-                </span>
-                {activeTab === 'pricing' && selectedProvince && (
-                  <span className="font-sans text-xs text-gr-green bg-gr-green/10 px-3 py-0.5 rounded-full border border-gr-green/20">
-                    Provinsi Terpilih: {selectedProvince}
-                  </span>
-                )}
-                {activeTab === 'products' && userLocation && (
-                  <span className="font-sans text-xs text-gr-green bg-gr-green/10 px-3 py-0.5 rounded-full border border-gr-green/20">
-                    Radius Deteksi: {radiusKm} KM
-                  </span>
-                )}
-              </div>
-              
-              <MapView
-                mode={activeTab}
-                products={activeTab === 'products' ? filteredProducts : []}
-                radiusKm={radiusKm}
-                pricesByProvince={pricesByProvince}
-                selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
-                onSelectProvince={setSelectedProvince}
-                userLocation={userLocation}
-              />
-            </div>
-
-            {/* Sidebar Dark Panel (Right - 2/5 width on desktop) */}
-            <div className="lg:col-span-2 rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md shadow-2xl flex flex-col min-h-[580px] max-h-[620px] overflow-hidden">
+            {/* Sidebar Dark Panel (Left - 2/5 width on desktop, stacked below map on mobile) */}
+            <div className="lg:col-span-2 rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md shadow-2xl flex flex-col min-h-[580px] max-h-[620px] overflow-hidden order-2 lg:order-1">
               
               {/* 1. Header Block (Identitas Panel) */}
               <div className="flex items-center gap-2.5 pb-4 border-b border-white/5 mb-4 shrink-0">
@@ -386,7 +357,7 @@ export default function HargaPasarPage() {
                         <select
                           value={selectedCommodity}
                           onChange={(e) => setSelectedCommodity(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-3 pr-8 py-2 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
+                          className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
                         >
                           <option value="ALL" className="bg-[#07080F] text-gr-text-primary">Semua Komoditas</option>
                           {commodities.map((comm) => (
@@ -542,6 +513,35 @@ export default function HargaPasarPage() {
                 </>
               )}
 
+            </div>
+
+            {/* Map Area (Right - 3/5 width on desktop, stacked on top on mobile) */}
+            <div className="lg:col-span-3 space-y-4 order-1 lg:order-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+                  {activeTab === 'pricing' ? 'Sebaran Peta Provinsi' : 'Peta Jangkauan Produk'}
+                </span>
+                {activeTab === 'pricing' && selectedProvince && (
+                  <span className="font-sans text-xs text-gr-green bg-gr-green/10 px-3 py-0.5 rounded-full border border-gr-green/20">
+                    Provinsi Terpilih: {selectedProvince}
+                  </span>
+                )}
+                {activeTab === 'products' && userLocation && (
+                  <span className="font-sans text-xs text-gr-green bg-gr-green/10 px-3 py-0.5 rounded-full border border-gr-green/20">
+                    Radius Deteksi: {radiusKm} KM
+                  </span>
+                )}
+              </div>
+              
+              <MapView
+                mode={activeTab}
+                products={activeTab === 'products' ? filteredProducts : []}
+                radiusKm={radiusKm}
+                pricesByProvince={pricesByProvince}
+                selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
+                onSelectProvince={setSelectedProvince}
+                userLocation={userLocation}
+              />
             </div>
           </div>
         )}
