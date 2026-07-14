@@ -1,10 +1,13 @@
 import { apiClient } from './client';
 
 export const referencePricesApi = {
-  getReferencePrices: async (page = 1, limit = 20, commodity?: string, search?: string) => {
+  getReferencePrices: async (page = 1, limit = 20, commodity?: string, search?: string, region?: string) => {
     let url = `/reference-prices?page=${page}&limit=${limit}`;
     if (commodity && commodity !== 'ALL') {
       url += `&commodity=${encodeURIComponent(commodity)}`;
+    }
+    if (region) {
+      url += `&region=${encodeURIComponent(region)}`;
     }
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
