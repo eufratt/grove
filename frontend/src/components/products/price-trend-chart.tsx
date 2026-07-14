@@ -108,12 +108,16 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("filter", "drop-shadow(0 0 6px rgba(92,255,158,0.3))")
       .attr("d", lineGenerator);
 
+    // Calculate tick interval in days to prevent sub-day ticks and duplicates
+    const dateRangeDays = Math.max(1, Math.round((xDomain[1].getTime() - xDomain[0].getTime()) / (1000 * 60 * 60 * 24)));
+    const tickInterval = Math.max(1, Math.floor(dateRangeDays / 6));
+
     // X Axis
     svg.append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .attr("opacity", 0.5)
       .call(d3.axisBottom(xScale)
-        .ticks(Math.min(parsedData.length, 6))
+        .ticks(d3.timeDay.every(tickInterval))
         .tickFormat(d3.timeFormat("%d %b") as any)
       )
       .selectAll("text")

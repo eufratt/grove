@@ -100,7 +100,8 @@ async def get_reference_prices_history(
     if region:
         query = query.where(ReferencePrice.region == region)
     if days:
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        # Fetch slightly more history to help with initial forward fill
+        cutoff = datetime.utcnow() - timedelta(days=days + 15)
         query = query.where(ReferencePrice.scraped_at >= cutoff)
         
     query = query.order_by(ReferencePrice.scraped_at.asc())
@@ -108,4 +109,69 @@ async def get_reference_prices_history(
     res = await db.execute(query)
     items = res.scalars().all()
     
-    return items
+    if not items:
+        return []
+
+    # Map date to latest price entry
+    date_to_item = {}
+    for item in items:
+        d_key = item.scraped_at.date()
+        date_to_item[d_key] = item
+
+    # Target date range is from (today - days + 1) to today
+    end_date = datetime.utcnow().date()
+    # In case DB has slightly more recent date
+    max_db_date = max(item.scraped_at.date() for item in items)
+    if max_db_date > end_date:
+        end_date = max_db_date
+
+    start_date = end_date - timedelta(days=(days or 30) - 1)
+
+    # Pre-populate last seen price from history before start_date
+    last_price = None
+    last_source = None
+    for item in items:
+        if item.scraped_at.date() < start_date:
+            last_price = item.price_per_kg
+            last_source = item.source
+        else:
+            break
+
+    # Fallback price in case we have no data before start_date
+    fallback_price = items[0].price_per_kg
+    fallback_source = items[0].source
+
+    history = []
+    current_date = start_date
+    while current_date <= end_date:
+        if current_date in date_to_item:
+            item = date_to_item[current_date]
+            last_price = item.price_per_kg
+            last_source = item.source
+            
+            history.append({
+                "id": str(item.id),
+                "commodity_name": item.commodity_name,
+                "price_per_kg": item.price_per_kg,
+                "source": item.source,
+                "region": item.region,
+                "scraped_at": item.scraped_at.isoformat()
+            })
+        else:
+            price = last_price if last_price is not None else fallback_price
+            source = last_source if last_source is not None else fallback_source
+            
+            # Use 08:00:00 as the standardized timestamp for interpolated entries
+            dt = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=8)
+            
+            history.append({
+                "id": None,
+                "commodity_name": commodity or "Unknown",
+                "price_per_kg": price,
+                "source": f"{source} (Interpolated)",
+                "region": region or "Nasional",
+                "scraped_at": dt.isoformat()
+            })
+        current_date += timedelta(days=1)
+
+    return history
