@@ -18,15 +18,7 @@ import { PersonalGreeting } from '@/components/personal-greeting';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-// Dynamic import for MapView to avoid SSR issues
-const MapView = dynamic(() => import('@/components/products/map-view'), { 
-  ssr: false,
-  loading: () => (
-    <div className="h-[600px] w-full flex items-center justify-center bg-white/5 rounded-2xl animate-pulse">
-      <Loader2 className="h-8 w-8 text-gr-green animate-spin opacity-20" />
-    </div>
-  )
-});
+
 
 function BerandaContent() {
   const [products, setProducts] = useState<any[]>([]);
@@ -35,9 +27,8 @@ function BerandaContent() {
   const [isSearching, setIsSearching] = useState(false);
   
   // New state for map and geolocation
-  const [viewMode, setViewMode] = useState<'list' | 'map' | 'explore'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'explore'>('list');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [radiusKm, setRadiusKm] = useState(10);
   const [locationError, setLocationError] = useState<string | null>(null);
   
   // User and Demand Requests State
@@ -136,32 +127,15 @@ function BerandaContent() {
   }, []);
 
   const handleClearSearch = useCallback(() => {
-    if (viewMode === 'map' && userLocation) {
-      fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
-    } else {
-      setProducts(initialProducts);
-    }
-  }, [viewMode, userLocation, radiusKm, initialProducts]);
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
-  const toggleViewMode = (mode: 'list' | 'map' | 'explore') => {
+  const toggleViewMode = (mode: 'list' | 'explore') => {
     setViewMode(mode);
-    if (mode === 'map') {
-      requestLocation();
-      if (userLocation) {
-        fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
-      }
-    } else if (mode === 'explore') {
+    if (mode === 'explore') {
       fetchDemandRequests();
     } else if (mode === 'list') {
       setProducts(initialProducts);
-    }
-  };
-
-  const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newRadius = parseInt(e.target.value);
-    setRadiusKm(newRadius);
-    if (userLocation) {
-      fetchNearbyProducts(userLocation[0], userLocation[1], newRadius);
     }
   };
 
@@ -177,12 +151,20 @@ function BerandaContent() {
             <PersonalGreeting />
             
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full">
-              <div className="flex-1 w-full">
+              <div className="flex-1 w-full flex flex-col gap-2">
                 <SearchBar 
                   onResults={handleSearchResults} 
                   onLoading={setIsSearching} 
                   onClear={handleClearSearch} 
                 />
+                <div className="flex justify-start px-2">
+                  <Link 
+                    href="/harga-pasar" 
+                    className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-green hover:underline hover:text-gr-green/80 transition-all cursor-pointer"
+                  >
+                    Lihat Peta Acuan Harga
+                  </Link>
+                </div>
               </div>
               
               <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
@@ -206,34 +188,8 @@ function BerandaContent() {
                   <Compass size={12} />
                   Jelajah
                 </button>
-                <button
-                  onClick={() => toggleViewMode('map')}
-                  className={cn(
-                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all",
-                    viewMode === 'map' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
-                  )}
-                >
-                  <MapIcon size={12} />
-                  Peta
-                </button>
               </div>
             </div>
-
-            {viewMode === 'map' && userLocation && (
-              <div className="mt-6 flex items-center justify-center lg:justify-start gap-4">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
-                  Radius: {radiusKm} KM
-                </span>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="50" 
-                  value={radiusKm} 
-                  onChange={handleRadiusChange}
-                  className="w-48 accent-gr-green"
-                />
-              </div>
-            )}
           </ScatteredHero>
 
           <div className="mt-12 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
@@ -245,17 +201,6 @@ function BerandaContent() {
             <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-text-primary/30">
               {isSearching ? 'Mencari hasil terdekat...' : 'Memuat produk...'}
             </span>
-          </div>
-        ) : viewMode === 'map' ? (
-          <div className="space-y-8">
-            <MapView 
-              products={products} 
-              center={userLocation || [-6.2000, 106.8166]} 
-              userLocation={userLocation}
-              radiusKm={radiusKm}
-              locationError={locationError}
-              zoom={userLocation ? 12 : 11}
-            />
           </div>
         ) : viewMode === 'explore' ? (
           (!user || user.role === 'PEMBELI') ? (

@@ -35,14 +35,21 @@ async def get_reference_prices(
             (ReferencePrice.region.ilike(f"%{search}%"))
         )
 
+    # Deduplicate by commodity_name and region, getting the latest entry (scraped_at DESC)
+    query = query.distinct(ReferencePrice.commodity_name, ReferencePrice.region).order_by(
+        ReferencePrice.commodity_name,
+        ReferencePrice.region,
+        ReferencePrice.scraped_at.desc()
+    )
+
     # Total matching count
     count_query = select(func.count()).select_from(query.subquery())
     res_count = await db.execute(count_query)
     total = res_count.scalar() or 0
 
     # Pagination
-    query = query.order_by(ReferencePrice.commodity_name, ReferencePrice.region).offset((page - 1) * limit).limit(limit)
-    res_items = await db.execute(query)
+    paginated_query = query.offset((page - 1) * limit).limit(limit)
+    res_items = await db.execute(paginated_query)
     items = res_items.scalars().all()
 
     pages = (total + limit - 1) // limit if limit > 0 else 0
