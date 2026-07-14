@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { productsApi } from '@/lib/api/products';
+import { authApi } from '@/lib/api/auth';
+import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { ProductCard } from '@/components/products/product-card';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
@@ -11,10 +13,10 @@ import { SearchBar } from '@/components/search/search-bar';
 import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react';
 import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
-import { CartSummary } from '@/components/products/cart-summary';
 import { ScatteredHero } from '@/components/scattered-hero';
 import { PersonalGreeting } from '@/components/personal-greeting';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import('@/components/products/map-view'), { 
@@ -38,15 +40,30 @@ function BerandaContent() {
   const [radiusKm, setRadiusKm] = useState(10);
   const [locationError, setLocationError] = useState<string | null>(null);
   
-  // Cart state for the session
-  const [cart, setCart] = useState<string[]>([]);
+  // User and Demand Requests State
+  const [user, setUser] = useState<any | null>(null);
+  const [demandRequests, setDemandRequests] = useState<any[]>([]);
 
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode');
 
+  // Fetch Demand Requests for Fulfilling (Swipe Deck)
+  const fetchDemandRequests = async () => {
+    setIsLoading(true);
+    try {
+      const data = await demandRequestsApi.getOpenDemandRequests();
+      setDemandRequests(data);
+    } catch (error) {
+      console.error('Failed to fetch demand requests:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (mode === 'jelajah') {
       setViewMode('explore');
+      fetchDemandRequests();
     } else if (mode === null) {
       setViewMode('list');
     }
@@ -100,6 +117,15 @@ function BerandaContent() {
   };
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await authApi.getMe();
+        setUser(data);
+      } catch (err) {
+        setUser(null);
+      }
+    };
+    fetchUser();
     fetchInitialProducts();
     requestLocation();
   }, []);
@@ -125,17 +151,9 @@ function BerandaContent() {
         fetchNearbyProducts(userLocation[0], userLocation[1], radiusKm);
       }
     } else if (mode === 'explore') {
-      setProducts(initialProducts);
+      fetchDemandRequests();
     } else if (mode === 'list') {
       setProducts(initialProducts);
-    }
-  };
-
-  const handleAddToCart = (product: any) => {
-    if (cart.includes(product.id)) return;
-    setCart(prev => [...prev, product.id]);
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Added to cart: ${product.name}`);
     }
   };
 
@@ -240,16 +258,35 @@ function BerandaContent() {
             />
           </div>
         ) : viewMode === 'explore' ? (
-          <SwipeDeck 
-            products={products} 
-            onSwipeRight={handleAddToCart}
-            onSwipeLeft={(p) => {
-              if (process.env.NODE_ENV === 'development') {
-                console.log(`Skipped: ${p.name}`);
-              }
-            }}
-            onEmpty={fetchInitialProducts}
-          />
+          (!user || user.role === 'PEMBELI') ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 max-w-md mx-auto bg-white/[0.02] border border-white/5 p-8 rounded-3xl backdrop-blur-xl">
+              <Compass className="h-16 w-16 text-gr-orange animate-pulse" />
+              <h3 className="font-display text-2xl text-gr-text-primary">Mode Jelajah Terbatas</h3>
+              <p className="font-sans text-sm text-gr-text-primary/60 leading-relaxed">
+                Mode Jelajah (Swipe Deck) dirancang khusus bagi para petani untuk menemukan dan berkomitmen memenuhi permintaan hasil panen dari pembeli.
+              </p>
+              <div className="bg-gr-green/5 border border-gr-green/10 p-4 rounded-2xl text-xs text-gr-green font-sans leading-relaxed">
+                Sebagai pembeli, kamu bisa mengajukan permintaan di sini untuk dipenuhi oleh petani lokal.
+              </div>
+              <Link
+                href="/ajukan-permintaan"
+                className="inline-flex items-center gap-2 bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all cursor-pointer animate-bounce"
+              >
+                Ajukan Permintaan Baru
+              </Link>
+            </div>
+          ) : (
+            <SwipeDeck 
+              requests={demandRequests} 
+              onSwipeRight={fetchDemandRequests}
+              onSwipeLeft={(r) => {
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`Skipped demand: ${r.commodity_name}`);
+                }
+              }}
+              onEmpty={fetchDemandRequests}
+            />
+          )
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {products.map((product: any, index: number) => (
@@ -267,15 +304,6 @@ function BerandaContent() {
           </div>
         )}
       </div>
-
-      {viewMode === 'explore' && cart.length > 0 && (
-        <CartSummary
-          cart={cart}
-          products={products}
-          onRemoveFromCart={(id) => setCart((prev) => prev.filter((item) => item !== id))}
-          onCheckoutSuccess={(succeededIds) => setCart((prev) => prev.filter((item) => !succeededIds.includes(item)))}
-        />
-      )}
     </main>
   );
 }
