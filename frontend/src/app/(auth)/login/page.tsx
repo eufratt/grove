@@ -7,6 +7,7 @@ import { authApi } from '@/lib/api/auth';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { Glow } from '@/components/effects/glow';
 import { Leaf } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,6 +58,18 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+      {/* Minimal Header */}
+      <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gr-green/20 bg-gr-green/5 text-gr-green transition-all duration-300 group-hover:border-gr-green/50 group-hover:bg-gr-green/10">
+            <Leaf size={18} className="transition-transform group-hover:rotate-12" />
+          </div>
+          <span className="font-display text-2xl font-medium tracking-tight text-gr-text-primary">
+            Grove
+          </span>
+        </Link>
+      </header>
+
       <BgPattern />
       <Glow color="var(--gr-green)" position="center" className="opacity-15" />
       
