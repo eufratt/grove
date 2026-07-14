@@ -144,7 +144,14 @@ export default function HargaPasarPage() {
                 }
               });
 
-              if (Object.keys(pricesByProvince).includes(closestProv)) {
+              // Extract active regions from raw fetched data.items to avoid React state update race condition
+              const activeRegions = new Set(
+                data.items
+                  .map((item: any) => item.region)
+                  .filter((region: string) => region && region !== 'Nasional')
+              );
+
+              if (activeRegions.has(closestProv)) {
                 setSelectedProvince(closestProv);
               } else if (data.items.length > 0) {
                 selectFallbackProvince(data.items);
