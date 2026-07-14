@@ -177,6 +177,13 @@ async def get_demand_request_detail(
     res_commitments = await db.execute(stmt_commitments)
     commitments = res_commitments.scalars().all()
 
+    # Fetch distinct count of petani who committed
+    stmt_count_petani = select(func.count(func.distinct(SupplyCommitment.petani_id))).where(
+        SupplyCommitment.demand_request_id == id
+    )
+    res_count_petani = await db.execute(stmt_count_petani)
+    num_petani = res_count_petani.scalar() or 0
+
     commits_list = [{
         "id": c.id,
         "quantity_kg_committed": c.quantity_kg_committed,
@@ -195,7 +202,8 @@ async def get_demand_request_detail(
         "created_at": request.created_at,
         "latitude": lat,
         "longitude": lng,
-        "commitments": commits_list
+        "commitments": commits_list,
+        "num_petani_committed": num_petani
     }
 
 @router.post("/{id}/commit", response_model=SupplyCommitmentSummary)
@@ -245,12 +253,20 @@ async def commit_supply_to_demand(
     await db.refresh(commitment)
     await db.refresh(request)
 
+    # Fetch distinct count of petani who committed
+    stmt_count_petani = select(func.count(func.distinct(SupplyCommitment.petani_id))).where(
+        SupplyCommitment.demand_request_id == id
+    )
+    res_count_petani = await db.execute(stmt_count_petani)
+    num_petani = res_count_petani.scalar() or 0
+
     # Broadcast updated stats to active WebSocket subscribers
     await demand_manager.broadcast(
         str(id),
         {
             "quantity_kg_committed": request.quantity_kg_committed,
-            "status": request.status.value
+            "status": request.status.value,
+            "num_petani_committed": num_petani
         }
     )
 

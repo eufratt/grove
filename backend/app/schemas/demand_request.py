@@ -39,6 +39,7 @@ class DemandRequestResponse(BaseModel):
 
 class DemandRequestDetailResponse(DemandRequestResponse):
     commitments: List[SupplyCommitmentSummary] = []
+    num_petani_committed: int = 0
 
     class Config:
         from_attributes = True
