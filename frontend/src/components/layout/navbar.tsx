@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
 import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, LayoutGroup } from 'framer-motion';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -97,6 +97,7 @@ export function Navbar() {
           </div>
 
           {/* Navigation Links */}
+          <LayoutGroup id="navbar">
           <div className="hidden sm:flex sm:space-x-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm relative">
             {navItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -115,6 +116,7 @@ export function Navbar() {
                   {isActive && (
                     <motion.div
                       layoutId="active-nav-pill"
+                      initial={false}
                       className="absolute inset-0 bg-gr-green rounded-full -z-10 shadow-lg shadow-gr-green/20"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
@@ -125,6 +127,7 @@ export function Navbar() {
               );
             })}
           </div>
+          </LayoutGroup>
 
           {/* Actions */}
           <div className="flex items-center gap-4">

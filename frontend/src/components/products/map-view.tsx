@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Tooltip, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
@@ -140,9 +140,11 @@ export const MapView: React.FC<MapViewProps> = ({
         center={activeCenter} 
         zoom={activeZoom} 
         scrollWheelZoom={true}
+        zoomControl={false}
         className="h-full w-full z-10"
       >
         <MapController center={activeCenter} zoom={activeZoom} flyToCoords={flyToCoords} />
+        <ZoomControl position="bottomleft" />
         
         {/* CartoDB Dark Matter Tile Layer */}
         <TileLayer
