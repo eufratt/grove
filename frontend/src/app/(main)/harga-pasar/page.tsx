@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 const MapView = dynamic(() => import('@/components/products/map-view'), {
   ssr: false,
   loading: () => (
-    <div className="h-[550px] w-full flex items-center justify-center bg-white/5 rounded-3xl border border-white/5 animate-pulse">
+    <div className="h-full w-full flex items-center justify-center bg-white/5 animate-pulse min-h-[300px]">
       <div className="flex flex-col items-center gap-2">
         <Loader2 className="h-8 w-8 text-gr-green animate-spin opacity-30" />
         <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/20">Memuat Peta...</span>
@@ -211,59 +211,27 @@ export default function HargaPasarPage() {
   }, [nearbyProducts, searchQuery]);
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8">
+    <main className="relative flex-grow h-[calc(100vh-64px)] w-full flex overflow-hidden bg-gr-bg">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10 scale-110 pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-7xl">
-        <header className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live flex items-center gap-2">
-                <TrendingUp size={12} className="text-gr-live animate-pulse" />
-                Acuan Harga PIHPS
-              </span>
-              <h1 className="mt-4 font-display text-5xl font-medium text-gr-text-primary">
-                Harga Pasar Nasional
-              </h1>
-            </div>
-            <div className="shrink-0">
-              <Link
-                href="/tren-harga"
-                className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-green hover:underline bg-gr-green/10 border border-gr-green/20 px-4 py-2.5 rounded-full hover:bg-gr-green/20 transition-all cursor-pointer"
-              >
-                Lihat Tren Harga Historis &rarr;
-              </Link>
-            </div>
-          </div>
-          <p className="mt-2 font-sans text-sm text-gr-text-primary/60 max-w-3xl">
-            Integrasi acuan harga komoditas pangan pokok strategis dari Pusat Informasi Harga Pangan Strategis (PIHPS) Indonesia, disajikan dalam bentuk peta sebaran data interaktif.
-          </p>
-          <div className="mt-6 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
-        </header>
-
-        {locationMessage && (
-          <div className="mb-6 rounded-2xl bg-gr-orange/10 p-3.5 text-xs text-gr-orange border border-gr-orange/20 flex items-center gap-2 max-w-md">
-            <Info size={14} className="shrink-0" />
-            <span>{locationMessage}</span>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-40">
-            <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
-            <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-text-primary/30">
-              Sinkronisasi data wilayah...
-            </span>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-            {/* Sidebar Dark Panel (Left - 2/5 width on desktop, stacked below map on mobile) */}
-            <div className="lg:col-span-2 rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md shadow-2xl flex flex-col min-h-[580px] max-h-[620px] overflow-hidden order-2 lg:order-1">
-              
-              {/* 1. Header Block (Identitas Panel) */}
-              <div className="flex items-center gap-2.5 pb-4 border-b border-white/5 mb-4 shrink-0">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center w-full h-full">
+          <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+          <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-text-primary/30">
+            Sinkronisasi data wilayah...
+          </span>
+        </div>
+      ) : (
+        <div className="flex-grow flex flex-col md:flex-row h-full w-full overflow-hidden relative z-10">
+          
+          {/* Sidebar Dark Panel (Left - occupies fixed width on desktop, stacked below on mobile) */}
+          <div className="w-full md:w-[380px] lg:w-[420px] h-[50%] md:h-full flex flex-col bg-[#07080F]/90 backdrop-blur-lg border-r border-white/5 p-6 shrink-0 shadow-2xl overflow-hidden order-2 md:order-1">
+            
+            {/* 1. Header Block (Identitas Panel) */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-4 shrink-0">
+              <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-lg bg-gr-green/10 flex items-center justify-center border border-gr-green/20">
                   <TrendingUp size={16} className="text-gr-green animate-pulse" />
                 </div>
@@ -276,276 +244,288 @@ export default function HargaPasarPage() {
                   </span>
                 </div>
               </div>
-
-              {/* 2. Prominent Search Bar (Topmost element in sidebar) */}
-              <div className="relative mb-4 shrink-0">
-                <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gr-text-primary/30" />
-                <input
-                  type="text"
-                  placeholder="Cari komoditas atau lokasi..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-10 pr-4 py-2.5 rounded-full font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all placeholder:text-gr-text-primary/30 shadow-inner"
-                />
-              </div>
-
-              {/* 3. Tab Toggle Selector */}
-              <div className="flex bg-white/5 p-1 rounded-full border border-white/10 mb-5 shrink-0">
-                <button
-                  onClick={() => {
-                    setActiveTab('pricing');
-                    setSearchQuery('');
-                  }}
-                  className={cn(
-                    "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
-                    activeTab === 'pricing' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
-                  )}
-                >
-                  Harga Referensi
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('products');
-                    setSearchQuery('');
-                  }}
-                  className={cn(
-                    "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
-                    activeTab === 'products' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
-                  )}
-                >
-                  Produk Terdekat
-                </button>
-              </div>
-
-              {/* Layout Mode 1: Harga Referensi */}
-              {activeTab === 'pricing' && (
-                <>
-                  {/* Title and Count Badge */}
-                  <div className="mb-4 flex items-center justify-between shrink-0">
-                    <div>
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                        Rincian Acuan Harga
-                      </span>
-                      <h2 className="font-display text-2xl font-medium text-gr-orange mt-0.5">
-                        {selectedProvince || 'Nasional'}
-                      </h2>
-                    </div>
-                    <span className="font-sans text-[9px] font-bold text-gr-text-primary/60 bg-white/[0.06] border border-white/5 px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
-                      {filteredPrices.length} ditemukan
-                    </span>
-                  </div>
-
-                  {/* Dropdowns panel without duplicate search bar */}
-                  <div className="bg-white/[0.03] border border-white/5 p-3 rounded-2xl shadow-inner mb-4 shrink-0">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="relative">
-                        <select
-                          value={selectedProvince || ''}
-                          onChange={(e) => setSelectedProvince(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-3 pr-8 py-2 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
-                        >
-                          {availableProvinces.map((prov) => (
-                            <option key={prov} value={prov} className="bg-[#07080F] text-gr-text-primary">
-                              {prov}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gr-text-primary/40 pointer-events-none" />
-                      </div>
-
-                      <div className="relative">
-                        <select
-                          value={selectedCommodity}
-                          onChange={(e) => setSelectedCommodity(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
-                        >
-                          <option value="ALL" className="bg-[#07080F] text-gr-text-primary">Semua Komoditas</option>
-                          {commodities.map((comm) => (
-                            <option key={comm} value={comm} className="bg-[#07080F] text-gr-text-primary">
-                              {comm}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gr-text-primary/40 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pricing Cards list */}
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                    {filteredPrices.length > 0 ? (
-                      filteredPrices.map((item) => (
-                        <div 
-                          key={item.id}
-                          className="p-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-2xl flex justify-between items-center group transition-all"
-                        >
-                          <div className="min-w-0 pr-3">
-                            <p className="font-display text-sm font-semibold text-gr-text-primary group-hover:text-gr-green transition-colors truncate">
-                              {item.commodity_name}
-                            </p>
-                            <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-gr-text-primary/40 mt-2 bg-white/5 px-2 py-0.5 rounded">
-                              <Calendar size={9} />
-                              {getRelativeTime(item.scraped_at)}
-                            </span>
-                          </div>
-                          
-                          <div className="shrink-0 text-right">
-                            <span className="block font-mono text-sm font-bold text-gr-green">
-                              Rp {item.price_per_kg.toLocaleString('id-ID')}
-                            </span>
-                            <span className="font-sans text-[9px] text-gr-text-primary/30 uppercase tracking-widest mt-0.5 block">
-                              per KG
-                            </span>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="py-20 text-center">
-                        <Tag className="h-8 w-8 text-gr-text-primary/10 mx-auto mb-2" />
-                        <p className="font-sans text-xs text-gr-text-primary/30 italic">
-                          Tidak ada acuan harga yang cocok
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {/* Layout Mode 2: Produk Terdekat */}
-              {activeTab === 'products' && (
-                <>
-                  {/* Title and Count Badge */}
-                  <div className="mb-4 flex items-center justify-between shrink-0">
-                    <div>
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                        Pemetaan Panen Lokal
-                      </span>
-                      <h2 className="font-display text-2xl font-medium text-gr-orange mt-0.5">
-                        Produk Terdekat
-                      </h2>
-                    </div>
-                    <span className="font-sans text-[9px] font-bold text-gr-text-primary/60 bg-white/[0.06] border border-white/5 px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
-                      {filteredProducts.length} ditemukan
-                    </span>
-                  </div>
-
-                  {/* Radius Slider Panel */}
-                  <div className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl space-y-3 shadow-inner mb-4 shrink-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                        Radius Jangkauan
-                      </span>
-                      <span className="font-mono text-xs text-gr-green font-bold bg-gr-green/10 px-2 py-0.5 rounded">
-                        {radiusKm} KM
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="1"
-                      max="50"
-                      value={radiusKm}
-                      onChange={(e) => setRadiusKm(parseInt(e.target.value))}
-                      className="w-full accent-gr-green cursor-pointer"
-                    />
-                  </div>
-
-                  {/* Products Card List */}
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                    {!userLocation ? (
-                      <div className="py-20 text-center space-y-3">
-                        <Info className="h-8 w-8 text-gr-orange mx-auto animate-pulse" />
-                        <p className="font-sans text-xs text-gr-text-primary/40 max-w-[240px] mx-auto leading-relaxed">
-                          Aktifkan lokasi di browser untuk mencari produk di sekitarmu
-                        </p>
-                      </div>
-                    ) : fetchingProducts ? (
-                      <div className="flex flex-col items-center justify-center py-20">
-                        <Loader2 className="h-8 w-8 text-gr-green animate-spin opacity-50" />
-                        <span className="mt-2 font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/30">
-                          Memindai Radius...
-                        </span>
-                      </div>
-                    ) : filteredProducts.length > 0 ? (
-                      filteredProducts.map((prod) => (
-                        <Link
-                          key={prod.id}
-                          href={`/produk/${prod.id}`}
-                          className="p-3.5 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-2xl flex gap-3 group transition-all cursor-pointer block"
-                        >
-                          <div className="h-16 w-16 bg-white/5 border border-white/10 rounded-xl overflow-hidden shrink-0">
-                            <img
-                              src={prod.photo_url || '/placeholder.png'}
-                              alt={prod.name}
-                              className="h-full w-full object-cover group-hover:scale-105 transition-all duration-300"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1 flex flex-col justify-between">
-                            <div>
-                              <h3 className="font-display text-sm font-semibold text-gr-text-primary group-hover:text-gr-green transition-colors truncate">
-                                {prod.name}
-                              </h3>
-                              <p className="font-sans text-[10px] text-gr-text-primary/40 mt-0.5">
-                                Stok: {prod.quantity_kg} KG
-                              </p>
-                            </div>
-                            <div className="flex justify-between items-center mt-1">
-                              <span className="font-mono text-sm font-bold text-gr-green">
-                                Rp {prod.price_per_kg.toLocaleString('id-ID')}/KG
-                              </span>
-                              {prod.distance_km !== undefined && prod.distance_km !== null && (
-                                <span className="font-sans text-[9px] text-gr-orange font-semibold">
-                                  {prod.distance_km.toFixed(1)} km
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      ))
-                    ) : (
-                      <div className="py-20 text-center">
-                        <Tag className="h-8 w-8 text-gr-text-primary/10 mx-auto mb-2" />
-                        <p className="font-sans text-xs text-gr-text-primary/30 italic">
-                          Tidak ada produk di radius ini
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-
+              <Link
+                href="/tren-harga"
+                className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-green hover:underline bg-gr-green/10 border border-gr-green/20 px-3 py-1.5 rounded-full hover:bg-gr-green/20 transition-all cursor-pointer shrink-0"
+              >
+                Tren Historis &rarr;
+              </Link>
             </div>
 
-            {/* Map Area (Right - 3/5 width on desktop, stacked on top on mobile) */}
-            <div className="lg:col-span-3 space-y-4 order-1 lg:order-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
-                  {activeTab === 'pricing' ? 'Sebaran Peta Provinsi' : 'Peta Jangkauan Produk'}
-                </span>
-                {activeTab === 'pricing' && selectedProvince && (
-                  <span className="font-sans text-xs text-gr-green bg-gr-green/10 px-3 py-0.5 rounded-full border border-gr-green/20">
-                    Provinsi Terpilih: {selectedProvince}
-                  </span>
-                )}
-                {activeTab === 'products' && userLocation && (
-                  <span className="font-sans text-xs text-gr-green bg-gr-green/10 px-3 py-0.5 rounded-full border border-gr-green/20">
-                    Radius Deteksi: {radiusKm} KM
-                  </span>
-                )}
+            {/* Location Message inside Sidebar */}
+            {locationMessage && (
+              <div className="mb-4 rounded-xl bg-gr-orange/10 p-3 text-[10px] text-gr-orange border border-gr-orange/20 flex items-center gap-2 shrink-0">
+                <Info size={12} className="shrink-0" />
+                <span className="leading-relaxed">{locationMessage}</span>
               </div>
-              
-              <MapView
-                mode={activeTab}
-                products={activeTab === 'products' ? filteredProducts : []}
-                radiusKm={radiusKm}
-                pricesByProvince={pricesByProvince}
-                selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
-                onSelectProvince={setSelectedProvince}
-                userLocation={userLocation}
+            )}
+
+            {/* 2. Prominent Search Bar */}
+            <div className="relative mb-4 shrink-0">
+              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gr-text-primary/30" />
+              <input
+                type="text"
+                placeholder="Cari komoditas atau lokasi..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-10 pr-4 py-2.5 rounded-full font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all placeholder:text-gr-text-primary/30 shadow-inner"
               />
             </div>
+
+            {/* 3. Tab Toggle Selector */}
+            <div className="flex bg-white/5 p-1 rounded-full border border-white/10 mb-5 shrink-0">
+              <button
+                onClick={() => {
+                  setActiveTab('pricing');
+                  setSearchQuery('');
+                }}
+                className={cn(
+                  "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                  activeTab === 'pricing' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                )}
+              >
+                Harga Referensi
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('products');
+                  setSearchQuery('');
+                }}
+                className={cn(
+                  "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                  activeTab === 'products' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                )}
+              >
+                Produk Terdekat
+              </button>
+            </div>
+
+            {/* Layout Mode 1: Harga Referensi */}
+            {activeTab === 'pricing' && (
+              <>
+                {/* Title and Count Badge */}
+                <div className="mb-4 flex items-center justify-between shrink-0">
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
+                      Rincian Acuan Harga
+                    </span>
+                    <h2 className="font-display text-2xl font-medium text-gr-orange mt-0.5">
+                      {selectedProvince || 'Nasional'}
+                    </h2>
+                  </div>
+                  <span className="font-sans text-[9px] font-bold text-gr-text-primary/60 bg-white/[0.06] border border-white/5 px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
+                    {filteredPrices.length} ditemukan
+                  </span>
+                </div>
+
+                {/* Dropdowns panel without duplicate search bar */}
+                <div className="bg-white/[0.03] border border-white/5 p-3 rounded-2xl shadow-inner mb-4 shrink-0">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="relative">
+                      <select
+                        value={selectedProvince || ''}
+                        onChange={(e) => setSelectedProvince(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-3 pr-8 py-2 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
+                      >
+                        {availableProvinces.map((prov) => (
+                          <option key={prov} value={prov} className="bg-[#07080F] text-gr-text-primary">
+                            {prov}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gr-text-primary/40 pointer-events-none" />
+                    </div>
+
+                    <div className="relative">
+                      <select
+                        value={selectedCommodity}
+                        onChange={(e) => setSelectedCommodity(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
+                      >
+                        <option value="ALL" className="bg-[#07080F] text-gr-text-primary">Semua Komoditas</option>
+                        {commodities.map((comm) => (
+                          <option key={comm} value={comm} className="bg-[#07080F] text-gr-text-primary">
+                            {comm}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gr-text-primary/40 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing Cards list */}
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {filteredPrices.length > 0 ? (
+                    filteredPrices.map((item) => (
+                      <div 
+                        key={item.id}
+                        className="p-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-2xl flex justify-between items-center group transition-all"
+                      >
+                        <div className="min-w-0 pr-3">
+                          <p className="font-display text-sm font-semibold text-gr-text-primary group-hover:text-gr-green transition-colors truncate">
+                            {item.commodity_name}
+                          </p>
+                          <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-gr-text-primary/40 mt-2 bg-white/5 px-2 py-0.5 rounded">
+                            <Calendar size={9} />
+                            {getRelativeTime(item.scraped_at)}
+                          </span>
+                        </div>
+                        
+                        <div className="shrink-0 text-right">
+                          <span className="block font-mono text-sm font-bold text-gr-green">
+                            Rp {item.price_per_kg.toLocaleString('id-ID')}
+                          </span>
+                          <span className="font-sans text-[9px] text-gr-text-primary/30 uppercase tracking-widest mt-0.5 block">
+                            per KG
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-20 text-center">
+                      <Tag className="h-8 w-8 text-gr-text-primary/10 mx-auto mb-2" />
+                      <p className="font-sans text-xs text-gr-text-primary/30 italic">
+                        Tidak ada acuan harga yang cocok
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Layout Mode 2: Produk Terdekat */}
+            {activeTab === 'products' && (
+              <>
+                {/* Title and Count Badge */}
+                <div className="mb-4 flex items-center justify-between shrink-0">
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
+                      Pemetaan Panen Lokal
+                    </span>
+                    <h2 className="font-display text-2xl font-medium text-gr-orange mt-0.5">
+                      Produk Terdekat
+                    </h2>
+                  </div>
+                  <span className="font-sans text-[9px] font-bold text-gr-text-primary/60 bg-white/[0.06] border border-white/5 px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
+                    {filteredProducts.length} ditemukan
+                  </span>
+                </div>
+
+                {/* Radius Slider Panel */}
+                <div className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl space-y-3 shadow-inner mb-4 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
+                      Radius Jangkauan
+                    </span>
+                    <span className="font-mono text-xs text-gr-green font-bold bg-gr-green/10 px-2 py-0.5 rounded">
+                      {radiusKm} KM
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="50"
+                    value={radiusKm}
+                    onChange={(e) => setRadiusKm(parseInt(e.target.value))}
+                    className="w-full accent-gr-green cursor-pointer"
+                  />
+                </div>
+
+                {/* Products Card List */}
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {!userLocation ? (
+                    <div className="py-20 text-center space-y-3">
+                      <Info className="h-8 w-8 text-gr-orange mx-auto animate-pulse" />
+                      <p className="font-sans text-xs text-gr-text-primary/40 max-w-[240px] mx-auto leading-relaxed">
+                        Aktifkan lokasi di browser untuk mencari produk di sekitarmu
+                      </p>
+                    </div>
+                  ) : fetchingProducts ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <Loader2 className="h-8 w-8 text-gr-green animate-spin opacity-50" />
+                      <span className="mt-2 font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/30">
+                        Memindai Radius...
+                      </span>
+                    </div>
+                  ) : filteredProducts.length > 0 ? (
+                    filteredProducts.map((prod) => (
+                      <Link
+                        key={prod.id}
+                        href={`/produk/${prod.id}`}
+                        className="p-3.5 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-2xl flex gap-3 group transition-all cursor-pointer block"
+                      >
+                        <div className="h-16 w-16 bg-white/5 border border-white/10 rounded-xl overflow-hidden shrink-0">
+                          <img
+                            src={prod.photo_url || '/placeholder.png'}
+                            alt={prod.name}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-all duration-300"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-display text-sm font-semibold text-gr-text-primary group-hover:text-gr-green transition-colors truncate">
+                              {prod.name}
+                            </h3>
+                            <p className="font-sans text-[10px] text-gr-text-primary/40 mt-0.5">
+                              Stok: {prod.quantity_kg} KG
+                            </p>
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="font-mono text-sm font-bold text-gr-green">
+                              Rp {prod.price_per_kg.toLocaleString('id-ID')}/KG
+                            </span>
+                            {prod.distance_km !== undefined && prod.distance_km !== null && (
+                              <span className="font-sans text-[9px] text-gr-orange font-semibold">
+                                {prod.distance_km.toFixed(1)} km
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="py-20 text-center">
+                      <Tag className="h-8 w-8 text-gr-text-primary/10 mx-auto mb-2" />
+                      <p className="font-sans text-xs text-gr-text-primary/30 italic">
+                        Tidak ada produk di radius ini
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
           </div>
-        )}
-      </div>
+
+          {/* Map Area (Right - occupies full remaining viewport, stacked on top on mobile) */}
+          <div className="flex-1 h-[50%] md:h-full relative z-10 order-1 md:order-2">
+            <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 pointer-events-auto">
+              {activeTab === 'pricing' && selectedProvince && (
+                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-green bg-[#07080F]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-green/20 shadow-2xl">
+                  Provinsi: {selectedProvince}
+                </span>
+              )}
+              {activeTab === 'products' && userLocation && (
+                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-green bg-[#07080F]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-green/20 shadow-2xl">
+                  Radius: {radiusKm} KM
+                </span>
+              )}
+            </div>
+            
+            <MapView
+              mode={activeTab}
+              products={activeTab === 'products' ? filteredProducts : []}
+              radiusKm={radiusKm}
+              pricesByProvince={pricesByProvince}
+              selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
+              onSelectProvince={setSelectedProvince}
+              userLocation={userLocation}
+            />
+          </div>
+
+        </div>
+      )}
     </main>
   );
 }
