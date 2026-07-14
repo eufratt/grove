@@ -3,6 +3,12 @@
 import { useEffect, useRef } from 'react';
 import Script from 'next/script';
 
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
+
 // Module-level singleton — survives component remounts across the entire browser session.
 // initialize() is called exactly ONCE no matter how many times the button mounts/unmounts.
 let gsiInitialized = false;
