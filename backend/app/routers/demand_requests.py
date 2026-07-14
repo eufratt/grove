@@ -36,13 +36,18 @@ async def create_demand_request(
             detail="Lengkapi koordinat lokasi pada profil Anda terlebih dahulu."
         )
 
+    deadline = body.deadline
+    if deadline.tzinfo is not None:
+        from datetime import timezone
+        deadline = deadline.astimezone(timezone.utc).replace(tzinfo=None)
+
     new_request = DemandRequest(
         buyer_id=current_user.id,
         commodity_name=body.commodity_name,
         category=body.category,
         quantity_kg_needed=body.quantity_kg_needed,
         quantity_kg_committed=0.0,
-        deadline=body.deadline,
+        deadline=deadline,
         status=DemandRequestStatus.TERBUKA,
         location=current_user.location
     )

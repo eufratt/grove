@@ -1,4 +1,9 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Get the directory of the backend root
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_file_path = os.path.join(base_dir, ".env")
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/grove"
@@ -15,6 +20,6 @@ class Settings(BaseSettings):
     APP_ENV: str = "production"
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=env_file_path, extra="ignore")
 
 settings = Settings()
