@@ -67,7 +67,7 @@ export default function OrdersPage() {
       setActiveTab(initialTab);
       await loadOrders(userData.role, initialTab, 1, false);
     } catch (err: any) {
-      if (!err.message?.includes('401')) {
+      if (err.status !== 401) {
         console.error('Failed to get user/orders:', err);
       }
       router.replace('/login');

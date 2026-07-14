@@ -25,7 +25,7 @@ export default function SettingsPage() {
         setUser(userData);
         setPhone(userData.phone_whatsapp || '');
       } catch (err: any) {
-        if (!err.message?.includes('401')) {
+        if (err.status !== 401) {
           console.error('Failed to get user:', err);
         }
         router.replace('/login');

@@ -26,28 +26,17 @@ export default function UpgradeToFarmerPage() {
         if (userData.role === 'PETANI') {
           setSuccess(true);
         }
-      } catch (err) {
-        console.error('Failed to get user:', err);
-      } z: {
-        setCheckingUser(false);
-      }
-    };
-    
-    const fetchUserWrapper = async () => {
-      try {
-        const userData = await authApi.getMe();
-        setUser(userData);
-        if (userData.role === 'PETANI') {
-          setSuccess(true);
+      } catch (err: any) {
+        if (err.status !== 401) {
+          console.error('Failed to get user:', err);
         }
-      } catch (err) {
-        console.error('Failed to get user:', err);
+        router.replace('/login');
       } finally {
         setCheckingUser(false);
       }
     };
-    fetchUserWrapper();
-  }, []);
+    fetchUser();
+  }, [router]);
 
   const validatePhone = (num: string) => {
     const cleaned = num.replace(/[\s\-()]/g, '');
