@@ -9,7 +9,7 @@ import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { PriceGauge } from '@/components/products/price-gauge';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2 } from 'lucide-react';
+import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PhoneModal } from '@/components/auth/phone-modal';
@@ -25,6 +25,8 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const [error, setError] = useState('');
   const [successToast, setSuccessToast] = useState('');
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [qtyInput, setQtyInput] = useState('1');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -33,6 +35,8 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
       try {
         const data = await productsApi.getProductById(id);
         setProduct(data);
+        setQuantity(1);
+        setQtyInput('1');
       } catch (err: any) {
         console.error('Failed to fetch product:', err);
       } finally {
@@ -41,6 +45,50 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     };
     fetchProduct();
   }, [id]);
+
+  const maxStock = product ? product.quantity_kg : 0;
+
+  const handleDecrease = () => {
+    if (quantity > 1) {
+      const nextVal = quantity - 1;
+      setQuantity(nextVal);
+      setQtyInput(nextVal.toString());
+    }
+  };
+
+  const handleIncrease = () => {
+    if (quantity < maxStock) {
+      const nextVal = quantity + 1;
+      setQuantity(nextVal);
+      setQtyInput(nextVal.toString());
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setQtyInput(val);
+    
+    const parsed = parseInt(val, 10);
+    if (!isNaN(parsed)) {
+      if (parsed >= 1 && parsed <= maxStock) {
+        setQuantity(parsed);
+      }
+    }
+  };
+
+  const handleInputBlur = () => {
+    const parsed = parseInt(qtyInput, 10);
+    if (isNaN(parsed) || parsed < 1) {
+      setQuantity(1);
+      setQtyInput('1');
+    } else if (parsed > maxStock) {
+      setQuantity(maxStock);
+      setQtyInput(maxStock.toString());
+    } else {
+      setQuantity(parsed);
+      setQtyInput(parsed.toString());
+    }
+  };
 
   const handleBuyNow = async () => {
     if (!product || product.status !== 'TERSEDIA') return;
@@ -61,7 +109,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     setCheckingOut(true);
     setError('');
     try {
-      await ordersApi.createOrder({ product_id: id, quantity_kg: 1 });
+      await ordersApi.createOrder({ product_id: id, quantity_kg: quantity });
       setSuccessToast('Pesanan berhasil dibuat! Mengalihkan...');
       setTimeout(() => {
         router.push('/pesanan');
@@ -236,6 +284,58 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             {error && (
               <div className="bg-gr-price-unfair/10 border border-gr-price-unfair/20 text-gr-price-unfair text-xs px-4 py-3 rounded-md animate-pulse">
                 {error}
+              </div>
+            )}
+
+            {/* Quantity Selector & Total Price */}
+            {isAvailable && (
+              <div className="space-y-4 bg-white/5 p-6 border border-white/10 backdrop-blur-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-sans text-[10px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1">
+                      Jumlah Pembelian
+                    </h4>
+                    <p className="font-display text-lg text-gr-text-primary">
+                      Pilih Quantity (KG)
+                    </p>
+                  </div>
+                  
+                  {/* Selector Controls */}
+                  <div className="flex items-center border border-white/10 bg-black/20 rounded-none overflow-hidden h-12">
+                    <button
+                      type="button"
+                      onClick={handleDecrease}
+                      disabled={quantity <= 1}
+                      className="px-4 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <input
+                      type="text"
+                      value={qtyInput}
+                      onChange={handleInputChange}
+                      onBlur={handleInputBlur}
+                      className="w-16 h-full bg-transparent text-center font-mono text-base text-gr-text-primary border-none focus:outline-none focus:ring-0"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleIncrease}
+                      disabled={quantity >= maxStock}
+                      className="px-4 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-white/5 pt-4">
+                  <span className="font-sans text-xs uppercase tracking-widest text-gr-text-primary/40">
+                    Total Harga
+                  </span>
+                  <span className="font-mono text-2xl text-gr-green font-bold">
+                    Rp {(product.price_per_kg * quantity).toLocaleString('id-ID')}
+                  </span>
+                </div>
               </div>
             )}
  

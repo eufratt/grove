@@ -7,7 +7,7 @@ from uuid import UUID
 
 from app.db import get_db
 from app.models.user import User, UserRole
-from app.models.product import Product
+from app.models.product import Product, ProductStatus
 from app.models.order import Order, OrderStatus
 from app.services import auth_service, connection_manager
 from pydantic import BaseModel
@@ -50,12 +50,45 @@ async def create_order(
             status_code=400,
             detail="Nomor telepon wajib diisi sebelum checkout"
         )
-    # Check if product exists
-    result = await db.execute(select(Product).where(Product.id == order_data.product_id))
+    
+    # 1. Validation: Quantity must be greater than 0
+    if order_data.quantity_kg <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Jumlah pesanan tidak valid"
+        )
+        
+    # 2. Get product with SELECT FOR UPDATE to prevent race conditions
+    result = await db.execute(
+        select(Product)
+        .where(Product.id == order_data.product_id)
+        .with_for_update()
+    )
     product = result.scalar_one_or_none()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    
+        
+    # 3. Check if product is available
+    if product.status != ProductStatus.TERSEDIA:
+        raise HTTPException(
+            status_code=400,
+            detail="Produk sudah tidak tersedia"
+        )
+        
+    # 4. Check if quantity exceeds stock
+    if product.quantity_kg < order_data.quantity_kg:
+        raise HTTPException(
+            status_code=400,
+            detail="Jumlah melebihi stok tersedia"
+        )
+        
+    # 5. Deduct stock
+    product.quantity_kg -= order_data.quantity_kg
+    if product.quantity_kg <= 0:
+        product.quantity_kg = 0.0
+        product.status = ProductStatus.TERJUAL
+        
+    # 6. Create order
     new_order = Order(
         product_id=order_data.product_id,
         buyer_id=current_user.id,
