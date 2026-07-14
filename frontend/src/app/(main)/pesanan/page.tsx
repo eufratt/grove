@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ordersApi, useOrderSocket } from '@/lib/api/orders';
 import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function OrdersPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,9 +66,11 @@ export default function OrdersPage() {
       const initialTab = userData.role === 'PETANI' ? 'incoming' : 'purchases';
       setActiveTab(initialTab);
       await loadOrders(userData.role, initialTab, 1, false);
-    } catch (err) {
-      console.error('Failed to get user/orders:', err);
-      setIsLoading(false);
+    } catch (err: any) {
+      if (!err.message?.includes('401')) {
+        console.error('Failed to get user/orders:', err);
+      }
+      router.replace('/login');
     }
   };
 

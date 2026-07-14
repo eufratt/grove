@@ -24,8 +24,10 @@ export default function SettingsPage() {
         const userData = await authApi.getMe();
         setUser(userData);
         setPhone(userData.phone_whatsapp || '');
-      } catch (err) {
-        console.error('Failed to get user:', err);
+      } catch (err: any) {
+        if (!err.message?.includes('401')) {
+          console.error('Failed to get user:', err);
+        }
         router.replace('/login');
       } finally {
         setFetching(false);
