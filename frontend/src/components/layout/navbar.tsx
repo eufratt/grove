@@ -98,7 +98,7 @@ export function Navbar() {
 
           {/* Navigation Links */}
           <LayoutGroup id="navbar">
-          <div className="hidden sm:flex sm:space-x-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm relative">
+          <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm relative">
             {navItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
@@ -134,11 +134,11 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-3">
                 {user.role === 'PETANI' && (
-                  <span className="font-sans text-[10px] font-bold uppercase tracking-widest text-gr-green bg-gr-green/10 border border-gr-green/20 px-2.5 py-1.5 rounded-full">
+                  <span className="hidden xl:inline-flex items-center justify-center h-8 font-sans text-[10px] font-bold uppercase tracking-widest text-gr-green bg-gr-green/10 border border-gr-green/20 px-3 rounded-full">
                     Farmer
                   </span>
                 )}
-                <span className="font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/60 bg-white/5 border border-white/10 px-3 py-2 rounded-full">
+                <span className="hidden lg:inline-flex items-center justify-center h-8 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/60 bg-white/5 border border-white/10 px-3 rounded-full">
                   {user.full_name || user.email || 'Pengguna'}
                 </span>
                 <Link
@@ -159,7 +159,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-2 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/2 hover:bg-gr-green/5 px-4 py-2 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-green transition-all duration-300 cursor-pointer"
+                className="flex items-center justify-center h-8 gap-2 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/2 hover:bg-gr-green/5 px-4 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-green transition-all duration-300 cursor-pointer"
               >
                 <LogIn size={14} />
                 <span>Masuk</span>
