@@ -17,4 +17,17 @@ export const referencePricesApi = {
     });
     return response.json();
   },
+  getPriceHistory: async (commodity?: string, region?: string, days = 30) => {
+    let url = `/reference-prices/history?days=${days}`;
+    if (commodity && commodity !== 'ALL') {
+      url += `&commodity=${encodeURIComponent(commodity)}`;
+    }
+    if (region) {
+      url += `&region=${encodeURIComponent(region)}`;
+    }
+    const response = await apiClient(url, {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };

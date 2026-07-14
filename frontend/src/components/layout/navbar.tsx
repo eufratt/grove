@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp } from 'lucide-react';
+import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -49,6 +49,7 @@ export function Navbar() {
   const navItems = [
     { name: 'Beranda', href: '/beranda', icon: Leaf },
     { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
+    { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
     ...(user && (user.role === 'PETANI' || user.role === 'AGEN') ? [{ name: 'Mulai Jual', href: '/jual', icon: PlusCircle }] : []),
     ...(user && (user.role === 'PEMBELI' || user.role === 'AGEN') ? [{ name: 'Ajukan Permintaan', href: '/ajukan-permintaan', icon: PlusCircle }] : []),
     ...(user ? [{ name: 'Pesanan Saya', href: '/pesanan', icon: ClipboardList }] : []),

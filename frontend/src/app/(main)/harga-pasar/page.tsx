@@ -207,13 +207,25 @@ export default function HargaPasarPage() {
 
       <div className="relative z-10 mx-auto max-w-7xl">
         <header className="mb-8">
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live flex items-center gap-2">
-            <TrendingUp size={12} className="text-gr-live animate-pulse" />
-            Acuan Harga PIHPS
-          </span>
-          <h1 className="mt-4 font-display text-5xl font-medium text-gr-text-primary">
-            Harga Pasar Nasional
-          </h1>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live flex items-center gap-2">
+                <TrendingUp size={12} className="text-gr-live animate-pulse" />
+                Acuan Harga PIHPS
+              </span>
+              <h1 className="mt-4 font-display text-5xl font-medium text-gr-text-primary">
+                Harga Pasar Nasional
+              </h1>
+            </div>
+            <div className="shrink-0">
+              <Link
+                href="/tren-harga"
+                className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-green hover:underline bg-gr-green/10 border border-gr-green/20 px-4 py-2.5 rounded-full hover:bg-gr-green/20 transition-all cursor-pointer"
+              >
+                Lihat Tren Harga Historis &rarr;
+              </Link>
+            </div>
+          </div>
           <p className="mt-2 font-sans text-sm text-gr-text-primary/60 max-w-3xl">
             Integrasi acuan harga komoditas pangan pokok strategis dari Pusat Informasi Harga Pangan Strategis (PIHPS) Indonesia, disajikan dalam bentuk peta sebaran data interaktif.
           </p>

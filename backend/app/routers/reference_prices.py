@@ -6,6 +6,7 @@ from app.models.reference_price import ReferencePrice
 from app.models.product import Product, ProductStatus
 from app.schemas.reference_price import PaginatedReferencePrices
 from typing import Optional
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/reference-prices", tags=["reference-prices"])
 
@@ -85,3 +86,26 @@ async def get_reference_prices_count(db: AsyncSession = Depends(get_db)):
         "last_updated": last_updated,
         "active_products": active_products
     }
+
+@router.get("/history")
+async def get_reference_prices_history(
+    commodity: Optional[str] = Query(None),
+    region: Optional[str] = Query(None),
+    days: Optional[int] = Query(30),
+    db: AsyncSession = Depends(get_db)
+):
+    query = select(ReferencePrice)
+    if commodity:
+        query = query.where(ReferencePrice.commodity_name == commodity)
+    if region:
+        query = query.where(ReferencePrice.region == region)
+    if days:
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        query = query.where(ReferencePrice.scraped_at >= cutoff)
+        
+    query = query.order_by(ReferencePrice.scraped_at.asc())
+    
+    res = await db.execute(query)
+    items = res.scalars().all()
+    
+    return items
