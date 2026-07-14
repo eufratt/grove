@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { provinceCentroids } from '@/lib/data/province-centroids';
+import Link from 'next/link';
 
 // Fix for leaflet default icons in Next.js
 const DefaultIcon = L.icon({
@@ -206,6 +207,12 @@ export const MapView: React.FC<MapViewProps> = ({
                       {product.distance_km.toFixed(1)} km dari Anda
                     </p>
                   )}
+                  <Link 
+                    href={`/produk/${product.id}`}
+                    className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer block text-center"
+                  >
+                    Detail Produk
+                  </Link>
                 </div>
               </Popup>
             </Marker>
