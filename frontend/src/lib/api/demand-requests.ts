@@ -6,6 +6,8 @@ export const demandRequestsApi = {
     category: string;
     quantity_kg_needed: number;
     deadline: string;
+    latitude: number;
+    longitude: number;
   }) => {
     const response = await apiClient('/demand-requests', {
       method: 'POST',

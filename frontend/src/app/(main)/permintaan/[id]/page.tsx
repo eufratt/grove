@@ -9,10 +9,24 @@ import { Glow } from '@/components/effects/glow';
 import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { provinceCentroids } from '@/lib/data/province-centroids';
 
 export default function DemandRequestDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = use(params);
   const { id } = resolvedParams;
+
+  const getClosestProvince = (latitude: number, longitude: number) => {
+    let closestProv = 'Di Yogyakarta';
+    let minDist = Infinity;
+    Object.entries(provinceCentroids).forEach(([provName, coords]) => {
+      const dist = Math.sqrt((coords.lat - latitude) ** 2 + (coords.lng - longitude) ** 2);
+      if (dist < minDist) {
+        minDist = dist;
+        closestProv = provName;
+      }
+    });
+    return closestProv;
+  };
 
   const [user, setUser] = useState<any | null>(null);
   const [request, setRequest] = useState<any | null>(null);
@@ -236,7 +250,10 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   <span className="text-gr-text-primary/40 text-xs">Lokasi Penerimaan</span>
                   <p className="text-gr-text-primary font-medium flex items-center gap-2">
                     <MapPin size={14} className="text-gr-live" />
-                    Yogyakarta ({request.latitude ? `${request.latitude.toFixed(4)}, ${request.longitude.toFixed(4)}` : 'Koordinat tidak tersedia'})
+                    {request.latitude && request.longitude 
+                      ? getClosestProvince(request.latitude, request.longitude)
+                      : 'Lokasi tidak diketahui'}{' '}
+                    ({request.latitude ? `${request.latitude.toFixed(4)}, ${request.longitude.toFixed(4)}` : 'Koordinat tidak tersedia'})
                   </p>
                 </div>
 

@@ -15,6 +15,7 @@ from app.services import auth_service
 from app.services.connection_manager import demand_manager
 from typing import List, Optional
 import uuid
+from geoalchemy2 import WKTElement
 
 router = APIRouter(prefix="/demand-requests", tags=["demand-requests"])
 
@@ -28,12 +29,6 @@ async def create_demand_request(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Hanya pembeli atau agen yang dapat membuat permintaan"
-        )
-    
-    if not current_user.location:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Lengkapi koordinat lokasi pada profil Anda terlebih dahulu."
         )
 
     deadline = body.deadline
@@ -49,7 +44,7 @@ async def create_demand_request(
         quantity_kg_committed=0.0,
         deadline=deadline,
         status=DemandRequestStatus.TERBUKA,
-        location=current_user.location
+        location=WKTElement(f"POINT({body.longitude} {body.latitude})", srid=4326)
     )
 
     db.add(new_request)

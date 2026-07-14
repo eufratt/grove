@@ -35,6 +35,49 @@ export default function AjukanPermintaanPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Geolocation state
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [locationError, setLocationError] = useState('');
+
+  const requestLocation = () => {
+    setGettingLocation(true);
+    setLocationError('');
+
+    if (!navigator.geolocation) {
+      setLocationError('Browser Anda tidak mendukung fitur lokasi (geolocation)');
+      setGettingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLat(position.coords.latitude);
+        setLng(position.coords.longitude);
+        setGettingLocation(false);
+      },
+      (error) => {
+        console.error('Error getting geolocation:', error);
+        let msg = 'Gagal mendapatkan lokasi dari browser.';
+        if (error.code === error.PERMISSION_DENIED) {
+          msg = 'Akses lokasi ditolak. Harap aktifkan izin lokasi di browser Anda untuk melanjutkan.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          msg = 'Informasi lokasi tidak tersedia.';
+        } else if (error.code === error.TIMEOUT) {
+          msg = 'Waktu permintaan lokasi habis.';
+        }
+        setLocationError(msg);
+        setGettingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  };
+
   // 1. Auth check and fetch commodities
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -53,6 +96,7 @@ export default function AjukanPermintaanPage() {
           setAllCommodities(refPrices.distinct_commodities);
         }
         setCheckingAuth(false);
+        requestLocation();
       } catch (err) {
         router.replace('/login');
       }
@@ -125,13 +169,25 @@ export default function AjukanPermintaanPage() {
       return;
     }
 
+    if (gettingLocation) {
+      setError('Sedang mendapatkan koordinat lokasi Anda...');
+      return;
+    }
+
+    if (lat === null || lng === null) {
+      setError(locationError || 'Lokasi dari browser diperlukan untuk mengajukan permintaan.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await demandRequestsApi.createDemandRequest({
         commodity_name: commodityName,
         category,
         quantity_kg_needed: parsedQty,
-        deadline: new Date(deadline).toISOString()
+        deadline: new Date(deadline).toISOString(),
+        latitude: lat,
+        longitude: lng
       });
       router.push(`/permintaan/${res.id}`);
     } catch (err: any) {
@@ -300,6 +356,48 @@ export default function AjukanPermintaanPage() {
                 <Info size={11} className="text-gr-live shrink-0" />
                 Minimal 1 minggu dari hari ini agar petani memiliki waktu persiapan tanam/panen.
               </p>
+            </div>
+
+            {/* Geolocation Status */}
+            <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-4 font-sans text-xs">
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-2">
+                Lokasi Pengiriman (Browser GPS)
+              </span>
+              {gettingLocation ? (
+                <div className="flex items-center gap-2 text-gr-text-primary/60">
+                  <Loader2 size={14} className="animate-spin text-gr-green" />
+                  <span>Mendeteksi koordinat lokasi Anda...</span>
+                </div>
+              ) : locationError ? (
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2 text-gr-price-unfair">
+                    <Info size={14} className="shrink-0 mt-0.5" />
+                    <span>{locationError}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    className="text-gr-green hover:underline text-[10px] font-mono uppercase tracking-wider cursor-pointer"
+                  >
+                    Coba Dapatkan Ulang Lokasi
+                  </button>
+                </div>
+              ) : lat !== null && lng !== null ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gr-green">
+                    <div className="h-2 w-2 rounded-full bg-gr-green animate-pulse" />
+                    <span>Koordinat berhasil didapatkan</span>
+                  </div>
+                  <span className="font-mono text-[10px] text-gr-text-primary/60 bg-white/5 px-2 py-1 rounded-md">
+                    {lat.toFixed(6)}, {lng.toFixed(6)}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-start gap-2 text-gr-price-unfair">
+                  <Info size={14} className="shrink-0 mt-0.5" />
+                  <span>Menunggu izin akses lokasi...</span>
+                </div>
+              )}
             </div>
 
             {/* Submit Button */}

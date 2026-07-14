@@ -9,6 +9,8 @@ class DemandRequestCreate(BaseModel):
     category: str = Field(..., max_length=100)
     quantity_kg_needed: float = Field(..., gt=0)
     deadline: datetime
+    latitude: float
+    longitude: float
 
 class DemandCommitmentCreate(BaseModel):
     quantity_kg: float = Field(..., gt=0)
