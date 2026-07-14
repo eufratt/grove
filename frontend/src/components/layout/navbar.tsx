@@ -52,7 +52,7 @@ export function Navbar() {
     { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
     ...(user && (user.role === 'PETANI' || user.role === 'AGEN') ? [{ name: 'Mulai Jual', href: '/jual', icon: PlusCircle }] : []),
-    ...(user && (user.role === 'PEMBELI' || user.role === 'AGEN') ? [{ name: 'Ajukan Permintaan', href: '/ajukan-permintaan', icon: PlusCircle }] : []),
+    ...(user && (user.role === 'PEMBELI' || user.role === 'AGEN') ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
     ...(user ? [{ name: 'Pesanan Saya', href: '/pesanan', icon: ClipboardList }] : []),
   ];
 
@@ -100,7 +100,9 @@ export function Navbar() {
           <LayoutGroup id="navbar">
           <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm relative">
             {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+              const isActive = pathname === item.href || 
+                pathname.startsWith(item.href + '/') ||
+                (item.href === '/permintaan-saya' && pathname === '/ajukan-permintaan');
               const Icon = item.icon;
               return (
                 <Link

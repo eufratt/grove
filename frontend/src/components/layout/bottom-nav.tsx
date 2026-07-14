@@ -30,7 +30,7 @@ export function BottomNav() {
 
     if (pathname === '/jual') {
       setActiveTab('jual');
-    } else if (pathname === '/ajukan-permintaan') {
+    } else if (pathname === '/ajukan-permintaan' || pathname === '/permintaan-saya') {
       setActiveTab('ajukan');
     } else if (pathname === '/pesanan') {
       setActiveTab('pesanan');
@@ -76,7 +76,7 @@ export function BottomNav() {
     ...(user && (user.role === 'PEMBELI' || user.role === 'AGEN') ? [{
       id: 'ajukan',
       name: 'Ajukan',
-      href: '/ajukan-permintaan',
+      href: '/permintaan-saya',
       icon: Plus,
     }] : []),
     ...(user ? [{

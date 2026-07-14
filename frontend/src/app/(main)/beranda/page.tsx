@@ -214,7 +214,7 @@ function BerandaContent() {
                 Sebagai pembeli, kamu bisa mengajukan permintaan di sini untuk dipenuhi oleh petani lokal.
               </div>
               <Link
-                href="/ajukan-permintaan"
+                href="/permintaan-saya"
                 className="inline-flex items-center gap-2 bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all cursor-pointer animate-bounce"
               >
                 Ajukan Permintaan Baru

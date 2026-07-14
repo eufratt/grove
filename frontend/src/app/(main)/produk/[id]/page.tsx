@@ -9,7 +9,7 @@ import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { PriceGauge } from '@/components/products/price-gauge';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plus } from 'lucide-react';
+import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plus, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PhoneModal } from '@/components/auth/phone-modal';
@@ -335,6 +335,17 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                   <span className="font-mono text-2xl text-gr-green font-bold">
                     Rp {(product.price_per_kg * quantity).toLocaleString('id-ID')}
                   </span>
+                </div>
+              </div>
+            )}
+
+            {/* Security Disclaimer Banner */}
+            {isAvailable && (
+              <div className="flex items-start gap-3 bg-gr-orange/5 border border-gr-orange/20 p-4 rounded-none">
+                <ShieldAlert className="text-gr-orange shrink-0 mt-0.5" size={16} />
+                <div className="font-sans text-[11px] leading-relaxed text-gr-text-primary/70">
+                  <span className="text-gr-orange font-bold uppercase tracking-wider block mb-1 text-[10px]">Pemberitahuan Keamanan</span>
+                  Hindari pembayaran transfer untuk mengurangi terkena penipuan. Lebih baik melakukan transaksi secara <strong className="text-gr-green font-semibold">tunai (Cash on Delivery)</strong> saat serah terima barang secara langsung.
                 </div>
               </div>
             )}
