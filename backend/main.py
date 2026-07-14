@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from app.routers import auth, products, search, orders, admin, users, reference_prices
+from app.routers import auth, products, search, orders, admin, users, reference_prices, demand_requests
 from app.services import connection_manager
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
@@ -27,6 +27,16 @@ async def websocket_endpoint(websocket: WebSocket, order_id: str):
     except WebSocketDisconnect:
         connection_manager.manager.disconnect(websocket, order_id)
 
+@app.websocket("/ws/demand-requests/{id}")
+async def websocket_demand_endpoint(websocket: WebSocket, id: str):
+    await connection_manager.demand_manager.connect(websocket, id)
+    try:
+        while True:
+            # Keep connection alive
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        connection_manager.demand_manager.disconnect(websocket, id)
+
 app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(search.router)
@@ -34,6 +44,7 @@ app.include_router(orders.router)
 app.include_router(admin.router)
 app.include_router(users.router)
 app.include_router(reference_prices.router)
+app.include_router(demand_requests.router)
 
 @app.get("/health")
 async def health_check():

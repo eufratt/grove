@@ -5,6 +5,7 @@ from .reference_price import ReferencePrice
 from .order import Order, OrderStatus
 from .token import RefreshToken
 from .scraper_status import ScraperStatus, ScrapeStatusEnum
+from .demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
 
 __all__ = [
     "Base",
@@ -18,4 +19,7 @@ __all__ = [
     "RefreshToken",
     "ScraperStatus",
     "ScrapeStatusEnum",
+    "DemandRequest",
+    "DemandRequestStatus",
+    "SupplyCommitment",
 ]
