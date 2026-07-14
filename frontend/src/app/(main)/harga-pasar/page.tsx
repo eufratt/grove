@@ -199,6 +199,17 @@ export default function HargaPasarPage() {
     return list;
   }, [selectedProvince, selectedCommodity, searchQuery, pricesByProvince]);
 
+  // Sidebar nearby products filtering
+  const filteredProducts = useMemo(() => {
+    let list = nearbyProducts;
+    if (searchQuery.trim() !== '') {
+      list = list.filter((prod) =>
+        prod.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    return list;
+  }, [nearbyProducts, searchQuery]);
+
   return (
     <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8">
       <BgPattern />
@@ -268,7 +279,7 @@ export default function HargaPasarPage() {
               
               <MapView
                 mode={activeTab}
-                products={activeTab === 'products' ? nearbyProducts : []}
+                products={activeTab === 'products' ? filteredProducts : []}
                 radiusKm={radiusKm}
                 pricesByProvince={pricesByProvince}
                 selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
@@ -278,23 +289,56 @@ export default function HargaPasarPage() {
             </div>
 
             {/* Sidebar Dark Panel (Right - 2/5 width on desktop) */}
-            <div className="lg:col-span-2 rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md shadow-2xl flex flex-col min-h-[550px] max-h-[590px]">
+            <div className="lg:col-span-2 rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md shadow-2xl flex flex-col min-h-[580px] max-h-[620px] overflow-hidden">
               
-              {/* Tab Toggle Selector */}
-              <div className="flex bg-white/5 p-1 rounded-full border border-white/10 mb-6 shrink-0">
+              {/* 1. Header Block (Identitas Panel) */}
+              <div className="flex items-center gap-2.5 pb-4 border-b border-white/5 mb-4 shrink-0">
+                <div className="h-8 w-8 rounded-lg bg-gr-green/10 flex items-center justify-center border border-gr-green/20">
+                  <TrendingUp size={16} className="text-gr-green animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-display text-sm font-bold text-gr-text-primary tracking-wide">
+                    Harga Pasar
+                  </h3>
+                  <span className="block font-sans text-[10px] text-gr-text-primary/40">
+                    Data real-time PIHPS & Lokasi
+                  </span>
+                </div>
+              </div>
+
+              {/* 2. Prominent Search Bar (Topmost element in sidebar) */}
+              <div className="relative mb-4 shrink-0">
+                <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gr-text-primary/30" />
+                <input
+                  type="text"
+                  placeholder="Cari komoditas atau lokasi..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-10 pr-4 py-2.5 rounded-full font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all placeholder:text-gr-text-primary/30 shadow-inner"
+                />
+              </div>
+
+              {/* 3. Tab Toggle Selector */}
+              <div className="flex bg-white/5 p-1 rounded-full border border-white/10 mb-5 shrink-0">
                 <button
-                  onClick={() => setActiveTab('pricing')}
+                  onClick={() => {
+                    setActiveTab('pricing');
+                    setSearchQuery('');
+                  }}
                   className={cn(
-                    "flex-1 text-center py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                    "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
                     activeTab === 'pricing' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
                   )}
                 >
                   Harga Referensi
                 </button>
                 <button
-                  onClick={() => setActiveTab('products')}
+                  onClick={() => {
+                    setActiveTab('products');
+                    setSearchQuery('');
+                  }}
                   className={cn(
-                    "flex-1 text-center py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                    "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
                     activeTab === 'products' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
                   )}
                 >
@@ -305,30 +349,23 @@ export default function HargaPasarPage() {
               {/* Layout Mode 1: Harga Referensi */}
               {activeTab === 'pricing' && (
                 <>
-                  <div className="mb-5">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                      Rincian Acuan Harga
+                  {/* Title and Count Badge */}
+                  <div className="mb-4 flex items-center justify-between shrink-0">
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
+                        Rincian Acuan Harga
+                      </span>
+                      <h2 className="font-display text-2xl font-medium text-gr-orange mt-0.5">
+                        {selectedProvince || 'Nasional'}
+                      </h2>
+                    </div>
+                    <span className="font-sans text-[9px] font-bold text-gr-text-primary/60 bg-white/[0.06] border border-white/5 px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
+                      {filteredPrices.length} ditemukan
                     </span>
-                    <h2 className="font-display text-3xl font-medium text-gr-orange mt-1">
-                      {selectedProvince || 'Nasional'}
-                    </h2>
                   </div>
 
-                  {/* Floating Pill Filters Panel */}
-                  <div className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl space-y-3 shadow-inner mb-6">
-                    {/* Search input */}
-                    <div className="relative">
-                      <Search size={12} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gr-text-primary/30" />
-                      <input
-                        type="text"
-                        placeholder="Cari Komoditas..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary pl-9 pr-3 py-2 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-green/50 transition-all placeholder:text-gr-text-primary/30"
-                      />
-                    </div>
-
-                    {/* Dropdown selectors side-by-side */}
+                  {/* Dropdowns panel without duplicate search bar */}
+                  <div className="bg-white/[0.03] border border-white/5 p-3 rounded-2xl shadow-inner mb-4 shrink-0">
                     <div className="grid grid-cols-2 gap-2">
                       <div className="relative">
                         <select
@@ -406,17 +443,23 @@ export default function HargaPasarPage() {
               {/* Layout Mode 2: Produk Terdekat */}
               {activeTab === 'products' && (
                 <>
-                  <div className="mb-5">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                      Pemetaan Panen Lokal
+                  {/* Title and Count Badge */}
+                  <div className="mb-4 flex items-center justify-between shrink-0">
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
+                        Pemetaan Panen Lokal
+                      </span>
+                      <h2 className="font-display text-2xl font-medium text-gr-orange mt-0.5">
+                        Produk Terdekat
+                      </h2>
+                    </div>
+                    <span className="font-sans text-[9px] font-bold text-gr-text-primary/60 bg-white/[0.06] border border-white/5 px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
+                      {filteredProducts.length} ditemukan
                     </span>
-                    <h2 className="font-display text-3xl font-medium text-gr-orange mt-1">
-                      Produk Terdekat
-                    </h2>
                   </div>
 
                   {/* Radius Slider Panel */}
-                  <div className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl space-y-3 shadow-inner mb-6">
+                  <div className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl space-y-3 shadow-inner mb-4 shrink-0">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
                         Radius Jangkauan
@@ -451,8 +494,8 @@ export default function HargaPasarPage() {
                           Memindai Radius...
                         </span>
                       </div>
-                    ) : nearbyProducts.length > 0 ? (
-                      nearbyProducts.map((prod) => (
+                    ) : filteredProducts.length > 0 ? (
+                      filteredProducts.map((prod) => (
                         <Link
                           key={prod.id}
                           href={`/produk/${prod.id}`}
