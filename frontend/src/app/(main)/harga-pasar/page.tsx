@@ -211,7 +211,7 @@ export default function HargaPasarPage() {
   }, [nearbyProducts, searchQuery]);
 
   return (
-    <main className="relative flex-grow h-[calc(100vh-64px)] w-full flex overflow-hidden bg-gr-bg">
+    <main className="relative flex-grow h-[calc(100vh-72px)] w-full flex overflow-hidden bg-gr-bg">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10 scale-110 pointer-events-none" />
@@ -224,10 +224,38 @@ export default function HargaPasarPage() {
           </span>
         </div>
       ) : (
-        <div className="flex-grow flex flex-col md:flex-row h-full w-full overflow-hidden relative z-10">
+        <div className="relative flex-grow w-full h-full overflow-hidden">
           
-          {/* Sidebar Dark Panel (Left - occupies fixed width on desktop, stacked below on mobile) */}
-          <div className="w-full md:w-[380px] lg:w-[420px] h-[50%] md:h-full flex flex-col bg-[#07080F]/90 backdrop-blur-lg border-r border-white/5 p-6 shrink-0 shadow-2xl overflow-hidden order-2 md:order-1">
+          {/* Map Area (Bottom layer, occupying the entire background width and height) */}
+          <div className="absolute inset-0 w-full h-full z-10">
+            {/* Metadata info cards floating on the top right */}
+            <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 pointer-events-auto">
+              {activeTab === 'pricing' && selectedProvince && (
+                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-green bg-[#07080F]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-green/20 shadow-2xl">
+                  Provinsi: {selectedProvince}
+                </span>
+              )}
+              {activeTab === 'products' && userLocation && (
+                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-green bg-[#07080F]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-green/20 shadow-2xl">
+                  Radius: {radiusKm} KM
+                </span>
+              )}
+            </div>
+            
+            <MapView
+              mode={activeTab}
+              products={activeTab === 'products' ? filteredProducts : []}
+              radiusKm={radiusKm}
+              pricesByProvince={pricesByProvince}
+              selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
+              onSelectProvince={setSelectedProvince}
+              userLocation={userLocation}
+              className="h-full w-full"
+            />
+          </div>
+
+          {/* Sidebar Dark Panel (Floating Overlay on Left) */}
+          <div className="absolute z-20 flex flex-col bg-[#07080F]/90 backdrop-blur-xl border border-white/5 p-6 rounded-[28px] shadow-[0_24px_60px_rgba(0,0,0,0.6)] overflow-hidden top-auto bottom-4 left-4 right-4 h-[45%] md:top-4 md:bottom-4 md:left-4 md:right-auto md:h-auto md:w-[380px] lg:w-[420px]">
             
             {/* 1. Header Block (Identitas Panel) */}
             <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-4 shrink-0">
@@ -496,32 +524,6 @@ export default function HargaPasarPage() {
               </>
             )}
 
-          </div>
-
-          {/* Map Area (Right - occupies full remaining viewport, stacked on top on mobile) */}
-          <div className="flex-1 h-[50%] md:h-full relative z-10 order-1 md:order-2">
-            <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 pointer-events-auto">
-              {activeTab === 'pricing' && selectedProvince && (
-                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-green bg-[#07080F]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-green/20 shadow-2xl">
-                  Provinsi: {selectedProvince}
-                </span>
-              )}
-              {activeTab === 'products' && userLocation && (
-                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-green bg-[#07080F]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-green/20 shadow-2xl">
-                  Radius: {radiusKm} KM
-                </span>
-              )}
-            </div>
-            
-            <MapView
-              mode={activeTab}
-              products={activeTab === 'products' ? filteredProducts : []}
-              radiusKm={radiusKm}
-              pricesByProvince={pricesByProvince}
-              selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
-              onSelectProvince={setSelectedProvince}
-              userLocation={userLocation}
-            />
           </div>
 
         </div>

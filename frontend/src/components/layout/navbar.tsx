@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
 import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -79,24 +80,24 @@ export function Navbar() {
           </button>
         </div>
       )}
-      <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-gr-bg/85 backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+      <nav className="sticky top-0 z-50 w-full bg-transparent border-none">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-3">
+        <div className="flex h-14 items-center justify-between bg-[#07080F]/70 border border-white/5 rounded-full px-6 backdrop-blur-md shadow-lg">
           {/* Logo Section */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gr-green/20 bg-gr-green/5 text-gr-green transition-all duration-300 group-hover:border-gr-green/50 group-hover:bg-gr-green/10">
-                <Leaf size={18} className="transition-transform group-hover:rotate-12" />
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gr-green/20 bg-gr-green/5 text-gr-green transition-all duration-300 group-hover:border-gr-green/50 group-hover:bg-gr-green/10">
+                <Leaf size={16} className="transition-transform group-hover:rotate-12" />
                 <div className="absolute inset-0 rounded-lg bg-gr-green/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              <span className="font-display text-2xl font-medium tracking-tight text-gr-text-primary">
+              <span className="font-display text-xl font-medium tracking-tight text-gr-text-primary">
                 Grove
               </span>
             </Link>
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden sm:flex sm:space-x-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm">
+          <div className="hidden sm:flex sm:space-x-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm relative">
             {navItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
@@ -105,14 +106,21 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 px-5 py-2 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all duration-300",
+                    "relative flex items-center gap-2 px-4 py-1.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 select-none z-10",
                     isActive 
-                      ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25" 
+                      ? "text-gr-bg" 
                       : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
                   )}
                 >
-                  <Icon size={14} />
-                  {item.name}
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav-pill"
+                      className="absolute inset-0 bg-gr-green rounded-full -z-10 shadow-lg shadow-gr-green/20"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <Icon size={12} className="relative z-10" />
+                  <span className="relative z-10">{item.name}</span>
                 </Link>
               );
             })}
