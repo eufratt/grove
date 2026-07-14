@@ -5,12 +5,24 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Compass, Plus, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { authApi } from '@/lib/api/auth';
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [user, setUser] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<'beranda' | 'jelajah' | 'jual' | 'pesanan' | null>(null);
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await authApi.getMe();
+        setUser(userData);
+      } catch (err) {
+        setUser(null);
+      }
+    };
+    fetchUser();
+
     if (pathname === '/login') {
       setActiveTab(null);
       return;
@@ -53,18 +65,18 @@ export function BottomNav() {
       href: '/beranda?mode=jelajah',
       icon: Compass,
     },
-    {
+    ...(user && (user.role === 'PETANI' || user.role === 'AGEN') ? [{
       id: 'jual',
       name: 'Jual',
       href: '/jual',
       icon: Plus,
-    },
-    {
+    }] : []),
+    ...(user ? [{
       id: 'pesanan',
       name: 'Pesanan',
       href: '/pesanan',
       icon: ClipboardList,
-    },
+    }] : []),
   ];
 
   return (

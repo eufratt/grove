@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle } from 'lucide-react';
+import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp } from 'lucide-react';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -48,8 +48,9 @@ export function Navbar() {
 
   const navItems = [
     { name: 'Beranda', href: '/beranda', icon: Leaf },
-    { name: 'Mulai Jual', href: '/jual', icon: PlusCircle },
-    { name: 'Pesanan Saya', href: '/pesanan', icon: ClipboardList },
+    { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
+    ...(user && (user.role === 'PETANI' || user.role === 'AGEN') ? [{ name: 'Mulai Jual', href: '/jual', icon: PlusCircle }] : []),
+    ...(user ? [{ name: 'Pesanan Saya', href: '/pesanan', icon: ClipboardList }] : []),
   ];
 
   return (
@@ -81,7 +82,7 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center">
-            <Link href="/beranda" className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group">
               <div className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gr-green/20 bg-gr-green/5 text-gr-green transition-all duration-300 group-hover:border-gr-green/50 group-hover:bg-gr-green/10">
                 <Leaf size={18} className="transition-transform group-hover:rotate-12" />
                 <div className="absolute inset-0 rounded-lg bg-gr-green/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
