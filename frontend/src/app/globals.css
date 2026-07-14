@@ -177,21 +177,7 @@
   }
 }
 
-/* ── Leaflet zoom control: move to bottom-left, dark styled ── */
-.leaflet-control-zoom {
-  margin: 0 0 20px 20px !important;
-}
-.leaflet-bottom.leaflet-left {
-  bottom: 0;
-  left: 0;
-}
-/* Hide the default top-left control container that leaflet also renders */
-.leaflet-top.leaflet-left .leaflet-control-zoom {
-  display: none !important;
-}
-.leaflet-bottom.leaflet-left .leaflet-control-zoom {
-  display: block !important;
-}
+/* ── Leaflet zoom control: dark styled to match app theme ── */
 .leaflet-control-zoom a {
   background-color: rgba(7, 8, 15, 0.85) !important;
   backdrop-filter: blur(8px) !important;

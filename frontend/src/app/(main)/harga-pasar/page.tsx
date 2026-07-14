@@ -211,7 +211,7 @@ export default function HargaPasarPage() {
   }, [nearbyProducts, searchQuery]);
 
   return (
-    <main className="relative w-full h-screen flex overflow-hidden bg-[#07080F]">
+    <main className="fixed inset-0 z-0 flex overflow-hidden bg-[#07080F]">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10 scale-110 pointer-events-none" />
@@ -255,7 +255,7 @@ export default function HargaPasarPage() {
           </div>
 
           {/* Sidebar Dark Panel (Floating Overlay on Left) */}
-          <div className="absolute z-20 flex flex-col bg-[#07080F]/90 backdrop-blur-xl border border-white/5 p-6 rounded-[28px] shadow-[0_24px_60px_rgba(0,0,0,0.6)] overflow-hidden top-auto bottom-4 left-4 right-4 h-[48%] md:top-[76px] md:bottom-4 md:left-4 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
+          <div className="absolute z-20 flex flex-col bg-[#07080F]/90 backdrop-blur-xl border border-white/5 p-6 rounded-[28px] shadow-[0_24px_60px_rgba(0,0,0,0.6)] overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-[80px] md:bottom-4 md:left-4 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
             
             {/* 1. Header Block (Identitas Panel) */}
             <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-4 shrink-0">

@@ -144,7 +144,7 @@ export const MapView: React.FC<MapViewProps> = ({
         className="h-full w-full z-10"
       >
         <MapController center={activeCenter} zoom={activeZoom} flyToCoords={flyToCoords} />
-        <ZoomControl position="bottomleft" />
+        <ZoomControl position="bottomright" />
         
         {/* CartoDB Dark Matter Tile Layer */}
         <TileLayer
