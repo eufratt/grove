@@ -27,26 +27,48 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
 }) : undefined;
 
 // Component to handle map centering and flyTo transition effects
+// Only acts on explicit flyTo requests — does NOT auto-reset the view on every render
 function MapController({ 
-  center, 
-  zoom, 
-  flyToCoords 
+  flyToCoords,
+  initialCenter,
+  initialZoom,
+  mode,
+  userLocation,
 }: { 
-  center: [number, number]; 
-  zoom: number; 
-  flyToCoords?: [number, number] | null 
+  flyToCoords?: [number, number] | null;
+  initialCenter: [number, number];
+  initialZoom: number;
+  mode: 'products' | 'pricing';
+  userLocation?: [number, number] | null;
 }) {
   const map = useMap();
+  const didInit = React.useRef(false);
+  const prevMode = React.useRef<string | null>(null);
+
+  // Set initial view once on mount
+  useEffect(() => {
+    if (!didInit.current) {
+      map.setView(initialCenter, initialZoom);
+      didInit.current = true;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When switching to products mode, fly to user location
+  useEffect(() => {
+    if (mode === 'products' && prevMode.current === 'pricing' && userLocation) {
+      map.flyTo(userLocation, 12, { animate: true, duration: 1.0 });
+    }
+    prevMode.current = mode;
+  }, [mode, userLocation, map]);
+
+  // Fly to explicit destination when requested (e.g. province selected)
   useEffect(() => {
     if (flyToCoords) {
-      map.flyTo(flyToCoords, 8, {
-        animate: true,
-        duration: 1.2
-      });
-    } else {
-      map.setView(center, zoom);
+      map.flyTo(flyToCoords, 8, { animate: true, duration: 1.2 });
     }
-  }, [center, zoom, flyToCoords, map]);
+  }, [flyToCoords, map]);
+
   return null;
 }
 
@@ -84,20 +106,25 @@ export const MapView: React.FC<MapViewProps> = ({
   className 
 }) => {
 
-  // Dynamic coordinates transition mapping for pricing mode
-  let activeCenter = center;
-  let activeZoom = zoom;
+  // Determine initial center and zoom based on mode and available data
+  let initialCenter: [number, number];
+  let initialZoom: number;
   let flyToCoords: [number, number] | null = null;
 
-  if (mode === 'pricing') {
+  if (mode === 'products') {
+    // In products mode: center on user location if available, else Indonesia overview
+    initialCenter = userLocation ?? [-2.5489, 118.0149];
+    initialZoom = userLocation ? 12 : 5;
+  } else {
+    // In pricing mode: center on selected province or Indonesia overview
     if (selectedProvince && provinceCentroids[selectedProvince]) {
       const centroid = provinceCentroids[selectedProvince];
       flyToCoords = [centroid.lat, centroid.lng];
-      activeCenter = flyToCoords;
-      activeZoom = 8;
+      initialCenter = [centroid.lat, centroid.lng];
+      initialZoom = 8;
     } else {
-      activeCenter = [-2.5489, 118.0149]; // Center of Indonesia
-      activeZoom = 5;
+      initialCenter = [-2.5489, 118.0149]; // Center of Indonesia
+      initialZoom = 5;
     }
   }
 
@@ -137,13 +164,19 @@ export const MapView: React.FC<MapViewProps> = ({
       )}
 
       <MapContainer 
-        center={activeCenter} 
-        zoom={activeZoom} 
+        center={initialCenter} 
+        zoom={initialZoom} 
         scrollWheelZoom={true}
         zoomControl={false}
         className="h-full w-full z-10"
       >
-        <MapController center={activeCenter} zoom={activeZoom} flyToCoords={flyToCoords} />
+        <MapController
+          initialCenter={initialCenter}
+          initialZoom={initialZoom}
+          flyToCoords={flyToCoords}
+          mode={mode}
+          userLocation={userLocation}
+        />
         <ZoomControl position="bottomright" />
         
         {/* CartoDB Dark Matter Tile Layer */}
