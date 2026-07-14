@@ -12,6 +12,7 @@ router = APIRouter(prefix="/reference-prices", tags=["reference-prices"])
 @router.get("", response_model=PaginatedReferencePrices)
 async def get_reference_prices(
     commodity: Optional[str] = Query(None),
+    region: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -26,6 +27,8 @@ async def get_reference_prices(
     query = select(ReferencePrice)
     if commodity:
         query = query.where(ReferencePrice.commodity_name == commodity)
+    if region:
+        query = query.where(ReferencePrice.region == region)
     if search:
         query = query.where(
             (ReferencePrice.commodity_name.ilike(f"%{search}%")) |
