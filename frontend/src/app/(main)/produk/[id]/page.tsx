@@ -153,7 +153,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const isOwnProduct = currentUser && product && currentUser.id === product.seller_id;
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <main className="relative min-h-screen lg:h-[calc(100vh-68px)] bg-gr-bg pt-6 pb-12 lg:pt-2 lg:pb-6 px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden flex flex-col justify-start">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10" />
@@ -165,18 +165,20 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
         </div>
       )}
       
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <Link 
-          href="/beranda" 
-          className="inline-flex items-center gap-2 mb-8 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 hover:text-gr-green transition-colors"
-        >
-          ← Kembali ke Beranda
-        </Link>
+      <div className="relative z-10 mx-auto w-full max-w-5xl lg:h-full lg:max-h-[580px] flex flex-col justify-between">
+        <div className="shrink-0 mb-3">
+          <Link 
+            href="/beranda" 
+            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 hover:text-gr-green transition-colors"
+          >
+            ← Kembali ke Beranda
+          </Link>
+        </div>
  
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch lg:flex-1 lg:min-h-0">
           {/* Left: Polaroid Style Image */}
-          <div className="flex flex-col items-center">
-            <div className="bg-gr-bg-paper p-6 pb-24 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500 w-full max-w-md">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center lg:min-h-0">
+            <div className="bg-gr-bg-paper p-3 pb-10 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500 w-full max-w-[280px] sm:max-w-[320px] aspect-[4/5] flex flex-col justify-between">
               <div className="aspect-square w-full overflow-hidden bg-black/5">
                 <img 
                   src={product.photo_url || '/placeholder-crop.jpg'} 
@@ -184,35 +186,36 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                   className="h-full w-full object-cover grayscale-[0.1] contrast-[1.05]"
                 />
               </div>
-              <div className="mt-8 text-center">
-                <span className="font-display text-3xl text-gr-text-paper opacity-40">
+              <div className="mt-4 text-center">
+                <span className="font-display text-xl text-gr-text-paper opacity-40">
                   EST. {new Date(product.created_at).getFullYear()}
                 </span>
               </div>
             </div>
           </div>
- 
+  
           {/* Right: Info Section */}
-          <div className="flex flex-col space-y-10">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="bg-white/5 border border-white/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gr-green">
+          <div className="lg:col-span-7 flex flex-col justify-between gap-4 lg:min-h-0">
+            {/* Header info */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-white/5 border border-white/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gr-green">
                   {product.category}
                 </span>
-                <span className="bg-gr-live/10 border border-gr-live/20 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-gr-live">
+                <span className="bg-gr-live/10 border border-gr-live/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gr-live">
                   {product.status}
                 </span>
               </div>
               
-              <h1 className="font-display text-6xl font-medium tracking-tight text-gr-text-primary leading-tight">
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-gr-text-primary leading-tight">
                 {product.name}
               </h1>
               
-              <div className="mt-6 flex items-baseline gap-4">
-                <span className="font-mono text-5xl text-gr-green">
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-3xl text-gr-green">
                   Rp {product.price_per_kg.toLocaleString('id-ID')}
                 </span>
-                <span className="font-sans text-sm text-gr-text-primary/40 uppercase tracking-widest">
+                <span className="font-sans text-[9px] text-gr-text-primary/40 uppercase tracking-widest">
                   per Kilogram
                 </span>
               </div>
@@ -220,18 +223,18 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
  
             {/* Price Gauge Section */}
             {product.reference_price_per_kg && (
-              <div className="rounded-2xl bg-white/5 p-8 border border-white/10 backdrop-blur-md">
-                <div className="flex justify-between items-end mb-6">
+              <div className="rounded-xl bg-white/5 p-4 border border-white/10 backdrop-blur-md space-y-3">
+                <div className="flex justify-between items-center">
                   <div>
-                    <h4 className="font-sans text-[10px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1">
+                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-0.5">
                       Analisis Transparansi
                     </h4>
-                    <p className="font-display text-2xl text-gr-text-primary">
+                    <p className="font-display text-lg text-gr-text-primary">
                       Indikator Keadilan Harga
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="block font-mono text-lg text-white">
+                    <span className="block font-mono text-base text-white">
                       Rp {product.reference_price_per_kg.toLocaleString('id-ID')}
                     </span>
                     <span className="font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">
@@ -245,42 +248,36 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                   hargaReferensi={product.reference_price_per_kg} 
                 />
                 
-                <p className="mt-6 font-sans text-xs text-gr-text-primary/60 leading-relaxed italic">
-                  * Indikator ini membandingkan harga petani dengan harga pasar rata-rata untuk menjamin transparansi bagi pembeli dan keadilan bagi produsen.
+                <p className="font-sans text-[9px] text-gr-text-primary/60 leading-relaxed italic">
+                  * Indikator membandingkan harga petani dengan harga pasar rata-rata untuk menjamin transparansi & keadilan.
                 </p>
               </div>
             )}
- 
-            {/* Metadata Grid */}
-            <div className="grid grid-cols-2 gap-8 border-y border-white/5 py-10">
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-gr-green">
-                  <Tag size={20} />
-                </div>
+  
+            {/* Metadata Horizontal Row */}
+            <div className="grid grid-cols-3 gap-2 border-y border-white/5 py-3">
+              <div className="flex items-center gap-2">
+                <Tag size={14} className="text-gr-green" />
                 <div>
-                  <span className="block font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30">Stok</span>
-                  <span className="font-mono text-lg text-gr-text-primary">{product.quantity_kg} KG</span>
+                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">Stok</span>
+                  <span className="font-mono text-sm text-gr-text-primary">{product.quantity_kg} KG</span>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-gr-green">
-                  <Calendar size={20} />
-                </div>
+              <div className="flex items-center gap-2">
+                <Calendar size={14} className="text-gr-green" />
                 <div>
-                  <span className="block font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30">Dipanen</span>
-                  <span className="font-mono text-lg text-gr-text-primary">
-                    {new Date(product.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}
+                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">Dipanen</span>
+                  <span className="font-mono text-sm text-gr-text-primary">
+                    {new Date(product.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-gr-green">
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <span className="block font-sans text-[10px] uppercase tracking-widest text-gr-text-primary/30">Lokasi</span>
-                  <span className="font-mono text-lg text-gr-text-primary">
-                    {product.distance_km ? `${product.distance_km.toFixed(1)} km dari Anda` : 'Terverifikasi'}
+              <div className="flex items-center gap-2">
+                <MapPin size={14} className="text-gr-green" />
+                <div className="min-w-0">
+                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">Lokasi</span>
+                  <span className="font-mono text-sm text-gr-text-primary block truncate" title={product.distance_km ? `${product.distance_km.toFixed(1)} km dari Anda` : 'Terverifikasi'}>
+                    {product.distance_km ? `${product.distance_km.toFixed(1)} km` : 'Terverifikasi'}
                   </span>
                 </div>
               </div>
@@ -288,122 +285,127 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
 
             {/* Error Alert Banner */}
             {error && (
-              <div className="bg-gr-price-unfair/10 border border-gr-price-unfair/20 text-gr-price-unfair text-xs px-4 py-3 rounded-md animate-pulse">
+              <div className="bg-gr-price-unfair/10 border border-gr-price-unfair/20 text-gr-price-unfair text-xs px-4 py-2 rounded-md animate-pulse">
                 {error}
               </div>
             )}
 
-            {/* Quantity Selector & Total Price */}
-            {isAvailable && !isOwnProduct && (
-              <div className="space-y-4 bg-white/5 p-6 border border-white/10 backdrop-blur-md">
+            {/* Purchase Control Panel */}
+            {isAvailable && !isOwnProduct ? (
+              <div className="space-y-3 bg-white/5 p-4 border border-white/10 backdrop-blur-md">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-sans text-[10px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1">
+                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-0.5">
                       Jumlah Pembelian
                     </h4>
-                    <p className="font-display text-lg text-gr-text-primary">
+                    <p className="font-display text-sm text-gr-text-primary">
                       Pilih Quantity (KG)
                     </p>
                   </div>
                   
-                  {/* Selector Controls */}
-                  <div className="flex items-center border border-white/10 bg-black/20 rounded-none overflow-hidden h-12">
-                    <button
-                      type="button"
-                      onClick={handleDecrease}
-                      disabled={quantity <= 1}
-                      className="px-4 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <input
-                      type="text"
-                      value={qtyInput}
-                      onChange={handleInputChange}
-                      onBlur={handleInputBlur}
-                      className="w-16 h-full bg-transparent text-center font-mono text-base text-gr-text-primary border-none focus:outline-none focus:ring-0"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleIncrease}
-                      disabled={quantity >= maxStock}
-                      className="px-4 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
-                    >
-                      <Plus size={16} />
-                    </button>
+                  <div className="flex items-center gap-4">
+                    {/* Selector Controls */}
+                    <div className="flex items-center border border-white/10 bg-black/20 rounded-none overflow-hidden h-9">
+                      <button
+                        type="button"
+                        onClick={handleDecrease}
+                        disabled={quantity <= 1}
+                        className="px-3 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <input
+                        type="text"
+                        value={qtyInput}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        className="w-12 h-full bg-transparent text-center font-mono text-sm text-gr-text-primary border-none focus:outline-none focus:ring-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleIncrease}
+                        disabled={quantity >= maxStock}
+                        className="px-3 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/40 mb-0.5">
+                        Total Harga
+                      </span>
+                      <span className="font-mono text-lg text-gr-green font-bold">
+                        Rp {(product.price_per_kg * quantity).toLocaleString('id-ID')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center border-t border-white/5 pt-4">
-                  <span className="font-sans text-xs uppercase tracking-widest text-gr-text-primary/40">
-                    Total Harga
-                  </span>
-                  <span className="font-mono text-2xl text-gr-green font-bold">
-                    Rp {(product.price_per_kg * quantity).toLocaleString('id-ID')}
-                  </span>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={handleBuyNow}
+                    disabled={checkingOut || !isAvailable}
+                    className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {checkingOut ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Memproses...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Beli Sekarang
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Hubungi Petani
+                  </Button>
                 </div>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                {isOwnProduct ? (
+                  <Button 
+                    disabled
+                    className="w-full bg-white/5 border border-white/10 text-gr-text-primary/40 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                  >
+                    Ini Produk Anda
+                  </Button>
+                ) : (
+                  <Button 
+                    disabled
+                    className="w-full bg-white/5 border border-white/10 text-gr-text-primary/40 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                  >
+                    Sudah Terjual
+                  </Button>
+                )}
               </div>
             )}
 
-            {/* Security Disclaimer Banner */}
+            {/* Banners/Alerts at the very bottom */}
             {isAvailable && !isOwnProduct && (
-              <div className="flex items-start gap-3 bg-gr-orange/5 border border-gr-orange/20 p-4 rounded-none">
-                <ShieldAlert className="text-gr-orange shrink-0 mt-0.5" size={16} />
-                <div className="font-sans text-[11px] leading-relaxed text-gr-text-primary/70">
-                  <span className="text-gr-orange font-bold uppercase tracking-wider block mb-1 text-[10px]">Pemberitahuan Keamanan</span>
-                  Hindari pembayaran transfer untuk mengurangi terkena penipuan. Lebih baik melakukan transaksi secara <strong className="text-gr-green font-semibold">tunai (Cash on Delivery)</strong> saat serah terima barang secara langsung.
+              <div className="flex items-center gap-2 bg-gr-orange/5 border border-gr-orange/20 px-3 py-2">
+                <ShieldAlert className="text-gr-orange shrink-0" size={14} />
+                <div className="font-sans text-[10px] text-gr-text-primary/70">
+                  <strong className="text-gr-orange uppercase tracking-wider text-[9px] mr-1">Pemberitahuan Keamanan:</strong>
+                  Hindari transfer langsung. Gunakan transaksi <strong className="text-gr-green font-semibold">tunai (CoD)</strong> saat bertemu.
                 </div>
               </div>
             )}
 
-            {/* Own Product Warning Banner */}
             {isOwnProduct && (
-              <div className="flex items-start gap-3 bg-gr-orange/5 border border-gr-orange/20 p-4 rounded-none">
-                <ShieldAlert className="text-gr-orange shrink-0 mt-0.5" size={16} />
-                <div className="font-sans text-[11px] leading-relaxed text-gr-text-primary/70">
-                  <span className="text-gr-orange font-bold uppercase tracking-wider block mb-1 text-[10px]">Ini Produk Anda</span>
+              <div className="flex items-center gap-2 bg-gr-orange/5 border border-gr-orange/20 px-3 py-2">
+                <ShieldAlert className="text-gr-orange shrink-0" size={14} />
+                <div className="font-sans text-[10px] text-gr-text-primary/70">
+                  <strong className="text-gr-orange uppercase tracking-wider text-[9px] mr-1">Ini Produk Anda:</strong>
                   Anda tidak dapat membeli produk milik Anda sendiri.
                 </div>
               </div>
             )}
- 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              {isOwnProduct ? (
-                <Button 
-                  disabled
-                  className="flex-1 bg-white/5 border border-white/10 text-gr-text-primary/40 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em]"
-                >
-                  Ini Produk Anda
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleBuyNow}
-                  disabled={checkingOut || !isAvailable}
-                  className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {checkingOut ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Memproses...
-                    </>
-                  ) : !isAvailable ? (
-                    "Sudah Terjual"
-                  ) : (
-                    <>
-                      <ShoppingCart className="mr-2 h-5 w-5" />
-                      Beli Sekarang
-                    </>
-                  )}
-                </Button>
-              )}
-              {!isOwnProduct && (
-                <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-gr-text-primary">
-                  <MessageCircle className="mr-2 h-5 w-5" />
-                  Hubungi Petani
-                </Button>
-              )}
-            </div>
           </div>
         </div>
       </div>
