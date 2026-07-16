@@ -16,4 +16,4 @@ python-multipart==0.0.32
 SQLAlchemy==2.0.51
 uvicorn==0.51.0
 email-validator==2.3.0
-Pillow==12.3.0
+Pillow==11.1.0
