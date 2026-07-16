@@ -11,7 +11,6 @@ from app.db import Base
 class UserRole(str, enum.Enum):
     PETANI = "PETANI"
     PEMBELI = "PEMBELI"
-    AGEN = "AGEN"
 
     @classmethod
     def _missing_(cls, value):

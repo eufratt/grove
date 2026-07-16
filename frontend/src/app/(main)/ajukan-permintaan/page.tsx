@@ -84,7 +84,7 @@ export default function AjukanPermintaanPage() {
       try {
         const userData = await authApi.getMe();
         setUser(userData);
-        if (userData.role !== 'PEMBELI' && userData.role !== 'AGEN') {
+        if (userData.role !== 'PEMBELI') {
           // Keep checkingAuth true, but handle restricted message in render
           setCheckingAuth(false);
           return;
@@ -205,8 +205,8 @@ export default function AjukanPermintaanPage() {
     );
   }
 
-  // Restricted access for non-buyers / non-agents
-  if (user && user.role !== 'PEMBELI' && user.role !== 'AGEN') {
+  // Restricted access for non-buyers
+  if (user && user.role !== 'PEMBELI') {
     return (
       <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
@@ -215,7 +215,7 @@ export default function AjukanPermintaanPage() {
           <AlertTriangle className="h-16 w-16 text-gr-orange mx-auto mb-6 animate-pulse" />
           <h2 className="font-display text-2xl font-medium text-gr-text-primary mb-3">Akses Dibatasi</h2>
           <p className="font-sans text-sm text-gr-text-primary/60 mb-6 leading-relaxed">
-            Halaman ini khusus untuk Pembeli atau Agen mengajukan permintaan hasil panen di masa depan. Akun Anda terdaftar sebagai <span className="font-bold text-gr-green">{user.role}</span>.
+            Halaman ini khusus untuk Pembeli mengajukan permintaan hasil panen di masa depan. Akun Anda terdaftar sebagai <span className="font-bold text-gr-green">{user.role}</span>.
           </p>
           <Link
             href="/beranda"

@@ -67,13 +67,13 @@ export function BottomNav() {
       href: '/beranda?mode=jelajah',
       icon: Compass,
     },
-    ...(user && (user.role === 'PETANI' || user.role === 'AGEN') ? [{
+    ...(user && user.role === 'PETANI' ? [{
       id: 'jual',
       name: 'Jual',
       href: '/jual',
       icon: Plus,
     }] : []),
-    ...(user && (user.role === 'PEMBELI' || user.role === 'AGEN') ? [{
+    ...(user && user.role === 'PEMBELI' ? [{
       id: 'ajukan',
       name: 'Ajukan',
       href: '/permintaan-saya',

@@ -20,7 +20,7 @@ export default function JualPage() {
     const checkRole = async () => {
       try {
         const userData = await authApi.getMe();
-        if (userData.role !== 'PETANI' && userData.role !== 'AGEN') {
+        if (userData.role !== 'PETANI') {
           router.push('/settings/upgrade-to-farmer');
         } else {
           setCheckingAuth(false);

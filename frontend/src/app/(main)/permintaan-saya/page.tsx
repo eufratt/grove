@@ -28,7 +28,7 @@ export default function PermintaanSayaPage() {
       try {
         const userData = await authApi.getMe();
         setUser(userData);
-        if (userData.role !== 'PEMBELI' && userData.role !== 'AGEN') {
+        if (userData.role !== 'PEMBELI') {
           setCheckingAuth(false);
           return;
         }
@@ -55,7 +55,7 @@ export default function PermintaanSayaPage() {
   }
 
   // Restricted access screen
-  if (user && user.role !== 'PEMBELI' && user.role !== 'AGEN') {
+  if (user && user.role !== 'PEMBELI') {
     return (
       <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
@@ -64,7 +64,7 @@ export default function PermintaanSayaPage() {
           <ClipboardList className="h-16 w-16 text-gr-orange mx-auto mb-6 opacity-80" />
           <h2 className="font-display text-2xl font-medium text-gr-text-primary mb-3">Akses Dibatasi</h2>
           <p className="font-sans text-sm text-gr-text-primary/60 mb-6 leading-relaxed">
-            Halaman ini khusus untuk Pembeli atau Agen melihat rincian riwayat permintaan komoditas panen mereka. Akun Anda terdaftar sebagai <span className="font-bold text-gr-green">{user.role}</span>.
+            Halaman ini khusus untuk Pembeli melihat rincian riwayat permintaan komoditas panen mereka. Akun Anda terdaftar sebagai <span className="font-bold text-gr-green">{user.role}</span>.
           </p>
           <Link
             href="/beranda"

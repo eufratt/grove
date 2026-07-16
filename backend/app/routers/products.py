@@ -30,8 +30,8 @@ async def create_product(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    if current_user.role not in [UserRole.PETANI, UserRole.AGEN]:
-        raise HTTPException(status_code=403, detail="Only farmers or agents can post products")
+    if current_user.role != UserRole.PETANI:
+        raise HTTPException(status_code=403, detail="Only farmers can post products")
     
     photo_url = await storage_service.upload_product_photo(photo)
     

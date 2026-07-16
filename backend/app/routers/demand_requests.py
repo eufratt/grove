@@ -25,10 +25,10 @@ async def create_demand_request(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    if current_user.role not in [UserRole.PEMBELI, UserRole.AGEN]:
+    if current_user.role != UserRole.PEMBELI:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya pembeli atau agen yang dapat membuat permintaan"
+            detail="Hanya pembeli yang dapat membuat permintaan"
         )
 
     deadline = body.deadline

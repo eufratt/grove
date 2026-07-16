@@ -51,8 +51,8 @@ export function Navbar() {
     { name: 'Beranda', href: '/beranda', icon: Leaf },
     { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
-    ...(user && (user.role === 'PETANI' || user.role === 'AGEN') ? [{ name: 'Mulai Jual', href: '/jual', icon: PlusCircle }] : []),
-    ...(user && (user.role === 'PEMBELI' || user.role === 'AGEN') ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
+    ...(user && user.role === 'PETANI' ? [{ name: 'Mulai Jual', href: '/jual', icon: PlusCircle }] : []),
+    ...(user && user.role === 'PEMBELI' ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
     ...(user ? [{ name: 'Pesanan Saya', href: '/pesanan', icon: ClipboardList }] : []),
   ];
 
