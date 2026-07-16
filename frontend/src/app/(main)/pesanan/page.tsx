@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ordersApi, useOrderSocket } from '@/lib/api/orders';
+import { demandRequestsApi, useDemandSocket } from '@/lib/api/demand-requests';
 import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,12 +19,12 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [activeTab, setActiveTab] = useState<'incoming' | 'purchases'>('incoming');
+  const [activeTab, setActiveTab] = useState<'incoming' | 'purchases' | 'demands'>('incoming');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const LIMIT = 10;
 
-  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases', pageNum: number, append = false) => {
+  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'demands', pageNum: number, append = false) => {
     if (pageNum === 1) {
       setIsLoading(true);
     } else {
@@ -33,7 +35,9 @@ export default function OrdersPage() {
       const skip = (pageNum - 1) * LIMIT;
       let data: any[] = [];
 
-      if (userRole === 'PETANI') {
+      if (tab === 'demands') {
+        data = await demandRequestsApi.getCommittedDemandRequests();
+      } else if (userRole === 'PETANI') {
         if (tab === 'incoming') {
           data = await ordersApi.getIncomingOrders(skip, LIMIT);
         } else {
@@ -48,7 +52,7 @@ export default function OrdersPage() {
       } else {
         setOrders(data);
       }
-      setHasMore(data.length === LIMIT);
+      setHasMore(tab === 'demands' ? false : data.length === LIMIT);
       setPage(pageNum);
     } catch (err) {
       console.error('Failed to load orders:', err);
@@ -78,7 +82,7 @@ export default function OrdersPage() {
     fetchUserAndOrders();
   }, []);
 
-  const handleTabChange = (tab: 'incoming' | 'purchases') => {
+  const handleTabChange = (tab: 'incoming' | 'purchases' | 'demands') => {
     if (!user) return;
     setActiveTab(tab);
     loadOrders(user.role, tab, 1, false);
@@ -100,10 +104,17 @@ export default function OrdersPage() {
         title: 'Belum ada pesanan masuk',
         desc: 'Hasil panenmu yang dijual belum dipesan oleh pembeli lain.'
       };
-    } else {
+    } else if (activeTab === 'purchases') {
       return {
         title: 'Kamu belum melakukan pembelian',
         desc: 'Cari hasil panen segar di beranda untuk mulai berbelanja.'
+      };
+    } else {
+      return {
+        title: 'Belum ada permintaan diterima',
+        desc: user?.role === 'PETANI'
+          ? 'Kamu belum memberikan komitmen supply pada permintaan pembeli.'
+          : 'Belum ada petani yang menyetujui/berkomitmen pada permintaan hasil panenmu.'
       };
     }
   };
@@ -126,25 +137,30 @@ export default function OrdersPage() {
           <div className="mt-8 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
         </header>
 
-        {/* Tab Navigation for Farmers */}
-        {user && user.role === 'PETANI' && (
-          <div className="flex bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm max-w-md mb-8">
-            <button
-              onClick={() => handleTabChange('incoming')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all duration-300 cursor-pointer",
-                activeTab === 'incoming'
-                  ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
-              )}
-            >
-              <Package size={14} />
-              Pesanan Masuk
-            </button>
+        {/* Tab Navigation */}
+        {user && (
+          <div className={cn(
+            "flex bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm mb-8 overflow-x-auto scrollbar-none",
+            user.role === 'PETANI' ? "max-w-2xl" : "max-w-lg"
+          )}>
+            {user.role === 'PETANI' && (
+              <button
+                onClick={() => handleTabChange('incoming')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
+                  activeTab === 'incoming'
+                    ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
+                    : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
+                )}
+              >
+                <Package size={14} />
+                Pesanan Masuk
+              </button>
+            )}
             <button
               onClick={() => handleTabChange('purchases')}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all duration-300 cursor-pointer",
+                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
                 activeTab === 'purchases'
                   ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
                   : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
@@ -152,6 +168,18 @@ export default function OrdersPage() {
             >
               <ShoppingBag size={14} />
               Pesanan Saya
+            </button>
+            <button
+              onClick={() => handleTabChange('demands')}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
+                activeTab === 'demands'
+                  ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
+                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
+              )}
+            >
+              <ClipboardList size={14} />
+              Permintaan Terpenuhi
             </button>
           </div>
         )}
@@ -163,15 +191,27 @@ export default function OrdersPage() {
         ) : orders.length > 0 ? (
           <div className="space-y-6">
             <AnimatePresence>
-              {orders.map((order, index) => (
-                <OrderCard 
-                  key={order.id} 
-                  order={order} 
-                  index={index} 
-                  onUpdate={handleUpdate} 
-                  isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
-                />
-              ))}
+              {activeTab === 'demands' ? (
+                orders.map((demand, index) => (
+                  <DemandCard 
+                    key={demand.id} 
+                    demand={demand} 
+                    index={index} 
+                    onUpdate={handleUpdate} 
+                    role={user?.role}
+                  />
+                ))
+              ) : (
+                orders.map((order, index) => (
+                  <OrderCard 
+                    key={order.id} 
+                    order={order} 
+                    index={index} 
+                    onUpdate={handleUpdate} 
+                    isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
+                  />
+                ))
+              )}
             </AnimatePresence>
 
             {hasMore && (
@@ -443,6 +483,225 @@ function OrderCard({
                 )}
               </div>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+function DemandCard({ 
+  demand, 
+  index, 
+  onUpdate, 
+  role 
+}: { 
+  demand: any; 
+  index: number; 
+  onUpdate: () => void; 
+  role: string; 
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const liveData = useDemandSocket(demand.id);
+  const currentStatus = liveData?.status || demand.status;
+  const currentCommitted = liveData?.quantity_kg_committed !== undefined ? liveData.quantity_kg_committed : demand.quantity_kg_committed;
+
+  const getStatusConfig = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'TERBUKA': 
+        return { icon: Clock, color: 'text-gr-orange', label: 'Dikomit Petani' };
+      case 'TERPENUHI': 
+        return { icon: CheckCircle2, color: 'text-gr-green', label: 'Terpenuhi' };
+      case 'DIBATALKAN': 
+        return { icon: XCircle, color: 'text-gr-price-unfair', label: 'Dibatalkan' };
+      default: 
+        return { icon: Package, color: 'text-gr-text-primary/40', label: 'Kedaluwarsa' };
+    }
+  };
+
+  const config = getStatusConfig(currentStatus);
+  const StatusIcon = config.icon;
+
+  const formattedDate = new Date(demand.created_at).toLocaleDateString('id-ID', { 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+
+  const getWhatsAppUrl = (phone: string, msg: string) => {
+    let cleaned = phone.replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('0')) {
+      cleaned = '62' + cleaned.slice(1);
+    }
+    return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
+  };
+
+  const isBuyer = role === 'PEMBELI';
+
+  const buyerName = demand.buyer_name || 'Pembeli';
+  const buyerPhone = demand.buyer_phone;
+  const buyerWaMessage = `Halo ${buyerName}, saya adalah petani yang berkomitmen untuk memenuhi permintaan Anda (Request ID: ${demand.id.slice(0, 8)}) untuk ${demand.quantity_kg_needed} KG ${demand.commodity_name}.`;
+  const buyerWaUrl = buyerPhone ? getWhatsAppUrl(buyerPhone, buyerWaMessage) : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className="group relative rounded-2xl bg-white/5 p-6 border border-white/10 backdrop-blur-md hover:border-white/20 transition-all overflow-hidden"
+    >
+      <div className="flex flex-col sm:flex-row justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className={cn("mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5", config.color)}>
+            <StatusIcon size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+                Request ID: {demand.id.slice(0, 8)}
+              </span>
+              {liveData && (
+                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-live animate-pulse">
+                  <span className="h-1 w-1 rounded-full bg-gr-live" />
+                  Live
+                </span>
+              )}
+            </div>
+            <h3 className="mt-1 font-display text-2xl font-medium text-gr-text-primary">
+              {demand.commodity_name}
+            </h3>
+            <p className="font-sans text-sm text-gr-text-primary/60 mt-0.5">
+              {currentCommitted} / {demand.quantity_kg_needed} KG terpenuhi
+            </p>
+            <p className="font-sans text-xs text-gr-text-primary/40 mt-1">
+              Diajukan pada {formattedDate}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-start sm:items-end justify-between gap-4">
+          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-full border border-current/20 bg-current/5", config.color)}>
+            <span className="font-mono text-[10px] uppercase tracking-widest font-bold">
+              {config.label}
+            </span>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="font-mono text-[10px] uppercase tracking-[0.2em] text-gr-green hover:bg-gr-green/10 cursor-pointer"
+          >
+            {isExpanded ? 'Sembunyikan' : 'Detail Permintaan'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Expanded details */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-6 pt-6 border-t border-white/5 space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                  Progress Pemenuhan
+                </h4>
+                <div className="space-y-2">
+                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                    <div 
+                      className="bg-gr-green h-full rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between font-sans text-xs text-gr-text-primary/60">
+                    <span>Deadline: {new Date(demand.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span className="text-gr-green font-bold">
+                      {Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <Link 
+                    href={`/permintaan/${demand.id}`}
+                    className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-gr-green hover:underline cursor-pointer"
+                  >
+                    Buka Halaman Detail
+                  </Link>
+                </div>
+              </div>
+
+              <div>
+                {isBuyer ? (
+                  <div>
+                    <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                      Komitmen Petani ({demand.commitments?.length || 0})
+                    </h4>
+                    <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1">
+                      {demand.commitments && demand.commitments.length > 0 ? (
+                        demand.commitments.map((commit: any) => {
+                          const farmerWaMessage = `Halo ${commit.petani_name || 'Petani'}, saya adalah pembeli yang mengajukan permintaan ${demand.commodity_name}. Terima kasih atas komitmen supply Anda sebesar ${commit.quantity_kg_committed} KG.`;
+                          const farmerWaUrl = commit.petani_phone ? getWhatsAppUrl(commit.petani_phone, farmerWaMessage) : null;
+                          return (
+                            <div key={commit.id} className="p-3 bg-white/2 rounded-xl border border-white/5 flex justify-between items-center text-sm font-sans">
+                              <div>
+                                <p className="text-gr-text-primary font-medium">{commit.petani_name || 'Petani'}</p>
+                                <p className="text-gr-green text-xs font-mono font-bold mt-0.5">+{commit.quantity_kg_committed} KG</p>
+                              </div>
+                              {farmerWaUrl && (
+                                <a
+                                  href={farmerWaUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 transition-all cursor-pointer"
+                                  title="Hubungi via WhatsApp"
+                                >
+                                  <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
+                                  </svg>
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-gr-text-primary/30 italic text-xs">Belum ada komitmen masuk.</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                      Informasi Kontak Pembeli
+                    </h4>
+                    <div className="space-y-3 font-sans">
+                      <div className="text-sm">
+                        <p className="text-gr-text-primary font-medium text-base">{buyerName}</p>
+                        <p className="text-gr-text-primary/40 text-xs mt-0.5">{buyerPhone || 'Tidak ada nomor telepon'}</p>
+                      </div>
+                      {buyerWaUrl && (
+                        <a
+                          href={buyerWaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md cursor-pointer"
+                        >
+                          <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
+                          </svg>
+                          Hubungi via WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

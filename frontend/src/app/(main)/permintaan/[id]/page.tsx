@@ -28,6 +28,14 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     return closestProv;
   };
 
+  const getWhatsAppUrl = (phone: string, msg: string) => {
+    let cleaned = phone.replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('0')) {
+      cleaned = '62' + cleaned.slice(1);
+    }
+    return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
+  };
+
   const [user, setUser] = useState<any | null>(null);
   const [request, setRequest] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -270,6 +278,36 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </span>
                 </div>
               </div>
+
+              {user && user.role === 'PETANI' && request.buyer_name && (
+                <div className="pt-6 border-t border-white/5 space-y-4">
+                  <h4 className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+                    Informasi Kontak Pembeli
+                  </h4>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/2 p-4 rounded-2xl border border-white/5">
+                    <div className="font-sans text-sm">
+                      <p className="text-gr-text-primary font-medium text-base">{request.buyer_name}</p>
+                      <p className="text-gr-text-primary/40 text-xs mt-0.5">{request.buyer_phone || 'Tidak ada nomor telepon'}</p>
+                    </div>
+                    {request.buyer_phone && (
+                      <a
+                        href={getWhatsAppUrl(
+                          request.buyer_phone,
+                          `Halo ${request.buyer_name}, saya adalah petani yang berminat/telah berkomitmen untuk memenuhi permintaan Anda (Request ID: ${request.id.slice(0, 8)}) untuk ${request.quantity_kg_needed} KG ${request.commodity_name}.`
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md cursor-pointer"
+                      >
+                        <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
+                        </svg>
+                        Hubungi Pembeli
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -346,12 +384,20 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       hour: '2-digit',
                       minute: '2-digit'
                     });
+                    const isBuyer = user?.role === 'PEMBELI';
+                    const farmerWaMessage = `Halo ${commit.petani_name || 'Petani'}, saya adalah pembeli yang mengajukan permintaan ${request.commodity_name}. Terima kasih atas komitmen supply Anda sebesar ${commit.quantity_kg_committed} KG.`;
+                    const farmerWaUrl = commit.petani_phone ? getWhatsAppUrl(commit.petani_phone, farmerWaMessage) : null;
                     return (
                       <div 
                         key={commit.id}
                         className="p-3 bg-white/2 rounded-xl border border-white/5 flex justify-between items-center"
                       >
                         <div>
+                          {isBuyer && commit.petani_name && (
+                            <p className="font-sans text-xs font-semibold text-gr-text-primary mb-1">
+                              {commit.petani_name}
+                            </p>
+                          )}
                           <p className="font-mono text-xs font-semibold text-gr-green">
                             +{commit.quantity_kg_committed} KG
                           </p>
@@ -359,7 +405,21 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                             {commitDate}
                           </p>
                         </div>
-                        <Tag size={14} className="text-gr-text-primary/20" />
+                        {isBuyer && farmerWaUrl ? (
+                          <a
+                            href={farmerWaUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 transition-all cursor-pointer"
+                            title="Hubungi via WhatsApp"
+                          >
+                            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                              <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
+                            </svg>
+                          </a>
+                        ) : (
+                          <Tag size={14} className="text-gr-text-primary/20" />
+                        )}
                       </div>
                     );
                   })

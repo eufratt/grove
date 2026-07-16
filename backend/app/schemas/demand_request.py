@@ -19,6 +19,8 @@ class SupplyCommitmentSummary(BaseModel):
     id: UUID
     quantity_kg_committed: float
     committed_at: datetime
+    petani_name: Optional[str] = None
+    petani_phone: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -40,6 +42,8 @@ class DemandRequestResponse(BaseModel):
         from_attributes = True
 
 class DemandRequestDetailResponse(DemandRequestResponse):
+    buyer_name: Optional[str] = None
+    buyer_phone: Optional[str] = None
     commitments: List[SupplyCommitmentSummary] = []
     num_petani_committed: int = 0
 

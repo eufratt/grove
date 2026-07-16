@@ -44,4 +44,44 @@ export const demandRequestsApi = {
     });
     return response.json();
   },
+
+  getCommittedDemandRequests: async () => {
+    const response = await apiClient('/demand-requests/committed', {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };
+
+// WebSocket Hook for real-time status updates
+import { useEffect, useState } from 'react';
+
+export function useDemandSocket(id: string | null) {
+  const [liveData, setLiveData] = useState<{
+    quantity_kg_committed?: number;
+    status?: string;
+    num_petani_committed?: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws') || 'ws://localhost:8000'}/ws/demand-requests/${id}`;
+    const socket = new WebSocket(wsUrl);
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setLiveData(data);
+      } catch (err) {
+        console.error('Failed to parse demand websocket message:', err);
+      }
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [id]);
+
+  return liveData;
+}

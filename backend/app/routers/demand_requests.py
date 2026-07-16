@@ -146,15 +146,91 @@ async def list_my_demand_requests(
         })
     return items
 
+@router.get("/committed", response_model=List[DemandRequestDetailResponse])
+async def list_committed_demand_requests(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    from sqlalchemy.orm import selectinload, joinedload
+    
+    if current_user.role == UserRole.PEMBELI:
+        stmt = (
+            select(DemandRequest)
+            .options(
+                joinedload(DemandRequest.buyer),
+                selectinload(DemandRequest.commitments).selectinload(SupplyCommitment.petani)
+            )
+            .where(
+                DemandRequest.buyer_id == current_user.id,
+                DemandRequest.quantity_kg_committed > 0
+            )
+            .order_by(DemandRequest.created_at.desc())
+        )
+    elif current_user.role == UserRole.PETANI:
+        stmt = (
+            select(DemandRequest)
+            .options(
+                joinedload(DemandRequest.buyer),
+                selectinload(DemandRequest.commitments).selectinload(SupplyCommitment.petani)
+            )
+            .where(
+                DemandRequest.commitments.any(SupplyCommitment.petani_id == current_user.id)
+            )
+            .order_by(DemandRequest.created_at.desc())
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Role tidak valid"
+        )
+
+    res = await db.execute(stmt)
+    records = res.scalars().all()
+
+    items = []
+    for req in records:
+        commits = []
+        for c in req.commitments:
+            commits.append({
+                "id": c.id,
+                "quantity_kg_committed": c.quantity_kg_committed,
+                "committed_at": c.committed_at,
+                "petani_name": c.petani.full_name if c.petani else None,
+                "petani_phone": c.petani.phone_whatsapp if c.petani else None
+            })
+        
+        petani_ids = {c.petani_id for c in req.commitments}
+        num_petani = len(petani_ids)
+
+        items.append({
+            "id": req.id,
+            "buyer_id": req.buyer_id,
+            "buyer_name": req.buyer.full_name if req.buyer else None,
+            "buyer_phone": req.buyer.phone_whatsapp if req.buyer else None,
+            "commodity_name": req.commodity_name,
+            "category": req.category,
+            "quantity_kg_needed": req.quantity_kg_needed,
+            "quantity_kg_committed": req.quantity_kg_committed,
+            "deadline": req.deadline,
+            "status": req.status,
+            "created_at": req.created_at,
+            "commitments": commits,
+            "num_petani_committed": num_petani
+        })
+    return items
+
 @router.get("/{id}", response_model=DemandRequestDetailResponse)
 async def get_demand_request_detail(
     id: uuid.UUID,
     db: AsyncSession = Depends(get_db)
 ):
+    from sqlalchemy.orm import joinedload
     stmt = select(
         DemandRequest,
         func.ST_Y(DemandRequest.location).label("latitude"),
         func.ST_X(DemandRequest.location).label("longitude")
+    ).options(
+        joinedload(DemandRequest.buyer)
     ).where(
         DemandRequest.id == id
     )
@@ -169,7 +245,9 @@ async def get_demand_request_detail(
     request, lat, lng = row
 
     # Fetch commitments
-    stmt_commitments = select(SupplyCommitment).where(
+    stmt_commitments = select(SupplyCommitment).options(
+        joinedload(SupplyCommitment.petani)
+    ).where(
         SupplyCommitment.demand_request_id == id
     ).order_by(
         SupplyCommitment.committed_at.desc()
@@ -187,7 +265,9 @@ async def get_demand_request_detail(
     commits_list = [{
         "id": c.id,
         "quantity_kg_committed": c.quantity_kg_committed,
-        "committed_at": c.committed_at
+        "committed_at": c.committed_at,
+        "petani_name": c.petani.full_name if c.petani else None,
+        "petani_phone": c.petani.phone_whatsapp if c.petani else None
     } for c in commitments]
 
     return {
