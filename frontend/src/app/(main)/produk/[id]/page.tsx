@@ -20,6 +20,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const router = useRouter();
 
   const [product, setProduct] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState('');
@@ -29,21 +30,25 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const [qtyInput, setQtyInput] = useState('1');
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       setLoadingProduct(true);
       setError('');
       try {
-        const data = await productsApi.getProductById(id);
-        setProduct(data);
+        const [prodData, userData] = await Promise.all([
+          productsApi.getProductById(id),
+          authApi.getMe().catch(() => null)
+        ]);
+        setProduct(prodData);
+        setCurrentUser(userData);
         setQuantity(1);
         setQtyInput('1');
       } catch (err: any) {
-        console.error('Failed to fetch product:', err);
+        console.error('Failed to fetch data:', err);
       } finally {
         setLoadingProduct(false);
       }
     };
-    fetchProduct();
+    fetchData();
   }, [id]);
 
   const maxStock = product ? product.quantity_kg : 0;
@@ -145,6 +150,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   }
 
   const isAvailable = product.status === 'TERSEDIA';
+  const isOwnProduct = currentUser && product && currentUser.id === product.seller_id;
 
   return (
     <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -288,7 +294,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             )}
 
             {/* Quantity Selector & Total Price */}
-            {isAvailable && (
+            {isAvailable && !isOwnProduct && (
               <div className="space-y-4 bg-white/5 p-6 border border-white/10 backdrop-blur-md">
                 <div className="flex items-center justify-between">
                   <div>
@@ -340,7 +346,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             )}
 
             {/* Security Disclaimer Banner */}
-            {isAvailable && (
+            {isAvailable && !isOwnProduct && (
               <div className="flex items-start gap-3 bg-gr-orange/5 border border-gr-orange/20 p-4 rounded-none">
                 <ShieldAlert className="text-gr-orange shrink-0 mt-0.5" size={16} />
                 <div className="font-sans text-[11px] leading-relaxed text-gr-text-primary/70">
@@ -349,32 +355,54 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                 </div>
               </div>
             )}
+
+            {/* Own Product Warning Banner */}
+            {isOwnProduct && (
+              <div className="flex items-start gap-3 bg-gr-orange/5 border border-gr-orange/20 p-4 rounded-none">
+                <ShieldAlert className="text-gr-orange shrink-0 mt-0.5" size={16} />
+                <div className="font-sans text-[11px] leading-relaxed text-gr-text-primary/70">
+                  <span className="text-gr-orange font-bold uppercase tracking-wider block mb-1 text-[10px]">Ini Produk Anda</span>
+                  Anda tidak dapat membeli produk milik Anda sendiri.
+                </div>
+              </div>
+            )}
  
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                onClick={handleBuyNow}
-                disabled={checkingOut || !isAvailable}
-                className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {checkingOut ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Memproses...
-                  </>
-                ) : !isAvailable ? (
-                  "Sudah Terjual"
-                ) : (
-                  <>
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Beli Sekarang
-                  </>
-                )}
-              </Button>
-              <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-gr-text-primary">
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Hubungi Petani
-              </Button>
+              {isOwnProduct ? (
+                <Button 
+                  disabled
+                  className="flex-1 bg-white/5 border border-white/10 text-gr-text-primary/40 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em]"
+                >
+                  Ini Produk Anda
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleBuyNow}
+                  disabled={checkingOut || !isAvailable}
+                  className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {checkingOut ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Memproses...
+                    </>
+                  ) : !isAvailable ? (
+                    "Sudah Terjual"
+                  ) : (
+                    <>
+                      <ShoppingCart className="mr-2 h-5 w-5" />
+                      Beli Sekarang
+                    </>
+                  )}
+                </Button>
+              )}
+              {!isOwnProduct && (
+                <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-16 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-gr-text-primary">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Hubungi Petani
+                </Button>
+              )}
             </div>
           </div>
         </div>

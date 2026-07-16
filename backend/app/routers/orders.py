@@ -68,6 +68,13 @@ async def create_order(
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
         
+    # Check if buying own product
+    if product.seller_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Anda tidak dapat membeli produk milik sendiri"
+        )
+        
     # 3. Check if product is available
     if product.status != ProductStatus.TERSEDIA:
         raise HTTPException(
