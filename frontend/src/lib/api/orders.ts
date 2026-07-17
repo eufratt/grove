@@ -36,6 +36,13 @@ export const ordersApi = {
     });
     return response.json();
   },
+
+  confirmOrderSuccess: async (orderId: string) => {
+    const response = await apiClient(`/orders/${orderId}/confirm-success`, {
+      method: 'PATCH',
+    });
+    return response.json();
+  },
 };
 
 // WebSocket Hook for real-time status updates

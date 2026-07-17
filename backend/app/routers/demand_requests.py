@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from app.db import get_db
 from app.models.user import User, UserRole
 from app.models.demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
+from app.models.rating import Rating, TransactionType
 from app.schemas.demand_request import (
     DemandRequestCreate, 
     DemandCommitmentCreate, 
@@ -202,6 +203,16 @@ async def list_committed_demand_requests(
         petani_ids = {c.petani_id for c in req.commitments}
         num_petani = len(petani_ids)
 
+        has_petani_rated = False
+        if current_user.role == UserRole.PETANI:
+            stmt_r = select(Rating).where(
+                Rating.reference_id == req.id,
+                Rating.transaction_type == TransactionType.DEMAND_FULFILLMENT,
+                Rating.rater_id == current_user.id
+            )
+            res_r = await db.execute(stmt_r)
+            has_petani_rated = res_r.scalar_one_or_none() is not None
+
         items.append({
             "id": req.id,
             "buyer_id": req.buyer_id,
@@ -215,14 +226,16 @@ async def list_committed_demand_requests(
             "status": req.status,
             "created_at": req.created_at,
             "commitments": commits,
-            "num_petani_committed": num_petani
+            "num_petani_committed": num_petani,
+            "has_petani_rated": has_petani_rated
         })
     return items
 
 @router.get("/{id}", response_model=DemandRequestDetailResponse)
 async def get_demand_request_detail(
     id: uuid.UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(auth_service.get_optional_current_user)
 ):
     from sqlalchemy.orm import joinedload
     stmt = select(
@@ -270,9 +283,21 @@ async def get_demand_request_detail(
         "petani_phone": c.petani.phone_whatsapp if c.petani else None
     } for c in commitments]
 
+    has_petani_rated = False
+    if current_user and current_user.role == UserRole.PETANI:
+        stmt_r = select(Rating).where(
+            Rating.reference_id == id,
+            Rating.transaction_type == TransactionType.DEMAND_FULFILLMENT,
+            Rating.rater_id == current_user.id
+        )
+        res_r = await db.execute(stmt_r)
+        has_petani_rated = res_r.scalar_one_or_none() is not None
+
     return {
         "id": request.id,
         "buyer_id": request.buyer_id,
+        "buyer_name": request.buyer.full_name if request.buyer else None,
+        "buyer_phone": request.buyer.phone_whatsapp if request.buyer else None,
         "commodity_name": request.commodity_name,
         "category": request.category,
         "quantity_kg_needed": request.quantity_kg_needed,
@@ -283,7 +308,8 @@ async def get_demand_request_detail(
         "latitude": lat,
         "longitude": lng,
         "commitments": commits_list,
-        "num_petani_committed": num_petani
+        "num_petani_committed": num_petani,
+        "has_petani_rated": has_petani_rated
     }
 
 @router.post("/{id}/commit", response_model=SupplyCommitmentSummary)

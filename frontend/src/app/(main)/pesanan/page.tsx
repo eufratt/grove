@@ -7,6 +7,7 @@ import { ordersApi, useOrderSocket } from '@/lib/api/orders';
 import { demandRequestsApi, useDemandSocket } from '@/lib/api/demand-requests';
 import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
+import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList } from 'lucide-react';
@@ -262,8 +263,25 @@ function OrderCard({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [buyerConfirmedAt, setBuyerConfirmedAt] = useState<string | null>(order.buyer_confirmed_at);
+  const [hasBuyerRated, setHasBuyerRated] = useState<boolean>(order.has_buyer_rated);
+  
   const liveStatus = useOrderSocket(order.id);
   const currentStatus = liveStatus || order.status;
+
+  const handleConfirmSuccess = async () => {
+    try {
+      setIsConfirming(true);
+      const updatedOrder = await ordersApi.confirmOrderSuccess(order.id);
+      setBuyerConfirmedAt(updatedOrder.buyer_confirmed_at);
+      onUpdate();
+    } catch (err) {
+      console.error('Failed to confirm success:', err);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
 
   const getStatusConfig = (status: string) => {
     switch (status.toUpperCase()) {
@@ -441,6 +459,40 @@ function OrderCard({
               </div>
             </div>
 
+            {/* Buyer actions */}
+            {!isIncoming && (
+              <div className="pt-4 border-t border-white/5 space-y-4">
+                {!buyerConfirmedAt && currentStatus !== 'BATAL' && (
+                  <Button
+                    disabled={isConfirming}
+                    onClick={handleConfirmSuccess}
+                    className="bg-gr-green hover:bg-gr-green/80 text-gr-bg font-sans text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300"
+                  >
+                    {isConfirming ? 'Memproses...' : 'Konfirmasi Transaksi Berhasil'}
+                  </Button>
+                )}
+
+                {buyerConfirmedAt && !hasBuyerRated && (
+                  <RatingForm
+                    transactionType="PRODUCT_PURCHASE"
+                    referenceId={order.id}
+                    onSuccess={() => {
+                      setHasBuyerRated(true);
+                      onUpdate();
+                    }}
+                    label="Nilai Penjual/Petani"
+                  />
+                )}
+
+                {hasBuyerRated && (
+                  <div className="flex items-center gap-2 text-gr-green text-xs font-mono font-bold uppercase tracking-wider">
+                    <CheckCircle2 size={16} />
+                    <span>Rating Telah Dikirim</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Farmer actions */}
             {isIncoming && currentStatus !== 'SELESAI' && currentStatus !== 'BATAL' && (
               <div className="flex flex-wrap gap-3 pt-4 border-t border-white/5">
@@ -502,6 +554,7 @@ function DemandCard({
   role: string; 
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasPetaniRated, setHasPetaniRated] = useState<boolean>(demand.has_petani_rated);
   const liveData = useDemandSocket(demand.id);
   const currentStatus = liveData?.status || demand.status;
   const currentCommitted = liveData?.quantity_kg_committed !== undefined ? liveData.quantity_kg_committed : demand.quantity_kg_committed;
@@ -698,6 +751,28 @@ function DemandCard({
                         </a>
                       )}
                     </div>
+                    
+                    {/* Petani Rating action */}
+                    {role === 'PETANI' && currentStatus === 'TERPENUHI' && (
+                      <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                        {!hasPetaniRated ? (
+                          <RatingForm
+                            transactionType="DEMAND_FULFILLMENT"
+                            referenceId={demand.id}
+                            onSuccess={() => {
+                              setHasPetaniRated(true);
+                              onUpdate();
+                            }}
+                            label="Nilai Pembeli"
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2 text-gr-green text-xs font-mono font-bold uppercase tracking-wider">
+                            <CheckCircle2 size={16} />
+                            <span>Rating Telah Dikirim</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

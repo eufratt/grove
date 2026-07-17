@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
+import { ratingsApi } from '@/lib/api/ratings';
 import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { Glow } from '@/components/effects/glow';
@@ -18,12 +19,27 @@ export default function SettingsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const [sellerRatings, setSellerRatings] = useState<any>(null);
+  const [buyerRatings, setBuyerRatings] = useState<any>(null);
+  const [showSellerList, setShowSellerList] = useState(false);
+  const [showBuyerList, setShowBuyerList] = useState(false);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await authApi.getMe();
         setUser(userData);
         setPhone(userData.phone_whatsapp || '');
+        
+        try {
+          const sellerData = await ratingsApi.getUserRatingsAsSeller(userData.id);
+          setSellerRatings(sellerData);
+          
+          const buyerData = await ratingsApi.getUserRatingsAsBuyer(userData.id);
+          setBuyerRatings(buyerData);
+        } catch (rErr) {
+          console.error('Failed to fetch ratings:', rErr);
+        }
       } catch (err: any) {
         if (err.status !== 401) {
           console.error('Failed to get user:', err);
@@ -132,6 +148,107 @@ export default function SettingsPage() {
               <div className="inline-block px-3 py-1.5 rounded-full border border-white/10 bg-white/5 font-sans text-[10px] font-bold uppercase tracking-wider text-gr-text-primary/70">
                 {user?.role === 'PETANI' ? 'Farmer / Petani' : 'Buyer / Pembeli'}
               </div>
+            </div>
+
+            {/* Reputation Ratings Section */}
+            <div className="border-t border-white/5 pt-4 mt-4 space-y-4">
+              <span className="block font-sans text-[10px] font-semibold uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                Skor Reputasi
+              </span>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {/* Seller Rating Box */}
+                <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3">
+                  <span className="block font-sans text-[9px] uppercase tracking-wider text-gr-text-primary/40">
+                    Sebagai Penjual
+                  </span>
+                  {sellerRatings && sellerRatings.count > 0 ? (
+                    <div className="mt-1">
+                      <div className="flex items-center gap-1">
+                        <span className="font-mono text-base font-bold text-gr-green">⭐ {sellerRatings.average}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowSellerList(!showSellerList)}
+                        className="mt-1 font-sans text-[10px] text-gr-green hover:underline cursor-pointer focus:outline-none"
+                      >
+                        ({sellerRatings.count} transaksi)
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-1 font-sans text-[10px] text-gr-text-primary/30 italic">
+                      Belum ada rating
+                    </p>
+                  )}
+                </div>
+
+                {/* Buyer Rating Box */}
+                <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3">
+                  <span className="block font-sans text-[9px] uppercase tracking-wider text-gr-text-primary/40">
+                    Sebagai Pembeli
+                  </span>
+                  {buyerRatings && buyerRatings.count > 0 ? (
+                    <div className="mt-1">
+                      <div className="flex items-center gap-1">
+                        <span className="font-mono text-base font-bold text-gr-green">⭐ {buyerRatings.average}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowBuyerList(!showBuyerList)}
+                        className="mt-1 font-sans text-[10px] text-gr-green hover:underline cursor-pointer focus:outline-none"
+                      >
+                        ({buyerRatings.count} permintaan)
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-1 font-sans text-[10px] text-gr-text-primary/30 italic">
+                      Belum ada rating
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Collapsible Seller Reviews List */}
+              {showSellerList && sellerRatings && sellerRatings.ratings.length > 0 && (
+                <div className="mt-3 p-3 rounded-xl border border-white/5 bg-black/20 space-y-2 max-h-[200px] overflow-y-auto">
+                  <p className="font-mono text-[9px] uppercase tracking-wider text-gr-text-primary/50 border-b border-white/5 pb-1">
+                    Ulasan Sebagai Penjual
+                  </p>
+                  {sellerRatings.ratings.map((r: any) => (
+                    <div key={r.id} className="text-xs font-sans border-b border-white/5 last:border-0 pb-1.5 last:pb-0 pt-1 text-left">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gr-text-primary/70 font-semibold">{r.rater_name || 'Pembeli'}</span>
+                        <span className="text-gr-green font-mono">⭐ {r.score}</span>
+                      </div>
+                      {r.comment && <p className="text-gr-text-primary/50 italic mt-0.5">"{r.comment}"</p>}
+                      <span className="text-[8px] text-gr-text-primary/30 block mt-0.5">
+                        {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Collapsible Buyer Reviews List */}
+              {showBuyerList && buyerRatings && buyerRatings.ratings.length > 0 && (
+                <div className="mt-3 p-3 rounded-xl border border-white/5 bg-black/20 space-y-2 max-h-[200px] overflow-y-auto">
+                  <p className="font-mono text-[9px] uppercase tracking-wider text-gr-text-primary/50 border-b border-white/5 pb-1">
+                    Ulasan Sebagai Pembeli
+                  </p>
+                  {buyerRatings.ratings.map((r: any) => (
+                    <div key={r.id} className="text-xs font-sans border-b border-white/5 last:border-0 pb-1.5 last:pb-0 pt-1 text-left">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gr-text-primary/70 font-semibold">{r.rater_name || 'Petani'}</span>
+                        <span className="text-gr-green font-mono">⭐ {r.score}</span>
+                      </div>
+                      {r.comment && <p className="text-gr-text-primary/50 italic mt-0.5">"{r.comment}"</p>}
+                      <span className="text-[8px] text-gr-text-primary/30 block mt-0.5">
+                        {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>

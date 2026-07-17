@@ -11,6 +11,10 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
     role: Optional[UserRole] = None
     phone_whatsapp: Optional[str] = None
+    seller_rating_avg: Optional[float] = 0.0
+    seller_rating_count: int = 0
+    buyer_rating_avg: Optional[float] = 0.0
+    buyer_rating_count: int = 0
     created_at: datetime
 
     class Config:

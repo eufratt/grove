@@ -46,6 +46,7 @@ class DemandRequestDetailResponse(DemandRequestResponse):
     buyer_phone: Optional[str] = None
     commitments: List[SupplyCommitmentSummary] = []
     num_petani_committed: int = 0
+    has_petani_rated: bool = False
 
     class Config:
         from_attributes = True

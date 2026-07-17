@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, Enum, DateTime
+from sqlalchemy import String, Enum, DateTime, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
@@ -31,6 +31,12 @@ class User(Base):
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     role: Mapped[Optional[UserRole]] = mapped_column(Enum(UserRole), nullable=True)
     phone_whatsapp: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    
+    # Cache fields for ratings
+    seller_rating_avg: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=0.0)
+    seller_rating_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    buyer_rating_avg: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=0.0)
+    buyer_rating_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     
     # Geography Point (SRID 4326 for WGS84)
     location: Mapped[Optional[Geometry]] = mapped_column(
