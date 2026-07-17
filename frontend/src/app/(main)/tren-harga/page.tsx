@@ -5,7 +5,7 @@ import { referencePricesApi } from '@/lib/api/reference-prices';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { TrendingUp, Loader2, Calendar, ChevronDown, HelpCircle, MapPin } from 'lucide-react';
+import { TrendingUp, TrendingDown, Loader2, Calendar, ChevronDown, HelpCircle, MapPin } from 'lucide-react';
 import { PriceTrendChart } from '@/components/products/price-trend-chart';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 
@@ -19,6 +19,32 @@ export default function PriceTrendPage() {
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [fetchingChart, setFetchingChart] = useState<boolean>(false);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
+
+  // Trend calculation metrics
+  const trendMetrics = useMemo(() => {
+    if (historyData.length < 2) return null;
+    
+    // Sort chronologically to make sure we compare correctly
+    const sorted = [...historyData].sort(
+      (a, b) => new Date(a.scraped_at).getTime() - new Date(b.scraped_at).getTime()
+    );
+    
+    const startPrice = sorted[0].price_per_kg;
+    const endPrice = sorted[sorted.length - 1].price_per_kg;
+    
+    const change = endPrice - startPrice;
+    const percentChange = startPrice > 0 ? (change / startPrice) * 100 : 0;
+    
+    return {
+      startPrice,
+      endPrice,
+      change,
+      percentChange,
+      isUp: change > 0,
+      isDown: change < 0,
+      isFlat: change === 0
+    };
+  }, [historyData]);
 
   // List of provinces
   const regionsList = useMemo(() => {
@@ -175,6 +201,20 @@ export default function PriceTrendPage() {
                     <span className="font-sans text-[10px] text-gr-text-primary/40 flex items-center gap-1.5 uppercase font-semibold">
                       <Calendar size={10} />
                       TREN HISTORIS: {selectedCommodity}
+                      {trendMetrics && (
+                        <span className={`ml-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-xs font-semibold ${
+                          trendMetrics.isUp
+                            ? 'text-gr-green bg-gr-green/10'
+                            : trendMetrics.isDown
+                            ? 'text-gr-red bg-gr-red/10'
+                            : 'text-gr-text-primary/60 bg-white/5'
+                        }`}>
+                          {trendMetrics.isUp && <TrendingUp size={12} />}
+                          {trendMetrics.isDown && <TrendingDown size={12} />}
+                          {trendMetrics.percentChange > 0 ? '+' : ''}
+                          {trendMetrics.percentChange.toFixed(1)}%
+                        </span>
+                      )}
                     </span>
                     <span className="font-sans text-[10px] text-gr-orange flex items-center gap-1.5 uppercase font-semibold">
                       <MapPin size={10} />

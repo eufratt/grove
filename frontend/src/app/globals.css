@@ -12,6 +12,8 @@
   --color-gr-text-paper: var(--gr-text-paper);
   --color-gr-green: var(--gr-green);
   --color-gr-green-glow: var(--gr-green-glow);
+  --color-gr-red: var(--gr-red);
+  --color-gr-red-glow: var(--gr-red-glow);
   --color-gr-orange: var(--gr-orange);
   --color-gr-orange-glow: var(--gr-orange-glow);
   --color-gr-live: var(--gr-live);
@@ -22,6 +24,7 @@
   /* Shorthand aliases as requested */
   --color-bg: var(--gr-bg);
   --color-green: var(--gr-green);
+  --color-red: var(--gr-red);
   --color-orange: var(--gr-orange);
   --color-live: var(--gr-live);
 
@@ -78,6 +81,8 @@
   --gr-text-paper: #1E1812;
   --gr-green: #5CFF9E;
   --gr-green-glow: rgba(92, 255, 158, 0.28);
+  --gr-red: #FF6B6B;
+  --gr-red-glow: rgba(255, 107, 107, 0.28);
   --gr-orange: #C4622D; /* Earthy orange accent */
   --gr-orange-glow: rgba(196, 98, 45, 0.35); /* Earthy orange accent glow */
   --gr-live: #4DFFC4;

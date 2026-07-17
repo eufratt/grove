@@ -39,6 +39,11 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       price: d.price_per_kg
     })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
+    // Calculate trend direction (isUptrend = price_last >= price_first)
+    const isUptrend = parsedData[parsedData.length - 1].price >= parsedData[0].price;
+    const trendColor = isUptrend ? 'var(--gr-green)' : 'var(--gr-red)';
+    const trendShadow = isUptrend ? 'rgba(92, 255, 158, 0.3)' : 'rgba(255, 107, 107, 0.3)';
+
     // Scale domains
     const xDomain = d3.extent(parsedData, d => d.date) as [Date, Date];
     const yMin = d3.min(parsedData, d => d.price)! * 0.95;
@@ -63,12 +68,12 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
 
     gradient.append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "var(--gr-green)")
+      .attr("stop-color", trendColor)
       .attr("stop-opacity", 0.25);
 
     gradient.append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", "var(--gr-green)")
+      .attr("stop-color", trendColor)
       .attr("stop-opacity", 0);
 
     // Draw Grid Lines (Y axis horizontal grid lines)
@@ -103,9 +108,9 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     svg.append("path")
       .datum(parsedData)
       .attr("fill", "none")
-      .attr("stroke", "var(--gr-green)")
+      .attr("stroke", trendColor)
       .attr("stroke-width", 2.5)
-      .attr("filter", "drop-shadow(0 0 6px rgba(92,255,158,0.3))")
+      .attr("filter", `drop-shadow(0 0 6px ${trendShadow})`)
       .attr("d", lineGenerator);
 
     // Calculate tick interval in days to prevent sub-day ticks and duplicates
@@ -152,10 +157,10 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
 
     focus.append("circle")
       .attr("r", 5)
-      .attr("fill", "var(--gr-green)")
+      .attr("fill", trendColor)
       .attr("stroke", "white")
       .attr("stroke-width", 1.5)
-      .attr("filter", "drop-shadow(0 0 4px var(--gr-green))");
+      .attr("filter", `drop-shadow(0 0 4px ${trendColor})`);
 
     const tooltipCard = focus.append("g")
       .attr("class", "tooltip-card")
@@ -182,7 +187,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("font-family", "var(--font-mono)")
       .attr("font-size", "11px")
       .attr("font-weight", "bold")
-      .attr("fill", "var(--gr-green)");
+      .attr("fill", trendColor);
 
     // Transparent overlay to capture hovers
     svg.append("rect")
