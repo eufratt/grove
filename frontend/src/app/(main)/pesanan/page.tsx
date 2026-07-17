@@ -9,6 +9,7 @@ import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
+import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -734,7 +735,18 @@ function DemandCard({
                     </h4>
                     <div className="space-y-3 font-sans">
                       <div className="text-sm">
-                        <p className="text-gr-text-primary font-medium text-base">{buyerName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-gr-text-primary font-medium text-base">{buyerName}</p>
+                          <div className="bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+                            <RatingBadge
+                              avgRating={demand.buyer_rating_avg}
+                              ratingCount={demand.buyer_rating_count}
+                              size="sm"
+                              newLabel="Pembeli Baru"
+                              countSuffix="permintaan"
+                            />
+                          </div>
+                        </div>
                         <p className="text-gr-text-primary/40 text-xs mt-0.5">{buyerPhone || 'Tidak ada nomor telepon'}</p>
                       </div>
                       {buyerWaUrl && (

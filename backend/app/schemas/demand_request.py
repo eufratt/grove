@@ -37,12 +37,14 @@ class DemandRequestResponse(BaseModel):
     created_at: datetime
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    buyer_name: Optional[str] = None
+    buyer_rating_avg: Optional[float] = None
+    buyer_rating_count: int = 0
 
     class Config:
         from_attributes = True
 
 class DemandRequestDetailResponse(DemandRequestResponse):
-    buyer_name: Optional[str] = None
     buyer_phone: Optional[str] = None
     commitments: List[SupplyCommitmentSummary] = []
     num_petani_committed: int = 0

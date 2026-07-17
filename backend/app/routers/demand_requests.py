@@ -72,7 +72,10 @@ async def create_demand_request(
         "status": new_request.status,
         "created_at": new_request.created_at,
         "latitude": lat,
-        "longitude": lng
+        "longitude": lng,
+        "buyer_name": current_user.full_name,
+        "buyer_rating_avg": current_user.buyer_rating_avg,
+        "buyer_rating_count": current_user.buyer_rating_count
     }
 
 @router.get("", response_model=List[DemandRequestResponse])
@@ -81,10 +84,13 @@ async def list_open_demand_requests(
 ):
     # Retrieve only TERBUKA requests sorted by shortest deadline,
     # then by lowest progress percentage (least fulfilled first)
+    from sqlalchemy.orm import joinedload
     stmt = select(
         DemandRequest,
         func.ST_Y(DemandRequest.location).label("latitude"),
         func.ST_X(DemandRequest.location).label("longitude")
+    ).options(
+        joinedload(DemandRequest.buyer)
     ).where(
         DemandRequest.status == DemandRequestStatus.TERBUKA
     ).order_by(
@@ -108,7 +114,10 @@ async def list_open_demand_requests(
             "status": request.status,
             "created_at": request.created_at,
             "latitude": lat,
-            "longitude": lng
+            "longitude": lng,
+            "buyer_name": request.buyer.full_name if request.buyer else None,
+            "buyer_rating_avg": request.buyer.buyer_rating_avg if request.buyer else None,
+            "buyer_rating_count": request.buyer.buyer_rating_count if request.buyer else 0,
         })
     return items
 
@@ -117,10 +126,13 @@ async def list_my_demand_requests(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
+    from sqlalchemy.orm import joinedload
     stmt = select(
         DemandRequest,
         func.ST_Y(DemandRequest.location).label("latitude"),
         func.ST_X(DemandRequest.location).label("longitude")
+    ).options(
+        joinedload(DemandRequest.buyer)
     ).where(
         DemandRequest.buyer_id == current_user.id
     ).order_by(
@@ -143,7 +155,10 @@ async def list_my_demand_requests(
             "status": request.status,
             "created_at": request.created_at,
             "latitude": lat,
-            "longitude": lng
+            "longitude": lng,
+            "buyer_name": request.buyer.full_name if request.buyer else None,
+            "buyer_rating_avg": request.buyer.buyer_rating_avg if request.buyer else None,
+            "buyer_rating_count": request.buyer.buyer_rating_count if request.buyer else 0,
         })
     return items
 
@@ -218,6 +233,8 @@ async def list_committed_demand_requests(
             "buyer_id": req.buyer_id,
             "buyer_name": req.buyer.full_name if req.buyer else None,
             "buyer_phone": req.buyer.phone_whatsapp if req.buyer else None,
+            "buyer_rating_avg": req.buyer.buyer_rating_avg if req.buyer else None,
+            "buyer_rating_count": req.buyer.buyer_rating_count if req.buyer else 0,
             "commodity_name": req.commodity_name,
             "category": req.category,
             "quantity_kg_needed": req.quantity_kg_needed,
@@ -298,6 +315,8 @@ async def get_demand_request_detail(
         "buyer_id": request.buyer_id,
         "buyer_name": request.buyer.full_name if request.buyer else None,
         "buyer_phone": request.buyer.phone_whatsapp if request.buyer else None,
+        "buyer_rating_avg": request.buyer.buyer_rating_avg if request.buyer else None,
+        "buyer_rating_count": request.buyer.buyer_rating_count if request.buyer else 0,
         "commodity_name": request.commodity_name,
         "category": request.category,
         "quantity_kg_needed": request.quantity_kg_needed,

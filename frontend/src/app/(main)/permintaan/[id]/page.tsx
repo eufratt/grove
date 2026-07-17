@@ -10,6 +10,7 @@ import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, Check
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { provinceCentroids } from '@/lib/data/province-centroids';
+import { RatingBadge } from '@/components/ratings/rating-badge';
 
 export default function DemandRequestDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -286,7 +287,18 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </h4>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/2 p-4 rounded-2xl border border-white/5">
                     <div className="font-sans text-sm">
-                      <p className="text-gr-text-primary font-medium text-base">{request.buyer_name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gr-text-primary font-medium text-base">{request.buyer_name}</span>
+                        <div className="bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+                          <RatingBadge
+                            avgRating={request.buyer_rating_avg}
+                            ratingCount={request.buyer_rating_count}
+                            size="sm"
+                            newLabel="Pembeli Baru"
+                            countSuffix="permintaan"
+                          />
+                        </div>
+                      </div>
                       <p className="text-gr-text-primary/40 text-xs mt-0.5">{request.buyer_phone || 'Tidak ada nomor telepon'}</p>
                     </div>
                     {request.buyer_phone && (

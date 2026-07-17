@@ -6,6 +6,7 @@ import { X, Heart, RefreshCw, Calendar, Users, AlertTriangle, Loader2 } from 'lu
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
+import { RatingBadge } from '../ratings/rating-badge';
 
 export interface DemandRequest {
   id: string;
@@ -19,6 +20,9 @@ export interface DemandRequest {
   latitude?: number;
   longitude?: number;
   num_petani_committed?: number;
+  buyer_name?: string;
+  buyer_rating_avg?: number | null;
+  buyer_rating_count?: number;
 }
 
 interface SwipeDeckProps {
@@ -327,6 +331,23 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
             <p className="font-mono text-[10px] text-gr-text-paper/30">
               Request ID: {request.id.slice(0, 8)}
             </p>
+          </div>
+
+          {/* Buyer / Requester info */}
+          <div className="flex items-center justify-between border-t border-black/5 pt-3">
+            <div className="flex flex-col">
+              <span className="font-mono text-[8px] uppercase tracking-widest text-gr-text-paper/40">Pemohon</span>
+              <span className="font-sans text-xs font-semibold text-gr-text-paper">{request.buyer_name || 'Pembeli'}</span>
+            </div>
+            <div className="bg-black/[0.03] border border-black/5 rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+              <RatingBadge
+                avgRating={request.buyer_rating_avg}
+                ratingCount={request.buyer_rating_count}
+                size="sm"
+                newLabel="Pembeli Baru"
+                countSuffix="permintaan"
+              />
+            </div>
           </div>
 
           <div className="border-t border-black/5 pt-5 space-y-4">
