@@ -31,6 +31,10 @@ class ProductResponse(ProductBase):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     reference_price_per_kg: Optional[float] = None
+    seller_name: Optional[str] = None
+    seller_rating_avg: Optional[float] = None
+    seller_rating_count: Optional[int] = 0
+
 
     class Config:
         from_attributes = True

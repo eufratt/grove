@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { PriceGauge } from './price-gauge';
 import Link from 'next/link';
 import Image from 'next/image';
+import { SellerRatingBadge } from '../ratings/seller-rating-badge';
 
 interface ProductCardProps {
   product: any;
@@ -161,13 +162,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
       {/* Info Section */}
       <div className="flex flex-col space-y-2 px-1 flex-1">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+        <div className="flex items-center justify-between font-mono text-[10px]">
+          <span className="uppercase tracking-widest text-gr-text-primary/40 truncate max-w-[100px]" title={product.category}>
             {product.category}
           </span>
-          <span className="font-mono text-[10px] text-gr-text-primary/40">
-            {new Date(product.created_at).toLocaleDateString()}
-          </span>
+          <div className="flex items-center gap-1">
+            <span className="text-gr-text-primary/60 truncate max-w-[90px]" title={product.seller_name || 'Petani'}>
+              {product.seller_name || 'Petani'}
+            </span>
+            {product.seller_rating_count > 0 && (
+              <>
+                <span className="text-white/10">|</span>
+                <SellerRatingBadge avgRating={product.seller_rating_avg} ratingCount={product.seller_rating_count} size="sm" showCount={false} />
+              </>
+            )}
+          </div>
         </div>
         
         <h3 className="font-display text-2xl font-medium text-gr-text-primary group-hover:text-gr-green transition-colors line-clamp-2 min-h-[4rem]">

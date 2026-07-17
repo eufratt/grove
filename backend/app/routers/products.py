@@ -18,6 +18,38 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/products", tags=["products"])
 
+async def _get_product_by_id(product_id: UUID, db: AsyncSession) -> dict:
+    sql = text("""
+        SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
+               ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
+               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+        FROM products p
+        JOIN users u ON p.seller_id = u.id
+        WHERE p.id = :product_id
+    """)
+    result = await db.execute(sql, {"product_id": product_id})
+    row = result.first()
+    if not row:
+        return None
+    return {
+        "id": row.id,
+        "seller_id": row.seller_id,
+        "name": row.name,
+        "category": row.category,
+        "quantity_kg": row.quantity_kg,
+        "price_per_kg": row.price_per_kg,
+        "reference_price_per_kg": row.reference_price_per_kg,
+        "status": row.status,
+        "photo_url": row.photo_url,
+        "created_at": row.created_at,
+        "latitude": row.latitude,
+        "longitude": row.longitude,
+        "seller_name": row.seller_name,
+        "seller_rating_avg": row.seller_rating_avg,
+        "seller_rating_count": row.seller_rating_count
+    }
+
+
 @router.post("", response_model=ProductResponse)
 async def create_product(
     name: str = Form(...),
@@ -68,7 +100,10 @@ async def create_product(
     db.add(new_product)
     await db.commit()
     await db.refresh(new_product)
-    return new_product
+    product_detail = await _get_product_by_id(new_product.id, db)
+    if not product_detail:
+        raise HTTPException(status_code=404, detail="Failed to retrieve created product")
+    return product_detail
 
 @router.get("", response_model=List[ProductResponse])
 async def list_products(
@@ -77,11 +112,13 @@ async def list_products(
     db: AsyncSession = Depends(get_db)
 ):
     sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
-               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
-        FROM products 
-        WHERE status = 'TERSEDIA'
-        ORDER BY created_at DESC
+        SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
+               ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
+               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+        FROM products p
+        JOIN users u ON p.seller_id = u.id
+        WHERE p.status = 'TERSEDIA'
+        ORDER BY p.created_at DESC
         OFFSET :skip
         LIMIT :limit
     """)
@@ -101,7 +138,10 @@ async def list_products(
             "photo_url": row.photo_url,
             "created_at": row.created_at,
             "latitude": row.latitude,
-            "longitude": row.longitude
+            "longitude": row.longitude,
+            "seller_name": row.seller_name,
+            "seller_rating_avg": row.seller_rating_avg,
+            "seller_rating_count": row.seller_rating_count
         })
     return products
 
@@ -148,12 +188,14 @@ async def get_nearby_products(
     """
     # Use raw SQL to leverage PostGIS geography functions
     sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
-               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude,
-               ST_Distance(location, ST_MakePoint(:lng, :lat)::geography) / 1000 as distance_km
-        FROM products 
-        WHERE status = 'TERSEDIA' 
-          AND ST_DWithin(location, ST_MakePoint(:lng, :lat)::geography, :radius_meters)
+        SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
+               ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
+               ST_Distance(p.location, ST_MakePoint(:lng, :lat)::geography) / 1000 as distance_km,
+               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+        FROM products p
+        JOIN users u ON p.seller_id = u.id
+        WHERE p.status = 'TERSEDIA' 
+          AND ST_DWithin(p.location, ST_MakePoint(:lng, :lat)::geography, :radius_meters)
         ORDER BY distance_km ASC
     """)
     
@@ -178,38 +220,20 @@ async def get_nearby_products(
             "created_at": row.created_at,
             "distance_km": row.distance_km,
             "latitude": row.latitude,
-            "longitude": row.longitude
+            "longitude": row.longitude,
+            "seller_name": row.seller_name,
+            "seller_rating_avg": row.seller_rating_avg,
+            "seller_rating_count": row.seller_rating_count
         })
         
     return products
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
-    sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
-               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
-        FROM products 
-        WHERE id = :product_id
-    """)
-    result = await db.execute(sql, {"product_id": product_id})
-    row = result.first()
-    if not row:
+    product_detail = await _get_product_by_id(product_id, db)
+    if not product_detail:
         raise HTTPException(status_code=404, detail="Product not found")
-        
-    return {
-        "id": row.id,
-        "seller_id": row.seller_id,
-        "name": row.name,
-        "category": row.category,
-        "quantity_kg": row.quantity_kg,
-        "price_per_kg": row.price_per_kg,
-        "reference_price_per_kg": row.reference_price_per_kg,
-        "status": row.status,
-        "photo_url": row.photo_url,
-        "created_at": row.created_at,
-        "latitude": row.latitude,
-        "longitude": row.longitude
-    }
+    return product_detail
 
 @router.patch("/{product_id}", response_model=ProductResponse)
 async def update_product(
@@ -233,7 +257,11 @@ async def update_product(
     
     await db.commit()
     await db.refresh(product)
-    return product
+    
+    product_detail = await _get_product_by_id(product.id, db)
+    if not product_detail:
+        raise HTTPException(status_code=404, detail="Failed to retrieve updated product")
+    return product_detail
 
 @router.post("/{product_id}/refresh-reference-price", response_model=ProductResponse)
 async def refresh_product_reference_price(
@@ -256,31 +284,9 @@ async def refresh_product_reference_price(
     product.reference_price_per_kg = matched_price
     await db.commit()
     
-    # We fetch it again using standard SELECT to populate ST_X/ST_Y/latitude/longitude/etc correctly
-    sql = text("""
-        SELECT id, seller_id, name, category, quantity_kg, price_per_kg, reference_price_per_kg, status, photo_url, created_at,
-               ST_Y(location::geometry) as latitude, ST_X(location::geometry) as longitude
-        FROM products 
-        WHERE id = :product_id
-    """)
-    result_refetched = await db.execute(sql, {"product_id": product.id})
-    row = result_refetched.first()
-    if not row:
+    product_detail = await _get_product_by_id(product.id, db)
+    if not product_detail:
         raise HTTPException(status_code=404, detail="Product not found after update")
-        
-    return {
-        "id": row.id,
-        "seller_id": row.seller_id,
-        "name": row.name,
-        "category": row.category,
-        "quantity_kg": row.quantity_kg,
-        "price_per_kg": row.price_per_kg,
-        "reference_price_per_kg": row.reference_price_per_kg,
-        "status": row.status,
-        "photo_url": row.photo_url,
-        "created_at": row.created_at,
-        "latitude": row.latitude,
-        "longitude": row.longitude
-    }
+    return product_detail
 
 

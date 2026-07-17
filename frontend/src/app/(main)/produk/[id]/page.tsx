@@ -8,6 +8,7 @@ import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { PriceGauge } from '@/components/products/price-gauge';
+import { SellerRatingBadge } from '@/components/ratings/seller-rating-badge';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plus, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
@@ -210,6 +211,14 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-gr-text-primary leading-tight">
                 {product.name}
               </h1>
+              
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-gr-text-primary/40 uppercase tracking-wider">
+                <span className="font-sans">
+                  Petani: <span className="font-semibold text-gr-text-primary normal-case">{product.seller_name || 'Petani Grove'}</span>
+                </span>
+                <span>|</span>
+                <SellerRatingBadge avgRating={product.seller_rating_avg} ratingCount={product.seller_rating_count} size="sm" />
+              </div>
               
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-3xl text-gr-green">
