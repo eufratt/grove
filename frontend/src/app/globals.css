@@ -15,6 +15,8 @@
   --color-gr-up: var(--gr-up);
   --color-gr-down: var(--gr-down);
   --color-gr-line: var(--gr-line);
+  --color-gr-up-board: #8FD9A6;
+  --color-gr-down-board: #E8967D;
 
   /* Legacy mappings for components using old semantic tokens */
   --color-gr-bg: var(--gr-bg);
@@ -252,4 +254,16 @@
 }
 .leaflet-control-zoom-out {
   border-radius: 0 0 10px 10px !important;
+}
+
+/* Ticker marquee animation */
+@keyframes ticker-scroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.animate-ticker {
+  display: inline-block;
+  padding: 9px 0;
+  animation: ticker-scroll 26s linear infinite;
 }
