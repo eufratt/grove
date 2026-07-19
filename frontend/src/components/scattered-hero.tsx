@@ -210,3 +210,30 @@ export function LedeSection() {
     </section>
   );
 }
+
+export function QuoteSection() {
+  return (
+    <section className="w-full max-w-[900px] mx-auto px-8 py-10 relative z-40 select-none">
+      {/* Quote Eyebrow */}
+      <div className="flex items-center gap-4 justify-center mb-8">
+        <span className="flex-1 h-px bg-gr-line" />
+        <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-gr-ink-soft whitespace-nowrap">
+          Kenapa harga pangan berulang jatuh
+        </span>
+        <span className="flex-1 h-px bg-gr-line" />
+      </div>
+
+      {/* Quote Content */}
+      <blockquote className="font-display font-light italic text-[clamp(1.5rem,4vw,2.125rem)] text-gr-ink text-center leading-relaxed max-w-[780px] mx-auto mb-8">
+        “Petani menanam berdasarkan harga musim lalu. Panen tiba serentak, dan harga jatuh sebelum siapapun sempat <span className="font-display font-light italic text-gr-down tracking-wide">bertanya</span>.”
+      </blockquote>
+
+      {/* Diamond Divider */}
+      <div className="flex items-center gap-4 justify-center max-w-[280px] mx-auto mb-10">
+        <span className="flex-1 h-px bg-gr-line" />
+        <span className="w-1.5 h-1.5 bg-gr-ink rotate-45 flex-shrink-0" />
+        <span className="flex-1 h-px bg-gr-line" />
+      </div>
+    </section>
+  );
+}
