@@ -154,11 +154,11 @@ export const MapView: React.FC<MapViewProps> = ({
   };
 
   return (
-    <div className={cn("h-full w-full overflow-hidden relative bg-[#07080F]", className)}>
+    <div className={cn("h-full w-full overflow-hidden relative bg-gr-paper", className)}>
       {/* Location warning alert banner */}
       {locationError && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-11/12 max-w-md bg-[#07080F]/90 border border-gr-orange/30 text-gr-text-primary px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest rounded-full shadow-2xl backdrop-blur-md text-center flex items-center justify-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-gr-orange animate-pulse" />
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-11/12 max-w-md bg-gr-paper/95 border border-gr-line text-gr-ink px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest rounded-full shadow-md backdrop-blur-md text-center flex items-center justify-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-gr-down animate-pulse" />
           <span>{locationError}</span>
         </div>
       )}
@@ -179,10 +179,10 @@ export const MapView: React.FC<MapViewProps> = ({
         />
         <ZoomControl position="bottomright" />
         
-        {/* CartoDB Dark Matter Tile Layer */}
+        {/* CartoDB Positron (Light) Tile Layer */}
         <TileLayer
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
         {/* User Location Marker & Search Radius Visual */}
@@ -190,7 +190,7 @@ export const MapView: React.FC<MapViewProps> = ({
           <>
             <Marker position={userLocation} icon={userIcon}>
               <Popup className="custom-popup">
-                <div className="p-1 font-sans text-xs text-gr-bg font-bold text-center">
+                <div className="p-1 font-sans text-xs text-gr-ink font-bold text-center">
                   Lokasi Anda
                 </div>
               </Popup>
@@ -201,9 +201,9 @@ export const MapView: React.FC<MapViewProps> = ({
                 center={userLocation}
                 radius={radiusKm * 1000}
                 pathOptions={{
-                  color: 'var(--gr-green)',
-                  fillColor: 'var(--gr-green)',
-                  fillOpacity: 0.06,
+                  color: 'var(--gr-up)',
+                  fillColor: 'var(--gr-up)',
+                  fillOpacity: 0.05,
                   weight: 1,
                   dashArray: '4,4'
                 }}
@@ -220,7 +220,7 @@ export const MapView: React.FC<MapViewProps> = ({
               position={[product.latitude, product.longitude]}
             >
               <Popup className="custom-popup">
-                <div className="p-1 min-w-[160px] text-[#07080F]">
+                <div className="p-1 min-w-[160px] text-gr-ink">
                   {product.photo_url && (
                     <img 
                       src={product.photo_url} 
@@ -228,23 +228,23 @@ export const MapView: React.FC<MapViewProps> = ({
                       className="w-full h-24 object-cover rounded-md mb-2" 
                     />
                   )}
-                  <h3 className="font-display text-base font-semibold m-0 text-gr-bg">
+                  <h3 className="font-display text-base font-semibold m-0 text-gr-ink">
                     {product.name}
                   </h3>
-                  <p className="font-mono text-xs text-emerald-700 font-bold mt-0.5">
+                  <p className="font-mono text-xs text-gr-up font-bold mt-0.5">
                     Rp {product.price_per_kg.toLocaleString('id-ID')}/KG
                   </p>
-                  <p className="font-sans text-[10px] text-gray-500 mt-1">
+                  <p className="font-sans text-[10px] text-gr-ink-soft mt-1">
                     Stok: {product.quantity_kg} KG
                   </p>
                   {product.distance_km !== undefined && product.distance_km !== null && (
-                    <p className="font-sans text-[10px] text-gr-orange font-bold mt-1">
+                    <p className="font-sans text-[10px] text-gr-down font-bold mt-1">
                       {product.distance_km.toFixed(1)} km dari Anda
                     </p>
                   )}
                   <Link 
                     href={`/produk/${product.id}`}
-                    className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer block text-center"
+                    className="w-full mt-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer block text-center"
                   >
                     Detail Produk
                   </Link>
@@ -276,23 +276,23 @@ export const MapView: React.FC<MapViewProps> = ({
               }}
             >
               <Tooltip direction="bottom" offset={[0, 8]} opacity={0.9}>
-                <span className="font-sans font-bold text-xs text-[#07080F]">
+                <span className="font-sans font-bold text-xs text-gr-ink">
                   {provName}
                 </span>
               </Tooltip>
               
               <Popup className="custom-popup">
-                <div className="p-2 font-sans w-48 text-[#07080F]">
-                  <h4 className="font-bold text-xs uppercase tracking-wider mb-2 text-gr-orange">
+                <div className="p-2 font-sans w-48 text-gr-ink">
+                  <h4 className="font-bold text-xs uppercase tracking-wider mb-2 text-gr-down">
                     {provName}
                   </h4>
-                  <div className="space-y-1 divide-y divide-gray-100">
+                  <div className="space-y-1 divide-y divide-gr-line">
                     {topList.map((item: any) => (
                       <div key={item.id} className="flex justify-between items-center py-1 text-[11px]">
                         <span className="font-medium truncate max-w-[100px]" title={item.commodity_name}>
                           {item.commodity_name}
                         </span>
-                        <span className="font-mono font-bold text-emerald-700 shrink-0">
+                        <span className="font-mono font-bold text-gr-up shrink-0">
                           Rp {item.price_per_kg.toLocaleString('id-ID')}
                         </span>
                       </div>
@@ -300,7 +300,7 @@ export const MapView: React.FC<MapViewProps> = ({
                   </div>
                   <button 
                     onClick={() => onSelectProvince?.(provName)}
-                    className="w-full mt-3 bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer"
+                    className="w-full mt-3 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer"
                   >
                     Lihat Rincian Sidebar
                   </button>
@@ -314,13 +314,13 @@ export const MapView: React.FC<MapViewProps> = ({
       <style jsx global>{`
         /* Leaflet Popup overrides for clean theme */
         .custom-popup .leaflet-popup-content-wrapper {
-          background: rgba(255, 255, 255, 0.95);
+          background: var(--gr-paper) !important;
           border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+          border: 1px solid var(--gr-line);
+          box-shadow: 0 10px 25px -5px rgba(32, 29, 22, 0.1);
         }
         .custom-popup .leaflet-popup-tip {
-          background: rgba(255, 255, 255, 0.95);
+          background: var(--gr-paper) !important;
         }
         
         /* Custom User Location Marker Styling */
