@@ -167,3 +167,46 @@ export function HeroHeadline() {
     </section>
   );
 }
+
+export function LedeSection() {
+  return (
+    <section className="w-full max-w-[1100px] mx-auto px-8 py-8 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 relative z-40 select-none">
+      <style dangerouslySetInnerHTML={{__html: `
+        .lede-dropcap::first-letter {
+          font-family: 'Fraunces', Georgia, serif;
+          font-weight: 600;
+          font-style: italic;
+          font-size: 3.5em;
+          float: left;
+          line-height: 0.8;
+          padding: 0.05em 0.08em 0 0;
+          color: var(--gr-ink);
+        }
+      `}} />
+      
+      <p className="lede-dropcap font-sans text-sm md:text-[15.5px] leading-relaxed text-gr-ink-soft text-justify md:text-left m-0">
+        Setiap musim, pola yang sama berulang: petani menanam berdasarkan harga yang mereka lihat saat itu, bukan harga yang berlaku saat panen tiba berbulan-bulan kemudian. Karena hampir semua petani membaca sinyal yang sama, mereka menanam komoditas yang sama pula — dan saat panen tiba serentak, pasokan membanjir, harga jatuh, dan siklus dimulai lagi musim berikutnya. Ekonom menyebut ini Cobweb Theorem: bukan kegagalan siapapun secara individual, tapi jebakan struktural akibat keputusan yang selalu satu langkah di belakang informasi.
+      </p>
+      
+      <div className="border-t border-gr-line pt-6 md:pt-0 md:border-t-0 md:border-l md:pl-8 flex flex-col justify-start">
+        <h2 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-4">
+          Cara baca papan harga
+        </h2>
+        <ul className="list-none p-0 m-0 flex flex-col gap-3">
+          <li className="flex gap-2.5 font-sans text-[13px] leading-relaxed text-gr-ink-soft">
+            <span className="font-display italic font-semibold text-gr-ink flex-shrink-0">i.</span>
+            <span>Setiap panel adalah satu komoditas. Warnanya menandai arah — hijau naik, terracotta turun, abu stabil.</span>
+          </li>
+          <li className="flex gap-2.5 font-sans text-[13px] leading-relaxed text-gr-ink-soft">
+            <span className="font-display italic font-semibold text-gr-ink flex-shrink-0">ii.</span>
+            <span>Angka besar adalah harga hari ini. Grafik kecil melacak tren beberapa hari terakhir, titik terakhir ditandai garis putus-putus.</span>
+          </li>
+          <li className="flex gap-2.5 font-sans text-[13px] leading-relaxed text-gr-ink-soft">
+            <span className="font-display italic font-semibold text-gr-ink flex-shrink-0">iii.</span>
+            <span>Data diperbarui otomatis setiap hari dari acuan resmi PIHPS Bank Indonesia, bukan input manual.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+  );
+}
