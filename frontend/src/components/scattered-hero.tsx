@@ -58,3 +58,37 @@ export function Ticker({ pricesData }: TickerProps) {
 export function ScatteredHero() {
   return null;
 }
+
+export function KickerBar() {
+  const today = new Date();
+  
+  const formatDateIndonesian = (date: Date) => {
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  const getEditionNumber = () => {
+    const baseDate = new Date('2025-12-18');
+    const diffTime = Math.abs(today.getTime() - baseDate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  return (
+    <div className="w-full relative z-40">
+      {/* Kicker bar double rule lines */}
+      <div className="h-[3px] bg-gr-ink max-w-[1100px] mx-auto" />
+      <div className="h-[1px] bg-gr-ink max-w-[1100px] mx-auto mt-[3px]" />
+      
+      {/* Meta Row */}
+      <div className="max-w-[1100px] mx-auto padding-kicker px-8 pt-3.5 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none">
+        <span>Buletin harga pangan · Nº {getEditionNumber()}</span>
+        <span className="hidden sm:inline">Grove · Rantai pasok pangan pedesaan</span>
+        <span>PIHPS · {formatDateIndonesian(today)}</span>
+      </div>
+    </div>
+  );
+}
