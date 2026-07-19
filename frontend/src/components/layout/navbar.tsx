@@ -59,9 +59,9 @@ export function Navbar() {
   return (
     <>
       {showBanner && (
-        <div className="w-full bg-gradient-to-r from-gr-orange/95 to-gr-orange/40 border-b border-white/5 px-4 py-2.5 text-center text-xs font-sans text-gr-text-primary flex items-center justify-between gap-4 transition-all duration-300 relative z-50">
+        <div className="w-full bg-gradient-to-r from-gr-down/95 to-gr-down/40 border-b border-gr-line px-4 py-2.5 text-center text-xs font-sans text-gr-chalk flex items-center justify-between gap-4 transition-all duration-300 relative z-50">
           <div className="flex-1 flex items-center justify-center gap-2">
-            <AlertCircle size={14} className="text-gr-text-primary animate-pulse" />
+            <AlertCircle size={14} className="text-gr-chalk animate-pulse" />
             <span>
               Lengkapi nomor WA kamu untuk pengalaman belanja lebih lancar.{' '}
               <Link href="/settings" className="underline font-bold hover:text-white transition-colors">
@@ -74,7 +74,7 @@ export function Navbar() {
               localStorage.setItem('phone_warning_dismissed', 'true');
               setShowBanner(false);
             }}
-            className="text-gr-text-primary/70 hover:text-white p-1 rounded hover:bg-white/5 transition-colors cursor-pointer"
+            className="text-gr-chalk/70 hover:text-white p-1 rounded hover:bg-white/5 transition-colors cursor-pointer"
           >
             <X size={14} />
           </button>
@@ -82,15 +82,15 @@ export function Navbar() {
       )}
       <nav className="sticky top-0 z-50 w-full bg-transparent border-none">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-3">
-        <div className="flex h-14 items-center justify-between bg-[#07080F]/70 border border-white/5 rounded-full px-6 backdrop-blur-md shadow-lg">
+        <div className="flex h-14 items-center justify-between bg-gr-paper/90 border border-gr-line rounded-full px-6 backdrop-blur-md shadow-sm">
           {/* Logo Section */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gr-green/20 bg-gr-green/5 text-gr-green transition-all duration-300 group-hover:border-gr-green/50 group-hover:bg-gr-green/10">
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gr-board/20 bg-gr-board/5 text-gr-board transition-all duration-300 group-hover:border-gr-board/50 group-hover:bg-gr-board/10">
                 <Leaf size={16} className="transition-transform group-hover:rotate-12" />
-                <div className="absolute inset-0 rounded-lg bg-gr-green/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-lg bg-gr-board/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              <span className="font-display text-xl font-medium tracking-tight text-gr-text-primary">
+              <span className="font-display text-xl font-medium tracking-tight text-gr-ink">
                 Grove
               </span>
             </Link>
@@ -98,7 +98,7 @@ export function Navbar() {
 
           {/* Navigation Links */}
           <LayoutGroup id="navbar">
-          <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm relative">
+          <div className="hidden md:flex items-center gap-1 bg-gr-ink/5 p-1 rounded-full border border-gr-line backdrop-blur-sm relative">
             {navItems.map((item) => {
               const isActive = pathname === item.href || 
                 pathname.startsWith(item.href + '/') ||
@@ -111,15 +111,15 @@ export function Navbar() {
                   className={cn(
                     "relative flex items-center gap-2 px-4 py-1.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 select-none z-10",
                     isActive 
-                      ? "text-gr-bg" 
-                      : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
+                      ? "text-gr-chalk" 
+                      : "text-gr-ink-soft hover:text-gr-ink hover:bg-gr-ink/5"
                   )}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-nav-pill"
                       initial={false}
-                      className="absolute inset-0 bg-gr-green rounded-full -z-10 shadow-lg shadow-gr-green/20"
+                      className="absolute inset-0 bg-gr-board rounded-full -z-10 shadow-sm"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -136,23 +136,23 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-3">
                 {user.role === 'PETANI' && (
-                  <span className="hidden xl:inline-flex items-center justify-center h-8 font-sans text-[10px] font-bold uppercase tracking-widest text-gr-green bg-gr-green/10 border border-gr-green/20 px-3 rounded-full">
+                  <span className="hidden xl:inline-flex items-center justify-center h-8 font-sans text-[10px] font-bold uppercase tracking-widest text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 rounded-full">
                     Farmer
                   </span>
                 )}
-                <span className="hidden lg:inline-flex items-center justify-center h-8 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/60 bg-white/5 border border-white/10 px-3 rounded-full">
+                <span className="hidden lg:inline-flex items-center justify-center h-8 font-sans text-xs font-bold uppercase tracking-widest text-gr-ink-soft bg-gr-ink/5 border border-gr-line px-3 rounded-full">
                   {user.full_name || user.email || 'Pengguna'}
                 </span>
                 <Link
                   href="/settings"
-                  className="flex items-center justify-center h-8 w-8 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/2 hover:bg-gr-green/5 text-gr-text-primary/70 hover:text-gr-green transition-all duration-300 cursor-pointer"
+                  className="flex items-center justify-center h-8 w-8 rounded-full border border-gr-line hover:border-gr-board/30 bg-gr-ink/2 hover:bg-gr-board/5 text-gr-ink-soft hover:text-gr-board transition-all duration-300 cursor-pointer"
                   title="Pengaturan Profil"
                 >
                   <Settings size={14} />
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center h-8 w-8 rounded-full border border-white/10 hover:border-gr-orange/30 bg-white/2 hover:bg-gr-orange/5 text-gr-text-primary/70 hover:text-gr-orange transition-all duration-300 cursor-pointer"
+                  className="flex items-center justify-center h-8 w-8 rounded-full border border-gr-line hover:border-gr-down/30 bg-gr-ink/2 hover:bg-gr-down/5 text-gr-ink-soft hover:text-gr-down transition-all duration-300 cursor-pointer"
                   title="Keluar"
                 >
                   <LogOut size={14} />
@@ -161,7 +161,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center justify-center h-8 gap-2 rounded-full border border-white/10 hover:border-gr-green/30 bg-white/2 hover:bg-gr-green/5 px-4 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/70 hover:text-gr-green transition-all duration-300 cursor-pointer"
+                className="flex items-center justify-center h-8 gap-2 rounded-full border border-gr-line hover:border-gr-board/30 bg-gr-ink/2 hover:bg-gr-board/5 px-4 font-sans text-xs font-bold uppercase tracking-widest text-gr-ink-soft hover:text-gr-board transition-all duration-300 cursor-pointer"
               >
                 <LogIn size={14} />
                 <span>Masuk</span>
