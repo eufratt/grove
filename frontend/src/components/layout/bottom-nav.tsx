@@ -88,7 +88,7 @@ export function BottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#07080F]/90 backdrop-blur-lg border-t border-white/5 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-gr-paper/95 backdrop-blur-lg border-t border-gr-line md:hidden">
       <nav className="flex justify-around items-center h-16 px-4">
         {items.map((item) => {
           const isActive = activeTab === item.id;
@@ -100,13 +100,13 @@ export function BottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full font-sans text-[10px] font-bold uppercase tracking-wider transition-all duration-300 gap-1",
                 isActive 
-                  ? "text-gr-green shadow-[0_-8px_16px_rgba(92,255,158,0.05)]" 
-                  : "text-gr-text-primary/40 hover:text-gr-text-primary/70"
+                  ? "text-gr-board" 
+                  : "text-gr-ink-soft hover:text-gr-ink"
               )}
             >
               <div className={cn(
                 "p-1.5 rounded-full transition-all duration-300",
-                isActive ? "bg-gr-green/10" : ""
+                isActive ? "bg-gr-board/5" : ""
               )}>
                 <Icon size={18} />
               </div>
