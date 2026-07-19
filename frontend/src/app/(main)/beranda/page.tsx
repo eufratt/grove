@@ -13,7 +13,6 @@ import { SearchBar } from '@/components/search/search-bar';
 import { Loader2, Map as MapIcon, List as ListIcon, Compass } from 'lucide-react';
 import { SwipeDeck } from '@/components/products/swipe-deck';
 import { cn } from '@/lib/utils';
-import { ScatteredHero } from '@/components/scattered-hero';
 import { PersonalGreeting } from '@/components/personal-greeting';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -140,17 +139,17 @@ function BerandaContent() {
   };
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <BgPattern />
       <FilmGrain />
-      <Glow color="var(--gr-green)" position="top" className="opacity-10" />
+      <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
       
       <div className="relative z-10 mx-auto max-w-7xl">
         <header className="mb-8 text-center lg:text-left">
-          <ScatteredHero products={products}>
+          <div className="flex flex-col gap-6 w-full max-w-3xl">
             <PersonalGreeting />
             
-            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full">
+            <div className="mt-2 flex flex-col sm:flex-row items-center gap-4 w-full">
               <div className="flex-1 w-full flex flex-col gap-2">
                 <SearchBar 
                   onResults={handleSearchResults} 
@@ -160,19 +159,19 @@ function BerandaContent() {
                 <div className="flex justify-start px-2">
                   <Link 
                     href="/harga-pasar" 
-                    className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-green hover:underline hover:text-gr-green/80 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-board hover:underline transition-all cursor-pointer"
                   >
                     Lihat Peta Acuan Harga
                   </Link>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
+              <div className="flex items-center gap-2 bg-gr-ink/5 p-1 rounded-full border border-gr-line backdrop-blur-md">
                 <button
                   onClick={() => toggleViewMode('list')}
                   className={cn(
-                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all",
-                    viewMode === 'list' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                    viewMode === 'list' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink"
                   )}
                 >
                   <ListIcon size={12} />
@@ -181,8 +180,8 @@ function BerandaContent() {
                 <button
                   onClick={() => toggleViewMode('explore')}
                   className={cn(
-                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all",
-                    viewMode === 'explore' ? "bg-gr-green text-gr-bg" : "text-gr-text-primary/40 hover:text-gr-text-primary"
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                    viewMode === 'explore' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink"
                   )}
                 >
                   <Compass size={12} />
@@ -190,9 +189,9 @@ function BerandaContent() {
                 </button>
               </div>
             </div>
-          </ScatteredHero>
+          </div>
 
-          <div className="mt-12 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
+          <div className="mt-12 h-px w-full bg-gradient-to-r from-gr-board/30 via-gr-line to-transparent" />
         </header>
 
         {(isLoading || isSearching) ? (
