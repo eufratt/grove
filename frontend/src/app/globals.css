@@ -5,6 +5,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* New Color Tokens */
+  --color-gr-paper: var(--gr-paper);
+  --color-gr-ink: var(--gr-ink);
+  --color-gr-ink-soft: var(--gr-ink-soft);
+  --color-gr-board: var(--gr-board);
+  --color-gr-chalk: var(--gr-chalk);
+  --color-gr-chalk-soft: var(--gr-chalk-soft);
+  --color-gr-up: var(--gr-up);
+  --color-gr-down: var(--gr-down);
+  --color-gr-line: var(--gr-line);
+
+  /* Legacy mappings for components using old semantic tokens */
   --color-gr-bg: var(--gr-bg);
   --color-gr-bg-elevated: var(--gr-bg-elevated);
   --color-gr-bg-paper: var(--gr-bg-paper);
@@ -14,18 +26,15 @@
   --color-gr-green-glow: var(--gr-green-glow);
   --color-gr-red: var(--gr-red);
   --color-gr-red-glow: var(--gr-red-glow);
-  --color-gr-orange: var(--gr-orange);
-  --color-gr-orange-glow: var(--gr-orange-glow);
   --color-gr-live: var(--gr-live);
   --color-gr-price-fair: var(--gr-price-fair);
   --color-gr-price-warn: var(--gr-price-warn);
   --color-gr-price-unfair: var(--gr-price-unfair);
 
-  /* Shorthand aliases as requested */
+  /* Shorthand aliases */
   --color-bg: var(--gr-bg);
   --color-green: var(--gr-green);
   --color-red: var(--gr-red);
-  --color-orange: var(--gr-orange);
   --color-live: var(--gr-live);
 
   --font-display: var(--font-display);
