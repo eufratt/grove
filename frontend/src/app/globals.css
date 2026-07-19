@@ -194,6 +194,29 @@
   html {
     @apply font-sans;
   }
+
+  /* Headline specific styling for font-display */
+  h1.font-display,
+  h2.font-display,
+  h3.font-display,
+  h4.font-display,
+  h5.font-display,
+  h6.font-display,
+  .font-display-headline {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  /* em tags inside headlines get custom light weight and italic style */
+  .font-display em,
+  h1 em,
+  h2 em,
+  h3 em {
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: 0.005em;
+  }
 }
 
 
@@ -208,21 +231,21 @@
   }
 }
 
-/* ── Leaflet zoom control: dark styled to match app theme ── */
+/* ── Leaflet zoom control: styled to match editorial paper/board theme ── */
 .leaflet-control-zoom a {
-  background-color: rgba(7, 8, 15, 0.85) !important;
+  background-color: var(--gr-paper) !important;
   backdrop-filter: blur(8px) !important;
-  color: #e8f5e9 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--gr-ink) !important;
+  border-color: var(--gr-line) !important;
   font-size: 18px !important;
   line-height: 28px !important;
   width: 32px !important;
   height: 32px !important;
-  transition: background-color 0.2s ease !important;
+  transition: all 0.2s ease !important;
 }
 .leaflet-control-zoom a:hover {
-  background-color: rgba(92, 255, 158, 0.15) !important;
-  color: #5cff9e !important;
+  background-color: var(--gr-board) !important;
+  color: var(--gr-chalk) !important;
 }
 .leaflet-control-zoom-in {
   border-radius: 10px 10px 0 0 !important;
