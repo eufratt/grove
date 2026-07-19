@@ -470,3 +470,36 @@ export function FigPanels({ pricesData }: FigPanelsProps) {
     </section>
   );
 }
+
+export function LandingFooter() {
+  return (
+    <footer className="w-full border-t-3 border-gr-ink mt-8 relative z-40 select-none bg-transparent">
+      <div className="max-w-[1100px] mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-[5fr_4fr_3fr] gap-8">
+        <div>
+          <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-3">
+            Sumber
+          </h3>
+          <p className="font-sans text-[13px] leading-relaxed text-gr-ink-soft m-0">
+            Pusat Informasi Harga Pangan Strategis (PIHPS) Nasional, Bank Indonesia — <a href="https://bi.go.id/hargapangan" target="_blank" rel="noopener noreferrer" className="text-gr-ink underline underline-offset-2 decoration-gr-line hover:text-gr-down transition-colors">bi.go.id/hargapangan</a>. Data diambil otomatis setiap hari lewat proses terjadwal, disimpan sebagai acuan harga per komoditas per wilayah.
+          </p>
+        </div>
+        <div>
+          <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-3">
+            Metode
+          </h3>
+          <p className="font-sans text-[13px] leading-relaxed text-gr-ink-soft m-0">
+            Harga produk yang diunggah petani dicocokkan ke acuan PIHPS lewat pencarian kemiripan nama komoditas, lalu dibandingkan sebagai persentase selisih dari harga referensi nasional.
+          </p>
+        </div>
+        <div>
+          <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-3">
+            Kolofon
+          </h3>
+          <p className="font-sans text-[13px] leading-relaxed text-gr-ink-soft m-0">
+            Ditulis dengan Fraunces &amp; IBM Plex. Dibangun untuk VETERNITYBERAKSI, sub-tema Rural Commerce &amp; Supply Chain.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
