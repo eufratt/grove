@@ -199,27 +199,27 @@ export default function AjukanPermintaanPage() {
 
   if (checkingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gr-bg">
-        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+      <div className="flex min-h-screen items-center justify-center bg-gr-paper">
+        <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50" />
       </div>
     );
   }
-
+ 
   // Restricted access for non-buyers
   if (user && user.role !== 'PEMBELI') {
     return (
-      <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
+      <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
         <FilmGrain />
-        <div className="relative z-10 max-w-md w-full bg-white/[0.02] border border-white/5 p-8 rounded-3xl backdrop-blur-xl shadow-2xl text-center">
-          <AlertTriangle className="h-16 w-16 text-gr-orange mx-auto mb-6 animate-pulse" />
-          <h2 className="font-display text-2xl font-medium text-gr-text-primary mb-3">Akses Dibatasi</h2>
-          <p className="font-sans text-sm text-gr-text-primary/60 mb-6 leading-relaxed">
-            Halaman ini khusus untuk Pembeli mengajukan permintaan hasil panen di masa depan. Akun Anda terdaftar sebagai <span className="font-bold text-gr-green">{user.role}</span>.
+        <div className="relative z-10 max-w-md w-full bg-white border border-gr-line p-8 rounded-3xl shadow-sm text-center">
+          <AlertTriangle className="h-16 w-16 text-gr-down mx-auto mb-6 animate-pulse" />
+          <h2 className="font-display text-2xl font-medium text-gr-ink mb-3">Akses Dibatasi</h2>
+          <p className="font-sans text-sm text-gr-ink-soft mb-6 leading-relaxed">
+            Halaman ini khusus untuk Pembeli mengajukan permintaan hasil panen di masa depan. Akun Anda terdaftar sebagai <span className="font-bold text-gr-board">{user.role}</span>.
           </p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all cursor-pointer"
           >
             Kembali ke Beranda
           </Link>
@@ -229,17 +229,17 @@ export default function AjukanPermintaanPage() {
   }
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8">
+    <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8">
       <BgPattern />
       <FilmGrain />
-      <Glow color="var(--gr-green)" position="top" className="opacity-10 scale-110 pointer-events-none" />
+      <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-2xl">
         {/* Back Link */}
         <div className="mb-8">
           <Link 
             href="/permintaan-saya" 
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 hover:text-gr-green transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft hover:text-gr-board transition-colors"
           >
             <ArrowLeft size={12} />
             Kembali ke Permintaan Saya
@@ -247,22 +247,22 @@ export default function AjukanPermintaanPage() {
         </div>
 
         <header className="mb-10">
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live">
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board">
             Form Pemesanan
           </span>
-          <h1 className="mt-4 font-display text-5xl font-medium text-gr-text-primary">
+          <h1 className="mt-4 font-display text-5xl font-medium text-gr-ink">
             Ajukan Permintaan
           </h1>
-          <p className="mt-2 font-sans text-sm text-gr-text-primary/60">
+          <p className="mt-2 font-sans text-sm text-gr-ink-soft">
             Ajukan kebutuhan komoditas panen di masa depan agar para petani lokal dapat mulai mempersiapkan dan mengalokasikan hasil kebun mereka untuk Anda.
           </p>
-          <div className="mt-8 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
+          <div className="mt-8 h-px w-full bg-gradient-to-r from-gr-board/30 via-gr-line to-transparent" />
         </header>
 
         {/* Form Container */}
-        <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-8 sm:p-10 backdrop-blur-md shadow-2xl">
+        <div className="rounded-3xl border border-gr-line bg-white p-8 sm:p-10 shadow-sm">
           {error && (
-            <div className="mb-6 rounded-2xl bg-gr-price-unfair/10 p-4 text-xs text-gr-price-unfair border border-gr-price-unfair/20 flex items-center gap-2">
+            <div className="mb-6 rounded-2xl bg-gr-down/10 p-4 text-xs text-gr-down border border-gr-down/20 flex items-center gap-2">
               <Info size={14} className="shrink-0" />
               <span>{error}</span>
             </div>
@@ -271,7 +271,7 @@ export default function AjukanPermintaanPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Commodity Name Autocomplete */}
             <div className="relative" ref={dropdownRef}>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-2">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
                 Nama Komoditas
               </label>
               <input
@@ -280,17 +280,17 @@ export default function AjukanPermintaanPage() {
                 value={commodityName}
                 onChange={handleCommodityChange}
                 onFocus={() => commodityName && setFilteredCommodities(allCommodities.filter(item => item.toLowerCase().includes(commodityName.toLowerCase())))}
-                className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-gr-green/50 text-gr-text-primary px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-text-primary/30"
+                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
               />
               {/* Autocomplete Dropdown */}
               {showDropdown && filteredCommodities.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-[#07080F]/95 backdrop-blur-xl shadow-2xl z-30 divide-y divide-white/5">
+                <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-2xl border border-gr-line bg-white/95 backdrop-blur-xl shadow-lg z-30 divide-y divide-gr-line">
                   {filteredCommodities.map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => selectCommodity(item)}
-                      className="w-full text-left px-4 py-3 font-sans text-xs text-gr-text-primary/80 hover:text-gr-green hover:bg-white/5 transition-colors cursor-pointer"
+                      className="w-full text-left px-4 py-3 font-sans text-xs text-gr-ink hover:text-gr-board hover:bg-gr-paper/30 transition-colors cursor-pointer"
                     >
                       {item}
                     </button>
@@ -298,32 +298,32 @@ export default function AjukanPermintaanPage() {
                 </div>
               )}
             </div>
-
+ 
             {/* Category */}
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-2">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
                 Kategori
               </label>
               <div className="relative">
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-gr-green/50 text-gr-text-primary px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all appearance-none cursor-pointer"
                 >
-                  <option value="SAYUR" className="bg-[#07080F] text-gr-text-primary">Sayur-mayur</option>
-                  <option value="BUAH" className="bg-[#07080F] text-gr-text-primary">Buah-buahan</option>
-                  <option value="POKOK" className="bg-[#07080F] text-gr-text-primary">Kebutuhan Pokok</option>
-                  <option value="LAINNYA" className="bg-[#07080F] text-gr-text-primary">Lain-lain</option>
+                  <option value="SAYUR" className="bg-gr-paper text-gr-ink">Sayur-mayur</option>
+                  <option value="BUAH" className="bg-gr-paper text-gr-ink">Buah-buahan</option>
+                  <option value="POKOK" className="bg-gr-paper text-gr-ink">Kebutuhan Pokok</option>
+                  <option value="LAINNYA" className="bg-gr-paper text-gr-ink">Lain-lain</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gr-text-primary/40">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gr-ink-soft">
                   <Plus size={14} className="rotate-45" />
                 </div>
               </div>
             </div>
-
+ 
             {/* Quantity */}
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-2">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
                 Jumlah yang Dibutuhkan (KG)
               </label>
               <input
@@ -333,13 +333,13 @@ export default function AjukanPermintaanPage() {
                 placeholder="Contoh: 150"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-gr-green/50 text-gr-text-primary px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-text-primary/30"
+                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
               />
             </div>
-
+ 
             {/* Deadline */}
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-2">
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
                 Batas Akhir Pemenuhan (Deadline)
               </label>
               <div className="relative">
@@ -348,64 +348,64 @@ export default function AjukanPermintaanPage() {
                   min={getMinDateString()}
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-gr-green/50 text-gr-text-primary pl-11 pr-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all cursor-pointer"
+                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-11 pr-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all cursor-pointer"
                 />
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gr-text-primary/30 pointer-events-none" />
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gr-ink-soft pointer-events-none" />
               </div>
-              <p className="mt-2 font-sans text-[10px] text-gr-text-primary/40 leading-relaxed flex items-center gap-1.5">
-                <Info size={11} className="text-gr-live shrink-0" />
+              <p className="mt-2 font-sans text-[10px] text-gr-ink-soft leading-relaxed flex items-center gap-1.5">
+                <Info size={11} className="text-gr-board shrink-0" />
                 Minimal 1 minggu dari hari ini agar petani memiliki waktu persiapan tanam/panen.
               </p>
             </div>
 
             {/* Geolocation Status */}
-            <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-4 font-sans text-xs">
-              <span className="block font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-2">
+            <div className="rounded-2xl border border-gr-line bg-gr-paper/10 p-4 font-sans text-xs">
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
                 Lokasi Pengiriman (Browser GPS)
               </span>
               {gettingLocation ? (
-                <div className="flex items-center gap-2 text-gr-text-primary/60">
-                  <Loader2 size={14} className="animate-spin text-gr-green" />
+                <div className="flex items-center gap-2 text-gr-ink-soft">
+                  <Loader2 size={14} className="animate-spin text-gr-board" />
                   <span>Mendeteksi koordinat lokasi Anda...</span>
                 </div>
               ) : locationError ? (
                 <div className="space-y-2">
-                  <div className="flex items-start gap-2 text-gr-price-unfair">
+                  <div className="flex items-start gap-2 text-gr-down">
                     <Info size={14} className="shrink-0 mt-0.5" />
                     <span>{locationError}</span>
                   </div>
                   <button
                     type="button"
                     onClick={requestLocation}
-                    className="text-gr-green hover:underline text-[10px] font-mono uppercase tracking-wider cursor-pointer"
+                    className="text-gr-board hover:underline text-[10px] font-mono uppercase tracking-wider cursor-pointer"
                   >
                     Coba Dapatkan Ulang Lokasi
                   </button>
                 </div>
               ) : lat !== null && lng !== null ? (
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gr-green">
-                    <div className="h-2 w-2 rounded-full bg-gr-green animate-pulse" />
+                  <div className="flex items-center gap-2 text-gr-board">
+                    <div className="h-2 w-2 rounded-full bg-gr-board animate-pulse" />
                     <span>Koordinat berhasil didapatkan</span>
                   </div>
-                  <span className="font-mono text-[10px] text-gr-text-primary/60 bg-white/5 px-2 py-1 rounded-md">
+                  <span className="font-mono text-[10px] text-gr-ink-soft bg-gr-paper/50 border border-gr-line px-2 py-1 rounded-md">
                     {lat.toFixed(6)}, {lng.toFixed(6)}
                   </span>
                 </div>
               ) : (
-                <div className="flex items-start gap-2 text-gr-price-unfair">
+                <div className="flex items-start gap-2 text-gr-down">
                   <Info size={14} className="shrink-0 mt-0.5" />
                   <span>Menunggu izin akses lokasi...</span>
                 </div>
               )}
             </div>
-
+ 
             {/* Submit Button */}
             <div className="pt-4">
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-gr-green/10"
+                className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-gr-board/10"
               >
                 {loading ? (
                   <>
