@@ -1,160 +1,60 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { productsApi } from '@/lib/api/products';
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import React from 'react';
 
-interface ScatteredHeroProps {
-  products: any[];
-  children: React.ReactNode;
+interface TickerProps {
+  pricesData?: {
+    commodityName: string;
+    priceToday: number;
+    delta: number;
+  }[];
 }
 
-const cardPresets = [
-  { top: '8%', left: '5%', size: 'w-[160px]', zIndex: 'z-10' },
-  { top: '15%', left: '32%', size: 'w-[190px]', zIndex: 'z-30', isFront: true },
-  { top: '48%', left: '8%', size: 'w-[150px]', zIndex: 'z-20' },
-  { top: '52%', left: '42%', size: 'w-[180px]', zIndex: 'z-10' },
-  { top: '12%', left: '68%', size: 'w-[155px]', zIndex: 'z-20' },
+const defaultTickerItems = [
+  { commodityName: 'CABAI RAWIT MERAH', priceToday: 42500, delta: 2.3 },
+  { commodityName: 'BAWANG MERAH', priceToday: 28100, delta: -1.8 },
+  { commodityName: 'GABAH KERING PANEN', priceToday: 6200, delta: 0.5 },
+  { commodityName: 'TELUR AYAM RAS', priceToday: 27800, delta: -0.9 },
+  { commodityName: 'JAGUNG PIPILAN', priceToday: 5400, delta: 1.1 },
 ];
 
-export function ScatteredHero({ products, children }: ScatteredHeroProps) {
-  const [liveStats, setLiveStats] = useState<{ total_commodities: number; last_updated: string; active_products: number } | null>(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const stats = await productsApi.getLiveStats();
-        setLiveStats(stats);
-      } catch (err) {
-        console.error('Failed to fetch live stats for hero:', err);
-      }
-    };
-    fetchStats();
-  }, []);
-
-  // Take 5 products to scatter
-  const scatteredProducts = products.slice(0, 5);
-
-  // Deterministic rotation generator based on string hash
-  const getRotation = (id: string) => {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = id.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const rot = (hash % 16) - 8; // returns value between -8 and 8
-    return rot;
-  };
-
-  // Only show discount badge on the single card with the best deal (highest % off, min 10%)
-  const bestDealId = scatteredProducts.reduce<{ id: string; pct: number } | null>((best, p) => {
-    const ref = p.reference_price_per_kg;
-    const price = p.price_per_kg;
-    if (!ref || price >= ref) return best;
-    const pct = Math.round(((ref - price) / ref) * 100);
-    if (pct < 10) return best;
-    return !best || pct > best.pct ? { id: p.id, pct } : best;
-  }, null);
+export function Ticker({ pricesData }: TickerProps) {
+  const items = pricesData && pricesData.length > 0 ? pricesData : defaultTickerItems;
+  // Repeat items to ensure smooth infinite marquee scroll without gaps
+  const repeatedItems = [...items, ...items, ...items, ...items];
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 items-stretch justify-between w-full min-h-[480px]">
-      {/* Kolom Kiri: PersonalGreeting, Search, Controls (~40%) */}
-      <div className="w-full md:w-[42%] flex flex-col justify-center">
-        {children}
-      </div>
-
-      {/* Kolom Kanan: Scattered Polaroid Photo Cards (~58%) */}
-      <div className="hidden md:block md:w-[55%] relative overflow-hidden h-[480px]">
-        {/* Glow effect inside scattered container */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[300px] rounded-full bg-gr-green/5 blur-3xl pointer-events-none" />
-        
-        {scatteredProducts.map((product, idx) => {
-          const preset = cardPresets[idx % cardPresets.length];
-          const rotation = getRotation(product.id);
-          const showDiscountBadge = bestDealId?.id === product.id;
-          const discountPercentage = bestDealId?.pct ?? 0;
-
+    <div className="w-full bg-gr-board text-gr-chalk overflow-hidden border-b border-gr-chalk/10 relative z-50">
+      <div className="animate-ticker flex whitespace-nowrap items-center">
+        {repeatedItems.map((item, idx) => {
+          const isUp = item.delta > 0;
+          const isDown = item.delta < 0;
+          const deltaText = isUp 
+            ? `▲ ${item.delta.toFixed(1)}%` 
+            : isDown 
+            ? `▼ ${Math.abs(item.delta).toFixed(1)}%` 
+            : `± 0.0%`;
+          
           return (
-            <motion.div
-              key={product.id}
-              style={{
-                top: preset.top,
-                left: preset.left,
-                transformOrigin: 'center center',
-              }}
-              initial={{ 
-                opacity: 0, 
-                scale: 0.8,
-                rotate: rotation + (rotation > 0 ? 15 : -15) 
-              }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1,
-                rotate: rotation 
-              }}
-              transition={{ 
-                duration: 0.6, 
-                delay: idx * 0.1,
-                ease: [0.21, 0.47, 0.32, 0.98]
-              }}
-              className={cn(
-                "absolute bg-[#f9f7f1] border border-black/10 p-3 pb-5 shadow-2xl flex flex-col select-none cursor-pointer transform origin-center transition-all duration-300 ease-out hover:!scale-[1.06] hover:!rotate-0 hover:!z-50 hover:shadow-3xl",
-                preset.size,
-                preset.zIndex
-              )}
+            <span 
+              key={idx} 
+              className="inline-flex items-center gap-2 mr-12 font-mono text-xs uppercase tracking-widest"
             >
-              {/* Stat Badge for front/main card */}
-              {preset.isFront && liveStats && (
-                <div className="absolute -top-3 -right-3 z-50 bg-[#07080F]/90 border border-gr-green/30 text-gr-green px-2.5 py-1 rounded-full text-[9px] font-mono tracking-wider shadow-lg backdrop-blur-md">
-                  🟢 {liveStats.total_commodities} harga acuan terpantau
-                </div>
-              )}
-
-              {/* Deal/Urgent Badge — only the single best-deal card */}
-              {showDiscountBadge && (
-                <div className="absolute -top-3 -left-3 z-50 bg-gr-orange text-[#EDE8DC] font-bold px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-widest shadow-lg animate-bounce whitespace-nowrap">
-                  🔥 {discountPercentage}% lebih murah
-                </div>
-              )}
-
-              {/* Polaroid Photo Container */}
-              <div className="relative aspect-square overflow-hidden bg-black/5 border border-black/5 mb-3">
-                <Image
-                  src={product.photo_url || '/placeholder-crop.jpg'}
-                  alt={product.name}
-                  fill
-                  sizes="200px"
-                  className="object-cover pointer-events-none"
-                />
-              </div>
-
-              {/* Polaroid Caption */}
-              <div className="flex flex-col text-left">
-                <span className="font-sans text-[11px] font-bold text-black/80 truncate">
-                  {product.name}
-                </span>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="font-mono text-[9px] text-black/40 uppercase tracking-widest">
-                    {product.category}
-                  </span>
-                  <span className="font-mono text-[10px] font-bold text-gr-green/90 bg-[#07080F]/90 px-1.5 py-0.5 rounded-sm">
-                    {product.price_per_kg >= 1000 ? `${(product.price_per_kg / 1000).toFixed(0)}rb` : product.price_per_kg}/kg
-                  </span>
-                </div>
-              </div>
-            </motion.div>
+              <span>{item.commodityName}</span>
+              <span className="opacity-40">·</span>
+              <span>Rp {item.priceToday.toLocaleString('id-ID')}/kg</span>
+              <span className={isUp ? "text-gr-up-board" : isDown ? "text-gr-down-board" : "text-gr-chalk/60"}>
+                {deltaText}
+              </span>
+            </span>
           );
         })}
-
-        {scatteredProducts.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-center p-6">
-            <span className="font-display text-sm text-gr-text-primary/20 italic">
-              Memuat tumpukan hasil panen...
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
+}
+
+// Temporary empty placeholder export to avoid import errors on other components
+export function ScatteredHero() {
+  return null;
 }
