@@ -139,20 +139,20 @@
 }
 
 .dark {
-  --gr-bg: #07080F;
+  --gr-bg: hsl(232, 37%, 5%);
   --gr-text-primary: #EDE8DC;
   --gr-bg-elevated: rgba(237, 232, 220, 0.018);
   --gr-bg-paper: #1E1812;
   --gr-text-paper: #EDE8DC;
-  --gr-green: #5CFF9E;
-  --gr-green-glow: rgba(92, 255, 158, 0.28);
+  --gr-green: hsl(143, 100%, 68%);
+  --gr-green-glow: hsla(143, 100%, 68%, 0.28);
   --gr-red: #FF6B6B;
   --gr-red-glow: rgba(255, 107, 107, 0.28);
   --gr-live: #4DFFC4;
-  --gr-price-fair: #5CFF9E;
+  --gr-price-fair: hsl(143, 100%, 68%);
   --gr-price-warn: #FFD166;
   --gr-price-unfair: #FF6B6B;
-  --gr-up: #5CFF9E;
+  --gr-up: hsl(143, 100%, 68%);
   --gr-down: #FF6B6B;
   --gr-line: rgba(255, 255, 255, 0.1);
 
