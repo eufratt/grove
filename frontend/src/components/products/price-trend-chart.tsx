@@ -41,8 +41,8 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
 
     // Calculate trend direction (isUptrend = price_last >= price_first)
     const isUptrend = parsedData[parsedData.length - 1].price >= parsedData[0].price;
-    const trendColor = isUptrend ? 'var(--gr-green)' : 'var(--gr-red)';
-    const trendShadow = isUptrend ? 'rgba(92, 255, 158, 0.3)' : 'rgba(255, 107, 107, 0.3)';
+    const trendColor = isUptrend ? 'var(--gr-up)' : 'var(--gr-down)';
+    const trendShadow = isUptrend ? 'rgba(47, 107, 63, 0.2)' : 'rgba(166, 64, 42, 0.2)';
 
     // Scale domains
     const xDomain = d3.extent(parsedData, d => d.date) as [Date, Date];
@@ -79,13 +79,13 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     // Draw Grid Lines (Y axis horizontal grid lines)
     svg.append("g")
       .attr("class", "grid-lines")
-      .attr("opacity", 0.05)
+      .attr("opacity", 0.2)
       .call(d3.axisLeft(yScale)
         .tickSize(-innerWidth)
         .tickFormat(() => "")
       )
       .selectAll("line")
-      .attr("stroke", "white");
+      .attr("stroke", "var(--gr-line)");
 
     // Draw Area under the line
     const areaGenerator = d3.area<any>()
@@ -118,29 +118,43 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     const tickInterval = Math.max(1, Math.floor(dateRangeDays / 6));
 
     // X Axis
-    svg.append("g")
+    const xAxis = svg.append("g")
       .attr("transform", `translate(0,${innerHeight})`)
-      .attr("opacity", 0.5)
+      .attr("opacity", 0.8)
       .call(d3.axisBottom(xScale)
         .ticks(d3.timeDay.every(tickInterval))
         .tickFormat(d3.timeFormat("%d %b") as any)
-      )
-      .selectAll("text")
+      );
+
+    xAxis.selectAll("text")
       .attr("font-family", "var(--font-sans)")
       .attr("font-size", "9px")
-      .attr("fill", "white");
+      .attr("fill", "var(--gr-ink-soft)");
+
+    xAxis.selectAll("line")
+      .attr("stroke", "var(--gr-line)");
+    
+    xAxis.select(".domain")
+      .attr("stroke", "var(--gr-line)");
 
     // Y Axis
-    svg.append("g")
-      .attr("opacity", 0.5)
+    const yAxis = svg.append("g")
+      .attr("opacity", 0.8)
       .call(d3.axisLeft(yScale)
         .ticks(5)
         .tickFormat(d => `Rp ${d.toLocaleString('id-ID')}`)
-      )
-      .selectAll("text")
+      );
+
+    yAxis.selectAll("text")
       .attr("font-family", "var(--font-mono)")
       .attr("font-size", "9px")
-      .attr("fill", "white");
+      .attr("fill", "var(--gr-ink-soft)");
+
+    yAxis.selectAll("line")
+      .attr("stroke", "var(--gr-line)");
+
+    yAxis.select(".domain")
+      .attr("stroke", "var(--gr-line)");
 
     // Tooltip elements
     const focus = svg.append("g")
@@ -150,17 +164,16 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("class", "x-hover-line hover-line")
       .attr("y1", 0)
       .attr("y2", innerHeight)
-      .attr("stroke", "white")
+      .attr("stroke", "var(--gr-ink-soft)")
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "3,3")
-      .attr("opacity", 0.3);
+      .attr("opacity", 0.4);
 
     focus.append("circle")
       .attr("r", 5)
       .attr("fill", trendColor)
-      .attr("stroke", "white")
-      .attr("stroke-width", 1.5)
-      .attr("filter", `drop-shadow(0 0 4px ${trendColor})`);
+      .attr("stroke", "var(--gr-paper)")
+      .attr("stroke-width", 1.5);
 
     const tooltipCard = focus.append("g")
       .attr("class", "tooltip-card")
@@ -169,8 +182,8 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     tooltipCard.append("rect")
       .attr("width", 110)
       .attr("height", 45)
-      .attr("fill", "#07080F")
-      .attr("stroke", "rgba(255,255,255,0.1)")
+      .attr("fill", "var(--gr-paper)")
+      .attr("stroke", "var(--gr-line)")
       .attr("rx", 6)
       .attr("opacity", 0.95);
 
@@ -179,7 +192,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("y", 16)
       .attr("font-family", "var(--font-sans)")
       .attr("font-size", "9px")
-      .attr("fill", "rgba(255,255,255,0.5)");
+      .attr("fill", "var(--gr-ink-soft)");
 
     const tooltipPrice = tooltipCard.append("text")
       .attr("x", 8)
