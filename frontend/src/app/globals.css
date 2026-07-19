@@ -37,9 +37,9 @@
   --color-red: var(--gr-red);
   --color-live: var(--gr-live);
 
-  --font-display: var(--font-display);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-display: var(--font-display), Georgia, serif;
+  --font-sans: var(--font-sans), sans-serif;
+  --font-mono: var(--font-mono), monospace;
 
   --color-background: var(--gr-bg);
   --color-foreground: var(--gr-text-primary);
