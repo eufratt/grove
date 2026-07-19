@@ -237,3 +237,236 @@ export function QuoteSection() {
     </section>
   );
 }
+
+export function Sparkline({ history, color }: { history: { price_per_kg: number }[]; color: string }) {
+  if (!history || history.length === 0) {
+    return (
+      <svg className="block w-full h-[58px] mb-3.5 bg-gr-ink/5 opacity-40">
+        <line x1="0" y1="30" x2="300" y2="30" stroke={color} strokeWidth={1} strokeDasharray="3,3" />
+      </svg>
+    );
+  }
+
+  const prices = history.map(h => h.price_per_kg);
+  const n = prices.length;
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const priceRange = maxPrice - minPrice || 1;
+
+  const width = 300;
+  const height = 60;
+  const xPaddingRight = 20;
+  const xUsable = width - xPaddingRight;
+  
+  const points = prices.map((price, idx) => {
+    const x = n > 1 ? (idx / (n - 1)) * xUsable : 0;
+    const y = 52 - ((price - minPrice) / priceRange) * 44;
+    return { x, y };
+  });
+
+  const polylinePoints = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const pathD = points.length > 0
+    ? `M0,60 L${points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')} L${points[points.length - 1].x.toFixed(1)},60 Z`
+    : '';
+
+  const lastPoint = points[points.length - 1] || { x: 0, y: 30 };
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block w-full h-[58px] mb-3.5 select-none">
+      {pathD && <path d={pathD} fill={color} opacity={0.12} />}
+      <polyline points={polylinePoints} fill="none" stroke={color} strokeWidth={2} />
+      <line 
+        x1={lastPoint.x.toFixed(1)} 
+        y1={lastPoint.y.toFixed(1)} 
+        x2={lastPoint.x.toFixed(1)} 
+        y2={60} 
+        stroke={color} 
+        strokeDasharray="3,3" 
+        strokeWidth={1} 
+      />
+      <circle cx={lastPoint.x.toFixed(1)} cy={lastPoint.y.toFixed(1)} r={3} fill={color} />
+    </svg>
+  );
+}
+
+interface FigPanelsProps {
+  pricesData?: {
+    commodityName: string;
+    priceToday: number;
+    priceYesterday: number;
+    delta: number;
+    history: { scraped_at: string; price_per_kg: number }[];
+    desc: string;
+    swatchColor: string;
+  }[];
+}
+
+const defaultFigPanelsData = [
+  {
+    commodityName: 'Cabai rawit merah',
+    priceToday: 42500,
+    priceYesterday: 41544,
+    delta: 2.3,
+    history: [
+      { scraped_at: '1', price_per_kg: 45000 },
+      { scraped_at: '2', price_per_kg: 40000 },
+      { scraped_at: '3', price_per_kg: 42000 },
+      { scraped_at: '4', price_per_kg: 25000 },
+      { scraped_at: '5', price_per_kg: 30000 },
+      { scraped_at: '6', price_per_kg: 15000 },
+      { scraped_at: '7', price_per_kg: 20000 },
+      { scraped_at: '8', price_per_kg: 8000 }
+    ],
+    desc: 'Naik tajam sejak akhir pekan lalu, sejalan dengan turunnya pasokan pascapanen di Jawa Barat.',
+    swatchColor: 'var(--gr-up)'
+  },
+  {
+    commodityName: 'Bawang merah',
+    priceToday: 28100,
+    priceYesterday: 28615,
+    delta: -1.8,
+    history: [
+      { scraped_at: '1', price_per_kg: 8000 },
+      { scraped_at: '2', price_per_kg: 14000 },
+      { scraped_at: '3', price_per_kg: 12000 },
+      { scraped_at: '4', price_per_kg: 22000 },
+      { scraped_at: '5', price_per_kg: 20000 },
+      { scraped_at: '6', price_per_kg: 32000 },
+      { scraped_at: '7', price_per_kg: 28000 },
+      { scraped_at: '8', price_per_kg: 40000 }
+    ],
+    desc: 'Melandai setelah panen serentak membanjiri pasar Brebes dan sekitarnya.',
+    swatchColor: 'var(--gr-down)'
+  },
+  {
+    commodityName: 'Telur ayam ras segar',
+    priceToday: 27800,
+    priceYesterday: 28052,
+    delta: -0.9,
+    history: [
+      { scraped_at: '1', price_per_kg: 28000 },
+      { scraped_at: '2', price_per_kg: 26000 },
+      { scraped_at: '3', price_per_kg: 29000 },
+      { scraped_at: '4', price_per_kg: 24000 },
+      { scraped_at: '5', price_per_kg: 27000 },
+      { scraped_at: '6', price_per_kg: 25000 },
+      { scraped_at: '7', price_per_kg: 26000 },
+      { scraped_at: '8', price_per_kg: 24000 }
+    ],
+    desc: 'Mendekati kisaran stabil seiring dengan konsolidasi harga pakan ayam ras.',
+    swatchColor: 'var(--gr-ink-soft)'
+  }
+];
+
+export function FigPanels({ pricesData }: FigPanelsProps) {
+  const panelsData = pricesData && pricesData.length > 0 ? pricesData : defaultFigPanelsData;
+
+  return (
+    <section className="w-full max-w-[1100px] mx-auto px-8 pb-16 relative z-40 select-none">
+      {/* Fig Head */}
+      <div className="flex justify-between items-baseline flex-wrap gap-2 border-b border-gr-line pb-4 mb-6">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-semibold uppercase text-gr-down">Fig. 1</span>
+          <span className="font-display font-semibold text-lg text-gr-ink">Papan harga hari ini</span>
+        </div>
+        <div className="font-sans italic text-xs text-gr-ink-soft">
+          Diperbarui otomatis setiap hari dari PIHPS, Bank Indonesia
+        </div>
+      </div>
+
+      {/* Grid Panels */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        {panelsData.map((panel, idx) => {
+          // Dynamic calculation of color and delta display
+          const isUp = panel.delta > 0;
+          const isDown = panel.delta < 0;
+          
+          let color = 'var(--gr-ink-soft)';
+          let deltaText = `± stabil, 0,0%`;
+          let swatchBg = 'bg-gr-ink-soft';
+          let deltaColor = 'text-gr-ink-soft';
+          
+          if (isUp) {
+            color = 'var(--gr-up)';
+            deltaText = `▲ naik ${panel.delta.toFixed(1)}% dari kemarin`;
+            swatchBg = 'bg-gr-up';
+            deltaColor = 'text-gr-up';
+          } else if (isDown) {
+            color = 'var(--gr-down)';
+            deltaText = `▼ turun ${Math.abs(panel.delta).toFixed(1)}% dari kemarin`;
+            swatchBg = 'bg-gr-down';
+            deltaColor = 'text-gr-down';
+          }
+
+          return (
+            <div key={idx} className="border border-gr-line rounded-sm p-5 flex flex-col bg-white/20 backdrop-blur-sm shadow-sm">
+              <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-widest text-gr-ink-soft mb-3.5">
+                <span className={`w-2 h-2 ${swatchBg} flex-shrink-0`} />
+                <span>{panel.commodityName}</span>
+              </div>
+              <div className="font-display font-bold text-3xl text-gr-ink mb-0.5">
+                Rp {panel.priceToday.toLocaleString('id-ID')}
+                <span className="font-sans font-medium text-xs text-gr-ink-soft ml-1">/kg</span>
+              </div>
+              <div className={`font-sans text-xs ${deltaColor} mb-3.5`}>
+                {deltaText}
+              </div>
+              
+              {/* SVG Sparkline */}
+              <Sparkline history={panel.history} color={color} />
+              
+              <p className="font-sans text-[13px] leading-relaxed text-gr-ink-soft m-0">
+                {panel.desc}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Entries Section: Bagaimana Grove memutus siklus harga */}
+      <div className="border-t-2 border-gr-ink pt-4">
+        <div className="font-mono text-[11px] tracking-widest uppercase text-gr-ink-soft mb-6">
+          Bagaimana Grove memutus siklus harga
+        </div>
+        
+        <div className="flex flex-col gap-6">
+          {[
+            {
+              mark: 'A',
+              title: 'Sinyal permintaan, sebelum tanam',
+              desc: 'Pembeli memasang kebutuhan sebelum musim tanam dimulai. Petani merespons permintaan nyata lewat kartu geser sederhana, bukan menebak dari harga musim lalu.',
+              theory: 'Teori Cobweb · memutus lag informasi'
+            },
+            {
+              mark: 'B',
+              title: 'Transparansi sesama petani',
+              desc: 'Setiap sinyal demand menunjukkan progres langsung — berapa persen sudah terpenuhi, berapa petani sudah berkomitmen — agar keputusan tanam tidak lagi buta terhadap keputusan petani lain.',
+              theory: 'Teori Cobweb · mencegah pasokan berlebih serentak'
+            },
+            {
+              mark: 'C',
+              title: 'Harga sebagai pola, bukan snapshot',
+              desc: 'Grafik tren historis dari data PIHPS Bank Indonesia membaca harga sebagai siklus musiman, bukan angka sesaat yang mudah menyesatkan keputusan.',
+              theory: 'Teori Cobweb · konteks siklus harga'
+            },
+            {
+              mark: 'D',
+              title: 'Harga wajar saat transaksi',
+              desc: 'PriceGauge membandingkan harga tiap produk terhadap acuan secara langsung, menutup celah informasi antara petani dan pembeli saat transaksi berlangsung.',
+              theory: 'Asimetri informasi · Akerlof'
+            }
+          ].map((entry, idx) => (
+            <div key={idx} className="grid grid-cols-[52px_1fr] gap-5 py-6 border-b border-gr-line last:border-0">
+              <span className="font-display font-bold text-[26px] text-gr-down">{entry.mark}</span>
+              <div>
+                <h3 className="font-display font-semibold text-lg text-gr-ink m-0 mb-2">{entry.title}</h3>
+                <p className="font-sans text-[14.5px] leading-relaxed text-gr-ink-soft max-w-[580px] m-0 mb-2.5">{entry.desc}</p>
+                <span className="font-mono text-[10px] tracking-wider uppercase text-gr-down">{entry.theory}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
