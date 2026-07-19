@@ -118,3 +118,52 @@ export function MastheadNav() {
     </header>
   );
 }
+
+export function HeroHeadline() {
+  const today = new Date();
+  
+  const formatDateIndonesian = (date: Date) => {
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  return (
+    <section className="w-full max-w-[1100px] mx-auto px-8 py-12 md:py-16 text-center select-none">
+      <span className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-gr-down block mb-5">
+        Rantai pasok pangan pedesaan
+      </span>
+      
+      <h1 className="font-display text-[clamp(2.8rem,9vw,5.5rem)] font-semibold tracking-tight text-gr-ink max-w-[850px] mx-auto leading-[0.95] mb-6">
+        Panen tanpa <em className="font-light italic text-gr-ink tracking-wide">tebakan</em>.
+      </h1>
+      
+      <p className="font-display italic font-normal text-[clamp(1.05rem,2.2vw,1.35rem)] text-gr-ink-soft max-w-[600px] mx-auto leading-relaxed mb-6">
+        Harga langsung dari petani, dibaca sebagai pola — bukan angka yang berdiri sendiri.
+      </p>
+      
+      <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-8 flex items-center justify-center gap-2">
+        <span>Papan harga Grove</span>
+        <span className="inline-block w-1 h-1 bg-gr-ink-soft rounded-full" />
+        <span>Diperbarui {formatDateIndonesian(today)}</span>
+      </div>
+      
+      <div className="flex flex-wrap justify-center gap-3.5">
+        <a
+          href="/beranda"
+          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-1.5 border-gr-board hover:bg-transparent hover:text-gr-board px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer shadow-sm"
+        >
+          Jelajahi marketplace
+        </a>
+        <a
+          href="/ajukan-permintaan"
+          className="font-mono text-xs uppercase tracking-wider border-1.5 border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer"
+        >
+          Pasang sinyal demand
+        </a>
+      </div>
+    </section>
+  );
+}
