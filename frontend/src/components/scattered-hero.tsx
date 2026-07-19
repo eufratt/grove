@@ -92,3 +92,29 @@ export function KickerBar() {
     </div>
   );
 }
+
+export function MastheadNav() {
+  return (
+    <header className="w-full max-w-[1100px] mx-auto px-8 py-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
+      {/* Logo Wordmark */}
+      <a href="/" className="flex items-center gap-3 group">
+        <div className="w-10 h-10 rounded-full border-2 border-gr-ink flex items-center justify-center font-display font-bold text-lg text-gr-ink group-hover:bg-gr-ink group-hover:text-gr-paper transition-all duration-300">
+          G
+        </div>
+        <span className="font-display font-semibold text-xl tracking-tight text-gr-ink">
+          Grove
+        </span>
+      </a>
+
+      {/* Action / Login button */}
+      <div className="flex items-center gap-3">
+        <a 
+          href="/login"
+          className="font-mono text-xs uppercase tracking-wider border-1.5 border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
+        >
+          Masuk
+        </a>
+      </div>
+    </header>
+  );
+}
