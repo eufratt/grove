@@ -154,13 +154,13 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
 
       {/* Commit Input Modal Overlay */}
       {commitRequest && (
-        <div className="fixed inset-0 bg-[#07080F]/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="bg-[#0D0E16] border border-white/10 p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl relative">
-            <h3 className="font-display text-xl font-medium text-gr-text-primary mb-2 flex items-center gap-2">
+        <div className="fixed inset-0 bg-gr-paper/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-white border border-gr-line p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl relative">
+            <h3 className="font-display text-xl font-medium text-gr-ink mb-2 flex items-center gap-2">
               Komitmen Supply
             </h3>
-            <p className="font-sans text-xs text-gr-text-primary/60 mb-6 leading-relaxed">
-              Bantu penuhi permintaan <span className="text-gr-green font-semibold">{commitRequest.commodity_name}</span>. Berapa KG yang bisa Anda sediakan?
+            <p className="font-sans text-xs text-gr-ink-soft mb-6 leading-relaxed">
+              Bantu penuhi permintaan <span className="text-gr-board font-semibold">{commitRequest.commodity_name}</span>. Berapa KG yang bisa Anda sediakan?
             </p>
 
             {commitError && (
@@ -171,7 +171,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
 
             <form onSubmit={handleCommitSubmit} className="space-y-4">
               <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40 mb-1.5">
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5">
                   Jumlah (KG)
                 </label>
                 <input
@@ -181,7 +181,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                   placeholder="Contoh: 50"
                   value={commitQty}
                   onChange={(e) => setCommitQty(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-gr-green/50 text-gr-text-primary px-3 py-2.5 rounded-xl font-sans text-xs focus:outline-none transition-all placeholder:text-gr-text-primary/30"
+                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-3 py-2.5 rounded-xl font-sans text-xs focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
                   autoFocus
                 />
               </div>
@@ -190,14 +190,14 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                 <button
                   type="button"
                   onClick={() => setCommitRequest(null)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-gr-text-primary font-sans text-xs font-semibold py-3 rounded-xl transition-all cursor-pointer"
+                  className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/50 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-xl transition-all cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submittingCommit}
-                  className="flex-1 bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   {submittingCommit ? (
                     <Loader2 size={12} className="animate-spin" />
@@ -260,13 +260,13 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
   const numPetani = request.num_petani_committed || 0;
 
   // Determine progress badge color
-  let progressBadgeColor = "bg-red-500/10 text-red-400 border-red-500/20";
+  let progressBadgeColor = "bg-gr-down/10 text-gr-down border-gr-down/20";
   if (percent >= 90) {
-    progressBadgeColor = "bg-gr-green/10 text-gr-green border-gr-green/20";
+    progressBadgeColor = "bg-gr-up/10 text-gr-up border-gr-up/20";
   } else if (percent >= 70) {
-    progressBadgeColor = "bg-lime-500/10 text-lime-400 border-lime-500/20";
+    progressBadgeColor = "bg-gr-board/10 text-gr-board border-gr-board/20";
   } else if (percent >= 30) {
-    progressBadgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    progressBadgeColor = "bg-gr-ink-soft/10 text-gr-ink-soft border-gr-line";
   }
 
   return (
@@ -292,7 +292,7 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
       }}
       className="absolute inset-0 cursor-grab active:cursor-grabbing font-sans"
     >
-      <div className="h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-gr-bg-paper p-6 shadow-2xl transition-colors duration-300 flex flex-col justify-between">
+      <div className="h-full w-full overflow-hidden rounded-3xl border border-gr-line bg-gr-paper p-6 shadow-md transition-colors duration-300 flex flex-col justify-between">
         {/* Swiping Indicators */}
         {isFront && (
           <>
@@ -314,10 +314,10 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-text-paper/40">
+            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-ink-soft">
               {request.category}
             </span>
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-gr-orange font-bold flex items-center gap-1">
+            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-gr-down font-bold flex items-center gap-1">
               <Calendar size={11} />
               {getRelativeDeadline(request.deadline)}
             </span>
@@ -325,21 +325,21 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
 
           {/* Commodity Name */}
           <div className="space-y-1.5">
-            <h3 className="font-display text-3xl font-medium leading-tight text-gr-text-paper">
+            <h3 className="font-display text-3xl font-medium leading-tight text-gr-ink">
               {request.commodity_name}
             </h3>
-            <p className="font-mono text-[10px] text-gr-text-paper/30">
+            <p className="font-mono text-[10px] text-gr-ink-soft">
               Request ID: {request.id.slice(0, 8)}
             </p>
           </div>
 
           {/* Buyer / Requester info */}
-          <div className="flex items-center justify-between border-t border-black/5 pt-3">
+          <div className="flex items-center justify-between border-t border-gr-line pt-3">
             <div className="flex flex-col">
-              <span className="font-mono text-[8px] uppercase tracking-widest text-gr-text-paper/40">Pemohon</span>
-              <span className="font-sans text-xs font-semibold text-gr-text-paper">{request.buyer_name || 'Pembeli'}</span>
+              <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft">Pemohon</span>
+              <span className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</span>
             </div>
-            <div className="bg-black/[0.03] border border-black/5 rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+            <div className="bg-gr-ink/5 border border-gr-line rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
               <RatingBadge
                 avgRating={request.buyer_rating_avg}
                 ratingCount={request.buyer_rating_count}
@@ -350,27 +350,27 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
             </div>
           </div>
 
-          <div className="border-t border-black/5 pt-5 space-y-4">
+          <div className="border-t border-gr-line pt-5 space-y-4">
             {/* Target KG Needed */}
             <div className="flex justify-between items-end">
               <div>
-                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-text-paper/40 mb-1">
+                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1">
                   Kebutuhan KG
                 </span>
-                <span className="font-mono text-2xl font-bold text-gr-text-paper">
+                <span className="font-mono text-2xl font-bold text-gr-ink">
                   {needed.toLocaleString('id-ID')} KG
                 </span>
               </div>
               <div className="text-right">
-                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-text-paper/40 mb-1">
+                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1">
                   Sudah Terkumpul
                 </span>
-                <span className="font-mono text-lg font-bold text-gr-text-paper/80">
+                <span className="font-mono text-lg font-bold text-gr-ink">
                   {committed.toLocaleString('id-ID')} KG
                 </span>
               </div>
             </div>
-
+ 
             {/* Progress Badge and details */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -380,16 +380,16 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
                 )}>
                   {percent}% Terpenuhi
                 </span>
-                <span className="font-mono text-[10px] text-gr-text-paper/40 flex items-center gap-1">
+                <span className="font-mono text-[10px] text-gr-ink-soft flex items-center gap-1">
                   <Users size={12} />
                   {numPetani} Petani Fulfill
                 </span>
               </div>
-
+ 
               {/* Progress visual bar */}
-              <div className="w-full bg-black/5 h-2 rounded-full overflow-hidden border border-black/5">
+              <div className="w-full bg-gr-ink/5 h-2 rounded-full overflow-hidden border border-gr-line">
                 <div 
-                  className="bg-gr-green h-full rounded-full transition-all duration-300"
+                  className="bg-gr-board h-full rounded-full transition-all duration-300"
                   style={{ width: `${percent}%` }}
                 />
               </div>
@@ -405,7 +405,7 @@ const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe 
               <span>Hampir penuh — pertimbangkan permintaan lain</span>
             </div>
           ) : (
-            <div className="flex items-center justify-between border-t border-black/5 pt-4 text-gr-text-paper/20">
+            <div className="flex items-center justify-between border-t border-gr-line pt-4 text-gr-ink-soft/40">
               <span className="font-mono text-[8px] uppercase tracking-widest">Supply Signal Aggregator</span>
               <span className="font-display text-xl italic font-bold">G</span>
             </div>
