@@ -84,9 +84,9 @@ export function KickerBar() {
       <div className="h-[1px] bg-gr-ink max-w-[1100px] mx-auto mt-[3px]" />
       
       {/* Meta Row */}
-      <div className="max-w-[1100px] mx-auto padding-kicker px-8 pt-3.5 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none">
+      <div className="max-w-[1100px] mx-auto padding-kicker px-8 pt-3.5 pb-4 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none border-b border-gr-line">
         <span>Buletin harga pangan · Nº {getEditionNumber()}</span>
-        <span className="hidden sm:inline">Grove · Rantai pasok pangan pedesaan</span>
+        <span className="hidden sm:inline">Rantai pasok pangan pedesaan</span>
         <span>PIHPS · {formatDateIndonesian(today)}</span>
       </div>
     </div>
@@ -95,7 +95,7 @@ export function KickerBar() {
 
 export function MastheadNav() {
   return (
-    <header className="w-full max-w-[1100px] mx-auto px-8 py-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
+    <header className="w-full max-w-[1100px] mx-auto px-8 pt-5 pb-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
       {/* Logo Wordmark */}
       <a href="/" className="flex items-center gap-3 group">
         <div className="w-10 h-10 rounded-full border-2 border-gr-ink flex items-center justify-center font-display font-bold text-lg text-gr-ink group-hover:bg-gr-ink group-hover:text-gr-paper transition-all duration-300">
