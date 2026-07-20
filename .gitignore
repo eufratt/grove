@@ -9,6 +9,7 @@ frontend/.env.local
 backend/.env
 backend/.venv/
 backend/venv/
+backend/scratch/
 
 # IDE / Agent Customizations
 .agents/
