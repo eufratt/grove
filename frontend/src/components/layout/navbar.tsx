@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
 import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
-import { motion, LayoutGroup } from 'framer-motion';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -58,6 +57,7 @@ export function Navbar() {
 
   return (
     <>
+      {/* Phone warning banner */}
       {showBanner && (
         <div className="w-full bg-gradient-to-r from-gr-down/95 to-gr-down/40 border-b border-gr-line px-4 py-2.5 text-center text-xs font-sans text-gr-chalk flex items-center justify-between gap-4 transition-all duration-300 relative z-50">
           <div className="flex-1 flex items-center justify-center gap-2">
@@ -80,27 +80,26 @@ export function Navbar() {
           </button>
         </div>
       )}
-      <nav className="sticky top-0 z-50 w-full bg-transparent border-none">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-3">
-        <div className="flex h-14 items-center justify-between bg-gr-paper/90 border border-gr-line rounded-full px-6 backdrop-blur-md shadow-sm">
-          {/* Logo Section */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gr-board/20 bg-gr-board/5 text-gr-board transition-all duration-300 group-hover:border-gr-board/50 group-hover:bg-gr-board/10">
-                <Leaf size={16} className="transition-transform group-hover:rotate-12" />
-                <div className="absolute inset-0 rounded-lg bg-gr-board/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-              <span className="font-display text-xl font-medium tracking-tight text-gr-ink">
-                Grove
-              </span>
-            </Link>
-          </div>
 
-          {/* Navigation Links */}
-          <LayoutGroup id="navbar">
-          <div className="hidden md:flex items-center gap-1 bg-gr-ink/5 p-1 rounded-full border border-gr-line backdrop-blur-sm relative">
+      {/* Main navbar — flat editorial bar, full-width */}
+      <nav className="sticky top-0 z-50 w-full bg-gr-paper/95 backdrop-blur-md border-b border-gr-line">
+        <div className="mx-auto max-w-[1100px] px-8 flex h-14 items-center justify-between gap-8">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
+            <div className="w-9 h-9 rounded-full border-2 border-gr-ink flex items-center justify-center font-display font-bold text-base text-gr-ink group-hover:bg-gr-ink group-hover:text-gr-paper transition-all duration-300">
+              G
+            </div>
+            <span className="font-display font-semibold text-lg tracking-tight text-gr-ink">
+              Grove
+            </span>
+          </Link>
+
+          {/* Nav links — flat tabs with underline active state */}
+          <div className="hidden md:flex items-stretch gap-0 h-full">
             {navItems.map((item) => {
-              const isActive = pathname === item.href || 
+              const isActive =
+                pathname === item.href ||
                 pathname.startsWith(item.href + '/') ||
                 (item.href === '/permintaan-saya' && pathname === '/ajukan-permintaan');
               const Icon = item.icon;
@@ -109,50 +108,41 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative flex items-center gap-2 px-4 py-1.5 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 select-none z-10",
-                    isActive 
-                      ? "text-gr-chalk" 
-                      : "text-gr-ink-soft hover:text-gr-ink hover:bg-gr-ink/5"
+                    'relative flex items-center gap-2 px-4 h-full font-mono text-[10px] font-semibold uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
+                    isActive
+                      ? 'text-gr-ink border-gr-board'
+                      : 'text-gr-ink-soft border-transparent hover:text-gr-ink hover:border-gr-line'
                   )}
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="active-nav-pill"
-                      initial={false}
-                      className="absolute inset-0 bg-gr-board rounded-full -z-10 shadow-sm"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                  <Icon size={12} className="relative z-10" />
-                  <span className="relative z-10">{item.name}</span>
+                  <Icon size={11} />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
           </div>
-          </LayoutGroup>
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-shrink-0">
             {user ? (
               <div className="flex items-center gap-3">
                 {user.role === 'PETANI' && (
-                  <span className="hidden xl:inline-flex items-center justify-center h-8 font-sans text-[10px] font-bold uppercase tracking-widest text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 rounded-full">
+                  <span className="hidden xl:inline font-mono text-[9px] font-bold uppercase tracking-widest text-gr-board border border-gr-board/30 px-2 py-1">
                     Farmer
                   </span>
                 )}
-                <span className="hidden lg:inline-flex items-center justify-center h-8 font-sans text-xs font-bold uppercase tracking-widest text-gr-ink-soft bg-gr-ink/5 border border-gr-line px-3 rounded-full">
+                <span className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
                   {user.full_name || user.email || 'Pengguna'}
                 </span>
                 <Link
                   href="/settings"
-                  className="flex items-center justify-center h-8 w-8 rounded-full border border-gr-line hover:border-gr-board/30 bg-gr-ink/2 hover:bg-gr-board/5 text-gr-ink-soft hover:text-gr-board transition-all duration-300 cursor-pointer"
+                  className="flex items-center justify-center h-8 w-8 border border-gr-line hover:border-gr-board/40 text-gr-ink-soft hover:text-gr-board transition-all duration-200 cursor-pointer"
                   title="Pengaturan Profil"
                 >
                   <Settings size={14} />
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center h-8 w-8 rounded-full border border-gr-line hover:border-gr-down/30 bg-gr-ink/2 hover:bg-gr-down/5 text-gr-ink-soft hover:text-gr-down transition-all duration-300 cursor-pointer"
+                  className="flex items-center justify-center h-8 w-8 border border-gr-line hover:border-gr-down/40 text-gr-ink-soft hover:text-gr-down transition-all duration-200 cursor-pointer"
                   title="Keluar"
                 >
                   <LogOut size={14} />
@@ -161,16 +151,18 @@ export function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center justify-center h-8 gap-2 rounded-full border border-gr-line hover:border-gr-board/30 bg-gr-ink/2 hover:bg-gr-board/5 px-4 font-sans text-xs font-bold uppercase tracking-widest text-gr-ink-soft hover:text-gr-board transition-all duration-300 cursor-pointer"
+                className="font-mono text-[10px] uppercase tracking-wider border border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-4 py-2 transition-all duration-200 cursor-pointer"
               >
-                <LogIn size={14} />
-                <span>Masuk</span>
+                <span className="flex items-center gap-2">
+                  <LogIn size={12} />
+                  Masuk
+                </span>
               </Link>
             )}
           </div>
+
         </div>
-      </div>
-    </nav>
+      </nav>
     </>
   );
 }
