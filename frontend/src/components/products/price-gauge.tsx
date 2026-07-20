@@ -54,7 +54,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
       .attr("height", isMini ? 4 : 8)
       .attr("y", innerHeight / 2 - (isMini ? 2 : 4))
       .attr("rx", 4)
-      .attr("fill", "rgba(255, 255, 255, 0.1)");
+      .attr("fill", "rgba(32, 29, 22, 0.12)");
 
     // Determine color
     let color = "var(--gr-price-fair)";
@@ -72,18 +72,19 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
       .attr("x2", xScale(hargaReferensi))
       .attr("y1", 0)
       .attr("y2", innerHeight)
-      .attr("stroke", "white")
+      .attr("stroke", "var(--gr-ink-soft)")
       .attr("stroke-width", 2)
       .attr("stroke-dasharray", "2,2")
-      .attr("opacity", 0.5);
+      .attr("opacity", 0.6);
 
     if (!isMini) {
       svg.append("text")
         .attr("x", xScale(hargaReferensi))
         .attr("y", -2)
         .attr("text-anchor", "middle")
-        .attr("fill", "white")
-        .attr("font-size", "8px")
+        .attr("fill", "var(--gr-ink-soft)")
+        .attr("font-size", "9px")
+        .attr("font-weight", "600")
         .attr("font-family", "var(--font-mono)")
         .text("REF");
     }
@@ -114,10 +115,10 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
       <svg ref={svgRef}></svg>
       {!isMini && (
         <div className="flex justify-between mt-1 px-2">
-          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/40">
+          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/60">
             Keadilan Harga
           </span>
-          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/40">
+          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/60 font-semibold">
             {hargaProduk >= hargaReferensi ? 'Fair' : (hargaProduk >= hargaReferensi * 0.9 ? 'Warning' : 'Unfair')}
           </span>
         </div>

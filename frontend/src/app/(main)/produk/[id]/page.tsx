@@ -200,7 +200,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             {/* Header info */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="bg-white/5 border border-white/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gr-green">
+                <span className="bg-gr-chalk/60 border border-gr-line px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gr-green font-semibold">
                   {product.category}
                 </span>
                 <span className="bg-gr-live/10 border border-gr-live/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gr-live">
@@ -232,21 +232,21 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
  
             {/* Price Gauge Section */}
             {product.reference_price_per_kg && (
-              <div className="rounded-xl bg-white/5 p-4 border border-white/10 backdrop-blur-md space-y-3">
+              <div className="rounded-xl bg-gr-chalk/40 p-4 border border-gr-line backdrop-blur-md space-y-3">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-0.5">
+                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/50 mb-0.5">
                       Analisis Transparansi
                     </h4>
-                    <p className="font-display text-lg text-gr-text-primary">
+                    <p className="font-display text-lg text-gr-text-primary font-medium">
                       Indikator Keadilan Harga
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="block font-mono text-base text-white">
+                    <span className="block font-mono text-base font-semibold text-gr-text-primary">
                       Rp {product.reference_price_per_kg.toLocaleString('id-ID')}
                     </span>
-                    <span className="font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">
+                    <span className="font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">
                       Harga Referensi Pasar
                     </span>
                   </div>
@@ -264,18 +264,18 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             )}
   
             {/* Metadata Horizontal Row */}
-            <div className="grid grid-cols-3 gap-2 border-y border-white/5 py-3">
+            <div className="grid grid-cols-3 gap-2 border-y border-gr-line py-3">
               <div className="flex items-center gap-2">
                 <Tag size={14} className="text-gr-green" />
                 <div>
-                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">Stok</span>
+                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Stok</span>
                   <span className="font-mono text-sm text-gr-text-primary">{product.quantity_kg} KG</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar size={14} className="text-gr-green" />
                 <div>
-                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">Dipanen</span>
+                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Dipanen</span>
                   <span className="font-mono text-sm text-gr-text-primary">
                     {new Date(product.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                   </span>
@@ -284,7 +284,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               <div className="flex items-center gap-2">
                 <MapPin size={14} className="text-gr-green" />
                 <div className="min-w-0">
-                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/30">Lokasi</span>
+                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Lokasi</span>
                   <span className="font-mono text-sm text-gr-text-primary block truncate" title={product.distance_km ? `${product.distance_km.toFixed(1)} km dari Anda` : 'Terverifikasi'}>
                     {product.distance_km ? `${product.distance_km.toFixed(1)} km` : 'Terverifikasi'}
                   </span>
@@ -301,10 +301,10 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
 
             {/* Purchase Control Panel */}
             {isAvailable && !isOwnProduct ? (
-              <div className="space-y-3 bg-white/5 p-4 border border-white/10 backdrop-blur-md">
+              <div className="space-y-3 bg-gr-chalk/40 p-4 border border-gr-line backdrop-blur-md">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-0.5">
+                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/50 mb-0.5">
                       Jumlah Pembelian
                     </h4>
                     <p className="font-display text-sm text-gr-text-primary">
@@ -314,12 +314,12 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                   
                   <div className="flex items-center gap-4">
                     {/* Selector Controls */}
-                    <div className="flex items-center border border-white/10 bg-black/20 rounded-none overflow-hidden h-9">
+                    <div className="flex items-center border border-gr-line bg-gr-chalk/60 rounded-none overflow-hidden h-9">
                       <button
                         type="button"
                         onClick={handleDecrease}
                         disabled={quantity <= 1}
-                        className="px-3 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                        className="px-3 h-full flex items-center justify-center text-gr-text-primary hover:bg-black/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
                       >
                         <Minus size={14} />
                       </button>
@@ -334,14 +334,14 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                         type="button"
                         onClick={handleIncrease}
                         disabled={quantity >= maxStock}
-                        className="px-3 h-full flex items-center justify-center text-gr-text-primary hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                        className="px-3 h-full flex items-center justify-center text-gr-text-primary hover:bg-black/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
                       >
                         <Plus size={14} />
                       </button>
                     </div>
 
                     <div className="text-right">
-                      <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/40 mb-0.5">
+                      <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50 mb-0.5">
                         Total Harga
                       </span>
                       <span className="font-mono text-lg text-gr-green font-bold">
@@ -369,7 +369,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary">
+                  <Button variant="outline" className="flex-1 border-gr-line hover:bg-gr-chalk/60 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary">
                     <MessageCircle className="mr-2 h-4 w-4" />
                     Hubungi Petani
                   </Button>
@@ -380,14 +380,14 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                 {isOwnProduct ? (
                   <Button 
                     disabled
-                    className="w-full bg-white/5 border border-white/10 text-gr-text-primary/40 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                    className="w-full bg-gr-chalk/40 border border-gr-line text-gr-text-primary/50 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
                   >
                     Ini Produk Anda
                   </Button>
                 ) : (
                   <Button 
                     disabled
-                    className="w-full bg-white/5 border border-white/10 text-gr-text-primary/40 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                    className="w-full bg-gr-chalk/40 border border-gr-line text-gr-text-primary/50 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
                   >
                     Sudah Terjual
                   </Button>
