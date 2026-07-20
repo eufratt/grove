@@ -45,30 +45,44 @@ export default function LandingPage() {
           }
         ];
 
+        const formatShortDate = (dateStr: string) => {
+          const date = new Date(dateStr);
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+          return `${date.getDate()} ${months[date.getMonth()]}`;
+        };
+
         const results = await Promise.all(
           commodities.map(async (c) => {
             // Get history (last 10 days)
             const history = await referencePricesApi.getPriceHistory(c.name, 'Nasional', 10);
             
-            // If history exists, extract latest price and delta compared to yesterday
+            // If history exists, extract latest price and delta compared to last different price
             if (history && history.length > 0) {
               const latestEntry = history[history.length - 1];
               const priceToday = latestEntry.price_per_kg;
               
-              // Find the previous day's price
-              const yesterdayEntry = history.length > 1 ? history[history.length - 2] : latestEntry;
-              const priceYesterday = yesterdayEntry.price_per_kg;
+              // Find the last day's entry that has a different price
+              let comparisonEntry = latestEntry;
+              for (let i = history.length - 2; i >= 0; i--) {
+                if (history[i].price_per_kg !== priceToday) {
+                  comparisonEntry = history[i];
+                  break;
+                }
+              }
+              const priceComparison = comparisonEntry.price_per_kg;
+              const comparisonDate = formatShortDate(comparisonEntry.scraped_at);
               
-              // Calculate Day-over-Day delta
-              const delta = priceYesterday > 0 
-                ? ((priceToday - priceYesterday) / priceYesterday) * 100 
+              // Calculate delta compared to last different price
+              const delta = priceComparison > 0 
+                ? ((priceToday - priceComparison) / priceComparison) * 100 
                 : 0;
 
               return {
                 commodityName: c.displayName,
                 priceToday,
-                priceYesterday,
+                priceComparison,
                 delta,
+                comparisonDate,
                 history,
                 desc: c.desc,
                 swatchColor: c.swatchColor

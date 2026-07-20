@@ -293,8 +293,9 @@ interface FigPanelsProps {
   pricesData?: {
     commodityName: string;
     priceToday: number;
-    priceYesterday: number;
+    priceComparison: number;
     delta: number;
+    comparisonDate?: string;
     history: { scraped_at: string; price_per_kg: number }[];
     desc: string;
     swatchColor: string;
@@ -305,8 +306,9 @@ const defaultFigPanelsData = [
   {
     commodityName: 'Cabai rawit merah',
     priceToday: 42500,
-    priceYesterday: 41544,
+    priceComparison: 41544,
     delta: 2.3,
+    comparisonDate: 'kemarin',
     history: [
       { scraped_at: '1', price_per_kg: 45000 },
       { scraped_at: '2', price_per_kg: 40000 },
@@ -323,8 +325,9 @@ const defaultFigPanelsData = [
   {
     commodityName: 'Bawang merah',
     priceToday: 28100,
-    priceYesterday: 28615,
+    priceComparison: 28615,
     delta: -1.8,
+    comparisonDate: 'kemarin',
     history: [
       { scraped_at: '1', price_per_kg: 8000 },
       { scraped_at: '2', price_per_kg: 14000 },
@@ -341,8 +344,9 @@ const defaultFigPanelsData = [
   {
     commodityName: 'Telur ayam ras segar',
     priceToday: 27800,
-    priceYesterday: 28052,
+    priceComparison: 28052,
     delta: -0.9,
+    comparisonDate: 'kemarin',
     history: [
       { scraped_at: '1', price_per_kg: 28000 },
       { scraped_at: '2', price_per_kg: 26000 },
@@ -388,12 +392,12 @@ export function FigPanels({ pricesData }: FigPanelsProps) {
           
           if (isUp) {
             color = 'var(--gr-up)';
-            deltaText = `▲ naik ${panel.delta.toFixed(1)}% dari kemarin`;
+            deltaText = `▲ naik ${panel.delta.toFixed(1)}% sejak ${panel.comparisonDate || 'kemarin'}`;
             swatchBg = 'bg-gr-up';
             deltaColor = 'text-gr-up';
           } else if (isDown) {
             color = 'var(--gr-down)';
-            deltaText = `▼ turun ${Math.abs(panel.delta).toFixed(1)}% dari kemarin`;
+            deltaText = `▼ turun ${Math.abs(panel.delta).toFixed(1)}% sejak ${panel.comparisonDate || 'kemarin'}`;
             swatchBg = 'bg-gr-down';
             deltaColor = 'text-gr-down';
           }
