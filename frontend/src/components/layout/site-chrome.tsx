@@ -169,6 +169,7 @@ export function SiteChrome() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             style={{ overflow: 'hidden' }}
+            className="mb-7"
           >
             <TickerStrip items={tickerItems} />
           </motion.div>
@@ -176,7 +177,9 @@ export function SiteChrome() {
       </AnimatePresence>
 
       {/* Kicker bar — always present, no animation */}
-      <KickerBar />
+      <div className={isLanding ? "" : "pt-7"}>
+        <KickerBar />
+      </div>
     </>
   );
 }

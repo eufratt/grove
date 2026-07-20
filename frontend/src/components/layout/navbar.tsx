@@ -119,7 +119,7 @@ export function Navbar() {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        'relative flex items-center gap-2 px-4 h-full font-mono text-[10px] font-semibold uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
+                        'relative flex items-center gap-2 px-4 h-full font-mono text-[10px] font-normal uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
                         isActive
                           ? 'text-gr-ink border-gr-board'
                           : 'text-gr-ink-soft border-transparent hover:text-gr-ink hover:border-gr-line'
