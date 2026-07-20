@@ -211,7 +211,7 @@ export default function HargaPasarPage() {
   }, [nearbyProducts, searchQuery]);
 
   return (
-    <main className="fixed inset-0 z-0 flex overflow-hidden bg-gr-paper">
+    <main className="relative flex-1 flex flex-col w-full min-h-0 overflow-hidden bg-gr-paper">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
@@ -229,7 +229,7 @@ export default function HargaPasarPage() {
           {/* Map Area (Bottom layer, occupying the entire background width and height) */}
           <div className="absolute inset-0 w-full h-full z-10">
             {/* Metadata info cards floating on the top right */}
-            <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 pointer-events-auto">
+            <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
               {activeTab === 'pricing' && selectedProvince && (
                 <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-line shadow-sm">
                   Provinsi: {selectedProvince}
@@ -255,10 +255,10 @@ export default function HargaPasarPage() {
           </div>
 
           {/* Sidebar Paper Panel (Floating Overlay on Left) */}
-          <div className="absolute z-20 flex flex-col bg-gr-paper/95 backdrop-blur-xl border border-gr-line p-6 rounded-[28px] shadow-lg overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-[80px] md:bottom-4 md:left-4 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
+          <div className="absolute z-20 flex flex-col bg-gr-paper/95 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-[28px] shadow-xl overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-6 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
             
             {/* 1. Header Block (Identitas Panel) */}
-            <div className="flex items-center justify-between pb-4 border-b border-gr-line mb-4 shrink-0">
+            <div className="flex items-center justify-between pb-3 border-b border-gr-line mb-3 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-lg bg-gr-board/10 flex items-center justify-center border border-gr-board/20">
                   <TrendingUp size={16} className="text-gr-board animate-pulse" />
@@ -282,26 +282,26 @@ export default function HargaPasarPage() {
  
             {/* Location Message inside Sidebar */}
             {locationMessage && (
-              <div className="mb-4 rounded-xl bg-gr-down/10 p-3 text-[10px] text-gr-down border border-gr-down/20 flex items-center gap-2 shrink-0">
+              <div className="mb-3 rounded-xl bg-gr-down/10 p-3 text-[10px] text-gr-down border border-gr-down/20 flex items-center gap-2 shrink-0">
                 <Info size={12} className="shrink-0" />
                 <span className="leading-relaxed">{locationMessage}</span>
               </div>
             )}
 
             {/* 2. Prominent Search Bar */}
-            <div className="relative mb-4 shrink-0">
+            <div className="relative mb-3 shrink-0">
               <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gr-ink-soft" />
               <input
                 type="text"
                 placeholder="Cari komoditas atau lokasi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-10 pr-4 py-2.5 rounded-full font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all placeholder:text-gr-ink-soft/40 shadow-inner"
+                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-10 pr-4 py-2 rounded-full font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all placeholder:text-gr-ink-soft/40 shadow-inner"
               />
             </div>
  
             {/* 3. Tab Toggle Selector */}
-            <div className="flex bg-gr-ink/5 p-1 rounded-full border border-gr-line mb-5 shrink-0">
+            <div className="flex bg-gr-ink/5 p-1 rounded-full border border-gr-line mb-4 shrink-0">
               <button
                 onClick={() => {
                   setActiveTab('pricing');
@@ -383,7 +383,7 @@ export default function HargaPasarPage() {
                 </div>
  
                 {/* Pricing Cards list */}
-                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1.5 custom-scrollbar">
                   {filteredPrices.length > 0 ? (
                     filteredPrices.map((item) => (
                       <div 
@@ -461,7 +461,7 @@ export default function HargaPasarPage() {
                 </div>
  
                 {/* Products Card List */}
-                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1.5 custom-scrollbar">
                   {!userLocation ? (
                     <div className="py-20 text-center space-y-3">
                       <Info className="h-8 w-8 text-gr-down mx-auto animate-pulse" />

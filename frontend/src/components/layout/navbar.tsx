@@ -85,7 +85,7 @@ export function Navbar() {
 
       {/* Main navbar — flat editorial bar, full-width */}
       <nav className="sticky top-0 z-50 w-full bg-gr-paper/95 backdrop-blur-md">
-        <div className="mx-auto max-w-[1100px] px-8 pt-5 flex h-14 items-center justify-between gap-8">
+        <div className="mx-auto max-w-[1100px] px-8 py-3.5 flex items-center justify-between gap-8">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
@@ -102,7 +102,7 @@ export function Navbar() {
             {!isLanding && (
               <motion.div
                 key="nav-tabs"
-                className="hidden md:flex items-stretch gap-0 h-full overflow-hidden"
+                className="hidden md:flex items-center gap-1 overflow-hidden"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
@@ -119,9 +119,9 @@ export function Navbar() {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        'relative flex items-center gap-2 px-4 h-full font-mono text-[10px] font-normal uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
+                        'relative flex items-center gap-2 px-3.5 py-1.5 font-mono text-[10px] font-normal uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
                         isActive
-                          ? 'text-gr-ink border-gr-board'
+                          ? 'text-gr-ink border-gr-board font-bold'
                           : 'text-gr-ink-soft border-transparent hover:text-gr-ink hover:border-gr-line'
                       )}
                     >

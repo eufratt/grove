@@ -177,7 +177,7 @@ export function SiteChrome() {
       </AnimatePresence>
 
       {/* Kicker bar — always present, no animation */}
-      <div className={isLanding ? "" : "pt-7"}>
+      <div className={isLanding ? "" : "pt-3.5"}>
         <KickerBar />
       </div>
     </>
