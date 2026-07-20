@@ -28,7 +28,8 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
             id_info = id_token.verify_oauth2_token(
                 login_data.id_token,
                 requests.Request(),
-                settings.GOOGLE_CLIENT_ID
+                settings.GOOGLE_CLIENT_ID,
+                clock_skew_in_seconds=10
             )
             
             email = id_info.get("email")
