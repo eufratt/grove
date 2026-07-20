@@ -6,10 +6,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
 import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const isLanding = pathname === '/';
   const [user, setUser] = useState<any | null>(null);
   const [showBanner, setShowBanner] = useState(false);
 
@@ -95,31 +97,42 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Nav links — flat tabs with underline active state */}
-          <div className="hidden md:flex items-stretch gap-0 h-full">
-            {navItems.map((item) => {
-              const isActive =
-                pathname === item.href ||
-                pathname.startsWith(item.href + '/') ||
-                (item.href === '/permintaan-saya' && pathname === '/ajukan-permintaan');
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'relative flex items-center gap-2 px-4 h-full font-mono text-[10px] font-semibold uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
-                    isActive
-                      ? 'text-gr-ink border-gr-board'
-                      : 'text-gr-ink-soft border-transparent hover:text-gr-ink hover:border-gr-line'
-                  )}
-                >
-                  <Icon size={11} />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </div>
+          {/* Nav links — animated in/out (hidden on landing page) */}
+          <AnimatePresence initial={false}>
+            {!isLanding && (
+              <motion.div
+                key="nav-tabs"
+                className="hidden md:flex items-stretch gap-0 h-full overflow-hidden"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.22, ease: 'easeOut' }}
+              >
+                {navItems.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    pathname.startsWith(item.href + '/') ||
+                    (item.href === '/permintaan-saya' && pathname === '/ajukan-permintaan');
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'relative flex items-center gap-2 px-4 h-full font-mono text-[10px] font-semibold uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap border-b-2',
+                        isActive
+                          ? 'text-gr-ink border-gr-board'
+                          : 'text-gr-ink-soft border-transparent hover:text-gr-ink hover:border-gr-line'
+                      )}
+                    >
+                      <Icon size={11} />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Actions */}
           <div className="flex items-center gap-3 flex-shrink-0">
