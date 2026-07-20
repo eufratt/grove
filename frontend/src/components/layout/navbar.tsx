@@ -84,7 +84,7 @@ export function Navbar() {
       )}
 
       {/* Main navbar — flat editorial bar, full-width */}
-      <nav className="sticky top-0 z-50 w-full bg-gr-paper/95 backdrop-blur-md border-b border-gr-line">
+      <nav className="sticky top-0 z-50 w-full bg-gr-paper/95 backdrop-blur-md">
         <div className="mx-auto max-w-[1100px] px-8 pt-5 flex h-14 items-center justify-between gap-8">
 
           {/* Logo */}
