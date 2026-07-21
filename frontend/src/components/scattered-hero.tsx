@@ -93,18 +93,13 @@ export function KickerBar() {
   );
 }
 
+import { GroveLogo } from '@/components/ui/grove-logo';
+
 export function MastheadNav() {
   return (
     <header className="w-full max-w-[1100px] mx-auto px-8 pt-5 pb-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
       {/* Logo Wordmark */}
-      <a href="/" className="flex items-center gap-3 group">
-        <div className="w-10 h-10 rounded-full border-2 border-gr-ink flex items-center justify-center font-display font-bold text-lg text-gr-ink group-hover:bg-gr-ink group-hover:text-gr-paper transition-all duration-300">
-          G
-        </div>
-        <span className="font-display font-semibold text-xl tracking-tight text-gr-ink">
-          Grove
-        </span>
-      </a>
+      <GroveLogo href="/" size="md" />
 
       {/* Action / Login button */}
       <div className="flex items-center gap-3">

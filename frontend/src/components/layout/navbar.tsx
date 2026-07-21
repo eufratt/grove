@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { GroveLogo } from '@/components/ui/grove-logo';
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -88,14 +90,7 @@ export function Navbar() {
         <div className="mx-auto max-w-[1100px] px-8 py-3.5 flex items-center justify-between gap-8">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
-            <div className="w-9 h-9 rounded-full border-2 border-gr-ink flex items-center justify-center font-display font-bold text-base text-gr-ink group-hover:bg-gr-ink group-hover:text-gr-paper transition-all duration-300">
-              G
-            </div>
-            <span className="font-display font-semibold text-lg tracking-tight text-gr-ink">
-              Grove
-            </span>
-          </Link>
+          <GroveLogo href="/" size="md" />
 
           {/* Nav links — animated in/out (hidden on landing page) */}
           <AnimatePresence initial={false}>
