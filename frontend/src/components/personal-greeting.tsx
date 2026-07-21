@@ -125,7 +125,7 @@ export function PersonalGreeting() {
       </div>
       
       <div className="lg:text-right flex items-center lg:items-end justify-center lg:justify-end">
-        <p className="font-sans text-[11px] text-gr-ink-soft max-w-[220px] leading-normal italic mx-auto lg:ml-auto border-l lg:border-l-0 lg:border-r border-gr-line pl-4 lg:pl-0 lg:pr-4">
+        <p className="font-sans text-[11px] text-gr-ink-soft max-w-[320px] leading-normal italic mx-auto lg:ml-auto border-l lg:border-l-0 lg:border-r border-gr-line pl-4 lg:pl-0 lg:pr-4">
           "Menghubungkan langsung ladang petani dengan dapur Anda tanpa rantai tengkulak yang panjang."
         </p>
       </div>

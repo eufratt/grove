@@ -88,25 +88,21 @@ function BerandaContent() {
       
       <div className="relative z-10 w-full">
         <header className="mb-8 text-center lg:text-left">
-          <div className="flex flex-col gap-6 w-full max-w-3xl">
-            <PersonalGreeting />
-            
-            <div className="mt-2 flex flex-col sm:flex-row items-center gap-4 w-full">
-              <div className="flex-1 w-full flex flex-col gap-2">
-                <SearchBar 
-                  onResults={handleSearchResults} 
-                  onLoading={setIsSearching} 
-                  onClear={handleClearSearch} 
-                />
-                <div className="flex justify-start px-2">
-                  <Link 
-                    href="/harga-pasar" 
-                    className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-board hover:underline transition-all cursor-pointer"
-                  >
-                    Lihat Peta Acuan Harga
-                  </Link>
-                </div>
-              </div>
+          <PersonalGreeting />
+          
+          <div className="mt-4 flex flex-col gap-2 w-full max-w-2xl">
+            <SearchBar 
+              onResults={handleSearchResults} 
+              onLoading={setIsSearching} 
+              onClear={handleClearSearch} 
+            />
+            <div className="flex justify-start px-2">
+              <Link 
+                href="/harga-pasar" 
+                className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-board hover:underline transition-all cursor-pointer"
+              >
+                Lihat Peta Acuan Harga
+              </Link>
             </div>
           </div>
 
