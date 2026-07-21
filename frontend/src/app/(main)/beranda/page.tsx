@@ -139,12 +139,12 @@ function BerandaContent() {
   };
 
   return (
-    <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <main className="relative flex-1 bg-gr-paper py-10 overflow-hidden">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
       
-      <div className="relative z-10 mx-auto max-w-7xl">
+      <div className="relative z-10 w-full">
         <header className="mb-8 text-center lg:text-left">
           <div className="flex flex-col gap-6 w-full max-w-3xl">
             <PersonalGreeting />

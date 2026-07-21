@@ -92,12 +92,12 @@ export default function PriceTrendPage() {
   }, [selectedCommodity, selectedRegion, daysRange, fetchHistory]);
 
   return (
-    <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8">
+    <main className="relative flex-1 bg-gr-paper py-10">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
+      <div className="relative z-10 w-full">
         <header className="mb-10">
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board flex items-center gap-2">
             <TrendingUp size={12} className="text-gr-board animate-pulse" />
