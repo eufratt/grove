@@ -152,7 +152,7 @@ export default function OrdersPage() {
                   "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
                   activeTab === 'incoming'
                     ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                    : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
+                    : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-gr-ink/5"
                 )}
               >
                 <Package size={14} />
@@ -165,7 +165,7 @@ export default function OrdersPage() {
                 "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
                 activeTab === 'purchases'
                   ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
+                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-gr-ink/5"
               )}
             >
               <ShoppingBag size={14} />
@@ -177,7 +177,7 @@ export default function OrdersPage() {
                 "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
                 activeTab === 'demands'
                   ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-white/5"
+                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-gr-ink/5"
               )}
             >
               <ClipboardList size={14} />

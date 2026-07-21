@@ -148,7 +148,7 @@ export function HeroHeadline() {
       <div className="flex flex-wrap justify-center gap-3.5">
         <a
           href="/beranda"
-          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-1.5 border-gr-board hover:bg-transparent hover:text-gr-board px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer shadow-sm"
+          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-1.5 border-gr-board hover:bg-gr-board/90 hover:border-gr-board/90 hover:shadow-md px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer shadow-sm"
         >
           Jelajahi marketplace
         </a>

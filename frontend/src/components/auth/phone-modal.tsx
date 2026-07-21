@@ -63,7 +63,7 @@ export function PhoneModal({ isOpen, onClose, onSuccess }: PhoneModalProps) {
         <button
           onClick={onClose}
           disabled={loading}
-          className="absolute top-4 right-4 text-gr-text-primary/40 hover:text-gr-text-primary hover:bg-white/5 p-2 rounded-full transition-colors disabled:opacity-30"
+          className="absolute top-4 right-4 text-gr-text-primary/40 hover:text-gr-text-primary hover:bg-gr-ink/5 p-2 rounded-full transition-colors disabled:opacity-30"
         >
           <X size={18} />
         </button>
@@ -111,7 +111,7 @@ export function PhoneModal({ isOpen, onClose, onSuccess }: PhoneModalProps) {
               variant="outline"
               disabled={loading}
               onClick={onClose}
-              className="flex-1 border-white/10 hover:bg-white/5 text-gr-text-primary/60 hover:text-white font-sans font-bold uppercase tracking-wider py-4 h-12 text-[10px] cursor-pointer"
+              className="flex-1 border-gr-line hover:bg-gr-ink/5 text-gr-ink-soft hover:text-gr-ink font-sans font-bold uppercase tracking-wider py-4 h-12 text-[10px] cursor-pointer"
             >
               Batal
             </Button>

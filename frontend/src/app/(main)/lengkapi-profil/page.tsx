@@ -151,7 +151,7 @@ export default function LengkapiProfilPage() {
               variant="outline"
               disabled={loading}
               onClick={handleSkip}
-              className="w-full border-white/10 hover:bg-white/5 hover:text-white font-sans font-bold uppercase tracking-widest py-6 text-gr-text-primary/60 cursor-pointer transition-colors"
+              className="w-full border-gr-line hover:bg-gr-ink/5 hover:text-gr-ink font-sans font-bold uppercase tracking-widest py-6 text-gr-ink-soft cursor-pointer transition-colors"
             >
               Nanti Saja
             </Button>

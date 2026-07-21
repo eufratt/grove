@@ -125,7 +125,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
           <button
             onClick={() => !checkingOut && setIsOpen(false)}
             disabled={checkingOut}
-            className="rounded-full p-2 text-gr-text-primary/60 hover:text-gr-text-primary hover:bg-white/5 disabled:opacity-30 transition-colors"
+            className="rounded-full p-2 text-gr-text-primary/60 hover:text-gr-text-primary hover:bg-gr-ink/5 disabled:opacity-30 transition-colors"
           >
             <X size={20} />
           </button>
