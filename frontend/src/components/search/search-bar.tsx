@@ -61,11 +61,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onResults, onLoading, onCl
     <div className="relative w-full max-w-2xl mx-auto">
       <div className="relative group">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gr-text-primary/30 group-focus-within:text-gr-green transition-colors" />
+          <Search className="h-5 w-5 text-gr-ink-soft group-focus-within:text-gr-board transition-colors" />
         </div>
         <input
           type="text"
-          className="block w-full bg-white/5 border border-white/10 rounded-full py-4 pl-12 pr-12 font-sans text-gr-text-primary placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-gr-green/50 focus:border-gr-green transition-all backdrop-blur-md"
+          className="block w-full bg-gr-paper border border-gr-line rounded-full py-3.5 pl-12 pr-12 font-sans text-gr-ink placeholder:text-gr-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-gr-board/30 focus:border-gr-board transition-all shadow-sm"
           placeholder="Cari hasil panen... (misal: 'sayur segar yang murah')"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -73,7 +73,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onResults, onLoading, onCl
         {query && (
           <button
             onClick={() => setQuery('')}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gr-text-primary/30 hover:text-gr-text-primary transition-colors"
+            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gr-ink-soft hover:text-gr-ink transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
