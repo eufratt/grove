@@ -211,25 +211,25 @@ export default function HargaPasarPage() {
   }, [nearbyProducts, searchQuery]);
 
   return (
-    <main className="relative flex-1 flex flex-col w-full min-h-0 overflow-hidden bg-gr-paper">
+    <main className="fixed inset-0 w-full h-screen overflow-hidden bg-gr-paper z-0">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="flex flex-col items-center justify-center w-full h-full pt-20">
           <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50" />
           <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-ink-soft">
             Sinkronisasi data wilayah...
           </span>
         </div>
       ) : (
-        <div className="relative flex-grow w-full h-full overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden">
           
-          {/* Map Area (Bottom layer, occupying the entire background width and height) */}
-          <div className="absolute inset-0 w-full h-full z-10">
-            {/* Metadata info cards floating on the top right */}
-            <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
+          {/* Map Area (100% Full-bleed layer extending behind floating island navbar) */}
+          <div className="absolute inset-0 w-full h-full z-0">
+            {/* Metadata info cards floating on top right below pill navbar */}
+            <div className="absolute top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
               {activeTab === 'pricing' && selectedProvince && (
                 <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-line shadow-sm">
                   Provinsi: {selectedProvince}
@@ -254,8 +254,8 @@ export default function HargaPasarPage() {
             />
           </div>
 
-          {/* Sidebar Paper Panel (Floating Overlay on Left) */}
-          <div className="absolute z-20 flex flex-col bg-gr-paper/95 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-[28px] shadow-xl overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-6 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
+          {/* Sidebar Paper Panel (Floating Overlay on Left below pill navbar) */}
+          <div className="absolute z-20 flex flex-col bg-gr-paper/95 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-[28px] shadow-xl overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
             
             {/* 1. Header Block (Identitas Panel) */}
             <div className="flex items-center justify-between pb-3 border-b border-gr-line mb-3 shrink-0">
