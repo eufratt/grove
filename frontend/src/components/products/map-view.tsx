@@ -63,11 +63,13 @@ function MapController({
   }, [mode, userLocation, map]);
 
   // Fly to explicit destination when requested (e.g. province selected)
+  const flyToKey = flyToCoords ? `${flyToCoords[0]},${flyToCoords[1]}` : null;
   useEffect(() => {
     if (flyToCoords) {
-      map.flyTo(flyToCoords, 8, { animate: true, duration: 1.2 });
+      map.flyTo(flyToCoords, 9, { animate: true, duration: 1.2 });
     }
-  }, [flyToCoords, map]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flyToKey, map]);
 
   return null;
 }
@@ -116,15 +118,12 @@ export const MapView: React.FC<MapViewProps> = ({
     initialCenter = userLocation ?? [-2.5489, 118.0149];
     initialZoom = userLocation ? 12 : 5;
   } else {
-    // In pricing mode: center on selected province or Indonesia overview
+    // In pricing mode: start with Indonesia overview to allow beautiful flyTo transition
+    initialCenter = [-2.5489, 118.0149]; // Center of Indonesia
+    initialZoom = 5;
     if (selectedProvince && provinceCentroids[selectedProvince]) {
       const centroid = provinceCentroids[selectedProvince];
       flyToCoords = [centroid.lat, centroid.lng];
-      initialCenter = [centroid.lat, centroid.lng];
-      initialZoom = 8;
-    } else {
-      initialCenter = [-2.5489, 118.0149]; // Center of Indonesia
-      initialZoom = 5;
     }
   }
 

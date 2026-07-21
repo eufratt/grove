@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { referencePricesApi } from '@/lib/api/reference-prices';
 import { productsApi } from '@/lib/api/products';
 import { BgPattern } from '@/components/effects/bg-pattern';
@@ -47,6 +47,15 @@ export default function HargaPasarPage() {
   // Mode selection state
   const [activeTab, setActiveTab] = useState<'pricing' | 'products'>('pricing');
 
+  // Track if user has manually selected a province to prevent override by background geolocation success
+  const isManuallySelectedRef = useRef<boolean>(false);
+
+  // Helper to find a region case-insensitively
+  const findMatchingRegion = useCallback((provName: string | null, available: string[]) => {
+    if (!provName) return null;
+    return available.find((r) => r.toLowerCase() === provName.toLowerCase()) || null;
+  }, []);
+
   // Harga Referensi state
   const [allPrices, setAllPrices] = useState<any[]>(() => cachedPricesData?.items || []);
   const [commodities, setCommodities] = useState<string[]>(() => cachedPricesData?.distinct_commodities || []);
@@ -58,7 +67,11 @@ export default function HargaPasarPage() {
           counts[item.region] = (counts[item.region] || 0) + 1;
         }
       });
-      if (counts['DI Yogyakarta']) return 'DI Yogyakarta';
+      if (counts['Di Yogyakarta']) return 'Di Yogyakarta';
+      if (counts['DI Yogyakarta']) return 'Di Yogyakarta';
+      if (counts['Jawa Timur']) return 'Jawa Timur';
+      if (counts['DKI Jakarta']) return 'DKI Jakarta';
+      
       let maxRegion = 'Jawa Timur';
       let maxCount = 0;
       Object.entries(counts).forEach(([reg, cnt]) => {
@@ -69,7 +82,7 @@ export default function HargaPasarPage() {
       });
       return maxRegion;
     }
-    return 'DI Yogyakarta';
+    return 'Di Yogyakarta';
   });
   const [selectedCommodity, setSelectedCommodity] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -113,6 +126,12 @@ export default function HargaPasarPage() {
         counts[region] = (counts[region] || 0) + 1;
       }
     });
+    if (counts['Di Yogyakarta']) return 'Di Yogyakarta';
+    if (counts['DI Yogyakarta']) return 'Di Yogyakarta';
+    if (counts['Jawa Timur']) return 'Jawa Timur';
+    if (counts['DKI Jakarta']) return 'DKI Jakarta';
+    if (counts['Jawa Barat']) return 'Jawa Barat';
+
     let maxRegion = 'Jawa Timur';
     let maxCount = 0;
     Object.entries(counts).forEach(([reg, cnt]) => {
@@ -121,7 +140,12 @@ export default function HargaPasarPage() {
         maxRegion = reg;
       }
     });
-    setSelectedProvince(maxRegion);
+    return maxRegion;
+  }, []);
+
+  const handleSelectProvince = useCallback((prov: string) => {
+    isManuallySelectedRef.current = true;
+    setSelectedProvince(prov);
   }, []);
 
   // Fetch nearby products helper
@@ -155,14 +179,21 @@ export default function HargaPasarPage() {
         }
 
         if (data.items.length > 0) {
-          const activeRegions = new Set(
-            data.items
-              .map((item: any) => item.region)
-              .filter((region: string) => region && region !== 'Nasional')
-          );
-          if (!selectedProvince || !activeRegions.has(selectedProvince)) {
-            selectFallbackProvince(data.items);
-          }
+          const activeRegionsList = Array.from(
+            new Set(
+              data.items
+                .map((item: any) => item.region)
+                .filter((region: string) => region && region !== 'Nasional')
+            )
+          ) as string[];
+
+          setSelectedProvince((currProv) => {
+            if (currProv) {
+              const matched = findMatchingRegion(currProv, activeRegionsList);
+              if (matched) return matched;
+            }
+            return selectFallbackProvince(data.items);
+          });
         }
       } catch (err) {
         console.error('Failed to load reference prices details:', err);
@@ -183,7 +214,7 @@ export default function HargaPasarPage() {
           setUserLocation([uLat, uLng]);
           setLocationMessage(null);
 
-          let closestProv = 'DI Yogyakarta';
+          let closestProv = 'Di Yogyakarta';
           let minDist = Infinity;
           Object.entries(provinceCentroids).forEach(([provName, coords]) => {
             const dist = Math.sqrt((coords.lat - uLat) ** 2 + (coords.lng - uLng) ** 2);
@@ -193,7 +224,9 @@ export default function HargaPasarPage() {
             }
           });
 
-          setSelectedProvince((prev) => prev || closestProv);
+          if (!isManuallySelectedRef.current) {
+            setSelectedProvince(closestProv);
+          }
         },
         (error) => {
           if (!isMounted) return;
@@ -207,7 +240,7 @@ export default function HargaPasarPage() {
     return () => {
       isMounted = false;
     };
-  }, [selectFallbackProvince]);
+  }, [selectFallbackProvince, findMatchingRegion]);
 
   // Sync effect to fetch nearby products on tab/radius/location change
   useEffect(() => {
@@ -273,7 +306,7 @@ export default function HargaPasarPage() {
               radiusKm={radiusKm}
               pricesByProvince={pricesByProvince}
               selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
-              onSelectProvince={setSelectedProvince}
+              onSelectProvince={handleSelectProvince}
               userLocation={userLocation}
               className="h-full w-full"
             />
@@ -377,7 +410,7 @@ export default function HargaPasarPage() {
                     <div className="relative">
                       <select
                         value={selectedProvince || ''}
-                        onChange={(e) => setSelectedProvince(e.target.value)}
+                        onChange={(e) => handleSelectProvince(e.target.value)}
                         className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
                       >
                         {availableProvinces.map((prov) => (
