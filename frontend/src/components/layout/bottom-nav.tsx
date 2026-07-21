@@ -34,18 +34,10 @@ export function BottomNav() {
       setActiveTab('ajukan');
     } else if (pathname === '/pesanan') {
       setActiveTab('pesanan');
+    } else if (pathname === '/jelajah') {
+      setActiveTab('jelajah');
     } else if (pathname === '/beranda' || pathname === '/') {
-      // Check query params for mode=jelajah
-      if (typeof window !== 'undefined') {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('mode') === 'jelajah') {
-          setActiveTab('jelajah');
-        } else {
-          setActiveTab('beranda');
-        }
-      } else {
-        setActiveTab('beranda');
-      }
+      setActiveTab('beranda');
     } else {
       setActiveTab('beranda'); // default fallback for product details, etc.
     }
@@ -64,7 +56,7 @@ export function BottomNav() {
     {
       id: 'jelajah',
       name: 'Jelajah',
-      href: '/beranda?mode=jelajah',
+      href: '/jelajah',
       icon: Compass,
     },
     ...(user && user.role === 'PETANI' ? [{

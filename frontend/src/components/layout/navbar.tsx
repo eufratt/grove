@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
+import { LogOut, LogIn, Leaf, Compass, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { GroveLogo } from '@/components/ui/grove-logo';
@@ -61,6 +61,7 @@ export function Navbar() {
 
   const navItems = [
     { name: 'Beranda', href: '/beranda', icon: Leaf },
+    { name: 'Jelajah', href: '/jelajah', icon: Compass },
     { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
     ...(user && user.role === 'PETANI' ? [{ name: 'Jual', href: '/jual', icon: PlusCircle }] : []),
