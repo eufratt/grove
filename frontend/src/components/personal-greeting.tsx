@@ -41,13 +41,17 @@ export function PersonalGreeting() {
     return "Selamat malam";
   };
 
-  const getFirstName = (fullName: string) => {
-    if (!fullName) return '';
-    return fullName.trim().split(/\s+/)[0];
+  const getFirstName = (name?: string | null) => {
+    if (!name) return '';
+    const firstWord = name.trim().split(/\s+/)[0];
+    if (firstWord.includes('@')) {
+      return firstWord.split('@')[0];
+    }
+    return firstWord;
   };
 
   const greeting = getGreetingText();
-  const firstName = user ? getFirstName(user.full_name) : '';
+  const firstName = user ? (getFirstName(user.full_name) || getFirstName(user.email) || 'Pengguna') : '';
 
   // Render subtext based on login status and role
   const renderSubtext = () => {

@@ -50,13 +50,22 @@ export function Navbar() {
     }
   };
 
+  const getFirstName = (name?: string | null) => {
+    if (!name) return '';
+    const firstWord = name.trim().split(/\s+/)[0];
+    if (firstWord.includes('@')) {
+      return firstWord.split('@')[0];
+    }
+    return firstWord;
+  };
+
   const navItems = [
     { name: 'Beranda', href: '/beranda', icon: Leaf },
     { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
-    ...(user && user.role === 'PETANI' ? [{ name: 'Mulai Jual', href: '/jual', icon: PlusCircle }] : []),
+    ...(user && user.role === 'PETANI' ? [{ name: 'Jual', href: '/jual', icon: PlusCircle }] : []),
     ...(user && user.role === 'PEMBELI' ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
-    ...(user ? [{ name: 'Pesanan Saya', href: '/pesanan', icon: ClipboardList }] : []),
+    ...(user ? [{ name: 'Pesanan', href: '/pesanan', icon: ClipboardList }] : []),
   ];
 
   return (
@@ -127,7 +136,7 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-2">
                 <span className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
-                  {user.full_name || user.email || 'Pengguna'}
+                  {getFirstName(user.full_name || user.email) || 'Pengguna'}
                 </span>
                 <Link
                   href="/settings"
@@ -211,7 +220,7 @@ export function Navbar() {
                     </span>
                   )}
                   <span className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
-                    {user.full_name || user.email || 'Pengguna'}
+                    {getFirstName(user.full_name || user.email) || 'Pengguna'}
                   </span>
                   <Link
                     href="/settings"
