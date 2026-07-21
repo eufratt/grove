@@ -10,6 +10,7 @@ import { Leaf } from 'lucide-react';
 import Link from 'next/link';
 
 import { Navbar } from '@/components/layout/navbar';
+import { GroveLogo } from '@/components/ui/grove-logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -66,30 +67,42 @@ export default function LoginPage() {
         <BgPattern />
         <Glow color="var(--gr-board)" position="center" className="opacity-10 pointer-events-none" />
         
-        <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-gr-line bg-gr-paper/95 backdrop-blur-xl p-8 sm:p-10 shadow-xl relative">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-board/20 bg-gr-board/5 text-gr-board mb-6 shadow-sm">
-              <Leaf size={24} />
+        <div className="z-10 w-full max-w-md bg-white/80 backdrop-blur-xl border border-gr-line rounded-sm p-8 sm:p-10 shadow-xl relative overflow-hidden space-y-6">
+          {/* Editorial Double Rule Top Accent */}
+          <div className="absolute top-0 inset-x-0">
+            <div className="h-[3px] bg-gr-ink w-full" />
+            <div className="h-[1px] bg-gr-ink w-full mt-[2px]" />
+          </div>
+
+          <div className="flex flex-col items-center text-center pt-2">
+            {/* Prominent Grove Brand Mark */}
+            <div className="mb-4">
+              <GroveLogo href="/" size="md" />
             </div>
-            <h2 className="font-display text-4xl font-semibold tracking-tight text-gr-ink">
+
+            <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-gr-ink-soft select-none border-y border-gr-line/60 py-1 px-4 my-2">
+              Portal Otentikasi Pengguna
+            </div>
+
+            <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-gr-ink mt-2">
               Masuk ke Grove
             </h2>
-            <p className="mt-3 font-sans text-sm text-gr-ink-soft max-w-xs leading-relaxed">
-              Akses marketplace hasil panen transparan menggunakan akun Google Anda
+            <p className="mt-2.5 font-sans text-xs text-gr-ink-soft max-w-xs leading-relaxed">
+              Akses papan harga &amp; marketplace hasil panen langsung dari jaringan petani
             </p>
           </div>
 
           {error && (
-            <div className="rounded bg-gr-down/10 p-4 text-xs text-gr-down border border-gr-down/20 animate-pulse">
+            <div className="rounded-sm bg-gr-down/10 p-3.5 text-xs text-gr-down border border-gr-down/30 font-mono text-[11px] animate-pulse">
               {error}
             </div>
           )}
 
-          <div className="mt-8 flex flex-col items-center justify-center py-4 border-t border-gr-line gap-4">
+          <div className="pt-2 flex flex-col items-center justify-center border-t border-gr-line gap-4">
             {loading ? (
-              <div className="flex items-center gap-3 font-sans text-xs font-bold uppercase tracking-widest text-gr-ink-soft py-3">
+              <div className="flex items-center gap-3 font-mono text-xs font-bold uppercase tracking-widest text-gr-ink-soft py-3">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent border-gr-board" />
-                <span>Memproses...</span>
+                <span>Memproses otentikasi...</span>
               </div>
             ) : (
               <>
@@ -108,22 +121,22 @@ export default function LoginPage() {
 
                 {/* Dev/Demo Bypass Mode */}
                 {process.env.NODE_ENV === 'development' && (
-                  <div className="w-full border-t border-gr-line pt-4 mt-2">
-                    <p className="text-center font-sans text-[10px] uppercase tracking-widest text-gr-ink-soft/60 mb-2">
-                      Mode Pengembang (Bypass Google Auth)
+                  <div className="w-full border-t border-gr-line/70 pt-4 mt-2">
+                    <p className="text-center font-mono text-[9px] uppercase tracking-[0.2em] text-gr-ink-soft/70 mb-3">
+                      — Mode Pengembang (Bypass OAuth) —
                     </p>
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
                       <button
                         onClick={() => handleMockLogin('existing')}
-                        className="px-3 py-1.5 rounded-full border border-gr-line hover:border-gr-board/30 bg-gr-paper hover:bg-gr-board/5 text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft hover:text-gr-board transition-all cursor-pointer"
+                        className="flex-1 font-mono text-[10px] uppercase tracking-wider border border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-3 py-2.5 rounded-sm transition-all duration-200 cursor-pointer text-center"
                       >
-                        Masuk Langsung (User Terdaftar)
+                        User Terdaftar
                       </button>
                       <button
                         onClick={() => handleMockLogin('new')}
-                        className="px-3 py-1.5 rounded-full border border-gr-line hover:border-gr-board/30 bg-gr-paper hover:bg-gr-board/5 text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft hover:text-gr-board transition-all cursor-pointer"
+                        className="flex-1 font-mono text-[10px] uppercase tracking-wider border border-gr-line hover:border-gr-ink bg-gr-paper/50 hover:bg-gr-paper text-gr-ink px-3 py-2.5 rounded-sm transition-all duration-200 cursor-pointer text-center"
                       >
-                        Daftar Baru (Onboarding)
+                        Pendaftaran Baru
                       </button>
                     </div>
                   </div>
@@ -132,8 +145,8 @@ export default function LoginPage() {
             )}
           </div>
           
-          <div className="text-center font-sans text-[10px] uppercase tracking-widest text-gr-ink-soft/60">
-            Dilindungi oleh sistem Google OAuth
+          <div className="pt-2 border-t border-gr-line/50 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-gr-ink-soft/60">
+            Terlindungi oleh Sistem Keamanan OAuth 2.0
           </div>
         </div>
       </main>
