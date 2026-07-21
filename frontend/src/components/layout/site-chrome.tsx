@@ -92,16 +92,14 @@ function KickerBar() {
 
   return (
     <div className="w-full relative z-40 bg-gr-paper">
-      {/* Double rule — full width */}
-      <div className="h-[3px] bg-gr-ink w-full" />
-      <div className="h-[1px] bg-gr-ink w-full mt-[3px]" />
-      {/* Meta row — full width border, centered content */}
-      <div className="w-full border-b border-gr-line">
-        <div className="max-w-[1100px] mx-auto px-8 pt-3.5 pb-4 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none">
-          <span>Buletin harga pangan · Nº {getEditionNumber()}</span>
-          <span className="hidden sm:inline">Rantai pasok pangan pedesaan</span>
-          <span>PIHPS · {formatDateIndonesian(today)}</span>
-        </div>
+      {/* Double rule */}
+      <div className="h-[3px] bg-gr-ink max-w-[1100px] mx-auto" />
+      <div className="h-[1px] bg-gr-ink max-w-[1100px] mx-auto mt-[3px]" />
+      {/* Meta row */}
+      <div className="max-w-[1100px] mx-auto px-8 pt-3.5 pb-4 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none border-b border-gr-line">
+        <span>Buletin harga pangan · Nº {getEditionNumber()}</span>
+        <span className="hidden sm:inline">Rantai pasok pangan pedesaan</span>
+        <span>PIHPS · {formatDateIndonesian(today)}</span>
       </div>
     </div>
   );

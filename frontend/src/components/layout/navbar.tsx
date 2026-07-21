@@ -87,7 +87,7 @@ export function Navbar() {
 
       {/* Main navbar — floating pill island on map page, flat editorial bar on regular pages */}
       {pathname === '/harga-pasar' ? (
-        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-full shadow-lg px-6 py-2 flex items-center justify-between gap-6 transition-all duration-300 max-w-[90vw]">
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-full shadow-lg px-6 py-2 flex items-center justify-between gap-6 max-w-[90vw]">
           {/* Logo */}
           <GroveLogo href="/" size="sm" />
 
