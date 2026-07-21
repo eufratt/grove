@@ -76,12 +76,8 @@ export default function LoginPage() {
 
           <div className="flex flex-col items-center text-center pt-2">
             {/* Prominent Grove Brand Mark */}
-            <div className="mb-4">
+            <div className="mb-2">
               <GroveLogo href="/" size="md" />
-            </div>
-
-            <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-gr-ink-soft select-none border-y border-gr-line/60 py-1 px-4 my-2">
-              Portal Otentikasi Pengguna
             </div>
 
             <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-gr-ink mt-2">
