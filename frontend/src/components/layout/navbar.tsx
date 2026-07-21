@@ -61,7 +61,7 @@ export function Navbar() {
 
   const navItems = [
     { name: 'Beranda', href: '/beranda', icon: Leaf },
-    { name: 'Jelajah', href: '/jelajah', icon: Compass },
+    ...(user && user.role === 'PETANI' ? [{ name: 'Jelajah', href: '/jelajah', icon: Compass }] : []),
     { name: 'Harga Pasar', href: '/harga-pasar', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
     ...(user && user.role === 'PETANI' ? [{ name: 'Jual', href: '/jual', icon: PlusCircle }] : []),

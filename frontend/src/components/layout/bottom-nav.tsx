@@ -53,12 +53,12 @@ export function BottomNav() {
       href: '/beranda',
       icon: Home,
     },
-    {
+    ...(user && user.role === 'PETANI' ? [{
       id: 'jelajah',
       name: 'Jelajah',
       href: '/jelajah',
       icon: Compass,
-    },
+    }] : []),
     ...(user && user.role === 'PETANI' ? [{
       id: 'jual',
       name: 'Jual',
