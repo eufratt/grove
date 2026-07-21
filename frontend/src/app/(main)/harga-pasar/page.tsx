@@ -40,19 +40,42 @@ function getRelativeTime(dateString: string | null) {
   return `${diffDays} hari lalu`;
 }
 
+// Module-level in-memory cache for instant subsequent page visits
+let cachedPricesData: { items: any[]; distinct_commodities: string[] } | null = null;
+
 export default function HargaPasarPage() {
   // Mode selection state
   const [activeTab, setActiveTab] = useState<'pricing' | 'products'>('pricing');
 
   // Harga Referensi state
-  const [allPrices, setAllPrices] = useState<any[]>([]);
-  const [commodities, setCommodities] = useState<string[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [allPrices, setAllPrices] = useState<any[]>(() => cachedPricesData?.items || []);
+  const [commodities, setCommodities] = useState<string[]>(() => cachedPricesData?.distinct_commodities || []);
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(() => {
+    if (cachedPricesData?.items?.length) {
+      const counts: Record<string, number> = {};
+      cachedPricesData.items.forEach((item) => {
+        if (item.region && item.region !== 'Nasional') {
+          counts[item.region] = (counts[item.region] || 0) + 1;
+        }
+      });
+      if (counts['DI Yogyakarta']) return 'DI Yogyakarta';
+      let maxRegion = 'Jawa Timur';
+      let maxCount = 0;
+      Object.entries(counts).forEach(([reg, cnt]) => {
+        if (cnt > maxCount) {
+          maxCount = cnt;
+          maxRegion = reg;
+        }
+      });
+      return maxRegion;
+    }
+    return 'DI Yogyakarta';
+  });
   const [selectedCommodity, setSelectedCommodity] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Geolocation & Status
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(() => !cachedPricesData && allPrices.length === 0);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
 
@@ -116,64 +139,74 @@ export default function HargaPasarPage() {
 
   // Geolocation and reference prices fetch on mount
   useEffect(() => {
+    let isMounted = true;
+
     const loadData = async () => {
-      setLoading(true);
+      if (!cachedPricesData) {
+        setLoading(true);
+      }
       try {
         const data = await referencePricesApi.getReferencePrices(1, 1000);
+        if (!isMounted) return;
+        cachedPricesData = data;
         setAllPrices(data.items);
         if (data.distinct_commodities) {
           setCommodities(data.distinct_commodities);
         }
 
-        if ('geolocation' in navigator) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const uLat = position.coords.latitude;
-              const uLng = position.coords.longitude;
-              setUserLocation([uLat, uLng]);
-              setLocationMessage(null);
-
-              // Find closest province centroid coordinate
-              let closestProv = 'Di Yogyakarta';
-              let minDist = Infinity;
-              Object.entries(provinceCentroids).forEach(([provName, coords]) => {
-                const dist = Math.sqrt((coords.lat - uLat) ** 2 + (coords.lng - uLng) ** 2);
-                if (dist < minDist) {
-                  minDist = dist;
-                  closestProv = provName;
-                }
-              });
-
-              // Extract active regions from raw fetched data.items to avoid React state update race condition
-              const activeRegions = new Set(
-                data.items
-                  .map((item: any) => item.region)
-                  .filter((region: string) => region && region !== 'Nasional')
-              );
-
-              if (activeRegions.has(closestProv)) {
-                setSelectedProvince(closestProv);
-              } else if (data.items.length > 0) {
-                selectFallbackProvince(data.items);
-              }
-            },
-            (error) => {
-              console.warn('Geolocation error:', error.message);
-              selectFallbackProvince(data.items);
-              setLocationMessage('Aktifkan lokasi untuk mencari acuan harga di daerahmu');
-            },
-            { timeout: 5000 }
+        if (data.items.length > 0) {
+          const activeRegions = new Set(
+            data.items
+              .map((item: any) => item.region)
+              .filter((region: string) => region && region !== 'Nasional')
           );
-        } else {
-          selectFallbackProvince(data.items);
+          if (!selectedProvince || !activeRegions.has(selectedProvince)) {
+            selectFallbackProvince(data.items);
+          }
         }
       } catch (err) {
         console.error('Failed to load reference prices details:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
+
     loadData();
+
+    // Asynchronous background geolocation without delaying page render
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (!isMounted) return;
+          const uLat = position.coords.latitude;
+          const uLng = position.coords.longitude;
+          setUserLocation([uLat, uLng]);
+          setLocationMessage(null);
+
+          let closestProv = 'DI Yogyakarta';
+          let minDist = Infinity;
+          Object.entries(provinceCentroids).forEach(([provName, coords]) => {
+            const dist = Math.sqrt((coords.lat - uLat) ** 2 + (coords.lng - uLng) ** 2);
+            if (dist < minDist) {
+              minDist = dist;
+              closestProv = provName;
+            }
+          });
+
+          setSelectedProvince((prev) => prev || closestProv);
+        },
+        (error) => {
+          if (!isMounted) return;
+          console.warn('Geolocation notice:', error.message);
+          setLocationMessage('Aktifkan lokasi untuk mencari acuan harga di daerahmu');
+        },
+        { timeout: 5000 }
+      );
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, [selectFallbackProvince]);
 
   // Sync effect to fetch nearby products on tab/radius/location change
@@ -216,15 +249,7 @@ export default function HargaPasarPage() {
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center w-full h-full pt-20">
-          <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50" />
-          <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-ink-soft">
-            Sinkronisasi data wilayah...
-          </span>
-        </div>
-      ) : (
-        <div className="relative w-full h-full overflow-hidden">
+      <div className="relative w-full h-full overflow-hidden">
           
           {/* Map Area (100% Full-bleed layer extending behind floating island navbar) */}
           <div className="absolute inset-0 w-full h-full z-0">
@@ -384,7 +409,14 @@ export default function HargaPasarPage() {
  
                 {/* Pricing Cards list */}
                 <div className="flex-1 overflow-y-auto space-y-3 pr-1.5 custom-scrollbar">
-                  {filteredPrices.length > 0 ? (
+                  {loading && allPrices.length === 0 ? (
+                    <div className="py-16 text-center">
+                      <Loader2 className="h-6 w-6 text-gr-board animate-spin opacity-50 mx-auto mb-2" />
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft">
+                        Sinkronisasi data acuan...
+                      </p>
+                    </div>
+                  ) : filteredPrices.length > 0 ? (
                     filteredPrices.map((item) => (
                       <div 
                         key={item.id}
@@ -527,7 +559,6 @@ export default function HargaPasarPage() {
           </div>
 
         </div>
-      )}
     </main>
   );
 }
