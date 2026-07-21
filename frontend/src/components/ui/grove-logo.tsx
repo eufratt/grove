@@ -18,17 +18,17 @@ export function GroveLogo({
   href = '/',
 }: GroveLogoProps) {
   const sizeClasses = {
-    sm: { icon: 'h-7 w-7', text: 'text-xl' },
-    md: { icon: 'h-9 w-9', text: 'text-2xl' },
-    lg: { icon: 'h-11 w-11', text: 'text-3xl' },
+    sm: { icon: 'h-6 w-6', text: 'text-lg' },
+    md: { icon: 'h-8 w-8', text: 'text-xl sm:text-2xl' },
+    lg: { icon: 'h-10 w-10', text: 'text-2xl sm:text-3xl' },
   };
 
   const currentSize = sizeClasses[size];
 
   const content = (
-    <div className={cn("inline-flex items-center gap-2.5 group flex-shrink-0 select-none", className)}>
+    <div className={cn("inline-flex items-center gap-2 group flex-shrink-0 select-none", className)}>
       {/* 100% Solid & Exact Original Logo Mark — Zero Background, Zero Opacity Loss */}
-      <div className={cn("relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105", currentSize.icon)}>
+      <div className={cn("relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shrink-0", currentSize.icon)}>
         <img
           src="/logo.svg"
           alt="Grove Logo"
@@ -37,7 +37,7 @@ export function GroveLogo({
       </div>
 
       {!iconOnly && (
-        <span className={cn("font-display font-bold tracking-tight text-gr-ink", currentSize.text)}>
+        <span className={cn("font-display font-bold tracking-tight text-gr-ink leading-none self-center", currentSize.text)}>
           Grove
         </span>
       )}

@@ -87,9 +87,11 @@ export function Navbar() {
 
       {/* Main navbar — floating pill island on map page, flat editorial bar on regular pages */}
       {pathname === '/harga-pasar' ? (
-        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-full shadow-lg px-6 py-2 flex items-center justify-between gap-6 max-w-[90vw]">
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-sm shadow-md px-5 py-2 flex items-center justify-between gap-5 max-w-[90vw]">
           {/* Logo */}
-          <GroveLogo href="/" size="sm" />
+          <div className="flex items-center">
+            <GroveLogo href="/" size="sm" />
+          </div>
 
           {/* Divider */}
           <div className="h-4 w-px bg-gr-line hidden md:block" />
@@ -104,7 +106,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-[10px] uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-mono text-[10px] uppercase tracking-widest transition-colors duration-200 select-none whitespace-nowrap',
                     isActive
                       ? 'text-gr-chalk bg-gr-board font-bold'
                       : 'text-gr-ink-soft hover:text-gr-ink hover:bg-gr-ink/5'
@@ -129,14 +131,14 @@ export function Navbar() {
                 </span>
                 <Link
                   href="/settings"
-                  className="flex items-center justify-center h-7 w-7 rounded-full border border-gr-line hover:border-gr-board/40 text-gr-ink-soft hover:text-gr-board transition-all duration-200 cursor-pointer"
+                  className="flex items-center justify-center h-7 w-7 rounded-sm border border-gr-line hover:border-gr-board/40 text-gr-ink-soft hover:text-gr-board transition-all duration-200 cursor-pointer"
                   title="Pengaturan Profil"
                 >
                   <Settings size={13} />
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center h-7 w-7 rounded-full border border-gr-line hover:border-gr-down/40 text-gr-ink-soft hover:text-gr-down transition-all duration-200 cursor-pointer"
+                  className="flex items-center justify-center h-7 w-7 rounded-sm border border-gr-line hover:border-gr-down/40 text-gr-ink-soft hover:text-gr-down transition-all duration-200 cursor-pointer"
                   title="Keluar"
                 >
                   <LogOut size={13} />
@@ -145,7 +147,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="font-mono text-[10px] uppercase tracking-wider bg-gr-board text-gr-chalk hover:bg-gr-board/90 px-3.5 py-1.5 rounded-full transition-all duration-200 cursor-pointer shadow-sm"
+                className="font-mono text-[10px] uppercase tracking-wider bg-gr-board text-gr-chalk hover:bg-gr-board/90 px-3.5 py-1.5 rounded-sm transition-all duration-200 cursor-pointer shadow-sm"
               >
                 <span className="flex items-center gap-1.5">
                   <LogIn size={11} />
