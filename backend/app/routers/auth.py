@@ -82,21 +82,24 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
     await db.commit()
     
     # Set cookies
+    cookie_secure = settings.APP_ENV == "production"
+    cookie_samesite = "none" if settings.APP_ENV == "production" else "lax"
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
-        secure=False, # Set to True in production with HTTPS
+        samesite=cookie_samesite,
+        secure=cookie_secure,
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token_raw,
         httponly=True,
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
-        samesite="lax",
-        secure=False,
+        samesite=cookie_samesite,
+        secure=cookie_secure,
     )
     
     need_onboarding = user.role is None
@@ -146,13 +149,16 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
         
     access_token = auth_service.create_access_token(data={"sub": str(found_token.user_id)})
     
+    cookie_secure = settings.APP_ENV == "production"
+    cookie_samesite = "none" if settings.APP_ENV == "production" else "lax"
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
-        secure=False,
+        samesite=cookie_samesite,
+        secure=cookie_secure,
     )
     
     return {"message": "Token refreshed"}
