@@ -124,35 +124,34 @@ export default function OrdersPage() {
   const emptyState = getEmptyState();
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8">
+    <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8">
       <BgPattern />
-      <FilmGrain />
       
       <div className="relative z-10 mx-auto max-w-4xl">
-        <header className="mb-12">
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live">
+        <header className="mb-10">
+          <span className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-gr-board">
             Transaksi
           </span>
-          <h1 className="mt-4 font-display text-5xl font-medium text-gr-text-primary">
+          <h1 className="mt-3 font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
             Daftar Pesanan
           </h1>
-          <div className="mt-8 h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent" />
+          <div className="mt-6 h-px w-full bg-gr-line" />
         </header>
 
         {/* Tab Navigation */}
         {user && (
           <div className={cn(
-            "flex bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-sm mb-8 overflow-x-auto scrollbar-none",
+            "flex bg-white/60 p-1.5 rounded-full border border-gr-line backdrop-blur-md mb-8 overflow-x-auto shadow-xs",
             user.role === 'PETANI' ? "max-w-2xl" : "max-w-lg"
           )}>
             {user.role === 'PETANI' && (
               <button
                 onClick={() => handleTabChange('incoming')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
+                  "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
                   activeTab === 'incoming'
-                    ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                    : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-gr-ink/5"
+                    ? "bg-gr-board text-gr-chalk shadow-md"
+                    : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
                 <Package size={14} />
@@ -162,10 +161,10 @@ export default function OrdersPage() {
             <button
               onClick={() => handleTabChange('purchases')}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
+                "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
                 activeTab === 'purchases'
-                  ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-gr-ink/5"
+                  ? "bg-gr-board text-gr-chalk shadow-md"
+                  : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
               )}
             >
               <ShoppingBag size={14} />
@@ -174,10 +173,10 @@ export default function OrdersPage() {
             <button
               onClick={() => handleTabChange('demands')}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full font-sans text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-pointer",
+                "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
                 activeTab === 'demands'
-                  ? "bg-gr-green text-gr-bg shadow-lg shadow-gr-green/25"
-                  : "text-gr-text-primary/50 hover:text-gr-text-primary hover:bg-gr-ink/5"
+                  ? "bg-gr-board text-gr-chalk shadow-md"
+                  : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
               )}
             >
               <ClipboardList size={14} />
@@ -188,7 +187,7 @@ export default function OrdersPage() {
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32">
-            <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+            <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
           </div>
         ) : orders.length > 0 ? (
           <div className="space-y-6">
@@ -221,7 +220,7 @@ export default function OrdersPage() {
                 <Button
                   disabled={isLoadingMore}
                   onClick={handleLoadMore}
-                  className="bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary px-6 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-all cursor-pointer disabled:opacity-50"
+                  className="bg-white/80 border border-gr-line hover:border-gr-ink/40 text-gr-ink px-6 py-2.5 rounded-sm font-mono text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer disabled:opacity-50 shadow-xs"
                 >
                   {isLoadingMore ? (
                     <>
@@ -236,12 +235,12 @@ export default function OrdersPage() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-white/10 rounded-3xl bg-white/2">
-            <Package className="h-12 w-12 text-gr-text-primary/20 mb-4" />
-            <span className="font-display text-2xl text-gr-text-primary/20">
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs">
+            <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
+            <span className="font-display text-2xl font-semibold text-gr-ink">
               {emptyState.title}
             </span>
-            <p className="mt-2 font-sans text-sm text-gr-text-primary/40 max-w-xs">
+            <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">
               {emptyState.desc}
             </p>
           </div>
@@ -287,17 +286,17 @@ function OrderCard({
   const getStatusConfig = (status: string) => {
     switch (status.toUpperCase()) {
       case 'DIPESAN': 
-        return { icon: Clock, color: 'text-gr-orange', label: 'Menunggu Konfirmasi' };
+        return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Menunggu Konfirmasi' };
       case 'DIKONFIRMASI': 
-        return { icon: CheckCircle2, color: 'text-gr-green', label: 'Terkonfirmasi' };
+        return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Terkonfirmasi' };
       case 'SIAP_DIAMBIL': 
-        return { icon: Truck, color: 'text-gr-live', label: 'Siap Diambil' };
+        return { icon: Truck, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Siap Diambil' };
       case 'SELESAI': 
-        return { icon: CheckCircle2, color: 'text-gr-text-primary/40', label: 'Selesai' };
+        return { icon: CheckCircle2, pillStyle: 'bg-gr-paper text-gr-ink-soft border-gr-line', label: 'Selesai' };
       case 'BATAL': 
-        return { icon: XCircle, color: 'text-gr-price-unfair', label: 'Dibatalkan' };
+        return { icon: XCircle, pillStyle: 'bg-gr-down/10 text-gr-down border-gr-down/20', label: 'Dibatalkan' };
       default: 
-        return { icon: Package, color: 'text-gr-text-primary', label: status };
+        return { icon: Package, pillStyle: 'bg-gr-paper text-gr-ink border-gr-line', label: status };
     }
   };
 
@@ -342,43 +341,43 @@ function OrderCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="group relative rounded-2xl bg-white/5 p-6 border border-white/10 backdrop-blur-md hover:border-white/20 transition-all overflow-hidden"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.04 }}
+      className="group relative rounded-sm bg-white/80 p-6 border border-gr-line backdrop-blur-md hover:border-gr-ink/30 transition-all shadow-md overflow-hidden"
     >
       <div className="flex flex-col sm:flex-row justify-between gap-6">
         <div className="flex items-start gap-4">
-          <div className={cn("mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5", config.color)}>
+          <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-gr-line bg-gr-paper text-gr-ink shadow-xs">
             <StatusIcon size={20} />
           </div>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-gr-ink-soft/70">
                 Order ID: {order.id.slice(0, 8)}
               </span>
               {liveStatus && (
-                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-live animate-pulse">
-                  <span className="h-1 w-1 rounded-full bg-gr-live" />
+                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-up animate-pulse font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gr-up" />
                   Live
                 </span>
               )}
             </div>
-            <h3 className="mt-1 font-display text-2xl font-medium text-gr-text-primary">
+            <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight text-gr-ink">
               {order.product_name || 'Hasil Panen'}
             </h3>
-            <p className="font-sans text-sm text-gr-text-primary/60 mt-0.5">
+            <p className="font-sans text-sm font-medium text-gr-ink-soft mt-0.5">
               {order.quantity_kg} KG
             </p>
-            <p className="font-sans text-xs text-gr-text-primary/40 mt-1">
+            <p className="font-sans text-xs text-gr-ink-soft/70 mt-1">
               Dipesan pada {formattedDate}
             </p>
           </div>
         </div>
 
         <div className="flex flex-col items-start sm:items-end justify-between gap-4">
-          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-full border border-current/20 bg-current/5", config.color)}>
-            <span className="font-mono text-[10px] uppercase tracking-widest font-bold">
+          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-sm border", config.pillStyle)}>
+            <span className="font-mono text-[10px] uppercase tracking-wider font-bold">
               {config.label}
             </span>
           </div>
@@ -386,7 +385,7 @@ function OrderCard({
           <Button 
             variant="ghost" 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="font-mono text-[10px] uppercase tracking-[0.2em] text-gr-green hover:bg-gr-green/10"
+            className="font-mono text-xs font-bold uppercase tracking-wider text-gr-board hover:underline p-0 h-auto cursor-pointer"
           >
             {isExpanded ? 'Sembunyikan' : 'Detail Pesanan'}
           </Button>
@@ -401,27 +400,27 @@ function OrderCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-6 pt-6 border-t border-white/5 space-y-4"
+            className="mt-6 pt-6 border-t border-gr-line space-y-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
                   Rincian Transaksi
                 </h4>
                 <div className="space-y-1.5 font-sans text-sm">
                   <div className="flex justify-between max-w-xs">
-                    <span className="text-gr-text-primary/60">Harga per KG:</span>
-                    <span className="text-gr-text-primary font-medium">
+                    <span className="text-gr-ink-soft">Harga per KG:</span>
+                    <span className="text-gr-ink font-medium">
                       {order.price_per_kg ? `Rp ${order.price_per_kg.toLocaleString('id-ID')}` : '-'}
                     </span>
                   </div>
                   <div className="flex justify-between max-w-xs">
-                    <span className="text-gr-text-primary/60">Jumlah Pesanan:</span>
-                    <span className="text-gr-text-primary font-medium">{order.quantity_kg} KG</span>
+                    <span className="text-gr-ink-soft">Jumlah Pesanan:</span>
+                    <span className="text-gr-ink font-medium">{order.quantity_kg} KG</span>
                   </div>
-                  <div className="flex justify-between max-w-xs border-t border-white/5 pt-1.5 mt-1.5 font-bold">
-                    <span className="text-gr-text-primary/60">Total Pembayaran:</span>
-                    <span className="text-gr-green">
+                  <div className="flex justify-between max-w-xs border-t border-gr-line pt-1.5 mt-1.5 font-bold">
+                    <span className="text-gr-ink-soft">Total Pembayaran:</span>
+                    <span className="text-gr-up font-mono">
                       {order.price_per_kg ? `Rp ${(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
                     </span>
                   </div>
@@ -429,21 +428,21 @@ function OrderCard({
               </div>
 
               <div>
-                <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
                   Informasi Kontak ({contactRoleLabel})
                 </h4>
                 {contactName ? (
                   <div className="space-y-3">
                     <div className="font-sans text-sm">
-                      <p className="text-gr-text-primary font-medium text-base">{contactName}</p>
-                      <p className="text-gr-text-primary/40 text-xs mt-0.5">{contactPhone || 'Tidak ada nomor telepon'}</p>
+                      <p className="text-gr-ink font-semibold text-base">{contactName}</p>
+                      <p className="text-gr-ink-soft/70 text-xs mt-0.5">{contactPhone || 'Tidak ada nomor telepon'}</p>
                     </div>
                     {waUrl && (
                       <a
                         href={waUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md cursor-pointer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer"
                       >
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                           <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
@@ -453,7 +452,7 @@ function OrderCard({
                     )}
                   </div>
                 ) : (
-                  <p className="font-sans text-xs text-gr-text-primary/20 italic">
+                  <p className="font-sans text-xs text-gr-ink-soft/50 italic">
                     Informasi kontak tidak tersedia
                   </p>
                 )}
@@ -462,12 +461,12 @@ function OrderCard({
 
             {/* Buyer actions */}
             {!isIncoming && (
-              <div className="pt-4 border-t border-white/5 space-y-4">
+              <div className="pt-4 border-t border-gr-line space-y-4">
                 {!buyerConfirmedAt && currentStatus !== 'BATAL' && (
                   <Button
                     disabled={isConfirming}
                     onClick={handleConfirmSuccess}
-                    className="bg-gr-green hover:bg-gr-green/80 text-gr-bg font-sans text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
                   >
                     {isConfirming ? 'Memproses...' : 'Konfirmasi Transaksi Berhasil'}
                   </Button>
@@ -486,7 +485,7 @@ function OrderCard({
                 )}
 
                 {hasBuyerRated && (
-                  <div className="flex items-center gap-2 text-gr-green text-xs font-mono font-bold uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-gr-up text-xs font-mono font-bold uppercase tracking-wider">
                     <CheckCircle2 size={16} />
                     <span>Rating Telah Dikirim</span>
                   </div>
@@ -496,13 +495,13 @@ function OrderCard({
 
             {/* Farmer actions */}
             {isIncoming && currentStatus !== 'SELESAI' && currentStatus !== 'BATAL' && (
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-white/5">
+              <div className="flex flex-wrap gap-3 pt-4 border-t border-gr-line">
                 {currentStatus === 'DIPESAN' && (
                   <>
                     <Button
                       disabled={isUpdating}
                       onClick={() => handleStatusChange('DIKONFIRMASI')}
-                      className="bg-gr-green hover:bg-gr-green/80 text-gr-bg font-sans text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300"
+                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
                     >
                       Konfirmasi Pesanan
                     </Button>
@@ -510,7 +509,7 @@ function OrderCard({
                       disabled={isUpdating}
                       variant="ghost"
                       onClick={() => handleStatusChange('BATAL')}
-                      className="border border-gr-price-unfair/30 hover:border-gr-price-unfair/50 text-gr-price-unfair hover:bg-gr-price-unfair/10 font-sans text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300"
+                      className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer transition-all"
                     >
                       Tolak
                     </Button>
@@ -520,7 +519,7 @@ function OrderCard({
                   <Button
                     disabled={isUpdating}
                     onClick={() => handleStatusChange('SIAP_DIAMBIL')}
-                    className="bg-gr-live hover:bg-gr-live/80 text-gr-bg font-sans text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
                   >
                     Tandai Siap Diambil
                   </Button>
@@ -529,7 +528,7 @@ function OrderCard({
                   <Button
                     disabled={isUpdating}
                     onClick={() => handleStatusChange('SELESAI')}
-                    className="bg-gr-green hover:bg-gr-green/80 text-gr-bg font-sans text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all duration-300"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
                   >
                     Selesaikan Pesanan
                   </Button>
@@ -563,13 +562,13 @@ function DemandCard({
   const getStatusConfig = (status: string) => {
     switch (status.toUpperCase()) {
       case 'TERBUKA': 
-        return { icon: Clock, color: 'text-gr-orange', label: 'Dikomit Petani' };
+        return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Dikomit Petani' };
       case 'TERPENUHI': 
-        return { icon: CheckCircle2, color: 'text-gr-green', label: 'Terpenuhi' };
+        return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Terpenuhi' };
       case 'DIBATALKAN': 
-        return { icon: XCircle, color: 'text-gr-price-unfair', label: 'Dibatalkan' };
+        return { icon: XCircle, pillStyle: 'bg-gr-down/10 text-gr-down border-gr-down/20', label: 'Dibatalkan' };
       default: 
-        return { icon: Package, color: 'text-gr-text-primary/40', label: 'Kedaluwarsa' };
+        return { icon: Package, pillStyle: 'bg-gr-paper text-gr-ink-soft border-gr-line', label: 'Kedaluwarsa' };
     }
   };
 
@@ -599,43 +598,43 @@ function DemandCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="group relative rounded-2xl bg-white/5 p-6 border border-white/10 backdrop-blur-md hover:border-white/20 transition-all overflow-hidden"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.04 }}
+      className="group relative rounded-sm bg-white/80 p-6 border border-gr-line backdrop-blur-md hover:border-gr-ink/30 transition-all shadow-md overflow-hidden"
     >
       <div className="flex flex-col sm:flex-row justify-between gap-6">
         <div className="flex items-start gap-4">
-          <div className={cn("mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5", config.color)}>
+          <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-gr-line bg-gr-paper text-gr-ink shadow-xs">
             <StatusIcon size={20} />
           </div>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-gr-ink-soft/70">
                 Request ID: {demand.id.slice(0, 8)}
               </span>
               {liveData && (
-                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-live animate-pulse">
-                  <span className="h-1 w-1 rounded-full bg-gr-live" />
+                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-up animate-pulse font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gr-up" />
                   Live
                 </span>
               )}
             </div>
-            <h3 className="mt-1 font-display text-2xl font-medium text-gr-text-primary">
+            <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight text-gr-ink">
               {demand.commodity_name}
             </h3>
-            <p className="font-sans text-sm text-gr-text-primary/60 mt-0.5">
+            <p className="font-sans text-sm font-medium text-gr-ink-soft mt-0.5">
               {currentCommitted} / {demand.quantity_kg_needed} KG terpenuhi
             </p>
-            <p className="font-sans text-xs text-gr-text-primary/40 mt-1">
+            <p className="font-sans text-xs text-gr-ink-soft/70 mt-1">
               Diajukan pada {formattedDate}
             </p>
           </div>
         </div>
 
         <div className="flex flex-col items-start sm:items-end justify-between gap-4">
-          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-full border border-current/20 bg-current/5", config.color)}>
-            <span className="font-mono text-[10px] uppercase tracking-widest font-bold">
+          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-sm border", config.pillStyle)}>
+            <span className="font-mono text-[10px] uppercase tracking-wider font-bold">
               {config.label}
             </span>
           </div>
@@ -643,7 +642,7 @@ function DemandCard({
           <Button 
             variant="ghost" 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="font-mono text-[10px] uppercase tracking-[0.2em] text-gr-green hover:bg-gr-green/10 cursor-pointer"
+            className="font-mono text-xs font-bold uppercase tracking-wider text-gr-board hover:underline p-0 h-auto cursor-pointer"
           >
             {isExpanded ? 'Sembunyikan' : 'Detail Permintaan'}
           </Button>
@@ -658,23 +657,23 @@ function DemandCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-6 pt-6 border-t border-white/5 space-y-4"
+            className="mt-6 pt-6 border-t border-gr-line space-y-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
                   Progress Pemenuhan
                 </h4>
                 <div className="space-y-2">
-                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                  <div className="w-full bg-gr-paper h-2 rounded-full overflow-hidden border border-gr-line">
                     <div 
-                      className="bg-gr-green h-full rounded-full transition-all duration-300"
+                      className="bg-gr-board h-full rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%` }}
                     />
                   </div>
-                  <div className="flex justify-between font-sans text-xs text-gr-text-primary/60">
+                  <div className="flex justify-between font-sans text-xs text-gr-ink-soft">
                     <span>Deadline: {new Date(demand.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    <span className="text-gr-green font-bold">
+                    <span className="text-gr-board font-mono font-bold">
                       {Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%
                     </span>
                   </div>
@@ -683,7 +682,7 @@ function DemandCard({
                 <div className="mt-4">
                   <Link 
                     href={`/permintaan/${demand.id}`}
-                    className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-gr-green hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1 font-mono text-xs uppercase font-bold tracking-wider text-gr-board hover:underline cursor-pointer"
                   >
                     Buka Halaman Detail
                   </Link>
@@ -693,26 +692,26 @@ function DemandCard({
               <div>
                 {isBuyer ? (
                   <div>
-                    <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
                       Komitmen Petani ({demand.commitments?.length || 0})
                     </h4>
-                    <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                       {demand.commitments && demand.commitments.length > 0 ? (
                         demand.commitments.map((commit: any) => {
                           const farmerWaMessage = `Halo ${commit.petani_name || 'Petani'}, saya adalah pembeli yang mengajukan permintaan ${demand.commodity_name}. Terima kasih atas komitmen supply Anda sebesar ${commit.quantity_kg_committed} KG.`;
                           const farmerWaUrl = commit.petani_phone ? getWhatsAppUrl(commit.petani_phone, farmerWaMessage) : null;
                           return (
-                            <div key={commit.id} className="p-3 bg-white/2 rounded-xl border border-white/5 flex justify-between items-center text-sm font-sans">
+                            <div key={commit.id} className="p-3 bg-white/50 rounded-sm border border-gr-line flex justify-between items-center text-sm font-sans shadow-xs">
                               <div>
-                                <p className="text-gr-text-primary font-medium">{commit.petani_name || 'Petani'}</p>
-                                <p className="text-gr-green text-xs font-mono font-bold mt-0.5">+{commit.quantity_kg_committed} KG</p>
+                                <p className="text-gr-ink font-semibold">{commit.petani_name || 'Petani'}</p>
+                                <p className="text-gr-up text-xs font-mono font-bold mt-0.5">+{commit.quantity_kg_committed} KG</p>
                               </div>
                               {farmerWaUrl && (
                                 <a
                                   href={farmerWaUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 transition-all cursor-pointer"
+                                  className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer shadow-xs"
                                   title="Hubungi via WhatsApp"
                                 >
                                   <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
@@ -724,20 +723,20 @@ function DemandCard({
                           );
                         })
                       ) : (
-                        <p className="text-gr-text-primary/30 italic text-xs">Belum ada komitmen masuk.</p>
+                        <p className="text-gr-ink-soft/50 italic text-xs">Belum ada komitmen masuk.</p>
                       )}
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <h4 className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/40 mb-2">
+                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
                       Informasi Kontak Pembeli
                     </h4>
                     <div className="space-y-3 font-sans">
                       <div className="text-sm">
                         <div className="flex items-center gap-2">
-                          <p className="text-gr-text-primary font-medium text-base">{buyerName}</p>
-                          <div className="bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+                          <p className="text-gr-ink font-semibold text-base">{buyerName}</p>
+                          <div className="bg-gr-paper border border-gr-line rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
                             <RatingBadge
                               avgRating={demand.buyer_rating_avg}
                               ratingCount={demand.buyer_rating_count}
@@ -747,14 +746,14 @@ function DemandCard({
                             />
                           </div>
                         </div>
-                        <p className="text-gr-text-primary/40 text-xs mt-0.5">{buyerPhone || 'Tidak ada nomor telepon'}</p>
+                        <p className="text-gr-ink-soft/70 text-xs mt-0.5">{buyerPhone || 'Tidak ada nomor telepon'}</p>
                       </div>
                       {buyerWaUrl && (
                         <a
                           href={buyerWaUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer"
                         >
                           <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                             <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
@@ -766,7 +765,7 @@ function DemandCard({
                     
                     {/* Petani Rating action */}
                     {role === 'PETANI' && currentStatus === 'TERPENUHI' && (
-                      <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                      <div className="mt-4 pt-4 border-t border-gr-line space-y-3">
                         {!hasPetaniRated ? (
                           <RatingForm
                             transactionType="DEMAND_FULFILLMENT"
@@ -778,7 +777,7 @@ function DemandCard({
                             label="Nilai Pembeli"
                           />
                         ) : (
-                          <div className="flex items-center gap-2 text-gr-green text-xs font-mono font-bold uppercase tracking-wider">
+                          <div className="flex items-center gap-2 text-gr-up text-xs font-mono font-bold uppercase tracking-wider">
                             <CheckCircle2 size={16} />
                             <span>Rating Telah Dikirim</span>
                           </div>

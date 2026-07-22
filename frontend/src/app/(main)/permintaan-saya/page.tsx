@@ -48,8 +48,8 @@ export default function PermintaanSayaPage() {
 
   if (checkingAuth || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gr-bg">
-        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+      <div className="flex min-h-screen items-center justify-center bg-gr-paper">
+        <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
       </div>
     );
   }
@@ -57,18 +57,23 @@ export default function PermintaanSayaPage() {
   // Restricted access screen
   if (user && user.role !== 'PEMBELI') {
     return (
-      <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
+      <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <FilmGrain />
-        <div className="relative z-10 max-w-md w-full bg-white/[0.02] border border-white/5 p-8 rounded-3xl backdrop-blur-xl shadow-2xl text-center">
-          <ClipboardList className="h-16 w-16 text-gr-orange mx-auto mb-6 opacity-80" />
-          <h2 className="font-display text-2xl font-medium text-gr-text-primary mb-3">Akses Dibatasi</h2>
-          <p className="font-sans text-sm text-gr-text-primary/60 mb-6 leading-relaxed">
-            Halaman ini khusus untuk Pembeli melihat rincian riwayat permintaan komoditas panen mereka. Akun Anda terdaftar sebagai <span className="font-bold text-gr-green">{user.role}</span>.
+        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 sm:p-10 rounded-sm backdrop-blur-xl shadow-xl text-center overflow-hidden">
+          {/* Editorial Double Rule Top Accent */}
+          <div className="absolute top-0 inset-x-0">
+            <div className="h-[3px] bg-gr-ink w-full" />
+            <div className="h-[1px] bg-gr-ink w-full mt-[2px]" />
+          </div>
+
+          <ClipboardList className="h-12 w-12 text-gr-board mx-auto mb-4" />
+          <h2 className="font-display text-3xl font-semibold text-gr-ink mb-3">Akses Dibatasi</h2>
+          <p className="font-sans text-xs text-gr-ink-soft mb-6 leading-relaxed">
+            Halaman ini khusus untuk Pembeli melihat rincian riwayat permintaan komoditas panen mereka. Akun Anda terdaftar sebagai <span className="font-mono font-bold text-gr-board">{user.role}</span>.
           </p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 hover:border-white/20 text-gr-text-primary font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all cursor-pointer"
           >
             Kembali ke Beranda
           </Link>
@@ -78,36 +83,34 @@ export default function PermintaanSayaPage() {
   }
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8">
+    <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8">
       <BgPattern />
-      <FilmGrain />
-      <Glow color="var(--gr-green)" position="top" className="opacity-10 scale-110 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         {/* Header toolbar */}
-        <header className="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
           <div>
-            <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-live">
+            <span className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-gr-board">
               Dashboard Pembeli
             </span>
-            <h1 className="mt-4 font-display text-5xl font-medium text-gr-text-primary">
+            <h1 className="mt-3 font-display text-4xl sm:text-5xl font-semibold text-gr-ink tracking-tight">
               Permintaan Saya
             </h1>
-            <p className="mt-2 font-sans text-sm text-gr-text-primary/60 max-w-xl">
+            <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xl">
               Pantau progress pemenuhan komoditas panen yang telah Anda ajukan kepada para petani lokal.
             </p>
           </div>
 
           <Link
             href="/ajukan-permintaan"
-            className="group flex items-center gap-2 bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all duration-300 shadow-md shadow-gr-green/10 cursor-pointer"
+            className="group flex items-center gap-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-sm transition-all duration-200 shadow-md cursor-pointer"
           >
             <Plus size={14} />
             <span>Ajukan Baru</span>
           </Link>
         </header>
 
-        <div className="h-px w-full bg-gradient-to-r from-gr-green/50 via-white/5 to-transparent mb-10" />
+        <div className="h-px w-full bg-gr-line mb-8" />
 
         {/* Requests List */}
         {requests.length > 0 ? (
@@ -126,53 +129,53 @@ export default function PermintaanSayaPage() {
               return (
                 <div 
                   key={req.id}
-                  className="group relative rounded-3xl border border-white/5 bg-white/[0.02] p-6 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 flex flex-col justify-between"
+                  className="group relative rounded-sm border border-gr-line bg-white/80 p-6 hover:border-gr-ink/30 transition-all duration-200 flex flex-col justify-between shadow-md"
                 >
                   <Link href={`/permintaan/${req.id}`} className="absolute inset-0 z-10" />
                   
                   <div>
                     <div className="flex justify-between items-start gap-4 mb-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-mono text-[9px] uppercase tracking-widest font-bold border ${
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-sm font-mono text-[9px] uppercase tracking-wider font-bold border ${
                         req.status === 'TERBUKA'
-                          ? 'bg-gr-green/10 text-gr-green border-gr-green/20'
+                          ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
                           : req.status === 'TERPENUHI'
-                          ? 'bg-emerald-600/10 text-emerald-400 border-emerald-500/20'
-                          : 'bg-white/5 text-gr-text-primary/30 border-white/5'
+                          ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
+                          : 'bg-gr-paper text-gr-ink-soft border-gr-line'
                       }`}>
                         {req.status}
                       </span>
-                      <span className="font-mono text-[9px] text-gr-text-primary/30 uppercase tracking-widest">
+                      <span className="font-mono text-[9px] text-gr-ink-soft/60 uppercase tracking-widest font-bold">
                         ID: {req.id.slice(0, 8)}
                       </span>
                     </div>
 
-                    <h3 className="font-display text-2xl font-medium text-gr-text-primary group-hover:text-gr-green transition-colors">
+                    <h3 className="font-display text-2xl font-semibold tracking-tight text-gr-ink group-hover:text-gr-board transition-colors">
                       {req.commodity_name}
                     </h3>
-                    <p className="font-sans text-xs text-gr-text-primary/40 mt-1">
+                    <p className="font-sans text-xs text-gr-ink-soft mt-1">
                       Kategori: {req.category}
                     </p>
 
                     {/* Progress details */}
                     <div className="mt-6 space-y-2">
                       <div className="flex justify-between items-center text-xs font-mono">
-                        <span className="text-gr-text-primary/40">Fulfillment Progress</span>
-                        <span className="text-gr-green font-bold">{percent}%</span>
+                        <span className="text-gr-ink-soft/80 font-bold uppercase tracking-wider text-[10px]">Fulfillment Progress</span>
+                        <span className="text-gr-board font-bold">{percent}%</span>
                       </div>
                       
                       {/* Bar indicator */}
-                      <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                      <div className="w-full bg-gr-paper h-2 rounded-full overflow-hidden border border-gr-line">
                         <div 
-                          className="bg-gr-green h-full rounded-full transition-all duration-300"
+                          className="bg-gr-board h-full rounded-full transition-all duration-300"
                           style={{ width: `${percent}%` }}
                         />
                       </div>
 
-                      <div className="flex justify-between items-center text-xs font-sans text-gr-text-primary/60 pt-1">
+                      <div className="flex justify-between items-center text-xs font-sans text-gr-ink-soft pt-1">
                         <span>
                           {committed.toLocaleString('id-ID')} / {needed.toLocaleString('id-ID')} KG
                         </span>
-                        <span className="flex items-center gap-1 text-[11px]">
+                        <span className="flex items-center gap-1 text-[11px] font-mono">
                           <Calendar size={12} />
                           {deadlineDate}
                         </span>
@@ -180,8 +183,8 @@ export default function PermintaanSayaPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-white/5 flex justify-end">
-                    <span className="inline-flex items-center gap-1 text-gr-green font-mono text-[10px] uppercase tracking-wider group-hover:gap-2 transition-all">
+                  <div className="mt-6 pt-4 border-t border-gr-line flex justify-end">
+                    <span className="inline-flex items-center gap-1 text-gr-board font-mono text-[10px] uppercase font-bold tracking-wider group-hover:underline transition-all">
                       <span>Lihat Detail</span>
                       <ArrowRight size={12} />
                     </span>
@@ -191,20 +194,14 @@ export default function PermintaanSayaPage() {
             })}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-white/10 rounded-3xl bg-white/2">
-            <ClipboardList className="h-12 w-12 text-gr-text-primary/20 mb-4" />
-            <span className="font-display text-2xl text-gr-text-primary/20">
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs">
+            <ClipboardList className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
+            <span className="font-display text-2xl font-semibold text-gr-ink">
               Belum mengajukan permintaan
             </span>
-            <p className="mt-2 font-sans text-sm text-gr-text-primary/40 max-w-xs">
+            <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">
               Mulai ajukan komoditas pangan yang Anda butuhkan di masa depan untuk dipenuhi oleh petani.
             </p>
-            <Link
-              href="/ajukan-permintaan"
-              className="mt-6 inline-flex items-center gap-2 bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-2xl transition-all duration-300 shadow-md shadow-gr-green/10 cursor-pointer"
-            >
-              Ajukan Permintaan Pertama
-            </Link>
           </div>
         )}
       </div>

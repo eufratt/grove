@@ -72,42 +72,48 @@ export default function UpgradeToFarmerPage() {
 
   if (checkingUser) {
     return (
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gr-bg">
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gr-paper">
         <BgPattern />
-        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50 z-10" />
+        <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60 z-10" />
       </main>
     );
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8 bg-gr-bg">
+    <main className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8 bg-gr-paper">
       <BgPattern />
-      <Glow color="var(--gr-green)" position="center" className="opacity-15" />
+      <Glow color="var(--gr-board)" position="center" className="opacity-10 pointer-events-none" />
 
-      <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/5 bg-gr-bg-elevated p-10 backdrop-blur-xl shadow-2xl">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-green/20 bg-gr-green/5 text-gr-green mb-6 shadow-[0_0_15px_rgba(92,255,158,0.1)]">
-            <Store size={24} />
+      <div className="z-10 w-full max-w-md space-y-8 rounded-sm border border-gr-line bg-white/80 p-8 sm:p-10 backdrop-blur-xl shadow-xl relative overflow-hidden">
+        {/* Editorial Double Rule Top Accent */}
+        <div className="absolute top-0 inset-x-0">
+          <div className="h-[3px] bg-gr-ink w-full" />
+          <div className="h-[1px] bg-gr-ink w-full mt-[2px]" />
+        </div>
+
+        <div className="flex flex-col items-center text-center pt-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-line bg-gr-paper text-gr-ink mb-4 shadow-xs">
+            <Store size={22} />
           </div>
-          <h2 className="font-display text-4xl font-semibold tracking-tight text-gr-text-primary">
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-gr-ink">
             Mulai Jualan
           </h2>
-          <p className="mt-3 font-sans text-sm text-gr-text-primary/60 max-w-xs leading-relaxed">
+          <p className="mt-2.5 font-sans text-xs text-gr-ink-soft max-w-xs leading-relaxed">
             Upgrade akun Anda menjadi Farmer untuk mulai memasarkan hasil panen Anda secara langsung.
           </p>
         </div>
 
         {success ? (
           <div className="space-y-6 text-center py-4">
-            <div className="rounded bg-gr-green/10 p-4 text-sm text-gr-green border border-gr-green/20">
+            <div className="rounded-sm bg-gr-up/10 p-4 text-xs font-mono text-gr-up border border-gr-up/30">
               Selamat! Akun Anda telah sukses diupgrade menjadi Farmer.
             </div>
-            <p className="font-sans text-xs text-gr-text-primary/40">
+            <p className="font-sans text-xs text-gr-ink-soft/70">
               Mengalihkan ke halaman jual produk...
             </p>
             <Button
               onClick={() => router.push('/jual')}
-              className="w-full bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans font-bold uppercase tracking-widest py-6 shadow-lg shadow-gr-green/20"
+              className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm shadow-md cursor-pointer"
             >
               Ke Halaman Jual
             </Button>
@@ -115,14 +121,14 @@ export default function UpgradeToFarmerPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="rounded bg-gr-price-unfair/10 p-4 text-xs text-gr-price-unfair border border-gr-price-unfair/20">
+              <div className="rounded-sm bg-gr-down/10 p-3.5 text-xs text-gr-down border border-gr-down/30 font-mono text-[11px]">
                 {error}
               </div>
             )}
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="phone" className="block font-sans text-xs font-semibold uppercase tracking-wider text-gr-text-primary/50 mb-2">
+                <label htmlFor="phone" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/70 mb-1.5">
                   Nomor WhatsApp Farmer
                 </label>
                 <input
@@ -130,11 +136,11 @@ export default function UpgradeToFarmerPage() {
                   type="tel"
                   placeholder="0812..."
                   required
-                  className="block w-full rounded-md border border-white/10 bg-white/5 px-3 py-3 font-sans text-gr-text-primary placeholder-white/20 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green sm:text-sm"
+                  className="block w-full rounded-sm border border-gr-line bg-white/70 px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/40 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-xs"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
-                <p className="mt-2 font-sans text-[10px] text-gr-text-primary/40 leading-relaxed">
+                <p className="mt-2 font-sans text-[10px] text-gr-ink-soft/70 leading-relaxed">
                   Masukkan nomor telepon Indonesia aktif (misal: 08xx atau +628xx). Kontak ini akan digunakan pembeli untuk menghubungi Anda.
                 </p>
               </div>
@@ -144,12 +150,12 @@ export default function UpgradeToFarmerPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans font-bold uppercase tracking-widest py-6 shadow-lg shadow-gr-green/20 cursor-pointer"
+                className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm shadow-md cursor-pointer transition-all"
               >
                 {loading ? 'Memproses Upgrade...' : 'Upgrade Jadi Farmer'}
               </Button>
 
-              <Link href="/beranda" className="flex items-center justify-center gap-2 font-sans text-xs font-bold uppercase tracking-widest text-gr-text-primary/40 hover:text-gr-text-primary transition-colors py-2">
+              <Link href="/beranda" className="flex items-center justify-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-gr-ink-soft/60 hover:text-gr-ink transition-colors py-2">
                 <ArrowLeft size={12} />
                 Kembali ke Beranda
               </Link>

@@ -129,23 +129,22 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gr-bg">
-        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50" />
+      <div className="flex min-h-screen items-center justify-center bg-gr-paper">
+        <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
       </div>
     );
   }
 
   if (error && !request) {
     return (
-      <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
+      <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <FilmGrain />
-        <div className="relative z-10 max-w-md w-full bg-white/[0.02] border border-white/5 p-8 rounded-3xl text-center">
-          <h2 className="font-display text-2xl font-medium text-gr-text-primary mb-3">Error</h2>
-          <p className="font-sans text-sm text-gr-text-primary/60 mb-6">{error}</p>
+        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 rounded-sm text-center shadow-xl">
+          <h2 className="font-display text-2xl font-semibold text-gr-ink mb-3">Error</h2>
+          <p className="font-sans text-sm text-gr-ink-soft mb-6">{error}</p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-gr-text-primary font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all"
           >
             Kembali ke Beranda
           </Link>
@@ -166,17 +165,15 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   });
 
   return (
-    <main className="relative min-h-screen bg-gr-bg py-24 px-4 sm:px-6 lg:px-8">
+    <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8">
       <BgPattern />
-      <FilmGrain />
-      <Glow color="var(--gr-green)" position="top" className="opacity-10 scale-110 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-4xl">
         {/* Back navigation */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 hover:text-gr-green transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-xs uppercase font-bold tracking-wider text-gr-ink-soft hover:text-gr-ink transition-colors"
           >
             <ArrowLeft size={12} />
             Kembali ke Beranda
@@ -187,30 +184,30 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           {/* Main Info Columns (2/3 width) */}
           <div className="lg:col-span-2 space-y-6">
             <header className="mb-6">
-              <span className="bg-gr-green/10 border border-gr-green/20 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-gr-green rounded-full inline-block mb-3">
+              <span className="bg-gr-board/10 border border-gr-board/20 px-3 py-1 font-mono text-[10px] uppercase font-bold tracking-wider text-gr-board rounded-sm inline-block mb-3">
                 {request.category}
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl font-medium text-gr-text-primary">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
                 {request.commodity_name}
               </h1>
-              <p className="mt-2 font-mono text-xs text-gr-text-primary/40">
+              <p className="mt-2 font-mono text-xs font-bold text-gr-ink-soft/70">
                 Request ID: {request.id.slice(0, 8)}
               </p>
             </header>
 
             {/* Progress Bar Panel */}
-            <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 sm:p-8 backdrop-blur-md">
-              <div className="flex justify-between items-center mb-4">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">Fulfillment Progress</span>
-                <span className="font-mono text-xs font-bold text-gr-green bg-gr-green/10 px-2 py-0.5 rounded">
+            <div className="rounded-sm border border-gr-line bg-white/80 p-6 sm:p-8 backdrop-blur-md shadow-md">
+              <div className="flex justify-between items-center mb-3">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80">Fulfillment Progress</span>
+                <span className="font-mono text-xs font-bold text-gr-board bg-gr-board/10 px-2 py-0.5 rounded-sm">
                   {progressPercent}%
                 </span>
               </div>
               
               {/* Actual Progress Bar */}
-              <div className="w-full bg-white/5 h-3 rounded-full overflow-hidden mb-6 border border-white/5">
+              <div className="w-full bg-gr-paper h-3 rounded-full overflow-hidden mb-6 border border-gr-line">
                 <div 
-                  className="bg-gr-green h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(92,255,158,0.3)]"
+                  className="bg-gr-board h-full rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -218,16 +215,16 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               {/* Progress Description Text */}
               <div className="flex flex-col sm:flex-row justify-between gap-4 font-sans text-sm">
                 <div>
-                  <span className="text-gr-text-primary font-semibold text-lg">
+                  <span className="text-gr-ink font-bold text-xl font-mono">
                     {committed.toLocaleString('id-ID')}
                   </span>
-                  <span className="text-gr-text-primary/40"> dari </span>
-                  <span className="text-gr-text-primary font-semibold text-lg">
+                  <span className="text-gr-ink-soft"> dari </span>
+                  <span className="text-gr-ink font-bold text-xl font-mono">
                     {needed.toLocaleString('id-ID')} KG
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-gr-text-primary/60 font-mono text-xs sm:text-sm">
-                  <Users size={16} className="text-gr-live" />
+                <div className="flex items-center gap-1.5 text-gr-ink-soft font-mono text-xs sm:text-sm">
+                  <Users size={16} className="text-gr-board" />
                   <span>
                     {request.num_petani_committed || 0} petani telah berkomitmen
                   </span>
@@ -235,7 +232,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               </div>
 
               {remainingKg > 0 && request.status === 'TERBUKA' && (
-                <p className="mt-4 font-sans text-xs text-gr-live/80 bg-gr-live/5 border border-gr-live/10 p-3 rounded-xl flex items-center gap-2">
+                <p className="mt-4 font-sans text-xs text-gr-board bg-gr-board/5 border border-gr-board/20 p-3 rounded-sm flex items-center gap-2 font-medium">
                   <ClipboardCheck size={14} />
                   Membutuhkan {remainingKg.toLocaleString('id-ID')} KG lagi untuk dipenuhi.
                 </p>
@@ -243,53 +240,57 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             </div>
 
             {/* Request Detail Panel */}
-            <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 sm:p-8 backdrop-blur-md space-y-6">
-              <h3 className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">Rincian Permintaan</h3>
+            <div className="rounded-sm border border-gr-line bg-white/80 p-6 sm:p-8 backdrop-blur-md space-y-6 shadow-md">
+              <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80">Rincian Permintaan</h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-sans text-sm">
                 <div className="space-y-1">
-                  <span className="text-gr-text-primary/40 text-xs">Deadline Pemenuhan</span>
-                  <p className="text-gr-text-primary font-medium flex items-center gap-2">
-                    <Calendar size={14} className="text-gr-live" />
+                  <span className="text-gr-ink-soft text-xs">Deadline Pemenuhan</span>
+                  <p className="text-gr-ink font-semibold flex items-center gap-2">
+                    <Calendar size={14} className="text-gr-board" />
                     {formattedDeadline}
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-gr-text-primary/40 text-xs">Lokasi Penerimaan</span>
-                  <p className="text-gr-text-primary font-medium flex items-center gap-2">
-                    <MapPin size={14} className="text-gr-live" />
+                  <span className="text-gr-ink-soft text-xs">Lokasi Penerimaan</span>
+                  <p className="text-gr-ink font-semibold flex items-center gap-2">
+                    <MapPin size={14} className="text-gr-board" />
                     {request.latitude && request.longitude 
                       ? getClosestProvince(request.latitude, request.longitude)
                       : 'Lokasi tidak diketahui'}{' '}
-                    ({request.latitude ? `${request.latitude.toFixed(4)}, ${request.longitude.toFixed(4)}` : 'Koordinat tidak tersedia'})
+                    <span className="text-xs text-gr-ink-soft font-normal">
+                      ({request.latitude ? `${request.latitude.toFixed(4)}, ${request.longitude.toFixed(4)}` : 'Koordinat tidak tersedia'})
+                    </span>
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-gr-text-primary/40 text-xs">Status Permintaan</span>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mt-1 border ${
-                    request.status === 'TERBUKA' 
-                      ? 'bg-gr-green/10 text-gr-green border-gr-green/20'
-                      : request.status === 'TERPENUHI'
-                      ? 'bg-emerald-600/10 text-emerald-400 border-emerald-500/25'
-                      : 'bg-white/5 text-gr-text-primary/40 border-white/10'
-                  }`}>
-                    {request.status}
-                  </span>
+                  <span className="text-gr-ink-soft text-xs">Status Permintaan</span>
+                  <div>
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-wider border font-mono ${
+                      request.status === 'TERBUKA' 
+                        ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
+                        : request.status === 'TERPENUHI'
+                        ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
+                        : 'bg-gr-paper text-gr-ink-soft border-gr-line'
+                    }`}>
+                      {request.status}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {user && user.role === 'PETANI' && request.buyer_name && (
-                <div className="pt-6 border-t border-white/5 space-y-4">
-                  <h4 className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
+                <div className="pt-6 border-t border-gr-line space-y-4">
+                  <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80">
                     Informasi Kontak Pembeli
                   </h4>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/2 p-4 rounded-2xl border border-white/5">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gr-paper/60 p-4 rounded-sm border border-gr-line">
                     <div className="font-sans text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="text-gr-text-primary font-medium text-base">{request.buyer_name}</span>
-                        <div className="bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+                        <span className="text-gr-ink font-semibold text-base">{request.buyer_name}</span>
+                        <div className="bg-white/80 border border-gr-line rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
                           <RatingBadge
                             avgRating={request.buyer_rating_avg}
                             ratingCount={request.buyer_rating_count}
@@ -299,7 +300,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           />
                         </div>
                       </div>
-                      <p className="text-gr-text-primary/40 text-xs mt-0.5">{request.buyer_phone || 'Tidak ada nomor telepon'}</p>
+                      <p className="text-gr-ink-soft/70 text-xs mt-0.5">{request.buyer_phone || 'Tidak ada nomor telepon'}</p>
                     </div>
                     {request.buyer_phone && (
                       <a
@@ -309,7 +310,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 font-sans text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md cursor-pointer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer"
                       >
                         <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                           <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
@@ -327,32 +328,31 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           <div className="space-y-6">
             {/* Farmer Commitment Action Panel */}
             {user && user.role === 'PETANI' && request.status === 'TERBUKA' && (
-              <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md shadow-xl relative overflow-hidden group">
-                <Glow color="var(--gr-green)" position="center" className="opacity-5 scale-90 pointer-events-none" />
-                <h3 className="font-display text-xl font-medium text-gr-text-primary mb-2 flex items-center gap-2">
-                  <ClipboardCheck size={18} className="text-gr-green" />
+              <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group">
+                <h3 className="font-display text-xl font-semibold text-gr-ink mb-2 flex items-center gap-2">
+                  <ClipboardCheck size={18} className="text-gr-board" />
                   Bantu Penuhi
                 </h3>
-                <p className="font-sans text-xs text-gr-text-primary/60 mb-4 leading-relaxed">
+                <p className="font-sans text-xs text-gr-ink-soft mb-4 leading-relaxed">
                   Apakah Anda memiliki hasil panen ini atau bersedia menanamnya? Masukkan jumlah KG yang sanggup Anda supply.
                 </p>
 
                 {commitSuccess && (
-                  <div className="mb-4 rounded-xl bg-emerald-600/10 p-3 text-xs text-emerald-400 border border-emerald-500/20 flex items-center gap-2">
+                  <div className="mb-4 rounded-sm bg-gr-up/10 p-3 text-xs text-gr-up border border-gr-up/30 flex items-center gap-2 font-mono">
                     <CheckCircle size={14} className="shrink-0" />
                     <span>Komitmen berhasil dikirim!</span>
                   </div>
                 )}
 
                 {error && (
-                  <div className="mb-4 rounded-xl bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20">
+                  <div className="mb-4 rounded-sm bg-gr-down/10 p-3 text-xs text-gr-down border border-gr-down/30 font-mono">
                     {error}
                   </div>
                 )}
 
                 <form onSubmit={handleCommitSubmit} className="space-y-4">
                   <div>
-                    <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40 mb-1.5">
+                    <label className="block font-mono text-[9px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-1.5">
                       Jumlah Supply (KG)
                     </label>
                     <input
@@ -362,14 +362,14 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       placeholder="Masukkan jumlah kg..."
                       value={commitQty}
                       onChange={(e) => setCommitQty(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-gr-green/50 text-gr-text-primary px-3 py-2.5 rounded-xl font-sans text-xs focus:outline-none transition-all placeholder:text-gr-text-primary/30"
+                      className="w-full bg-white/70 border border-gr-line focus:border-gr-board text-gr-ink px-3 py-2.5 rounded-sm font-sans text-xs focus:outline-none transition-all placeholder:text-gr-ink-soft/40 shadow-xs"
                     />
                   </div>
 
                   <Button
                     type="submit"
                     disabled={submittingCommit}
-                    className="w-full bg-gr-green hover:bg-gr-green/90 text-gr-bg font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-gr-green/10"
+                    className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
                     {submittingCommit ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -382,12 +382,12 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             )}
 
             {/* Commitment History Log */}
-            <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-md max-h-[400px] flex flex-col">
-              <h3 className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 mb-4">
+            <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md max-h-[400px] flex flex-col shadow-md">
+              <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-4">
                 Riwayat Komitmen ({request.commitments?.length || 0})
               </h3>
               
-              <div className="overflow-y-auto space-y-3 flex-1 pr-1">
+              <div className="overflow-y-auto space-y-2 flex-1 pr-1 custom-scrollbar">
                 {request.commitments && request.commitments.length > 0 ? (
                   request.commitments.map((commit: any) => {
                     const commitDate = new Date(commit.committed_at).toLocaleDateString('id-ID', {
@@ -402,18 +402,18 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     return (
                       <div 
                         key={commit.id}
-                        className="p-3 bg-white/2 rounded-xl border border-white/5 flex justify-between items-center"
+                        className="p-3 bg-gr-paper/60 rounded-sm border border-gr-line flex justify-between items-center shadow-xs"
                       >
                         <div>
                           {isBuyer && commit.petani_name && (
-                            <p className="font-sans text-xs font-semibold text-gr-text-primary mb-1">
+                            <p className="font-sans text-xs font-semibold text-gr-ink mb-0.5">
                               {commit.petani_name}
                             </p>
                           )}
-                          <p className="font-mono text-xs font-semibold text-gr-green">
+                          <p className="font-mono text-xs font-bold text-gr-up">
                             +{commit.quantity_kg_committed} KG
                           </p>
-                          <p className="font-sans text-[10px] text-gr-text-primary/40 mt-0.5">
+                          <p className="font-sans text-[10px] text-gr-ink-soft/70 mt-0.5 font-mono">
                             {commitDate}
                           </p>
                         </div>
@@ -422,7 +422,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                             href={farmerWaUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30 transition-all cursor-pointer"
+                            className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer shadow-xs"
                             title="Hubungi via WhatsApp"
                           >
                             <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
@@ -430,15 +430,15 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                             </svg>
                           </a>
                         ) : (
-                          <Tag size={14} className="text-gr-text-primary/20" />
+                          <Tag size={14} className="text-gr-ink-soft/40" />
                         )}
                       </div>
                     );
                   })
                 ) : (
                   <div className="py-8 text-center">
-                    <Users className="h-8 w-8 text-gr-text-primary/10 mx-auto mb-2" />
-                    <p className="font-sans text-xs text-gr-text-primary/30 italic">
+                    <Users className="h-8 w-8 text-gr-ink-soft/30 mx-auto mb-2" />
+                    <p className="font-sans text-xs text-gr-ink-soft/60 italic">
                       Belum ada komitmen masuk
                     </p>
                   </div>
@@ -450,4 +450,5 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       </div>
     </main>
   );
+
 }
