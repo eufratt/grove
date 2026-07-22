@@ -76,7 +76,7 @@ class GroqService:
                             "content": prompt
                         }
                     ],
-                    max_tokens=150,
+                    max_tokens=1024,
                     temperature=0.3
                 )
                 return chat_completion.choices[0].message.content.strip()
@@ -127,7 +127,7 @@ class GroqService:
                             "content": prompt
                         }
                     ],
-                    max_tokens=150,
+                    max_tokens=1024,
                     temperature=0.3,
                     stream=True
                 )
@@ -136,6 +136,9 @@ class GroqService:
                         content = chunk.choices[0].delta.content
                         loop.call_soon_threadsafe(queue.put_nowait, content)
             except Exception as e:
+                import traceback
+                print("Error in _fetch_stream:")
+                traceback.print_exc()
                 loop.call_soon_threadsafe(queue.put_nowait, e)
             finally:
                 loop.call_soon_threadsafe(queue.put_nowait, None)
