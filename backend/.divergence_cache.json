@@ -698,5 +698,19 @@
       "explanation": "Harga bawang merah di Jawa Timur kini bergejolak (divergen) karena Divergence Score +6,70%. Fluktuasi rata‑rata hanya ±Rp 100 setiap 2 hari. Petani sebaiknya menunda penjualan bila memungkinkan, sementara pembeli dapat manfaatkan harga rendah sekarang namun tetap siap menghadapi perubahan cepat.",
       "historical_data_points": 365
     }
+  },
+  "bawang merah:jawa timur:7": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Bawang Merah",
+      "region": "Jawa Timur",
+      "days": 7,
+      "divergence_score": 0.0,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 0.0,
+      "average_oscillation_frequency_days": 0.0,
+      "explanation": "Harga Bawang Merah di Jawa Timur saat ini berada dalam kondisi stabil/normal. Fluktuasi rata‑rata hanya Rp 0 dalam periode 0 hari, menunjukkan tidak ada osilasi berarti. Petani dapat melanjutkan produksi seperti biasa, sementara pembeli dapat membeli dengan keyakinan harga tidak akan naik secara tiba‑tiba.",
+      "historical_data_points": 7
+    }
   }
 }

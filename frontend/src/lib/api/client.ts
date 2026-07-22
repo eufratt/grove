@@ -12,6 +12,8 @@ export class ApiError extends Error {
   }
 }
 
+let refreshPromise: Promise<any> | null = null;
+
 /**
  * Basic fetch wrapper for API calls.
  * Automatically attaches the base URL and includes credentials for JWT cookies.
@@ -30,6 +32,56 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     });
 
     if (!response.ok) {
+      if (response.status === 401 && !endpoint.includes('/auth/refresh') && !endpoint.includes('/auth/google')) {
+        try {
+          if (!refreshPromise) {
+            refreshPromise = (async () => {
+              try {
+                const refreshUrl = `${BASE_URL}/auth/refresh`;
+                const res = await fetch(refreshUrl, {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
+                if (!res.ok) {
+                  throw new Error('Refresh failed');
+                }
+                return await res.json();
+              } finally {
+                refreshPromise = null;
+              }
+            })();
+          }
+
+          await refreshPromise;
+
+          // Retry the original request
+          const retryResponse = await fetch(url, {
+            ...options,
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              ...options.headers,
+            },
+          });
+
+          if (retryResponse.ok) {
+            return retryResponse;
+          }
+
+          const errorData = await retryResponse.json().catch(() => ({}));
+          let message = errorData.message || errorData.detail || `API error: ${retryResponse.status}`;
+          throw new ApiError(message, retryResponse.status, errorData);
+        } catch (refreshErr) {
+          if (refreshErr instanceof ApiError) {
+            throw refreshErr;
+          }
+          // If refresh failed, fall back to throwing the original 401 error below
+        }
+      }
+
       const errorData = await response.json().catch(() => ({}));
       let message = errorData.message;
       
