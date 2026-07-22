@@ -141,7 +141,7 @@ class GroqService:
                 loop.call_soon_threadsafe(queue.put_nowait, None)
 
         # Run synchronous stream reader in a thread pool to avoid blocking FastAPI
-        asyncio.create_task(loop.run_in_executor(None, _fetch_stream))
+        loop.run_in_executor(None, _fetch_stream)
 
         while True:
             item = await queue.get()
