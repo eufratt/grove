@@ -132,9 +132,11 @@ class GroqService:
                     stream=True
                 )
                 for chunk in stream:
-                    if chunk.choices and chunk.choices[0].delta.content:
-                        content = chunk.choices[0].delta.content
-                        loop.call_soon_threadsafe(queue.put_nowait, content)
+                    if chunk.choices:
+                        delta = chunk.choices[0].delta
+                        content = delta.content if delta.content is not None else getattr(delta, "reasoning", None)
+                        if content:
+                            loop.call_soon_threadsafe(queue.put_nowait, content)
             except Exception as e:
                 loop.call_soon_threadsafe(queue.put_nowait, e)
             finally:
