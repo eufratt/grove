@@ -294,6 +294,13 @@ interface FigPanelsProps {
     history: { scraped_at: string; price_per_kg: number }[];
     desc: string;
     swatchColor: string;
+    divergence?: {
+      divergence_score: number;
+      classification: string;
+      average_oscillation_amplitude: number;
+      average_oscillation_frequency_days: number;
+      historical_data_points: number;
+    };
   }[];
 }
 
@@ -397,11 +404,34 @@ export function FigPanels({ pricesData }: FigPanelsProps) {
             deltaColor = 'text-gr-down';
           }
 
+          const score = panel.divergence?.divergence_score;
+          let badgeClass = 'text-gr-ink-soft bg-gr-ink/5 border-gr-line/10';
+          let badgeLabel = 'Data tidak cukup';
+          if (score !== undefined) {
+            if (score < -5.0) {
+              badgeClass = 'text-gr-up bg-gr-up/10 border-gr-up/20';
+              badgeLabel = `Stabil/Konvergen (${score > 0 ? '+' : ''}${score.toFixed(1)}%)`;
+            } else if (score > 5.0) {
+              badgeClass = 'text-gr-down bg-gr-down/10 border-gr-down/20';
+              badgeLabel = `Bergejolak/Divergen (${score > 0 ? '+' : ''}${score.toFixed(1)}%)`;
+            } else {
+              badgeClass = 'text-gr-ink-soft bg-gr-ink/5 border-gr-line';
+              badgeLabel = `Netral/Normal (${score > 0 ? '+' : ''}${score.toFixed(1)}%)`;
+            }
+          }
+
           return (
             <div key={idx} className="border border-gr-line rounded-sm p-5 flex flex-col bg-white/20 backdrop-blur-sm shadow-sm">
-              <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-widest text-gr-ink-soft mb-3.5">
-                <span className={`w-2 h-2 ${swatchBg} flex-shrink-0`} />
-                <span>{panel.commodityName}</span>
+              <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-widest text-gr-ink-soft mb-3.5 flex-wrap gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className={`w-2 h-2 ${swatchBg} flex-shrink-0`} />
+                  <span>{panel.commodityName}</span>
+                </div>
+                {panel.divergence && (
+                  <span className={`px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${badgeClass}`} title={panel.divergence.classification}>
+                    {badgeLabel}
+                  </span>
+                )}
               </div>
               <div className="font-display font-bold text-3xl text-gr-ink mb-0.5">
                 Rp {panel.priceToday.toLocaleString('id-ID')}
