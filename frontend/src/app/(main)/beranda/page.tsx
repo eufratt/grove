@@ -90,7 +90,7 @@ function BerandaContent() {
         <header className="mb-8 text-center lg:text-left">
           <PersonalGreeting />
           
-          <div className="mt-4 flex flex-col gap-2 w-full max-w-2xl">
+          <div className="mt-4 flex flex-col gap-2 w-full max-w-md">
             <SearchBar 
               onResults={handleSearchResults} 
               onLoading={setIsSearching} 
