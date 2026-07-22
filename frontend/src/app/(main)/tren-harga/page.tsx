@@ -6,8 +6,9 @@ import { BASE_URL } from '@/lib/api/client';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { TrendingUp, TrendingDown, Loader2, Calendar, ChevronDown, HelpCircle, MapPin } from 'lucide-react';
+import { TrendingUp, TrendingDown, Loader2, Calendar, ChevronDown, HelpCircle, MapPin, AlertTriangle } from 'lucide-react';
 import { PriceTrendChart } from '@/components/products/price-trend-chart';
+import { CobwebChart } from '@/components/products/cobweb-chart';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 
 export default function PriceTrendPage() {
@@ -28,6 +29,129 @@ export default function PriceTrendPage() {
   const [loadingText, setLoadingText] = useState<string>('Menganalisis tren harga...');
   const [explanationText, setExplanationText] = useState<string>('');
   const [showTechDetails, setShowTechDetails] = useState<boolean>(false);
+
+  // What-If Simulator states
+  const [simulatorMode, setSimulatorMode] = useState<'simple' | 'advanced'>('simple');
+  const [simpleChoice, setSimpleChoice] = useState<'sedikit' | 'sedang' | 'banyak'>('sedikit');
+  const [customEs, setCustomEs] = useState<number>(0.8);
+  const [customEd, setCustomEd] = useState<number>(1.0);
+  const [customPeriods, setCustomPeriods] = useState<number>(8);
+  
+  const [simResult, setSimResult] = useState<any>(null);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [simStreaming, setSimStreaming] = useState<boolean>(false);
+  const [simLoadingText, setSimLoadingText] = useState<string>('Menghitung kesetimbangan pasar...');
+  const [simExplanation, setSimExplanation] = useState<string>('');
+  const [showAdvancedToggle, setShowAdvancedToggle] = useState<boolean>(false);
+
+  // Active Es & Ed mapping for Mode Simpel
+  const activeEs = useMemo(() => {
+    if (simulatorMode === 'simple') {
+      if (simpleChoice === 'sedikit') return 0.4;
+      if (simpleChoice === 'sedang') return 0.95;
+      return 1.6;
+    }
+    return customEs;
+  }, [simulatorMode, simpleChoice, customEs]);
+
+  const activeEd = useMemo(() => {
+    if (simulatorMode === 'simple') return 1.0;
+    return customEd;
+  }, [simulatorMode, customEd]);
+
+  const activePeriods = useMemo(() => {
+    if (simulatorMode === 'simple') return 8;
+    return customPeriods;
+  }, [simulatorMode, customPeriods]);
+
+  const simRatio = useMemo(() => {
+    return activeEs / activeEd;
+  }, [activeEs, activeEd]);
+
+  const isExtremeRatio = useMemo(() => {
+    return simRatio > 5.0 || simRatio < 0.2;
+  }, [simRatio]);
+
+  // Reset simulator result when filters change
+  useEffect(() => {
+    setSimResult(null);
+    setSimExplanation('');
+  }, [selectedCommodity, selectedRegion, daysRange, simulatorMode, simpleChoice]);
+
+  const handleSimulate = async () => {
+    if (!selectedCommodity) return;
+    setIsSimulating(true);
+    setSimExplanation('');
+    setSimResult(null);
+
+    const stages = [
+      'Menghitung kesetimbangan pasar...',
+      'Menjalankan simulasi Cobweb...',
+      'Menghubungkan ke Groq LLM...'
+    ];
+    let stageIdx = 0;
+    setSimLoadingText(stages[0]);
+    const stageInterval = setInterval(() => {
+      stageIdx = (stageIdx + 1) % stages.length;
+      setSimLoadingText(stages[stageIdx]);
+    }, 800);
+
+    try {
+      const url = `${BASE_URL}/reference-prices/cobweb/stream?commodity=${encodeURIComponent(selectedCommodity)}&region=${encodeURIComponent(selectedRegion)}&days=${daysRange}&es=${activeEs}&ed=${activeEd}&periods=${activePeriods}`;
+
+      const response = await fetch(url, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Stream request failed');
+      }
+
+      clearInterval(stageInterval);
+      setSimStreaming(true);
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
+      }
+
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('data: ')) {
+            const dataStr = trimmed.slice(6);
+            try {
+              const payload = JSON.parse(dataStr);
+              if (payload.type === 'simulation') {
+                setSimResult(payload.data);
+              } else if (payload.type === 'chunk') {
+                setSimExplanation(prev => prev + payload.text);
+              }
+            } catch (err) {
+              console.error('Failed to parse SSE payload:', err);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Cobweb simulation streaming failed:', err);
+      setSimExplanation('Gagal menghubungkan ke simulator. Silakan coba sesaat lagi.');
+    } finally {
+      clearInterval(stageInterval);
+      setIsSimulating(false);
+      setSimStreaming(false);
+    }
+  };
 
   // Fetch divergence score on filters update
   useEffect(() => {
@@ -438,6 +562,243 @@ export default function PriceTrendPage() {
                         </>
                       ) : (
                         <span>Jelaskan Tren Harga</span>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* What-If Simulator Card */}
+            {historyData.length >= 2 && (
+              <div className="bg-white border border-gr-line p-6 rounded-3xl shadow-sm space-y-6">
+                <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2">
+                  <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
+                    <TrendingUp size={14} />
+                    What-If Simulator: Proyeksi Harga Cobweb
+                  </h3>
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft bg-gr-paper border border-gr-line px-2 py-0.5 rounded-sm">
+                    Model Teoretis
+                  </span>
+                </div>
+
+                {/* Disclaimer/Warning Box */}
+                <div className="bg-gr-paper/50 border border-gr-line rounded-2xl p-4 flex gap-3 items-start">
+                  <HelpCircle size={18} className="text-gr-ink-soft flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <span className="block font-sans text-xs font-semibold text-gr-ink">Simulasi Edukatif Asumsi Pasar</span>
+                    <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
+                      Simulator ini memproyeksikan fluktuasi harga berdasarkan <strong>Teorema Cobweb</strong> dan input elastisitas asumsi Anda. Angka yang tertera adalah ilustrasi teoretis dan <strong>bukan ramalan harga pasar yang pasti atau presisi</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Entry Point: Mode Simpel */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
+                      Pertanyaan Simulasi (Mode Simpel)
+                    </span>
+                    <p className="font-sans text-sm text-gr-ink">
+                      Menurutmu, musim depan bakal makin banyak petani lain yang ikut nanam <strong>{selectedCommodity}</strong> ini juga?
+                    </p>
+                  </div>
+
+                  {/* Simple Mode Buttons Group */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { id: 'sedikit', label: 'Sedikit', desc: 'Pasokan aman (Stabil)' },
+                      { id: 'sedang', label: 'Sedang', desc: 'Pasokan seimbang (Netral)' },
+                      { id: 'banyak', label: 'Banyak', desc: 'Ikut-ikutan massal (Gejolak)' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setSimulatorMode('simple');
+                          setSimpleChoice(item.id as any);
+                        }}
+                        className={`p-3.5 border rounded-2xl font-sans text-left transition-all focus:outline-none flex flex-col justify-between h-20 cursor-pointer ${
+                          simulatorMode === 'simple' && simpleChoice === item.id
+                            ? 'border-gr-board bg-gr-board/5 ring-1 ring-gr-board'
+                            : 'border-gr-line bg-transparent hover:border-gr-ink-soft/45'
+                        }`}
+                      >
+                        <span className="font-semibold text-xs text-gr-ink">{item.label}</span>
+                        <span className="text-[10px] text-gr-ink-soft leading-tight">{item.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Advanced Mode Toggle / Technical Expandable */}
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setShowAdvancedToggle(!showAdvancedToggle)}
+                      className="font-mono text-[10px] uppercase tracking-wider text-gr-ink-soft hover:text-gr-ink flex items-center gap-1 transition-colors focus:outline-none"
+                    >
+                      <span>Detail Parameter Teknis (Mode Lanjutan)</span>
+                      <ChevronDown size={12} className={`transform transition-transform ${showAdvancedToggle ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {showAdvancedToggle && (
+                      <div className="mt-4 bg-gr-paper/30 border border-gr-line rounded-3xl p-5 space-y-5">
+                        <div className="flex justify-between items-center border-b border-gr-line pb-2 mb-2">
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-gr-ink">Atur Parameter Elastisitas Manual</span>
+                          <button
+                            onClick={() => {
+                              setSimulatorMode(simulatorMode === 'advanced' ? 'simple' : 'advanced');
+                            }}
+                            className={`px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-wider border transition-colors ${
+                              simulatorMode === 'advanced'
+                                ? 'bg-gr-board text-gr-chalk border-gr-board'
+                                : 'bg-transparent text-gr-ink-soft border-gr-line hover:text-gr-ink'
+                            }`}
+                          >
+                            {simulatorMode === 'advanced' ? 'Gunakan Mode Lanjutan' : 'Aktifkan Mode Lanjutan'}
+                          </button>
+                        </div>
+
+                        {/* Slider Custom Es */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between font-mono text-[10px]">
+                            <span className="text-gr-ink-soft">Elastisitas Penawaran (Es)</span>
+                            <span className="font-bold text-gr-ink">{activeEs.toFixed(2)}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.1"
+                            max="2.0"
+                            step="0.05"
+                            value={customEs}
+                            onChange={(e) => {
+                              setSimulatorMode('advanced');
+                              setCustomEs(parseFloat(e.target.value));
+                            }}
+                            className="w-full accent-gr-board cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Slider Custom Ed */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between font-mono text-[10px]">
+                            <span className="text-gr-ink-soft">Elastisitas Permintaan (Ed)</span>
+                            <span className="font-bold text-gr-ink">{activeEd.toFixed(2)}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.1"
+                            max="2.0"
+                            step="0.05"
+                            value={customEd}
+                            onChange={(e) => {
+                              setSimulatorMode('advanced');
+                              setCustomEd(parseFloat(e.target.value));
+                            }}
+                            className="w-full accent-gr-board cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Slider Custom Periods */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between font-mono text-[10px]">
+                            <span className="text-gr-ink-soft">Jumlah Periode Simulasi</span>
+                            <span className="font-bold text-gr-ink">{activePeriods} musim</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="3"
+                            max="15"
+                            step="1"
+                            value={customPeriods}
+                            onChange={(e) => {
+                              setSimulatorMode('advanced');
+                              setCustomPeriods(parseInt(e.target.value));
+                            }}
+                            className="w-full accent-gr-board cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Informative Stats & Warning */}
+                        <div className="pt-3 border-t border-gr-line/50 grid grid-cols-2 gap-4 font-mono text-[10px] text-gr-ink-soft">
+                          <div>
+                            <span className="block opacity-60">Rasio Es/Ed</span>
+                            <span className="font-bold text-gr-ink">{simRatio.toFixed(2)}</span>
+                          </div>
+                          <div>
+                            <span className="block opacity-60">Status Teoretis</span>
+                            <span className={`font-bold ${simRatio > 1.0 ? 'text-gr-down' : 'text-gr-up'}`}>
+                              {simRatio > 1.0 ? 'DIVERGEN (Bergejolak)' : 'KONVERGEN (Stabil)'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Extreme Ratio Warning */}
+                        {isExtremeRatio && (
+                          <div className="bg-gr-down/5 border border-gr-down/20 rounded-2xl p-3 flex gap-2.5 items-start">
+                            <AlertTriangle size={15} className="text-gr-down flex-shrink-0 mt-0.5" />
+                            <div className="space-y-0.5">
+                              <span className="block font-sans text-[10px] font-semibold text-gr-down">Rasio Elastisitas Ekstrem</span>
+                              <p className="font-sans text-[9px] text-gr-down/80 leading-relaxed">
+                                Kombinasi asumsi ini sangat ekstrem. Hasil proyeksi teoretis mungkin tidak realistis untuk pasar nyata.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Run button & explanation streaming content */}
+                {simResult ? (
+                  <div className="space-y-6 pt-4 border-t border-gr-line">
+                    <div className="space-y-2">
+                      <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
+                        Grafik Proyeksi Harga Cobweb
+                      </span>
+                      <CobwebChart prices={simResult.prices} equilibriumPrice={simResult.equilibrium_price} />
+                      
+                      {/* Check if price hits absolute zero */}
+                      {simResult.prices.some((p: number) => p <= 0.0) && (
+                        <div className="font-mono text-[10px] text-gr-down text-center font-semibold pt-1">
+                          * Pasar kolaps secara teoretis / harga mendekati nol pada musim tertentu.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-3 pt-3 border-t border-gr-line/50">
+                      <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-board font-bold flex items-center gap-1.5">
+                        <TrendingUp size={12} />
+                        Analisis Proyeksi AI (Groq)
+                      </span>
+                      <p className="font-sans text-sm text-gr-ink leading-relaxed whitespace-pre-wrap">
+                        {simExplanation}
+                        {simStreaming && <span className="inline-block w-1.5 h-4 ml-1 bg-gr-board animate-pulse" />}
+                      </p>
+
+                      <button
+                        onClick={handleSimulate}
+                        disabled={isSimulating}
+                        className="font-mono text-[10px] uppercase tracking-widest text-gr-board hover:text-gr-ink border border-gr-line hover:border-gr-ink px-4 py-2 rounded-xl transition-all duration-300 disabled:opacity-50 inline-flex items-center gap-1.5 cursor-pointer mt-2"
+                      >
+                        {isSimulating ? <Loader2 size={12} className="animate-spin" /> : null}
+                        <span>Simulasikan Ulang</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="pt-4 border-t border-gr-line">
+                    <button
+                      onClick={handleSimulate}
+                      disabled={isSimulating}
+                      className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-6 py-4 rounded-xl transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    >
+                      {isSimulating ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          <span>{simLoadingText}</span>
+                        </>
+                      ) : (
+                        <span>Lihat Perkiraan Cobweb</span>
                       )}
                     </button>
                   </div>
