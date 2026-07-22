@@ -12,6 +12,7 @@ from app.services.divergence_service import divergence_service
 from app.services.groq_service import groq_service
 from app.services.divergence_cache import divergence_cache
 import json
+import asyncio
 
 router = APIRouter(prefix="/reference-prices", tags=["reference-prices"])
 
