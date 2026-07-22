@@ -8,6 +8,7 @@ class DemandRequestCreate(BaseModel):
     commodity_name: str = Field(..., max_length=255)
     category: str = Field(..., max_length=100)
     quantity_kg_needed: float = Field(..., gt=0)
+    price_per_kg: float = Field(..., gt=0)
     deadline: datetime
     latitude: float
     longitude: float
@@ -32,6 +33,7 @@ class DemandRequestResponse(BaseModel):
     category: str
     quantity_kg_needed: float
     quantity_kg_committed: float
+    price_per_kg: float
     deadline: datetime
     status: DemandRequestStatus
     created_at: datetime
@@ -52,3 +54,13 @@ class DemandRequestDetailResponse(DemandRequestResponse):
 
     class Config:
         from_attributes = True
+
+class DemandRegionalAnalyticsResponse(BaseModel):
+    commodity_name: str
+    province: str
+    total_needed_kg: float
+    total_committed_kg: float
+    num_requests: int
+    fulfillment_ratio: float
+    status: str
+    open_requests: List[DemandRequestResponse] = []

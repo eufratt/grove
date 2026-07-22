@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { X, Heart, RefreshCw, Calendar, Users, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, Heart, RefreshCw, Users, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
+import { referencePricesApi } from '@/lib/api/reference-prices';
 import { RatingBadge } from '../ratings/rating-badge';
 
 export interface DemandRequest {
@@ -20,44 +22,114 @@ export interface DemandRequest {
   latitude?: number;
   longitude?: number;
   num_petani_committed?: number;
+  price_per_kg: number;
   buyer_name?: string;
   buyer_rating_avg?: number | null;
   buyer_rating_count?: number;
 }
 
+// ─── Color system: 3 tiers based on deadline urgency ────────
+const COLORS = {
+  urgent: { bg: '#FFF5F5', border: '#F5BCBC', accent: '#C94040', label: 'Mendesak' },
+  soon:   { bg: '#FFFAEE', border: '#F0DFA0', accent: '#B8820A', label: 'Segera' },
+  normal: { bg: '#FFFDF7', border: '#E8E0D0', accent: '#B8A888', label: null },
+} as const;
+
+function getDaysLeft(deadlineStr: string): number {
+  return Math.ceil((new Date(deadlineStr).getTime() - Date.now()) / 86400000);
+}
+
+function getColor(deadlineStr: string) {
+  const d = getDaysLeft(deadlineStr);
+  if (d <= 7)  return COLORS.urgent;
+  if (d <= 21) return COLORS.soon;
+  return COLORS.normal;
+}
+
+function formatDeadline(deadlineStr: string): string {
+  const d = getDaysLeft(deadlineStr);
+  if (d <= 0) return 'Sudah lewat';
+  if (d < 7)  return `${d} hari lagi`;
+  const w = Math.floor(d / 7), r = d % 7;
+  return r === 0 ? `${w} minggu lagi` : `${w} mgg ${r} hr`;
+}
+
+// ─── Card dimensions ─────────────────────────────────────────
+const CARD_W  = 230;
+const CARD_H  = 390;
+const FOCUS_W = 400;
+const FOCUS_H = 560;
+
+// Scatter table positions for up to 8 cards
+const SCATTER = [
+  { rot:  3.5, dy:  8,  dxExtra:   0 },
+  { rot: -4.0, dy: -6,  dxExtra:  10 },
+  { rot:  2.0, dy: 12,  dxExtra:  -8 },
+  { rot: -2.5, dy: -2,  dxExtra:   6 },
+  { rot:  5.0, dy:  6,  dxExtra: -12 },
+  { rot: -3.0, dy: 10,  dxExtra:   4 },
+  { rot:  1.5, dy: -8,  dxExtra:  -6 },
+  { rot: -4.5, dy:  4,  dxExtra:   8 },
+];
+
+// ─────────────────────────────────────────────────────────────
+// SwipeDeck
+// ─────────────────────────────────────────────────────────────
 interface SwipeDeckProps {
   requests: DemandRequest[];
+  userLat?: number | null;
+  userLng?: number | null;
   onSwipeRight: (request: DemandRequest) => void;
-  onSwipeLeft: (request: DemandRequest) => void;
+  onSwipeLeft:  (request: DemandRequest) => void;
   onEmpty: () => void;
 }
 
-export const SwipeDeck: React.FC<SwipeDeckProps> = ({ 
-  requests, 
-  onSwipeRight, 
-  onSwipeLeft,
-  onEmpty 
+export const SwipeDeck: React.FC<SwipeDeckProps> = ({
+  requests, userLat, userLng, onSwipeRight, onSwipeLeft, onEmpty
 }) => {
   const [currentIndex, setCurrentSetIndex] = useState(0);
+  const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
 
-  // Commit Modal State
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [commitRequest, setCommitRequest] = useState<DemandRequest | null>(null);
   const [commitQty, setCommitQty] = useState('');
   const [submittingCommit, setSubmittingCommit] = useState(false);
   const [commitError, setCommitError] = useState('');
 
-  const activeRequests = useMemo(() => {
-    return requests.slice(currentIndex, currentIndex + 3).reverse();
-  }, [requests, currentIndex]);
+  // Lock body scroll while a card is focused (prevents the page-scroll bug)
+  useEffect(() => {
+    if (focusedCardId) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [focusedCardId]);
+
+  useEffect(() => {
+    setCurrentSetIndex(0);
+    setFocusedCardId(null);
+  }, [requests]);
+
+  // Show up to 8 cards for a crowded table feel
+  const activeRequests = useMemo(
+    () => requests.slice(currentIndex, currentIndex + 8),
+    [requests, currentIndex]
+  );
+
+  const focusedRequest = useMemo(
+    () => activeRequests.find(r => r.id === focusedCardId) ?? null,
+    [activeRequests, focusedCardId]
+  );
 
   const handleSwipe = (direction: 'left' | 'right', request: DemandRequest) => {
     if (direction === 'right') {
-      // Trigger commit modal
       setCommitRequest(request);
       setCommitQty('');
       setCommitError('');
     } else {
       onSwipeLeft(request);
+      setFocusedCardId(null);
       setCurrentSetIndex(prev => prev + 1);
     }
   };
@@ -66,22 +138,14 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
     e.preventDefault();
     if (!commitRequest) return;
     setCommitError('');
-
     const qty = parseFloat(commitQty);
-    if (isNaN(qty) || qty <= 0) {
-      setCommitError('Masukkan jumlah valid lebih dari 0 kg');
-      return;
-    }
-
+    if (isNaN(qty) || qty <= 0) { setCommitError('Masukkan jumlah valid lebih dari 0 kg'); return; }
     setSubmittingCommit(true);
     try {
       await demandRequestsApi.commitSupply(commitRequest.id, qty);
-      
-      // Call swipe right callback
       onSwipeRight(commitRequest);
-      
-      // Close modal and advance
       setCommitRequest(null);
+      setFocusedCardId(null);
       setCurrentSetIndex(prev => prev + 1);
     } catch (err: any) {
       setCommitError(err.message || 'Gagal mengirimkan komitmen');
@@ -93,325 +157,451 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
   if (currentIndex >= requests.length) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-        <div className="h-20 w-20 rounded-full bg-white/5 flex items-center justify-center text-gr-text-primary/20">
+        <div className="h-20 w-20 rounded-full bg-gr-board/5 border border-gr-line flex items-center justify-center text-gr-board/40">
           <RefreshCw size={40} />
         </div>
         <div>
-          <h3 className="font-display text-3xl text-gr-text-primary">Sudah habis dijelajahi</h3>
-          <p className="mt-2 font-sans text-sm text-gr-text-primary/40">
-            Tidak ada permintaan komoditas lagi saat ini.
-          </p>
+          <h3 className="font-display text-3xl text-gr-ink">Sudah habis dijelajahi</h3>
+          <p className="mt-2 font-sans text-sm text-gr-ink-soft">Tidak ada permintaan komoditas lagi saat ini.</p>
         </div>
-        <Button 
-          onClick={() => {
-            setCurrentSetIndex(0);
-            onEmpty();
-          }}
-          className="bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans font-bold uppercase tracking-widest px-8 cursor-pointer rounded-2xl py-3"
-        >
+        <Button onClick={() => { setCurrentSetIndex(0); setFocusedCardId(null); onEmpty(); }}
+          className="bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-sans font-bold uppercase tracking-widest px-8 cursor-pointer rounded-full py-3">
           Muat Ulang
         </Button>
       </div>
     );
   }
 
-  const currentRequest = requests[currentIndex];
+  const totalCards = activeRequests.length;
 
   return (
-    <div className="relative flex flex-col items-center justify-center py-10">
-      <div className="relative h-[550px] w-full max-w-[380px]">
+    <div className="relative flex flex-col items-center w-full select-none">
+      {/* Instruction */}
+      <p className="mb-4 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/60 text-center">
+        Klik kartu untuk melihat detail · geser kanan penuhi · kiri lewati
+      </p>
+
+      {/* ── Table Stage ──────────────────────────────────────── */}
+      <div className="relative overflow-visible" style={{ width: '100%', height: CARD_H + 80 }}>
         <AnimatePresence>
-          {activeRequests.map((request, index) => {
-            const isFront = index === activeRequests.length - 1;
-            return (
-              <SwipeCard 
-                key={request.id}
-                request={request}
-                isFront={isFront}
-                index={activeRequests.length - 1 - index}
-                onSwipe={(dir) => handleSwipe(dir, request)}
-              />
-            );
-          })}
+          {activeRequests.map((request, idx) => (
+            <TableCard
+              key={request.id}
+              request={request}
+              idx={idx}
+              totalCards={totalCards}
+              isInvisible={request.id === focusedCardId}
+              isAnyFocused={focusedCardId !== null}
+              onFocus={() => setFocusedCardId(request.id)}
+            />
+          ))}
         </AnimatePresence>
       </div>
 
-      {/* Action Buttons */}
-      <div className="mt-12 flex items-center gap-8">
-        <button
-          onClick={() => handleSwipe('left', currentRequest)}
-          className="group flex h-16 w-16 items-center justify-center rounded-full border border-gr-price-unfair/30 bg-gr-price-unfair/5 text-gr-price-unfair transition-all hover:bg-gr-price-unfair hover:text-white hover:scale-110 active:scale-95 cursor-pointer"
-        >
-          <X size={32} />
-        </button>
-        <button
-          onClick={() => handleSwipe('right', currentRequest)}
-          className="group flex h-20 w-20 items-center justify-center rounded-full border border-gr-green/30 bg-gr-green/5 text-gr-green shadow-[0_0_20px_rgba(92,255,158,0.1)] transition-all hover:bg-gr-green hover:text-gr-bg hover:scale-110 active:scale-95 cursor-pointer"
-        >
-          <Heart size={40} fill="currentColor" />
-        </button>
-      </div>
 
-      {/* Commit Input Modal Overlay */}
-      {commitRequest && (
-        <div className="fixed inset-0 bg-gr-paper/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="bg-white border border-gr-line p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl relative">
-            <h3 className="font-display text-xl font-medium text-gr-ink mb-2 flex items-center gap-2">
-              Komitmen Supply
-            </h3>
+      {/* ── Focused card overlay + backdrop — portaled to document.body
+          so they escape any CSS stacking context from transforms/filters
+          in the page (FilmGrain, Glow, etc.) and cover the full viewport */}
+      {mounted && focusedRequest && createPortal(
+        <AnimatePresence>
+          {focusedRequest && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                key="backdrop"
+                className="fixed inset-0 z-[490] bg-black/55 backdrop-blur-[3px]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setFocusedCardId(null)}
+              />
+              {/* Focused card overlay */}
+              <FocusedCardOverlay
+                key={focusedRequest.id}
+                request={focusedRequest}
+                userLat={userLat}
+                userLng={userLng}
+                onSwipe={(dir) => handleSwipe(dir, focusedRequest)}
+                onDismiss={() => setFocusedCardId(null)}
+              />
+            </>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* ── Commit Modal — also portaled to escape stacking context */}
+      {mounted && commitRequest && createPortal(
+        <div className="fixed inset-0 bg-gr-paper/95 backdrop-blur-md z-[700] flex items-center justify-center p-4">
+          <div className="bg-white border border-gr-line p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl">
+            <h3 className="font-display text-xl font-medium text-gr-ink mb-2">Komitmen Supply</h3>
             <p className="font-sans text-xs text-gr-ink-soft mb-6 leading-relaxed">
               Bantu penuhi permintaan <span className="text-gr-board font-semibold">{commitRequest.commodity_name}</span>. Berapa KG yang bisa Anda sediakan?
             </p>
-
             {commitError && (
-              <div className="mb-4 rounded-xl bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20">
-                {commitError}
-              </div>
+              <div className="mb-4 rounded-xl bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20">{commitError}</div>
             )}
-
             <form onSubmit={handleCommitSubmit} className="space-y-4">
               <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5">
-                  Jumlah (KG)
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  min="0.1"
-                  placeholder="Contoh: 50"
-                  value={commitQty}
-                  onChange={(e) => setCommitQty(e.target.value)}
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5">Jumlah (KG)</label>
+                <input type="number" step="any" min="0.1" placeholder="Contoh: 50"
+                  value={commitQty} onChange={(e) => setCommitQty(e.target.value)}
                   className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-3 py-2.5 rounded-xl font-sans text-xs focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
-                  autoFocus
-                />
+                  autoFocus />
               </div>
-
               <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setCommitRequest(null)}
-                  className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/50 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-xl transition-all cursor-pointer"
-                >
+                <button type="button" onClick={() => setCommitRequest(null)}
+                  className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/50 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-xl transition-all cursor-pointer">
                   Batal
                 </button>
-                <button
-                  type="submit"
-                  disabled={submittingCommit}
-                  className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  {submittingCommit ? (
-                    <Loader2 size={12} className="animate-spin" />
-                  ) : (
-                    'Kirim'
-                  )}
+                <button type="submit" disabled={submittingCommit}
+                  className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                  {submittingCommit ? <Loader2 size={12} className="animate-spin" /> : 'Kirim'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
 };
 
-interface SwipeCardProps {
+// ─────────────────────────────────────────────────────────────
+// TableCard — card sitting on the table (non-focused state)
+// ─────────────────────────────────────────────────────────────
+interface TableCardProps {
   request: DemandRequest;
-  isFront: boolean;
-  index: number;
-  onSwipe: (direction: 'left' | 'right') => void;
+  idx: number;
+  totalCards: number;
+  isInvisible: boolean;   // true when this card is shown in overlay instead
+  isAnyFocused: boolean;
+  onFocus: () => void;
 }
 
-const SwipeCard: React.FC<SwipeCardProps> = ({ request, isFront, index, onSwipe }) => {
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-25, 25]);
-  const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
-  const likeOpacity = useTransform(x, [50, 150], [0, 1]);
-  const nopeOpacity = useTransform(x, [-50, -150], [0, 1]);
+const TableCard: React.FC<TableCardProps> = ({
+  request, idx, totalCards, isInvisible, isAnyFocused, onFocus
+}) => {
+  const color = getColor(request.deadline);
+  const scatter = SCATTER[idx % SCATTER.length];
 
-  const handleDragEnd = (_: any, info: any) => {
-    if (info.offset.x > 100) {
-      onSwipe('right');
-    } else if (info.offset.x < -100) {
-      onSwipe('left');
-    }
-  };
+  // Spread: 8 cards at ~100px gap → ~700px total span, overlapping naturally
+  const spreadGap = Math.min(120, Math.max(80, 700 / Math.max(totalCards - 1, 1)));
+  const centerOffset = (totalCards - 1) / 2;
+  const tableX  = (idx - centerOffset) * spreadGap + scatter.dxExtra;
+  const tableY  = scatter.dy;
+  const tableRot = scatter.rot;
 
-  const getRelativeDeadline = (dateStr: string) => {
-    const deadline = new Date(dateStr);
-    const now = new Date();
-    const diffTime = deadline.getTime() - now.getTime();
-    if (diffTime <= 0) return 'Sudah lewat';
-    
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays < 7) {
-      return `${diffDays} hari lagi`;
-    }
-    const diffWeeks = Math.floor(diffDays / 7);
-    const remainingDays = diffDays % 7;
-    if (remainingDays === 0) {
-      return `${diffWeeks} minggu lagi`;
-    }
-    return `${diffWeeks} mgg ${remainingDays} hari lagi`;
-  };
-
-  const needed = request.quantity_kg_needed;
-  const committed = request.quantity_kg_committed;
-  const percent = needed > 0 ? Math.round((committed / needed) * 100) : 0;
-  const numPetani = request.num_petani_committed || 0;
-
-  // Determine progress badge color
-  let progressBadgeColor = "bg-gr-down/10 text-gr-down border-gr-down/20";
-  if (percent >= 90) {
-    progressBadgeColor = "bg-gr-up/10 text-gr-up border-gr-up/20";
-  } else if (percent >= 70) {
-    progressBadgeColor = "bg-gr-board/10 text-gr-board border-gr-board/20";
-  } else if (percent >= 30) {
-    progressBadgeColor = "bg-gr-ink-soft/10 text-gr-ink-soft border-gr-line";
+  // Build full animate target — opacity MUST be in animate (not style)
+  // so Framer Motion can transition from initial opacity:0 → 1
+  let animTarget: Record<string, any>;
+  if (isInvisible) {
+    // Card is shown by the fixed overlay; hide placeholder silently
+    animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + idx, opacity: 0, filter: 'none' };
+  } else if (isAnyFocused) {
+    // Dim/blur non-focused table cards
+    animTarget = { x: tableX, y: tableY + 6, rotate: tableRot, scale: 0.88, zIndex: 1, opacity: 0.10, filter: 'blur(2px)' };
+  } else {
+    // Normal table spread
+    animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + idx, opacity: 1, filter: 'none' };
   }
 
   return (
     <motion.div
-      style={{ 
-        x: isFront ? x : 0, 
-        rotate: isFront ? rotate : 0,
-        zIndex: 50 - index,
-        scale: 1 - index * 0.05,
-        y: index * 10,
-        filter: index > 0 ? 'blur(2px)' : 'none',
+      style={{
+        position: 'absolute',
+        left: `calc(50% - ${CARD_W / 2}px)`,
+        top: 24,
+        width: CARD_W,
+        height: CARD_H,
+        pointerEvents: isInvisible || isAnyFocused ? 'none' : 'auto',
       }}
-      drag={isFront ? "x" : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      onDragEnd={handleDragEnd}
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1 - index * 0.05, opacity: 1, y: index * 10 }}
-      exit={{ 
-        x: x.get() > 0 ? 1000 : -1000, 
-        opacity: 0, 
-        scale: 0.5,
-        transition: { duration: 0.4 } 
-      }}
-      className="absolute inset-0 cursor-grab active:cursor-grabbing font-sans"
+      initial={{ opacity: 0, scale: 0.75, y: 50, x: tableX, rotate: tableRot }}
+      animate={animTarget}
+      transition={{ type: 'spring', stiffness: 240, damping: 26 }}
+      whileHover={!isAnyFocused ? {
+        y: tableY - 22, scale: 1.04, rotate: 0, zIndex: 90,
+        boxShadow: '0 20px 48px rgba(0,0,0,0.14)',
+        transition: { type: 'spring', stiffness: 160, damping: 20 },
+      } : undefined}
+      exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.2 } }}
+      onClick={(e) => { e.stopPropagation(); if (!isAnyFocused) onFocus(); }}
+      className="cursor-pointer"
     >
-      <div className="h-full w-full overflow-hidden rounded-3xl border border-gr-line bg-gr-paper p-6 shadow-md transition-colors duration-300 flex flex-col justify-between">
-        {/* Swiping Indicators */}
-        {isFront && (
-          <>
-            <motion.div 
-              style={{ opacity: likeOpacity }}
-              className="absolute left-6 top-10 z-50 rounded-lg border-4 border-gr-green px-4 py-1 font-display text-3xl font-bold uppercase tracking-widest text-gr-green -rotate-12"
-            >
-              PENUHI
-            </motion.div>
-            <motion.div 
-              style={{ opacity: nopeOpacity }}
-              className="absolute right-6 top-10 z-50 rounded-lg border-4 border-gr-price-unfair px-4 py-1 font-display text-3xl font-bold uppercase tracking-widest text-gr-price-unfair rotate-12"
-            >
-              LEWATI
-            </motion.div>
-          </>
-        )}
+      <CardFace
+        request={request}
+        color={color}
+        isFocused={false}
+        showDragHint={false}
+      />
+    </motion.div>
+  );
+};
 
-        <div className="space-y-6">
+// ─────────────────────────────────────────────────────────────
+// FocusedCardOverlay — fixed-position enlarged card + actions
+// This is rendered completely outside document flow,
+// preventing any page scroll side-effects.
+// ─────────────────────────────────────────────────────────────
+interface FocusedCardOverlayProps {
+  request: DemandRequest;
+  userLat?: number | null;
+  userLng?: number | null;
+  onSwipe: (direction: 'left' | 'right') => void;
+  onDismiss: () => void;
+}
+
+const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
+  request, userLat, userLng, onSwipe, onDismiss
+}) => {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-20, 20]);
+  const likeOpacity = useTransform(x, [40, 120], [0, 1]);
+  const nopeOpacity = useTransform(x, [-40, -120], [0, 1]);
+
+  const [refPrice, setRefPrice] = useState<number | null>(null);
+  useEffect(() => {
+    referencePricesApi.getReferencePrices(1, 1, request.commodity_name, 'Nasional')
+      .then(res => { if (res?.items?.[0]) setRefPrice(res.items[0].price_per_kg); })
+      .catch(() => {});
+  }, [request.commodity_name]);
+
+  const distance = useMemo(() => {
+    if (userLat == null || userLng == null || request.latitude == null || request.longitude == null) return null;
+    const R = 6371;
+    const dLat = (request.latitude - userLat) * Math.PI / 180;
+    const dLon = (request.longitude - userLng) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(userLat * Math.PI / 180) * Math.cos(request.latitude * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  }, [userLat, userLng, request.latitude, request.longitude]);
+
+  const color = getColor(request.deadline);
+  const needed = request.quantity_kg_needed;
+  const committed = request.quantity_kg_committed;
+  const percent = Math.min(100, Math.round((committed / needed) * 100));
+  const numPetani = request.num_petani_committed || 0;
+
+  const handleDragEnd = (_: any, info: any) => {
+    if (info.offset.x > 80) onSwipe('right');
+    else if (info.offset.x < -80) onSwipe('left');
+    else x.set(0);
+  };
+
+  return (
+    /* Fixed container centered in viewport, above backdrop (z-200) */
+    <div className="fixed inset-0 z-[600] flex flex-col items-center justify-center gap-6 pointer-events-none">
+      {/* The draggable enlarged card */}
+      <motion.div
+        style={{
+          x, rotate,
+          width: FOCUS_W,
+          height: FOCUS_H,
+          pointerEvents: 'auto',
+        }}
+        drag="x"
+        dragElastic={0.35}
+        dragConstraints={{ left: 0, right: 0 }}
+        onDragEnd={handleDragEnd}
+        initial={{ scale: 0.82, opacity: 0, y: 30 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.82, opacity: 0, y: 20 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+        className="cursor-grab active:cursor-grabbing relative"
+      >
+        {/* Swipe indicators */}
+        <motion.div style={{ opacity: likeOpacity }}
+          className="absolute left-4 top-8 z-50 rounded-lg border-4 border-gr-green px-3 py-0.5 font-display text-xl font-bold uppercase tracking-widest text-gr-green -rotate-12 bg-white/95 shadow-md pointer-events-none">
+          PENUHI
+        </motion.div>
+        <motion.div style={{ opacity: nopeOpacity }}
+          className="absolute right-4 top-8 z-50 rounded-lg border-4 border-gr-price-unfair px-3 py-0.5 font-display text-xl font-bold uppercase tracking-widest text-gr-price-unfair rotate-12 bg-white/95 shadow-md pointer-events-none">
+          LEWATI
+        </motion.div>
+
+        {/* Enlarged card face */}
+        <div className="h-full w-full rounded-2xl flex flex-col overflow-hidden shadow-[0_32px_72px_rgba(0,0,0,0.24)]"
+          style={{ background: color.bg, border: `1.5px solid ${color.border}` }}>
+
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-ink-soft">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <span className="font-mono text-[9px] uppercase tracking-widest font-semibold" style={{ color: color.accent }}>
               {request.category}
             </span>
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-gr-down font-bold flex items-center gap-1">
-              <Calendar size={11} />
-              {getRelativeDeadline(request.deadline)}
+            <span className="font-mono text-[9px] uppercase tracking-widest font-bold" style={{ color: color.accent }}>
+              {distance != null ? `${distance} km` : 'Terdekat'}
             </span>
           </div>
+          <div className="mx-5 h-px" style={{ background: color.border }} />
 
-          {/* Commodity Name */}
-          <div className="space-y-1.5">
-            <h3 className="font-display text-3xl font-medium leading-tight text-gr-ink">
-              {request.commodity_name}
-            </h3>
-            <p className="font-mono text-[10px] text-gr-ink-soft">
-              Request ID: {request.id.slice(0, 8)}
+          <div className="flex-1 flex flex-col px-5 py-4 gap-3 overflow-hidden">
+            {/* Commodity + deadline */}
+            <div>
+              <h3 className="font-display text-xl font-bold leading-tight text-gr-ink tracking-tight">
+                {request.commodity_name}
+              </h3>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {color.label && (
+                  <span className="font-mono text-[8px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded"
+                    style={{ background: color.accent + '22', color: color.accent }}>
+                    {color.label}
+                  </span>
+                )}
+                <span className="font-mono text-[9px] font-semibold" style={{ color: color.accent }}>
+                  {formatDeadline(request.deadline)}
+                </span>
+              </div>
+            </div>
+
+            {/* Buyer */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
+                <p className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</p>
+              </div>
+              <div className="rounded-full px-2 py-0.5 flex items-center" style={{ background: color.border }}>
+                <RatingBadge avgRating={request.buyer_rating_avg} ratingCount={request.buyer_rating_count}
+                  size="sm" newLabel="Baru" countSuffix="permintaan" />
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className="flex justify-between items-start gap-2 pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
+                <p className="font-mono text-base font-bold text-gr-ink">
+                  Rp {request.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+                </p>
+              </div>
+              {refPrice !== null && (
+                <div className="text-right">
+                  <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">PIHPS</p>
+                  <p className="font-mono text-xs text-gr-ink-soft">Rp {refPrice.toLocaleString('id-ID')}</p>
+                  {request.price_per_kg >= refPrice
+                    ? <p className="font-mono text-[8px] font-bold text-gr-up uppercase mt-0.5">Harga Adil</p>
+                    : <p className="font-mono text-[8px] font-bold text-gr-price-unfair uppercase mt-0.5">Bawah Pasar</p>
+                  }
+                </div>
+              )}
+            </div>
+
+            {/* Progress */}
+            <div className="pt-2 space-y-1.5" style={{ borderTop: `1px solid ${color.border}` }}>
+              <div className="flex justify-between text-[9px] font-mono">
+                <span className="text-gr-ink-soft/50 uppercase tracking-widest">Kebutuhan</span>
+                <span className="text-gr-ink font-semibold">{needed.toLocaleString('id-ID')} KG</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: color.border }}>
+                <div className="h-full rounded-full bg-gr-board transition-all" style={{ width: `${percent}%` }} />
+              </div>
+              <div className="flex justify-between text-[9px] font-mono">
+                <span className="font-semibold text-gr-board">{percent}% terpenuhi</span>
+                <span className="text-gr-ink-soft/50 flex items-center gap-1"><Users size={9} /> {numPetani}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-5 pb-4 pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
+            <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: color.accent }}>
+              Geser kanan penuhi · kiri lewati
             </p>
           </div>
-
-          {/* Buyer / Requester info */}
-          <div className="flex items-center justify-between border-t border-gr-line pt-3">
-            <div className="flex flex-col">
-              <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft">Pemohon</span>
-              <span className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</span>
-            </div>
-            <div className="bg-gr-ink/5 border border-gr-line rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
-              <RatingBadge
-                avgRating={request.buyer_rating_avg}
-                ratingCount={request.buyer_rating_count}
-                size="sm"
-                newLabel="Pembeli Baru"
-                countSuffix="permintaan"
-              />
-            </div>
-          </div>
-
-          <div className="border-t border-gr-line pt-5 space-y-4">
-            {/* Target KG Needed */}
-            <div className="flex justify-between items-end">
-              <div>
-                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1">
-                  Kebutuhan KG
-                </span>
-                <span className="font-mono text-2xl font-bold text-gr-ink">
-                  {needed.toLocaleString('id-ID')} KG
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1">
-                  Sudah Terkumpul
-                </span>
-                <span className="font-mono text-lg font-bold text-gr-ink">
-                  {committed.toLocaleString('id-ID')} KG
-                </span>
-              </div>
-            </div>
- 
-            {/* Progress Badge and details */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className={cn(
-                  "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                  progressBadgeColor
-                )}>
-                  {percent}% Terpenuhi
-                </span>
-                <span className="font-mono text-[10px] text-gr-ink-soft flex items-center gap-1">
-                  <Users size={12} />
-                  {numPetani} Petani Fulfill
-                </span>
-              </div>
- 
-              {/* Progress visual bar */}
-              <div className="w-full bg-gr-ink/5 h-2 rounded-full overflow-hidden border border-gr-line">
-                <div 
-                  className="bg-gr-board h-full rounded-full transition-all duration-300"
-                  style={{ width: `${percent}%` }}
-                />
-              </div>
-            </div>
-          </div>
         </div>
+      </motion.div>
 
-        {/* Warning Indicator or Polaroid Bottom Emblem */}
+      {/* Action buttons below the card */}
+      <div className="flex items-center gap-10" style={{ pointerEvents: 'auto' }}>
+        <button onClick={() => onSwipe('left')}
+          className="flex h-14 w-14 items-center justify-center rounded-full border border-gr-price-unfair/30 bg-white text-gr-price-unfair transition-all hover:bg-gr-price-unfair hover:text-white hover:scale-110 active:scale-95 cursor-pointer shadow-lg">
+          <X size={24} />
+        </button>
+        <button onClick={() => onSwipe('right')}
+          className="flex h-16 w-16 items-center justify-center rounded-full border border-gr-green/30 bg-white text-gr-green transition-all hover:bg-gr-green hover:text-white hover:scale-110 active:scale-95 cursor-pointer shadow-lg">
+          <Heart size={30} fill="currentColor" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
+// CardFace — shared card UI (used in TableCard)
+// ─────────────────────────────────────────────────────────────
+interface CardFaceProps {
+  request: DemandRequest;
+  color: typeof COLORS[keyof typeof COLORS];
+  isFocused: boolean;
+  showDragHint: boolean;
+}
+
+const CardFace: React.FC<CardFaceProps> = ({ request, color, isFocused, showDragHint }) => {
+  const needed = request.quantity_kg_needed;
+  const committed = request.quantity_kg_committed;
+  const percent = Math.min(100, Math.round((committed / needed) * 100));
+  const numPetani = request.num_petani_committed || 0;
+
+  return (
+    <div className="h-full w-full rounded-2xl flex flex-col overflow-hidden"
+      style={{ background: color.bg, border: `1.5px solid ${color.border}` }}>
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <span className="font-mono text-[9px] uppercase tracking-widest font-semibold" style={{ color: color.accent }}>
+          {request.category}
+        </span>
+        <span className="font-mono text-[9px] uppercase tracking-widest font-bold" style={{ color: color.accent }}>
+          {formatDeadline(request.deadline)}
+        </span>
+      </div>
+      <div className="mx-4 h-px" style={{ background: color.border }} />
+
+      <div className="flex-1 flex flex-col px-4 py-3 gap-2.5 overflow-hidden">
+        {/* Commodity */}
         <div>
-          {percent >= 90 ? (
-            <div className="rounded-xl bg-gr-price-unfair/10 border border-gr-price-unfair/20 p-3 text-[10px] text-gr-price-unfair leading-relaxed flex items-center gap-1.5 animate-pulse">
-              <AlertTriangle size={14} className="shrink-0" />
-              <span>Hampir penuh — pertimbangkan permintaan lain</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between border-t border-gr-line pt-4 text-gr-ink-soft/40">
-              <span className="font-mono text-[8px] uppercase tracking-widest">Supply Signal Aggregator</span>
-              <span className="font-display text-xl italic font-bold">G</span>
-            </div>
+          <h3 className="font-display text-base font-bold leading-tight text-gr-ink tracking-tight">
+            {request.commodity_name}
+          </h3>
+          {color.label && (
+            <span className="inline-block mt-0.5 font-mono text-[8px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded"
+              style={{ background: color.accent + '22', color: color.accent }}>
+              {color.label}
+            </span>
           )}
         </div>
+
+        {/* Buyer */}
+        <div>
+          <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
+          <p className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</p>
+        </div>
+
+        {/* Price */}
+        <div className="pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
+          <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
+          <p className="font-mono text-sm font-bold text-gr-ink">
+            Rp {request.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+          </p>
+        </div>
+
+        {/* Progress */}
+        <div className="pt-2 space-y-1.5" style={{ borderTop: `1px solid ${color.border}` }}>
+          <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: color.border }}>
+            <div className="h-full rounded-full bg-gr-board" style={{ width: `${percent}%` }} />
+          </div>
+          <div className="flex justify-between text-[9px] font-mono">
+            <span className="font-semibold text-gr-board">{percent}% terpenuhi</span>
+            <span className="text-gr-ink-soft/50 flex items-center gap-1"><Users size={9} /> {numPetani}</span>
+          </div>
+        </div>
       </div>
-    </motion.div>
+
+      {/* Footer */}
+      <div className="px-4 pb-3 pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
+        <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: color.accent }}>
+          {showDragHint ? 'Geser kanan penuhi · kiri lewati' : 'Klik untuk detail'}
+        </p>
+      </div>
+    </div>
   );
 };

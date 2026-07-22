@@ -1,19 +1,29 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { authApi } from '@/lib/api/auth';
+import { referencePricesApi } from '@/lib/api/reference-prices';
+import { BASE_URL } from '@/lib/api/client';
 import { SwipeDeck } from '@/components/products/swipe-deck';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { Loader2, Compass } from 'lucide-react';
+import { Loader2, Compass, Search, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function JelajahPage() {
   const [demandRequests, setDemandRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
+  // Commodity filtering states
+  const [selectedCommodityFilter, setSelectedCommodityFilter] = useState<string>('Semua');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [allCommodities, setAllCommodities] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
   const fetchDemandRequests = async () => {
     setIsLoading(true);
@@ -27,6 +37,35 @@ export default function JelajahPage() {
     }
   };
 
+  const requestLocation = () => {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
+        },
+        (error) => {
+          console.warn("Jelajah geolocation error:", error.message);
+        },
+        { timeout: 8000 }
+      );
+    }
+  };
+
+  // Fetch commodities dropdown list from reference prices
+  useEffect(() => {
+    const fetchCommodities = async () => {
+      try {
+        const res = await referencePricesApi.getReferencePrices(1, 1);
+        if (res.distinct_commodities) {
+          setAllCommodities(res.distinct_commodities);
+        }
+      } catch (err) {
+        console.error('Failed to load commodities in jelajah:', err);
+      }
+    };
+    fetchCommodities();
+  }, []);
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -36,9 +75,44 @@ export default function JelajahPage() {
         setUser(null);
       }
       await fetchDemandRequests();
+      requestLocation();
     };
     init();
   }, []);
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    if (val.trim() === '') {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setSelectedCommodityFilter('Semua');
+    } else {
+      const filtered = allCommodities.filter(comm =>
+        comm.toLowerCase().includes(val.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    }
+  };
+
+  const selectSuggestion = (comm: string) => {
+    setSearchQuery(comm);
+    setSelectedCommodityFilter(comm);
+    setShowSuggestions(false);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setSelectedCommodityFilter('Semua');
+  };
+
+  // Filter requests
+  const filteredRequests = useMemo(() => {
+    if (selectedCommodityFilter === 'Semua') return demandRequests;
+    return demandRequests.filter(r => r.commodity_name === selectedCommodityFilter);
+  }, [demandRequests, selectedCommodityFilter]);
 
   return (
     <main className="relative flex-1 bg-gr-paper py-10 overflow-hidden min-h-[calc(100vh-80px)]">
@@ -47,11 +121,7 @@ export default function JelajahPage() {
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-[1100px] mx-auto px-4 md:px-8">
-        <header className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gr-board/5 border border-gr-board/15 text-gr-board font-mono text-[10px] uppercase tracking-widest mb-3">
-            <Compass size={12} className="animate-spin-slow" />
-            <span>Marketplace Real-Time</span>
-          </div>
+        <header className="mb-6 text-center">
           <h1 className="font-display text-3xl md:text-4xl text-gr-ink font-bold">
             Jelajah Permintaan Pangan
           </h1>
@@ -86,16 +156,60 @@ export default function JelajahPage() {
             </Link>
           </div>
         ) : (
-          <SwipeDeck
-            requests={demandRequests}
-            onSwipeRight={fetchDemandRequests}
-            onSwipeLeft={(r) => {
-              if (process.env.NODE_ENV === 'development') {
-                console.log(`Skipped demand: ${r.commodity_name}`);
-              }
-            }}
-            onEmpty={fetchDemandRequests}
-          />
+          <div className="space-y-6 w-full mx-auto">
+            {/* Premium Autocomplete Search Filter */}
+            <div className="relative w-full max-w-[340px] mx-auto z-40">
+              <div className="relative flex items-center bg-white border border-gr-line rounded-full shadow-xs px-3.5 py-2 hover:border-gr-ink-soft/45 transition-all">
+                <Search size={14} className="text-gr-ink-soft shrink-0 mr-2" />
+                <input
+                  type="text"
+                  placeholder="Cari komoditas..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => {
+                    if (searchQuery.trim() !== '') setShowSuggestions(true);
+                  }}
+                  className="w-full bg-transparent text-gr-ink placeholder-gr-ink-soft/60 focus:outline-none font-sans text-xs"
+                />
+                {searchQuery !== '' && (
+                  <button
+                    onClick={clearSearch}
+                    className="p-1 hover:bg-gr-paper rounded-full text-gr-ink-soft cursor-pointer transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 mt-1 bg-white border border-gr-line rounded-2xl shadow-lg max-h-48 overflow-y-auto z-50 text-left py-1 font-sans text-xs">
+                  {suggestions.map((comm) => (
+                    <button
+                      key={comm}
+                      onClick={() => selectSuggestion(comm)}
+                      className="w-full text-left px-4 py-2 hover:bg-gr-paper text-gr-ink hover:text-gr-board transition-colors cursor-pointer block"
+                    >
+                      {comm}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <SwipeDeck
+              requests={filteredRequests}
+              userLat={userLocation?.[0]}
+              userLng={userLocation?.[1]}
+              onSwipeRight={fetchDemandRequests}
+              onSwipeLeft={(r) => {
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`Skipped demand: ${r.commodity_name}`);
+                }
+              }}
+              onEmpty={fetchDemandRequests}
+            />
+          </div>
         )}
       </div>
     </main>

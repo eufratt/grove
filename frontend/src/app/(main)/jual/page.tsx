@@ -4,11 +4,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { productsApi } from '@/lib/api/products';
 import { authApi } from '@/lib/api/auth';
+import { referencePricesApi } from '@/lib/api/reference-prices';
 import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
+import { provinceCentroids } from '@/lib/data/province-centroids';
 import { cn } from '@/lib/utils';
-import { Camera, Plus, X, Loader2 } from 'lucide-react';
+import { Camera, Plus, X, Loader2, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function JualPage() {
   const router = useRouter();
@@ -49,6 +51,72 @@ export default function JualPage() {
   const [locating, setLocating] = useState(false);
   const [locationStatus, setLocationStatus] = useState('');
 
+  // Autocomplete & Price Advisor States
+  const [allCommodities, setAllCommodities] = useState<string[]>([]);
+  const [filteredCommodities, setFilteredCommodities] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [refPrice, setRefPrice] = useState<number | null>(null);
+
+  const getClosestProvince = (latitude: number, longitude: number) => {
+    let closestProv = 'Di Yogyakarta';
+    let minDist = Infinity;
+    Object.entries(provinceCentroids).forEach(([provName, coords]) => {
+      const dist = Math.sqrt((coords.lat - latitude) ** 2 + (coords.lng - longitude) ** 2);
+      if (dist < minDist) {
+        minDist = dist;
+        closestProv = provName;
+      }
+    });
+    return closestProv;
+  };
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Fetch commodities list
+  useEffect(() => {
+    const fetchCommodities = async () => {
+      try {
+        const res = await referencePricesApi.getReferencePrices(1, 1);
+        if (res.distinct_commodities) {
+          setAllCommodities(res.distinct_commodities);
+        }
+      } catch (err) {
+        console.error('Failed to load commodities in sell page:', err);
+      }
+    };
+    fetchCommodities();
+  }, []);
+
+  const fetchReferencePrice = async (commodity: string, latitude: number | null, longitude: number | null) => {
+    try {
+      const region = latitude && longitude ? getClosestProvince(latitude, longitude) : 'Nasional';
+      const res = await referencePricesApi.getReferencePrices(1, 1, commodity, region);
+      if (res.items && res.items.length > 0) {
+        setRefPrice(res.items[0].price_per_kg);
+      } else {
+        const nasRes = await referencePricesApi.getReferencePrices(1, 1, commodity, 'Nasional');
+        if (nasRes.items && nasRes.items.length > 0) {
+          setRefPrice(nasRes.items[0].price_per_kg);
+        } else {
+          setRefPrice(null);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch ref price:', err);
+      setRefPrice(null);
+    }
+  };
+
   const handleGetLocation = () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
       setLocationStatus('Browser tidak mendukung geolokasi');
@@ -62,6 +130,9 @@ export default function JualPage() {
         setLng(position.coords.longitude);
         setLocating(false);
         setLocationStatus(`Lokasi terisi: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+        if (formData.name) {
+          fetchReferencePrice(formData.name, position.coords.latitude, position.coords.longitude);
+        }
       },
       (error) => {
         setLocating(false);
@@ -71,8 +142,33 @@ export default function JualPage() {
     );
   };
 
+  const handleNameChange = (val: string) => {
+    setFormData(prev => ({ ...prev, name: val }));
+    setRefPrice(null);
+    if (val.trim() === '') {
+      setFilteredCommodities([]);
+      setShowDropdown(false);
+    } else {
+      const filtered = allCommodities.filter((item) =>
+        item.toLowerCase().includes(val.toLowerCase())
+      );
+      setFilteredCommodities(filtered);
+      setShowDropdown(true);
+    }
+  };
+
+  const selectCommodity = (commodity: string) => {
+    setFormData(prev => ({ ...prev, name: commodity }));
+    setShowDropdown(false);
+    fetchReferencePrice(commodity, lat, lng);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'name') {
+      handleNameChange(value);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,7 +309,7 @@ export default function JualPage() {
             )}
 
             <div className="space-y-6">
-              <div>
+              <div className="relative" ref={dropdownRef}>
                 <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
                   Nama Komoditas
                 </label>
@@ -225,7 +321,22 @@ export default function JualPage() {
                   className="mt-2 block w-full border-b border-white/20 bg-transparent py-2 font-sans text-xl text-gr-text-primary placeholder-white/10 focus:border-gr-green focus:outline-none transition-colors"
                   value={formData.name}
                   onChange={handleInputChange}
+                  onFocus={() => formData.name && setFilteredCommodities(allCommodities.filter(item => item.toLowerCase().includes(formData.name.toLowerCase())))}
                 />
+                {showDropdown && filteredCommodities.length > 0 && (
+                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-gr-bg/95 backdrop-blur-xl shadow-lg z-30 divide-y divide-white/5">
+                    {filteredCommodities.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => selectCommodity(item)}
+                        className="w-full text-left px-4 py-3 font-sans text-xs text-gr-text-primary hover:text-gr-green hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -279,6 +390,45 @@ export default function JualPage() {
                   />
                 </div>
               </div>
+
+              {/* Asisten Harga Adil (Price Fair Assistant) Box */}
+              {refPrice !== null && formData.price_per_kg && (
+                <div className="mt-2 font-sans text-xs">
+                  {parseFloat(formData.price_per_kg) < 0.75 * refPrice && (
+                    <div className="rounded-2xl bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start">
+                      <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold block">Peringatan: Harga Terlalu Murah</span>
+                        <p className="mt-1 leading-relaxed">
+                          Harga pasar rata-rata saat ini adalah <strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>. Anda menjual jauh di bawah pasar seharga <strong>Rp {parseFloat(formData.price_per_kg).toLocaleString('id-ID')}/kg</strong>. Anda bisa meningkatkan harga hingga <strong>Rp {Math.round(0.85 * refPrice).toLocaleString('id-ID')}/kg</strong> dan tetap kompetitif tanpa merugikan hasil kerja keras Anda.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {parseFloat(formData.price_per_kg) > 1.20 * refPrice && (
+                    <div className="rounded-2xl bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start">
+                      <AlertTriangle size={16} className="shrink-0 mt-0.5 animate-pulse" />
+                      <div>
+                        <span className="font-semibold block">Peringatan: Harga Cukup Tinggi</span>
+                        <p className="mt-1 leading-relaxed">
+                          Harga Anda (<strong>Rp {parseFloat(formData.price_per_kg).toLocaleString('id-ID')}/kg</strong>) berada di atas harga pasar rata-rata (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>). Produk Anda mungkin membutuhkan waktu lebih lama untuk laku oleh pembeli.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {parseFloat(formData.price_per_kg) >= 0.75 * refPrice && parseFloat(formData.price_per_kg) <= 1.20 * refPrice && (
+                    <div className="rounded-2xl bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start">
+                      <CheckCircle size={16} className="shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold block">Harga Adil & Kompetitif</span>
+                        <p className="mt-1 leading-relaxed">
+                          Harga Anda kompetitif dengan rata-rata harga acuan harga pasar wilayah saat ini (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>).
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="pt-2">
                 <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">

@@ -32,6 +32,7 @@ class DemandRequest(Base):
     category: Mapped[str] = mapped_column(String(100), nullable=False)
     quantity_kg_needed: Mapped[float] = mapped_column(Float, nullable=False)
     quantity_kg_committed: Mapped[float] = mapped_column(Float, default=0.0)
+    price_per_kg: Mapped[float] = mapped_column(Float, default=0.0)
     deadline: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     status: Mapped[DemandRequestStatus] = mapped_column(Enum(DemandRequestStatus), default=DemandRequestStatus.TERBUKA)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

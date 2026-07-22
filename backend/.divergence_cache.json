@@ -1,0 +1,184 @@
+{
+  "bawang merah:nasional:90": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Bawang Merah",
+      "region": "Nasional",
+      "days": 90,
+      "divergence_score": 7.5011262841482775,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 675.8620689655172,
+      "average_oscillation_frequency_days": 5.517241379310345,
+      "explanation": "Harga bawang merah nasional kini bergejolak (divergen) dengan Divergence Score +7,5 % dan kenaikan total +29,93 % dalam 90 hari. Fluktuasi rata‑rata sebesar Rp 676 per siklus dengan periode sekitar 5,5 hari. Petani sebaiknya menunda panen atau jual saat harga tinggi, sementara pembeli disarankan membeli segera sebelum harga naik lebih jauh.",
+      "historical_data_points": 90
+    }
+  },
+  "telur ayam ras segar:nasional:90": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Telur Ayam Ras Segar",
+      "region": "Nasional",
+      "days": 90,
+      "divergence_score": 8.82001156283325,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1277.9411764705883,
+      "average_oscillation_frequency_days": 5.0588235294117645,
+      "explanation": "Harga telur ayam ras segar kini bergejolak (Divergence Score +8,82%). Fluktuasi rata‑rata sekitar Rp 1.278 per kg setiap 5,1 hari. Petani sebaiknya menahan penjualan besar‑besar dan menyesuaikan harga, sementara pembeli dapat memanfaatkan penurunan harga saat ini namun tetap waspada terhadap perubahan cepat.",
+      "historical_data_points": 90
+    }
+  },
+  "cabai rawit merah:nasional:90": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Rawit Merah",
+      "region": "Nasional",
+      "days": 90,
+      "divergence_score": 6.155914876613457,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1672.0588235294117,
+      "average_oscillation_frequency_days": 4.9411764705882355,
+      "explanation": "Harga Cabai Rawit Merah kini bergejolak (divergen) dengan Divergence Score +6,16 %. Fluktuasi rata‑rata sekitar Rp 1.672 per kg dalam siklus ≈4,9 hari. Petani sebaiknya menunda panen besar atau jual sebagian sekarang untuk menghindari penurunan lebih lanjut, sementara pembeli dapat manfaatkan penurunan 5,4 % untuk mengisi stok.",
+      "historical_data_points": 90
+    }
+  },
+  "bawang merah:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Bawang Merah",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 0.8242018405781376,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 1433.3333333333333,
+      "average_oscillation_frequency_days": 7.333333333333333,
+      "explanation": "Harga bawang merah di Jawa Timur saat ini berada dalam kondisi fluktuasi normal, tidak menunjukkan tren bergejolak. Rata‑rata osilasi harga adalah sekitar Rp 1.433 per siklus dengan periode sekitar 7,3 hari. Petani sebaiknya menahan panen beberapa hari lagi untuk mengoptimalkan margin, sementara pembeli dapat memanfaatkan penurunan harga sekitar 5,7 % ini.",
+      "historical_data_points": 30
+    }
+  },
+  "daging ayam:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Daging Ayam",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 19.707952608907746,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 640.0,
+      "average_oscillation_frequency_days": 6.4,
+      "explanation": "Harga Daging Ayam di Jawa Timur kini sedang bergejolak (Divergence Score +19,71%). Fluktuasi rata‑rata sebesar Rp 640 per siklus dengan periode sekitar 6,4 hari. Petani sebaiknya menyiapkan stok atau menyesuaikan penjualan, sementara pembeli dapat mempertimbangkan pembelian dalam jumlah lebih banyak sekarang sebelum harga berpotensi naik kembali.",
+      "historical_data_points": 30
+    }
+  },
+  "cabai rawit merah:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Rawit Merah",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 15.495970422295333,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 975.0,
+      "average_oscillation_frequency_days": 4.5,
+      "explanation": "Harga Cabai Rawit Merah di Jawa Timur kini bergejolak (Divergence Score +15,5%). Rata-rata fluktuasi harga berosilasi ±Rp 975 setiap 4,5 hari. Petani sebaiknya menunda panen besar atau menjual secara bertahap, sementara pembeli dapat memanfaatkan harga rendah sekarang sebelum potensi kenaikan kembali.",
+      "historical_data_points": 30
+    }
+  },
+  "cabai merah:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Merah",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 19.844246384658316,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1400.0,
+      "average_oscillation_frequency_days": 4.25,
+      "explanation": "Harga cabai merah di Jawa Timur kini bergejolak (Divergen) dengan Divergence Score +19,84 %. Rata‑rata osilasi harga berfluktuasi ±Rp 1.400 dalam siklus sekitar 4,2 hari selama 30 hari terakhir. Petani sebaiknya menahan sebagian panen atau menjual secara bertahap untuk menghindari penurunan tajam, sementara pembeli dapat menyiapkan anggaran cadangan atau menunggu penurunan harga sebelum membeli dalam jumlah besar.",
+      "historical_data_points": 30
+    }
+  },
+  "cabai merah keriting:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Merah Keriting",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 16.60867327006316,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1300.0,
+      "average_oscillation_frequency_days": 5.714285714285714,
+      "explanation": "Harga cabai merah keriting di Jawa Timur kini bergejolak (Divergence Score +16,61%). Fluktuasi rata‑rata sekitar Rp 1.300 tiap siklus dengan periode ≈5,7 hari. Petani sebaiknya menahan panen atau cari pasar alternatif, sementara pembeli dapat memanfaatkan penurunan harga dengan membeli dalam jumlah lebih besar sekarang.",
+      "historical_data_points": 30
+    }
+  },
+  "cabai rawit:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Rawit",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 14.164782358591431,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1583.3333333333333,
+      "average_oscillation_frequency_days": 6.333333333333333,
+      "explanation": "Harga cabai rawit di Jawa Timur kini bergejolak (Divergence Score +14,16%). Fluktuasi rata‑rata sekitar Rp 1.583 per kg dalam siklus ≈6,3 hari. Petani sebaiknya menunda atau menyimpan sebagian hasil untuk menjual saat harga stabil, sementara pembeli dapat memanfaatkan penurunan harga kini namun tetap waspada terhadap kenaikan mendadak.",
+      "historical_data_points": 30
+    }
+  },
+  "cabai rawit hijau:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Rawit Hijau",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 45.61966594394315,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1085.7142857142858,
+      "average_oscillation_frequency_days": 4.857142857142857,
+      "explanation": "Harga cabai rawit hijau di Jawa Timur kini bergejolak (Divergen) karena Divergence Score +45,62 %. Rata‑rata fluktuasi harga sekitar Rp 1.086 per kilogram dalam siklus sekitar 4,9 hari. Petani sebaiknya menunda penjualan penuh atau jual sebagian saat harga masih rendah, sementara pembeli dapat memanfaatkan penurunan harga untuk mengisi stok.",
+      "historical_data_points": 30
+    }
+  },
+  "cabai rawit merah:jawa timur:90": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Rawit Merah",
+      "region": "Jawa Timur",
+      "days": 90,
+      "divergence_score": 13.338896322041514,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 1459.375,
+      "average_oscillation_frequency_days": 4.9375,
+      "explanation": "Harga Cabai Rawit Merah di Jawa Timur kini bergejolak (Divergence Score +13.34%). Rata‑rata fluktuasi harga adalah sekitar Rp 1.459 tiap 4,9 hari. Petani sebaiknya pertimbangkan penjualan segera untuk menghindari penurunan lebih lanjut, sementara pembeli dapat memanfaatkan harga yang sedang rendah.",
+      "historical_data_points": 90
+    }
+  },
+  "bawang merah ukuran sedang:jawa timur:90": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Bawang Merah Ukuran Sedang",
+      "region": "Jawa Timur",
+      "days": 90,
+      "divergence_score": 2.1472059511507373,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 897.0588235294117,
+      "average_oscillation_frequency_days": 4.529411764705882,
+      "explanation": "Harga bawang merah ukuran sedang di Jawa Timur saat ini berada dalam kondisi fluktuasi normal dengan sedikit kecenderungan bergejolak (Divergence Score +2,15%). Rata‑rata osilasi harga selama 90 hari terakhir adalah sekitar Rp 897 per siklus 4,5 hari. Petani sebaiknya menahan penjualan bila memungkinkan untuk mengamankan harga lebih tinggi, sementara pembeli dapat memanfaatkan harga saat ini sebelum kemungkinan kenaikan.",
+      "historical_data_points": 90
+    }
+  },
+  "cabai rawit merah:di yogyakarta:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Cabai Rawit Merah",
+      "region": "Di Yogyakarta",
+      "days": 30,
+      "divergence_score": 8.638845945747114,
+      "classification": "Divergen (Makin Bergejolak)",
+      "average_oscillation_amplitude": 2016.6666666666667,
+      "average_oscillation_frequency_days": 6.0,
+      "explanation": "Harga cabai rawit merah di Yogyakarta kini bergejolak (Divergence Score +8,64%). Rata-rata fluktuasi harga sekitar Rp 2.017 per kg dalam siklus 6 hari. Petani sebaiknya menahan panen sementara pembeli dapat menunggu penurunan harga lebih lanjut.",
+      "historical_data_points": 30
+    }
+  }
+}

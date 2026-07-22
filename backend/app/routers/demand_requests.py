@@ -43,6 +43,7 @@ async def create_demand_request(
         category=body.category,
         quantity_kg_needed=body.quantity_kg_needed,
         quantity_kg_committed=0.0,
+        price_per_kg=body.price_per_kg,
         deadline=deadline,
         status=DemandRequestStatus.TERBUKA,
         location=WKTElement(f"POINT({body.longitude} {body.latitude})", srid=4326)
@@ -68,6 +69,7 @@ async def create_demand_request(
         "category": new_request.category,
         "quantity_kg_needed": new_request.quantity_kg_needed,
         "quantity_kg_committed": new_request.quantity_kg_committed,
+        "price_per_kg": new_request.price_per_kg,
         "deadline": new_request.deadline,
         "status": new_request.status,
         "created_at": new_request.created_at,
@@ -110,6 +112,7 @@ async def list_open_demand_requests(
             "category": request.category,
             "quantity_kg_needed": request.quantity_kg_needed,
             "quantity_kg_committed": request.quantity_kg_committed,
+            "price_per_kg": request.price_per_kg,
             "deadline": request.deadline,
             "status": request.status,
             "created_at": request.created_at,
@@ -151,6 +154,7 @@ async def list_my_demand_requests(
             "category": request.category,
             "quantity_kg_needed": request.quantity_kg_needed,
             "quantity_kg_committed": request.quantity_kg_committed,
+            "price_per_kg": request.price_per_kg,
             "deadline": request.deadline,
             "status": request.status,
             "created_at": request.created_at,
@@ -247,6 +251,134 @@ async def list_committed_demand_requests(
             "has_petani_rated": has_petani_rated
         })
     return items
+
+PROVINCE_CENTROIDS = {
+    'Aceh': (4.6951, 96.7494),
+    'Bali': (-8.4095, 115.1889),
+    'Banten': (-6.4058, 106.0600),
+    'Bengkulu': (-3.7928, 102.2608),
+    'Di Yogyakarta': (-7.8753, 110.4262),
+    'Gorontalo': (0.6999, 122.4556),
+    'Jambi': (-1.6116, 103.6060),
+    'Jawa Barat': (-7.0909, 107.6689),
+    'Jawa Tengah': (-7.1510, 110.1403),
+    'Jawa Timur': (-7.5360, 112.2384),
+    'Kalimantan Barat': (-0.2789, 111.4753),
+    'Kalimantan Selatan': (-3.0926, 115.2838),
+    'Kalimantan Tengah': (-1.6814, 113.3824),
+    'Kalimantan Timur': (1.6406, 116.4194),
+    'Kalimantan Utara': (3.0731, 116.0414),
+    'Kepulauan Bangka Belitung': (-2.7410, 106.4406),
+    'Kepulauan Riau': (3.9456, 108.1428),
+    'Lampung': (-4.5586, 105.4000),
+    'Maluku': (-3.2384, 130.1453),
+    'Maluku Utara': (1.5700, 127.8000),
+    'Nusa Tenggara Barat': (-8.6529, 117.3616),
+    'Nusa Tenggara Timur': (-8.6574, 121.0794),
+    'Papua': (-4.2699, 138.0804),
+    'Papua Barat': (-1.3361, 132.9000),
+    'Riau': (0.5071, 101.5408),
+    'Sulawesi Barat': (-2.8441, 119.3324),
+    'Sulawesi Selatan': (-3.6687, 119.9741),
+    'Sulawesi Tengah': (-1.4300, 121.4456),
+    'Sulawesi Tenggara': (-4.1449, 122.1746),
+    'Sulawesi Utara': (0.6247, 123.9750),
+    'Sumatera Barat': (-0.7399, 100.8000),
+    'Sumatera Selatan': (-3.3194, 103.9144),
+    'Sumatera Utara': (2.1153, 99.5450),
+    'DKI Jakarta': (-6.2088, 106.8456)
+}
+
+def get_closest_province(lat: float, lng: float) -> str:
+    closest_prov = 'Di Yogyakarta'
+    min_dist = float('inf')
+    for prov_name, coords in PROVINCE_CENTROIDS.items():
+        dist = ((coords[0] - lat) ** 2 + (coords[1] - lng) ** 2) ** 0.5
+        if dist < min_dist:
+            min_dist = dist
+            closest_prov = prov_name
+    return closest_prov
+
+from app.schemas.demand_request import DemandRegionalAnalyticsResponse
+
+@router.get("/analytics/gap", response_model=DemandRegionalAnalyticsResponse)
+async def get_regional_demand_gap(
+    commodity_name: str = Query(..., description="Nama komoditas, misal Cabai Rawit Merah"),
+    latitude: float = Query(-7.7956, description="Latitude lokasi petani"),
+    longitude: float = Query(110.3695, description="Longitude lokasi petani"),
+    db: AsyncSession = Depends(get_db)
+):
+    farmer_province = get_closest_province(latitude, longitude)
+    
+    from sqlalchemy.orm import joinedload
+    stmt = select(
+        DemandRequest,
+        func.ST_Y(DemandRequest.location).label("latitude"),
+        func.ST_X(DemandRequest.location).label("longitude")
+    ).options(
+        joinedload(DemandRequest.buyer)
+    ).where(
+        DemandRequest.status == DemandRequestStatus.TERBUKA,
+        func.lower(DemandRequest.commodity_name).like(f"%{commodity_name.lower()}%")
+    )
+    
+    res = await db.execute(stmt)
+    rows = res.all()
+    
+    regional_requests = []
+    total_needed = 0.0
+    total_committed = 0.0
+    
+    for row in rows:
+        dr = row[0]
+        lat = row[1]
+        lng = row[2]
+        
+        if lat is not None and lng is not None:
+            prov = get_closest_province(lat, lng)
+            if prov == farmer_province:
+                total_needed += dr.quantity_kg_needed
+                total_committed += dr.quantity_kg_committed
+                
+                regional_requests.append({
+                    "id": dr.id,
+                    "buyer_id": dr.buyer_id,
+                    "commodity_name": dr.commodity_name,
+                    "category": dr.category,
+                    "quantity_kg_needed": dr.quantity_kg_needed,
+                    "quantity_kg_committed": dr.quantity_kg_committed,
+                    "price_per_kg": dr.price_per_kg,
+                    "deadline": dr.deadline,
+                    "status": dr.status,
+                    "created_at": dr.created_at,
+                    "latitude": lat,
+                    "longitude": lng,
+                    "buyer_name": dr.buyer.full_name if dr.buyer else None,
+                    "buyer_rating_avg": dr.buyer.buyer_rating_avg if dr.buyer else 0.0,
+                    "buyer_rating_count": dr.buyer.buyer_rating_count if dr.buyer else 0
+                })
+                
+    ratio = (total_committed / total_needed * 100) if total_needed > 0 else 0.0
+    
+    if total_needed == 0:
+        gap_status = "PELUANG_TINGGI"
+    elif ratio < 50.0:
+        gap_status = "PELUANG_TINGGI"
+    elif ratio < 90.0:
+        gap_status = "SEIMBANG"
+    else:
+        gap_status = "JENUH"
+        
+    return {
+        "commodity_name": commodity_name,
+        "province": farmer_province,
+        "total_needed_kg": total_needed,
+        "total_committed_kg": total_committed,
+        "num_requests": len(regional_requests),
+        "fulfillment_ratio": ratio,
+        "status": gap_status,
+        "open_requests": regional_requests
+    }
 
 @router.get("/{id}", response_model=DemandRequestDetailResponse)
 async def get_demand_request_detail(
