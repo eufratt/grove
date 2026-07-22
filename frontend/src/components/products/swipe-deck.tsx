@@ -289,7 +289,7 @@ const TableCard: React.FC<TableCardProps> = ({
   // Spread: 8 cards at ~100px gap → ~700px total span, overlapping naturally
   const spreadGap = Math.min(120, Math.max(80, 700 / Math.max(totalCards - 1, 1)));
   const centerOffset = (totalCards - 1) / 2;
-  const tableX  = (idx - centerOffset) * spreadGap + scatter.dxExtra;
+  const tableX  = (centerOffset - idx) * spreadGap + scatter.dxExtra;
   const tableY  = scatter.dy;
   const tableRot = scatter.rot;
 
@@ -298,13 +298,13 @@ const TableCard: React.FC<TableCardProps> = ({
   let animTarget: Record<string, any>;
   if (isInvisible) {
     // Card is shown by the fixed overlay; hide placeholder silently
-    animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + idx, opacity: 0, filter: 'none' };
+    animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + (totalCards - idx), opacity: 0, filter: 'none' };
   } else if (isAnyFocused) {
     // Dim/blur non-focused table cards
     animTarget = { x: tableX, y: tableY + 6, rotate: tableRot, scale: 0.88, zIndex: 1, opacity: 0.10, filter: 'blur(2px)' };
   } else {
     // Normal table spread
-    animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + idx, opacity: 1, filter: 'none' };
+    animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + (totalCards - idx), opacity: 1, filter: 'none' };
   }
 
   return (

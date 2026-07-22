@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from app.models.user import User, UserRole
 from app.models.demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
+from app.services.embedding_service import embedding_service
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
@@ -38,6 +39,15 @@ DEMAND_MOCKS = [
     {"commodity": "Bawang Putih Ukuran Sedang", "category": "SAYUR", "qty": 600, "committed_by_others": 50, "days_to_deadline": 12, "price": 32000},
     {"commodity": "Cabai Merah Besar", "category": "SAYUR", "qty": 400, "committed_by_others": 380, "days_to_deadline": 5, "price": 38000},
     {"commodity": "Daging Ayam", "category": "LAINNYA", "qty": 1000, "committed_by_others": 100, "days_to_deadline": 15, "price": 35000},
+    {"commodity": "Cabai Merah Keriting", "category": "SAYUR", "qty": 450, "committed_by_others": 100, "days_to_deadline": 10, "price": 42000},
+    {"commodity": "Cabai Hijau Besar", "category": "SAYUR", "qty": 350, "committed_by_others": 50, "days_to_deadline": 20, "price": 28000},
+    {"commodity": "Tomat Merah Segar", "category": "SAYUR", "qty": 500, "committed_by_others": 200, "days_to_deadline": 12, "price": 15000},
+    {"commodity": "Kentang Granola", "category": "SAYUR", "qty": 800, "committed_by_others": 300, "days_to_deadline": 18, "price": 18000},
+    {"commodity": "Beras Cianjur Pandan Wangi", "category": "POKOK", "qty": 1500, "committed_by_others": 500, "days_to_deadline": 40, "price": 19000},
+    {"commodity": "Daging Sapi Murni", "category": "LAINNYA", "qty": 250, "committed_by_others": 50, "days_to_deadline": 6, "price": 125000},
+    {"commodity": "Wortel Lokal", "category": "SAYUR", "qty": 600, "committed_by_others": 120, "days_to_deadline": 15, "price": 12000},
+    {"commodity": "Bayam Hijau Segar", "category": "SAYUR", "qty": 200, "committed_by_others": 180, "days_to_deadline": 4, "price": 8000},
+    {"commodity": "Kubis/Kol Bulat", "category": "SAYUR", "qty": 700, "committed_by_others": 0, "days_to_deadline": 22, "price": 10000},
 ]
 
 def offset_coords(lat, lng, idx):
@@ -120,6 +130,13 @@ async def main():
             deadline_date = datetime.utcnow() + timedelta(days=mock["days_to_deadline"])
             
             # Create request
+            embedding_text = f"{mock['commodity']} {mock['category']}"
+            try:
+                emb = await embedding_service.generate_embedding(embedding_text)
+            except Exception as e:
+                print(f"Failed to generate embedding for '{mock['commodity']}': {e}")
+                emb = None
+            
             dr = DemandRequest(
                 buyer_id=buyer.id,
                 commodity_name=mock["commodity"],
@@ -129,7 +146,8 @@ async def main():
                 price_per_kg=float(mock["price"]),
                 deadline=deadline_date,
                 status=DemandRequestStatus.TERBUKA,
-                location=WKTElement(f"POINT({lng} {lat})", srid=4326)
+                location=WKTElement(f"POINT({lng} {lat})", srid=4326),
+                embedding=emb
             )
             session.add(dr)
             await session.flush()  # get id

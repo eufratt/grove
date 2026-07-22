@@ -6,6 +6,7 @@ from typing import List
 from app.db import get_db
 from app.models.product import Product, ProductStatus
 from app.schemas.product import ProductResponse
+from app.schemas.demand_request import DemandRequestResponse
 from app.services.embedding_service import embedding_service
 
 router = APIRouter(prefix="/search", tags=["search"])
@@ -57,3 +58,47 @@ async def semantic_search(
         })
         
     return products
+
+@router.get("/demands", response_model=List[DemandRequestResponse])
+async def semantic_search_demands(
+    q: str = Query(..., min_length=1),
+    db: AsyncSession = Depends(get_db)
+):
+    # Generate embedding for the search query
+    query_embedding = await embedding_service.generate_embedding(q)
+    
+    # Execute semantic search on demand requests using <=> pgvector operator
+    sql = text("""
+        SELECT r.id, r.buyer_id, r.commodity_name, r.category, r.quantity_kg_needed, r.quantity_kg_committed, r.price_per_kg, r.deadline, r.status, r.created_at,
+               ST_Y(r.location::geometry) as latitude, ST_X(r.location::geometry) as longitude,
+               u.full_name as buyer_name, u.buyer_rating_avg, u.buyer_rating_count
+        FROM demand_requests r
+        JOIN users u ON r.buyer_id = u.id
+        WHERE r.status = 'TERBUKA' AND (r.embedding <=> :embedding) < 0.45
+        ORDER BY r.embedding <=> :embedding
+        LIMIT 50
+    """)
+    
+    result = await db.execute(sql, {"embedding": str(query_embedding)})
+    
+    demands = []
+    for row in result:
+        demands.append({
+            "id": row.id,
+            "buyer_id": row.buyer_id,
+            "commodity_name": row.commodity_name,
+            "category": row.category,
+            "quantity_kg_needed": row.quantity_kg_needed,
+            "quantity_kg_committed": row.quantity_kg_committed,
+            "price_per_kg": row.price_per_kg,
+            "deadline": row.deadline,
+            "status": row.status,
+            "created_at": row.created_at,
+            "latitude": row.latitude,
+            "longitude": row.longitude,
+            "buyer_name": row.buyer_name,
+            "buyer_rating_avg": row.buyer_rating_avg,
+            "buyer_rating_count": row.buyer_rating_count
+        })
+        
+    return demands

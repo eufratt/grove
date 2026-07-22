@@ -6,6 +6,7 @@ from sqlalchemy import String, Enum, DateTime, ForeignKey, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
+from pgvector.sqlalchemy import Vector
 from app.db import Base
 
 class DemandRequestStatus(str, enum.Enum):
@@ -42,6 +43,9 @@ class DemandRequest(Base):
         Geometry(geometry_type="POINT", srid=4326, from_text="ST_GeomFromEWKT", name="geometry"),
         nullable=True
     )
+
+    # pgvector embedding (dimensi 768)
+    embedding: Mapped[Optional[Vector]] = mapped_column(Vector(768), nullable=True)
 
     # Relationships
     buyer = relationship("User", foreign_keys=[buyer_id])

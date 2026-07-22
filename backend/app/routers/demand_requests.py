@@ -37,6 +37,16 @@ async def create_demand_request(
         from datetime import timezone
         deadline = deadline.astimezone(timezone.utc).replace(tzinfo=None)
 
+    # Generate semantic embedding from commodity_name and category
+    from app.services.embedding_service import embedding_service
+    embedding_text = f"{body.commodity_name} {body.category}"
+    try:
+        embedding_val = await embedding_service.generate_embedding(embedding_text)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to generate embedding for demand request: {e}")
+        embedding_val = None
+
     new_request = DemandRequest(
         buyer_id=current_user.id,
         commodity_name=body.commodity_name,
@@ -46,7 +56,8 @@ async def create_demand_request(
         price_per_kg=body.price_per_kg,
         deadline=deadline,
         status=DemandRequestStatus.TERBUKA,
-        location=WKTElement(f"POINT({body.longitude} {body.latitude})", srid=4326)
+        location=WKTElement(f"POINT({body.longitude} {body.latitude})", srid=4326),
+        embedding=embedding_val
     )
 
     db.add(new_request)

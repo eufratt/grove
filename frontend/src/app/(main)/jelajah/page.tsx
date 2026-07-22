@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { authApi } from '@/lib/api/auth';
+import { searchApi } from '@/lib/api/search';
 import { referencePricesApi } from '@/lib/api/reference-prices';
 import { BASE_URL } from '@/lib/api/client';
 import { SwipeDeck } from '@/components/products/swipe-deck';
@@ -19,17 +20,19 @@ export default function JelajahPage() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
   // Commodity filtering states
-  const [selectedCommodityFilter, setSelectedCommodityFilter] = useState<string>('Semua');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [allCommodities, setAllCommodities] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const lastSearchedQuery = useRef<string>('');
 
   const fetchDemandRequests = async () => {
     setIsLoading(true);
     try {
       const data = await demandRequestsApi.getOpenDemandRequests();
-      setDemandRequests(data);
+      const sorted = data.sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+      setDemandRequests(sorted);
     } catch (error) {
       console.error('Failed to fetch demand requests:', error);
     } finally {
@@ -80,12 +83,59 @@ export default function JelajahPage() {
     init();
   }, []);
 
+  const executeSearch = useCallback(async (query: string, force = false) => {
+    const trimmed = query.trim();
+    if (trimmed === lastSearchedQuery.current && !force) return;
+    lastSearchedQuery.current = trimmed;
+
+    if (trimmed === '') {
+      await fetchDemandRequests();
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const data = await searchApi.semanticSearchDemands(trimmed);
+      const queryLower = trimmed.toLowerCase();
+      
+      const directMatches: any[] = [];
+      const semanticMatches: any[] = [];
+
+      data.forEach((item: any) => {
+        const nameLower = item.commodity_name.toLowerCase();
+        if (nameLower.includes(queryLower) || queryLower.includes(nameLower)) {
+          directMatches.push(item);
+        } else {
+          semanticMatches.push(item);
+        }
+      });
+
+      // Sort both arrays by deadline ascending (closest first)
+      directMatches.sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+      semanticMatches.sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+
+      // Combine: direct matches first (so they are placed on the far right / top of stack)
+      const sorted = directMatches.concat(semanticMatches);
+      setDemandRequests(sorted);
+    } catch (error) {
+      console.error('Failed to perform semantic search on demand requests:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      executeSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, executeSearch]);
+
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
     if (val.trim() === '') {
       setSuggestions([]);
       setShowSuggestions(false);
-      setSelectedCommodityFilter('Semua');
     } else {
       const filtered = allCommodities.filter(comm =>
         comm.toLowerCase().includes(val.toLowerCase())
@@ -97,22 +147,26 @@ export default function JelajahPage() {
 
   const selectSuggestion = (comm: string) => {
     setSearchQuery(comm);
-    setSelectedCommodityFilter(comm);
     setShowSuggestions(false);
+    executeSearch(comm, true);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     setSuggestions([]);
     setShowSuggestions(false);
-    setSelectedCommodityFilter('Semua');
+    executeSearch('', true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setShowSuggestions(false);
+      executeSearch(searchQuery, true);
+    }
   };
 
   // Filter requests
-  const filteredRequests = useMemo(() => {
-    if (selectedCommodityFilter === 'Semua') return demandRequests;
-    return demandRequests.filter(r => r.commodity_name === selectedCommodityFilter);
-  }, [demandRequests, selectedCommodityFilter]);
+  const filteredRequests = demandRequests;
 
   return (
     <main className="relative flex-1 bg-gr-paper py-10 overflow-hidden min-h-[calc(100vh-80px)]">
@@ -160,12 +214,17 @@ export default function JelajahPage() {
             {/* Premium Autocomplete Search Filter */}
             <div className="relative w-full max-w-[340px] mx-auto z-40">
               <div className="relative flex items-center bg-white border border-gr-line rounded-full shadow-xs px-3.5 py-2 hover:border-gr-ink-soft/45 transition-all">
-                <Search size={14} className="text-gr-ink-soft shrink-0 mr-2" />
+                {isSearching ? (
+                  <Loader2 size={14} className="text-gr-board animate-spin shrink-0 mr-2" />
+                ) : (
+                  <Search size={14} className="text-gr-ink-soft shrink-0 mr-2" />
+                )}
                 <input
                   type="text"
                   placeholder="Cari komoditas..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   onFocus={() => {
                     if (searchQuery.trim() !== '') setShowSuggestions(true);
                   }}

@@ -7,4 +7,11 @@ export const searchApi = {
     });
     return response.json();
   },
+
+  semanticSearchDemands: async (query: string) => {
+    const response = await apiClient(`/search/demands?q=${encodeURIComponent(query)}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };
