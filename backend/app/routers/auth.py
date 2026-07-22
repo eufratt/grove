@@ -134,15 +134,15 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
     if not refresh_token_raw:
         raise HTTPException(status_code=401, detail="No refresh token")
         
-    result = await db.execute(select(RefreshToken).where(RefreshToken.revoked == False))
-    tokens = result.scalars().all()
-    
-    found_token = None
-    for token in tokens:
-        if auth_service.verify_password(refresh_token_raw, token.token_hash):
-            if token.expires_at > datetime.utcnow():
-                found_token = token
-                break
+    hashed_token = auth_service.hash_password(refresh_token_raw)
+    result = await db.execute(
+        select(RefreshToken).where(
+            RefreshToken.token_hash == hashed_token,
+            RefreshToken.revoked == False,
+            RefreshToken.expires_at > datetime.utcnow()
+        )
+    )
+    found_token = result.scalar_one_or_none()
                 
     if not found_token:
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
@@ -167,13 +167,17 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
 async def logout(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     refresh_token_raw = request.cookies.get("refresh_token")
     if refresh_token_raw:
-        result = await db.execute(select(RefreshToken).where(RefreshToken.revoked == False))
-        tokens = result.scalars().all()
-        for token in tokens:
-            if auth_service.verify_password(refresh_token_raw, token.token_hash):
-                token.revoked = True
-                await db.commit()
-                break
+        hashed_token = auth_service.hash_password(refresh_token_raw)
+        result = await db.execute(
+            select(RefreshToken).where(
+                RefreshToken.token_hash == hashed_token,
+                RefreshToken.revoked == False
+            )
+        )
+        found_token = result.scalar_one_or_none()
+        if found_token:
+            found_token.revoked = True
+            await db.commit()
                 
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")

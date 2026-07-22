@@ -24,7 +24,7 @@ async def websocket_endpoint(websocket: WebSocket, order_id: str):
         while True:
             # Keep connection alive, though we only broadcast from server to client
             await websocket.receive_text()
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, Exception):
         connection_manager.manager.disconnect(websocket, order_id)
 
 @app.websocket("/ws/demand-requests/{id}")
@@ -34,7 +34,7 @@ async def websocket_demand_endpoint(websocket: WebSocket, id: str):
         while True:
             # Keep connection alive
             await websocket.receive_text()
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, Exception):
         connection_manager.demand_manager.disconnect(websocket, id)
 
 app.include_router(auth.router)

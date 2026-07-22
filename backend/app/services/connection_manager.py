@@ -23,8 +23,21 @@ class ConnectionManager:
 
     async def broadcast(self, key: str, message: dict):
         if key in self.active_connections:
+            disconnected_connections = []
             for connection in self.active_connections[key]:
-                await connection.send_json(message)
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    disconnected_connections.append(connection)
+            
+            # Clean up dead connections
+            for connection in disconnected_connections:
+                try:
+                    self.active_connections[key].remove(connection)
+                except ValueError:
+                    pass
+            if key in self.active_connections and not self.active_connections[key]:
+                del self.active_connections[key]
 
 manager = ConnectionManager()
 demand_manager = ConnectionManager()
