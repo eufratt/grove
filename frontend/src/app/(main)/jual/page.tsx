@@ -12,6 +12,21 @@ import { provinceCentroids } from '@/lib/data/province-centroids';
 import { cn } from '@/lib/utils';
 import { Camera, Plus, X, Loader2, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 
+const getCategoryForCommodity = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes('beras')) return 'BERAS';
+  if (n.includes('bawang merah')) return 'BAWANG MERAH';
+  if (n.includes('bawang putih')) return 'BAWANG PUTIH';
+  if (n.includes('cabai rawit') || n.includes('rawit')) return 'CABAI RAWIT';
+  if (n.includes('cabai merah') || n.includes('cabai')) return 'CABAI MERAH';
+  if (n.includes('daging ayam') || n.includes('ayam')) return 'DAGING AYAM';
+  if (n.includes('telur')) return 'TELUR AYAM';
+  if (n.includes('daging sapi') || n.includes('sapi')) return 'DAGING SAPI';
+  if (n.includes('minyak')) return 'MINYAK GORENG';
+  if (n.includes('gula')) return 'GULA PASIR';
+  return 'BERAS'; // Default fallback
+};
+
 export default function JualPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -26,6 +41,27 @@ export default function JualPage() {
           router.push('/settings/upgrade-to-farmer');
         } else {
           setCheckingAuth(false);
+          if (userData.latitude !== undefined && userData.latitude !== null && userData.longitude !== undefined && userData.longitude !== null) {
+            setLat(userData.latitude);
+            setLng(userData.longitude);
+            setLocationStatus(`Lokasi terisi dari profil: ${userData.latitude.toFixed(4)}, ${userData.longitude.toFixed(4)}`);
+          } else {
+            // Auto-fetch device location on load if profile location is empty
+            if (typeof window !== 'undefined' && navigator.geolocation) {
+              setLocationStatus('Mencari lokasi otomatis...');
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  setLat(position.coords.latitude);
+                  setLng(position.coords.longitude);
+                  setLocationStatus(`Lokasi terisi otomatis: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+                },
+                (error) => {
+                  setLocationStatus(`Gagal memuat lokasi otomatis: ${error.message}`);
+                },
+                { timeout: 8000 }
+              );
+            }
+          }
         }
       } catch (err) {
         router.replace('/login');
@@ -36,7 +72,7 @@ export default function JualPage() {
   
   const [formData, setFormData] = useState({
     name: '',
-    category: 'SAYUR',
+    category: 'BERAS',
     quantity_kg: '',
     price_per_kg: '',
   });
@@ -100,22 +136,37 @@ export default function JualPage() {
   const fetchReferencePrice = async (commodity: string, latitude: number | null, longitude: number | null) => {
     try {
       const region = latitude && longitude ? getClosestProvince(latitude, longitude) : 'Nasional';
-      const res = await referencePricesApi.getReferencePrices(1, 1, commodity, region);
-      if (res.items && res.items.length > 0) {
-        setRefPrice(res.items[0].price_per_kg);
+      
+      // Concurrently query both region and national prices to load twice as fast
+      const [regionRes, nationalRes] = await Promise.all([
+        referencePricesApi.getReferencePrices(1, 1, commodity, region),
+        region !== 'Nasional' ? referencePricesApi.getReferencePrices(1, 1, commodity, 'Nasional') : null
+      ]);
+      
+      if (regionRes.items && regionRes.items.length > 0) {
+        setRefPrice(regionRes.items[0].price_per_kg);
+      } else if (nationalRes && nationalRes.items && nationalRes.items.length > 0) {
+        setRefPrice(nationalRes.items[0].price_per_kg);
       } else {
-        const nasRes = await referencePricesApi.getReferencePrices(1, 1, commodity, 'Nasional');
-        if (nasRes.items && nasRes.items.length > 0) {
-          setRefPrice(nasRes.items[0].price_per_kg);
-        } else {
-          setRefPrice(null);
-        }
+        setRefPrice(null);
       }
     } catch (err) {
       console.error('Failed to fetch ref price:', err);
       setRefPrice(null);
     }
   };
+
+  // Reactively fetch reference price when commodity name or coordinates change
+  useEffect(() => {
+    if (formData.name) {
+      const matched = allCommodities.find(c => c.toLowerCase() === formData.name.trim().toLowerCase());
+      if (matched) {
+        fetchReferencePrice(matched, lat, lng);
+        return;
+      }
+    }
+    setRefPrice(null);
+  }, [lat, lng, formData.name, allCommodities]);
 
   const handleGetLocation = () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
@@ -130,9 +181,6 @@ export default function JualPage() {
         setLng(position.coords.longitude);
         setLocating(false);
         setLocationStatus(`Lokasi terisi: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
-        if (formData.name) {
-          fetchReferencePrice(formData.name, position.coords.latitude, position.coords.longitude);
-        }
       },
       (error) => {
         setLocating(false);
@@ -143,11 +191,15 @@ export default function JualPage() {
   };
 
   const handleNameChange = (val: string) => {
-    setFormData(prev => ({ ...prev, name: val }));
-    setRefPrice(null);
+    setFormData(prev => ({ 
+      ...prev, 
+      name: val,
+      category: getCategoryForCommodity(val)
+    }));
+    
     if (val.trim() === '') {
-      setFilteredCommodities([]);
-      setShowDropdown(false);
+      setFilteredCommodities(allCommodities);
+      setShowDropdown(true);
     } else {
       const filtered = allCommodities.filter((item) =>
         item.toLowerCase().includes(val.toLowerCase())
@@ -158,9 +210,12 @@ export default function JualPage() {
   };
 
   const selectCommodity = (commodity: string) => {
-    setFormData(prev => ({ ...prev, name: commodity }));
+    setFormData(prev => ({ 
+      ...prev, 
+      name: commodity,
+      category: getCategoryForCommodity(commodity)
+    }));
     setShowDropdown(false);
-    fetchReferencePrice(commodity, lat, lng);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -193,6 +248,15 @@ export default function JualPage() {
     e.preventDefault();
     if (!photo) {
       setError('Foto produk wajib diunggah');
+      return;
+    }
+
+    // Validate commodity name against PIHPS database
+    const isCommodityValid = allCommodities.some(
+      (c) => c.toLowerCase() === formData.name.trim().toLowerCase()
+    );
+    if (!isCommodityValid) {
+      setError('Komoditas harus dipilih dari daftar acuan PIHPS yang tersedia.');
       return;
     }
 
@@ -301,7 +365,7 @@ export default function JualPage() {
           </div>
 
           {/* Form Content */}
-          <div className="space-y-8 rounded-2xl bg-white/5 p-8 backdrop-blur-xl border border-white/10">
+          <div className="space-y-8 rounded-2xl bg-[#FAF6EE]/95 dark:bg-[#1E1812]/95 p-8 border border-[#E4DBC5] dark:border-white/10 shadow-2xl backdrop-blur-xl">
             {error && (
               <div className="rounded bg-gr-price-unfair/10 p-4 text-sm text-gr-price-unfair border border-gr-price-unfair/20">
                 {error}
@@ -317,11 +381,18 @@ export default function JualPage() {
                   name="name"
                   type="text"
                   required
+                  autoComplete="off"
                   placeholder="Contoh: Cabai Rawit Merah"
                   className="mt-2 block w-full border-b border-white/20 bg-transparent py-2 font-sans text-xl text-gr-text-primary placeholder-white/10 focus:border-gr-green focus:outline-none transition-colors"
                   value={formData.name}
                   onChange={handleInputChange}
-                  onFocus={() => formData.name && setFilteredCommodities(allCommodities.filter(item => item.toLowerCase().includes(formData.name.toLowerCase())))}
+                  onFocus={() => {
+                    const filtered = allCommodities.filter(item => 
+                      item.toLowerCase().includes(formData.name.toLowerCase())
+                    );
+                    setFilteredCommodities(filtered.length > 0 ? filtered : allCommodities);
+                    setShowDropdown(true);
+                  }}
                 />
                 {showDropdown && filteredCommodities.length > 0 && (
                   <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-gr-bg/95 backdrop-blur-xl shadow-lg z-30 divide-y divide-white/5">
@@ -342,19 +413,11 @@ export default function JualPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
-                    Kategori
+                    Harga Referensi (PIHPS)
                   </label>
-                  <select
-                    name="category"
-                    className="mt-2 block w-full border-b border-white/20 bg-transparent py-2 font-mono text-sm uppercase tracking-widest text-gr-green focus:border-gr-green focus:outline-none"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                  >
-                    <option value="SAYUR">SAYUR</option>
-                    <option value="BUAH">BUAH</option>
-                    <option value="UMBI">UMBI</option>
-                    <option value="REMPAH">REMPAH</option>
-                  </select>
+                  <div className="mt-2 py-2 font-mono text-xl text-gr-green border-b border-white/20 bg-transparent min-h-[42px] flex items-center">
+                    {refPrice !== null ? `Rp ${refPrice.toLocaleString('id-ID')}/kg` : '-'}
+                  </div>
                 </div>
                 <div>
                   <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">

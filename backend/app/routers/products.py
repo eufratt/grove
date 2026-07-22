@@ -84,6 +84,12 @@ async def create_product(
     except Exception as e:
         logger.warning(f"Failed to match reference price: {e}")
 
+    if reference_price is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Produk tidak terdaftar dalam acuan harga PIHPS Bank Indonesia. Penjualan produk tidak diizinkan."
+        )
+
     new_product = Product(
         seller_id=current_user.id,
         name=name,
@@ -252,6 +258,32 @@ async def update_product(
         raise HTTPException(status_code=403, detail="You can only update your own products")
     
     update_data = product_data.model_dump(exclude_unset=True)
+    
+    new_name = update_data.get("name", product.name)
+    new_category = update_data.get("category", product.category)
+    
+    if "name" in update_data or "category" in update_data:
+        reference_price = None
+        try:
+            ref_prices = await price_matching_service.get_latest_reference_prices(db)
+            reference_price = price_matching_service.find_reference_price(new_name, new_category, ref_prices)
+        except Exception as e:
+            logger.warning(f"Failed to match reference price on update: {e}")
+            
+        if reference_price is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Produk tidak terdaftar dalam acuan harga PIHPS Bank Indonesia. Penjualan produk tidak diizinkan."
+            )
+        product.reference_price_per_kg = reference_price
+        
+        # Regenerate semantic embedding
+        embedding_text = f"{new_name} {new_category}"
+        try:
+            product.embedding = await embedding_service.embedding_service.generate_embedding(embedding_text)
+        except Exception as e:
+            logger.warning(f"Failed to generate embedding on update: {e}")
+            
     for key, value in update_data.items():
         setattr(product, key, value)
     
@@ -281,6 +313,12 @@ async def refresh_product_reference_price(
     ref_prices = await price_matching_service.get_latest_reference_prices(db)
     matched_price = price_matching_service.find_reference_price(product.name, product.category, ref_prices)
     
+    if matched_price is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Produk tidak terdaftar dalam acuan harga PIHPS Bank Indonesia. Penjualan produk tidak diizinkan."
+        )
+        
     product.reference_price_per_kg = matched_price
     await db.commit()
     

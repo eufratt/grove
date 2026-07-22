@@ -2,8 +2,8 @@ import enum
 import uuid
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, Enum, DateTime, Float, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Enum, DateTime, Float, Integer, func
+from sqlalchemy.orm import Mapped, mapped_column, column_property
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
 from app.db import Base
@@ -45,3 +45,6 @@ class User(Base):
     )
     
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    latitude = column_property(func.ST_Y(location))
+    longitude = column_property(func.ST_X(location))

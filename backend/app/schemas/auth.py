@@ -16,6 +16,8 @@ class UserResponse(BaseModel):
     buyer_rating_avg: Optional[float] = 0.0
     buyer_rating_count: int = 0
     created_at: datetime
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     class Config:
         from_attributes = True

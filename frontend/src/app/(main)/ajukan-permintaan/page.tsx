@@ -12,6 +12,21 @@ import { Glow } from '@/components/effects/glow';
 import { ArrowLeft, Calendar, Loader2, Plus, Info, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
+const getCategoryForCommodity = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes('beras')) return 'BERAS';
+  if (n.includes('bawang merah')) return 'BAWANG MERAH';
+  if (n.includes('bawang putih')) return 'BAWANG PUTIH';
+  if (n.includes('cabai rawit') || n.includes('rawit')) return 'CABAI RAWIT';
+  if (n.includes('cabai merah') || n.includes('cabai')) return 'CABAI MERAH';
+  if (n.includes('daging ayam') || n.includes('ayam')) return 'DAGING AYAM';
+  if (n.includes('telur')) return 'TELUR AYAM';
+  if (n.includes('daging sapi') || n.includes('sapi')) return 'DAGING SAPI';
+  if (n.includes('minyak')) return 'MINYAK GORENG';
+  if (n.includes('gula')) return 'GULA PASIR';
+  return 'BERAS'; // Default fallback
+};
+
 export default function AjukanPermintaanPage() {
   const router = useRouter();
   
@@ -21,7 +36,7 @@ export default function AjukanPermintaanPage() {
 
   // Form inputs
   const [commodityName, setCommodityName] = useState('');
-  const [category, setCategory] = useState('SAYUR');
+  const [category, setCategory] = useState('BERAS');
   const [quantity, setQuantity] = useState('');
   const [deadline, setDeadline] = useState('');
 
@@ -119,6 +134,7 @@ export default function AjukanPermintaanPage() {
   const handleCommodityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setCommodityName(val);
+    setCategory(getCategoryForCommodity(val));
     if (val.trim() === '') {
       setFilteredCommodities([]);
       setShowDropdown(false);
@@ -133,6 +149,7 @@ export default function AjukanPermintaanPage() {
 
   const selectCommodity = (name: string) => {
     setCommodityName(name);
+    setCategory(getCategoryForCommodity(name));
     setShowDropdown(false);
   };
 
@@ -310,10 +327,16 @@ export default function AjukanPermintaanPage() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all appearance-none cursor-pointer"
                 >
-                  <option value="SAYUR" className="bg-gr-paper text-gr-ink">Sayur-mayur</option>
-                  <option value="BUAH" className="bg-gr-paper text-gr-ink">Buah-buahan</option>
-                  <option value="POKOK" className="bg-gr-paper text-gr-ink">Kebutuhan Pokok</option>
-                  <option value="LAINNYA" className="bg-gr-paper text-gr-ink">Lain-lain</option>
+                  <option value="BERAS" className="bg-gr-paper text-gr-ink">BERAS</option>
+                  <option value="BAWANG MERAH" className="bg-gr-paper text-gr-ink">BAWANG MERAH</option>
+                  <option value="BAWANG PUTIH" className="bg-gr-paper text-gr-ink">BAWANG PUTIH</option>
+                  <option value="CABAI MERAH" className="bg-gr-paper text-gr-ink">CABAI MERAH</option>
+                  <option value="CABAI RAWIT" className="bg-gr-paper text-gr-ink">CABAI RAWIT</option>
+                  <option value="DAGING AYAM" className="bg-gr-paper text-gr-ink">DAGING AYAM</option>
+                  <option value="TELUR AYAM" className="bg-gr-paper text-gr-ink">TELUR AYAM</option>
+                  <option value="DAGING SAPI" className="bg-gr-paper text-gr-ink">DAGING SAPI</option>
+                  <option value="MINYAK GORENG" className="bg-gr-paper text-gr-ink">MINYAK GORENG</option>
+                  <option value="GULA PASIR" className="bg-gr-paper text-gr-ink">GULA PASIR</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gr-ink-soft">
                   <Plus size={14} className="rotate-45" />
