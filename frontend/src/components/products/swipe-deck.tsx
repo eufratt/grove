@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { X, Heart, RefreshCw, Users, Loader2 } from 'lucide-react';
+import { X, Heart, RefreshCw, Users, Loader2, Scale, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
@@ -106,11 +106,6 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
     }
   }, [focusedCardId]);
 
-  useEffect(() => {
-    setCurrentSetIndex(0);
-    setFocusedCardId(null);
-  }, [requests]);
-
   // Show up to 8 cards for a crowded table feel
   const activeRequests = useMemo(
     () => requests.slice(currentIndex, currentIndex + 8),
@@ -129,8 +124,14 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
       setCommitError('');
     } else {
       onSwipeLeft(request);
-      setFocusedCardId(null);
-      setCurrentSetIndex(prev => prev + 1);
+      // Proceed to the next card in focus if there is one!
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < requests.length) {
+        setFocusedCardId(requests[nextIndex].id);
+      } else {
+        setFocusedCardId(null);
+      }
+      setCurrentSetIndex(nextIndex);
     }
   };
 
@@ -145,8 +146,15 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
       await demandRequestsApi.commitSupply(commitRequest.id, qty);
       onSwipeRight(commitRequest);
       setCommitRequest(null);
-      setFocusedCardId(null);
-      setCurrentSetIndex(prev => prev + 1);
+      
+      // Proceed to the next card in focus if there is one!
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < requests.length) {
+        setFocusedCardId(requests[nextIndex].id);
+      } else {
+        setFocusedCardId(null);
+      }
+      setCurrentSetIndex(nextIndex);
     } catch (err: any) {
       setCommitError(err.message || 'Gagal mengirimkan komitmen');
     } finally {
@@ -202,7 +210,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
       {/* ── Focused card overlay + backdrop — portaled to document.body
           so they escape any CSS stacking context from transforms/filters
           in the page (FilmGrain, Glow, etc.) and cover the full viewport */}
-      {mounted && focusedRequest && createPortal(
+      {mounted && createPortal(
         <AnimatePresence>
           {focusedRequest && (
             <>
@@ -231,37 +239,152 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
       )}
 
       {/* ── Commit Modal — also portaled to escape stacking context */}
-      {mounted && commitRequest && createPortal(
-        <div className="fixed inset-0 bg-gr-paper/95 backdrop-blur-md z-[700] flex items-center justify-center p-4">
-          <div className="bg-white border border-gr-line p-6 sm:p-8 rounded-3xl w-full max-w-sm shadow-2xl">
-            <h3 className="font-display text-xl font-medium text-gr-ink mb-2">Komitmen Supply</h3>
-            <p className="font-sans text-xs text-gr-ink-soft mb-6 leading-relaxed">
-              Bantu penuhi permintaan <span className="text-gr-board font-semibold">{commitRequest.commodity_name}</span>. Berapa KG yang bisa Anda sediakan?
-            </p>
-            {commitError && (
-              <div className="mb-4 rounded-xl bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20">{commitError}</div>
-            )}
-            <form onSubmit={handleCommitSubmit} className="space-y-4">
-              <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5">Jumlah (KG)</label>
-                <input type="number" step="any" min="0.1" placeholder="Contoh: 50"
-                  value={commitQty} onChange={(e) => setCommitQty(e.target.value)}
-                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-3 py-2.5 rounded-xl font-sans text-xs focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
-                  autoFocus />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setCommitRequest(null)}
-                  className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/50 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-xl transition-all cursor-pointer">
-                  Batal
-                </button>
-                <button type="submit" disabled={submittingCommit}
-                  className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                  {submittingCommit ? <Loader2 size={12} className="animate-spin" /> : 'Kirim'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>,
+      {mounted && createPortal(
+        <AnimatePresence>
+          {commitRequest && (() => {
+            const remainingQty = Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed);
+            return (
+              <motion.div
+                key="commit-modal-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => { if (e.target === e.currentTarget) setCommitRequest(null); }}
+                className="fixed inset-0 bg-black/60 z-[700] flex items-center justify-center p-4 cursor-pointer"
+              >
+                <motion.div
+                  key="commit-modal-content"
+                  initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 26 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white border border-gr-line p-6 sm:p-7 rounded-3xl w-full max-w-sm shadow-[0_24px_50px_rgba(0,0,0,0.25)] cursor-default flex flex-col relative"
+                >
+                  {/* Decorative Icon Header */}
+                  <div className="flex items-center gap-3.5 mb-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gr-board/10 text-gr-board">
+                      <Scale size={22} className="stroke-[2.2]" />
+                    </div>
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 font-bold block">
+                        Konfirmasi Komitmen
+                      </span>
+                      <h3 className="font-display text-lg font-bold text-gr-ink leading-tight">
+                        Penuhi Permintaan
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Commodity & Demand summary box */}
+                  <div className="bg-gr-paper/40 border border-gr-line/60 rounded-2xl p-4 mb-5 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="font-sans text-xs font-semibold text-gr-ink-soft">Komoditas</span>
+                      <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-full">
+                        {commitRequest.commodity_name}
+                      </span>
+                    </div>
+                    <div className="h-px bg-gr-line/50" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Penawaran</span>
+                        <span className="font-mono text-xs font-bold text-gr-ink">
+                          Rp {commitRequest.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Sisa Kebutuhan</span>
+                        <span className="font-mono text-xs font-bold text-gr-ink">
+                          {remainingQty.toLocaleString('id-ID')} KG
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {commitError && (
+                    <div className="mb-4 rounded-xl bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20 font-sans font-medium">
+                      {commitError}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleCommitSubmit} className="space-y-4">
+                    <div>
+                      <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-1.5">
+                        Jumlah Pasokan
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="number"
+                          step="any"
+                          min="0.1"
+                          placeholder="Contoh: 50"
+                          value={commitQty}
+                          onChange={(e) => setCommitQty(e.target.value)}
+                          className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-4 pr-12 py-3 rounded-2xl font-mono text-sm font-bold focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                          autoFocus
+                        />
+                        <span className="absolute right-4 font-mono text-xs font-bold text-gr-ink-soft/40">
+                          KG
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quick Presets */}
+                    <div className="space-y-1.5">
+                      <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/40">
+                        Pilihan Cepat
+                      </span>
+                      <div className="flex gap-2">
+                        {[
+                          { label: '25%', val: Math.round(remainingQty * 0.25) },
+                          { label: '50%', val: Math.round(remainingQty * 0.5) },
+                          { label: 'Semua', val: remainingQty }
+                        ].map((preset, pIdx) => {
+                          if (preset.val <= 0) return null;
+                          return (
+                            <button
+                              key={pIdx}
+                              type="button"
+                              onClick={() => setCommitQty(preset.val.toString())}
+                              className="flex-1 bg-gr-paper/20 hover:bg-gr-board/10 hover:text-gr-board hover:border-gr-board/40 border border-gr-line text-gr-ink-soft font-mono text-[10px] font-bold py-1.5 rounded-lg transition-all cursor-pointer"
+                            >
+                              {preset.label} ({preset.val} kg)
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t border-gr-line/50">
+                      <button
+                        type="button"
+                        onClick={() => setCommitRequest(null)}
+                        className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/60 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-2xl transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={submittingCommit}
+                        className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-gr-board/20"
+                      >
+                        {submittingCommit ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <>
+                            <Check size={14} className="stroke-[2.5]" />
+                            Kirim
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>,
         document.body
       )}
     </div>

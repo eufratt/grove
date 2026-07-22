@@ -256,7 +256,8 @@ export default function JelajahPage() {
               )}
             </div>
 
-            <SwipeDeck
+             <SwipeDeck
+              key={searchQuery}
               requests={filteredRequests}
               userLat={userLocation?.[0]}
               userLng={userLocation?.[1]}
