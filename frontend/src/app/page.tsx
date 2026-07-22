@@ -51,7 +51,10 @@ export default function LandingPage() {
 
         const results = await Promise.all(
           commodities.map(async (c) => {
-            const history = await referencePricesApi.getPriceHistory(c.name, 'Nasional', 10);
+            const [history, divergence] = await Promise.all([
+              referencePricesApi.getPriceHistory(c.name, 'Nasional', 10),
+              referencePricesApi.getPriceDivergence(c.name, 'Nasional', 90).catch(() => null)
+            ]);
 
             if (history && history.length > 0) {
               const latestEntry = history[history.length - 1];
@@ -82,6 +85,7 @@ export default function LandingPage() {
                 history,
                 desc: c.desc,
                 swatchColor: c.swatchColor,
+                divergence,
               };
             }
             return null;
