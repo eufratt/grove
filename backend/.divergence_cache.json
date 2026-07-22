@@ -180,5 +180,33 @@
       "explanation": "Harga cabai rawit merah di Yogyakarta kini bergejolak (Divergence Score +8,64%). Rata-rata fluktuasi harga sekitar Rp 2.017 per kg dalam siklus 6 hari. Petani sebaiknya menahan panen sementara pembeli dapat menunggu penurunan harga lebih lanjut.",
       "historical_data_points": 30
     }
+  },
+  "beras kualitas super ii:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Beras Kualitas Super II",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 3.0482876133503938,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 500.0,
+      "average_oscillation_frequency_days": 8.5,
+      "explanation": "Harga beras Super II di Jawa Timur saat ini berada dalam kondisi fluktuasi normal, karena Divergence Score hanya +3,05% (hampir nol). Rata‑rata osilasi harga adalah sekitar Rp 500 tiap 8,5 hari. Petani dapat tetap menjaga produksi sementara pembeli disarankan memanfaatkan penurunan 8,44% dengan membeli sekarang sebelum harga berpotensi naik kembali.",
+      "historical_data_points": 30
+    }
+  },
+  "gula pasir:jawa timur:30": {
+    "cache_date": "2026-07-22",
+    "data": {
+      "commodity_name": "Gula Pasir",
+      "region": "Jawa Timur",
+      "days": 30,
+      "divergence_score": 1.5140498363528647,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 342.85714285714283,
+      "average_oscillation_frequency_days": 4.285714285714286,
+      "explanation": "Harga Gula Pasir di Jawa Timur saat ini masih dalam kondisi fluktuasi normal, karena Divergence Score hanya +1,51% (dekat nol) dan klasifikasi volatilitas menunjukkan stabil. Rata‑rata osilasi harga hanya sekitar Rp 343 setiap 4,3 hari, artinya perubahan harian kecil. Petani dapat melanjutkan penjualan tanpa khawatir penurunan harga, sementara pembeli dapat memanfaatkan harga yang relatif stabil namun tetap memantau kenaikan 3,92% dalam 30 hari terakhir.",
+      "historical_data_points": 30
+    }
   }
 }

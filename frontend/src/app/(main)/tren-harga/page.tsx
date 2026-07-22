@@ -36,7 +36,7 @@ export default function PriceTrendPage() {
   const [customEs, setCustomEs] = useState<number>(0.8);
   const [customEd, setCustomEd] = useState<number>(1.0);
   const [customPeriods, setCustomPeriods] = useState<number>(8);
-  
+
   const [simResult, setSimResult] = useState<any>(null);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [simStreaming, setSimStreaming] = useState<boolean>(false);
@@ -175,7 +175,7 @@ export default function PriceTrendPage() {
     if (!selectedCommodity) return;
     setIsExplaining(true);
     setExplanationText('');
-    
+
     // Staged loading text cycling
     const loadingStages = [
       'Menganalisis tren harga...',
@@ -191,7 +191,7 @@ export default function PriceTrendPage() {
 
     try {
       const url = `${BASE_URL}/reference-prices/divergence/stream?commodity=${encodeURIComponent(selectedCommodity)}&region=${encodeURIComponent(selectedRegion)}&days=${daysRange}`;
-      
+
       const response = await fetch(url, {
         credentials: 'include'
       });
@@ -218,7 +218,7 @@ export default function PriceTrendPage() {
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        
+
         buffer = lines.pop() || '';
 
         for (const line of lines) {
@@ -259,18 +259,18 @@ export default function PriceTrendPage() {
   // Trend calculation metrics
   const trendMetrics = useMemo(() => {
     if (historyData.length < 2) return null;
-    
+
     // Sort chronologically to make sure we compare correctly
     const sorted = [...historyData].sort(
       (a, b) => new Date(a.scraped_at).getTime() - new Date(b.scraped_at).getTime()
     );
-    
+
     const startPrice = sorted[0].price_per_kg;
     const endPrice = sorted[sorted.length - 1].price_per_kg;
-    
+
     const change = endPrice - startPrice;
     const percentChange = startPrice > 0 ? (change / startPrice) * 100 : 0;
-    
+
     return {
       startPrice,
       endPrice,
@@ -356,77 +356,76 @@ export default function PriceTrendPage() {
             </span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            
-            {/* KOLOM KIRI (Lebar - col-span-2): Grafik Tren & Analisis AI */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Control filters pill panel */}
-              <div className="bg-white border border-gr-line p-5 rounded-3xl grid grid-cols-1 sm:grid-cols-3 gap-4 items-end shadow-sm">
-                {/* Select Commodity */}
-                <div>
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                    Komoditas Pangan
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedCommodity}
-                      onChange={(e) => setSelectedCommodity(e.target.value)}
-                      className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                    >
-                      {commodities.map((comm) => (
-                        <option key={comm} value={comm} className="bg-gr-paper text-gr-ink">
-                          {comm}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Select Region */}
-                <div>
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                    Wilayah Provinsi
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedRegion}
-                      onChange={(e) => setSelectedRegion(e.target.value)}
-                      className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                    >
-                      {regionsList.map((reg) => (
-                        <option key={reg} value={reg} className="bg-gr-paper text-gr-ink">
-                          {reg}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Date Range filter */}
-                <div>
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                    Rentang Analisis
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={daysRange}
-                      onChange={(e) => setDaysRange(parseInt(e.target.value))}
-                      className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value={7} className="bg-gr-paper text-gr-ink">7 Hari Terakhir</option>
-                      <option value={30} className="bg-gr-paper text-gr-ink">30 Hari Terakhir</option>
-                      <option value={90} className="bg-gr-paper text-gr-ink">90 Hari Terakhir</option>
-                      <option value={365} className="bg-gr-paper text-gr-ink">1 Tahun Terakhir</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                  </div>
+          <div className="space-y-6">
+            {/* Control filters pill panel */}
+            <div className="bg-white border border-gr-line p-5 rounded-3xl grid grid-cols-1 sm:grid-cols-3 gap-4 items-end shadow-sm">
+              {/* Select Commodity */}
+              <div>
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
+                  Komoditas Pangan
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedCommodity}
+                    onChange={(e) => setSelectedCommodity(e.target.value)}
+                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                  >
+                    {commodities.map((comm) => (
+                      <option key={comm} value={comm} className="bg-gr-paper text-gr-ink">
+                        {comm}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
                 </div>
               </div>
 
-              {/* Chart Area Card */}
-              <div className="bg-white border border-gr-line p-6 rounded-3xl shadow-sm min-h-[400px] flex items-center justify-center relative">
+              {/* Select Region */}
+              <div>
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
+                  Wilayah Provinsi
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedRegion}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                  >
+                    {regionsList.map((reg) => (
+                      <option key={reg} value={reg} className="bg-gr-paper text-gr-ink">
+                        {reg}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Date Range filter */}
+              <div>
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
+                  Rentang Analisis
+                </label>
+                <div className="relative">
+                  <select
+                    value={daysRange}
+                    onChange={(e) => setDaysRange(parseInt(e.target.value))}
+                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value={7} className="bg-gr-paper text-gr-ink">7 Hari Terakhir</option>
+                    <option value={30} className="bg-gr-paper text-gr-ink">30 Hari Terakhir</option>
+                    <option value={90} className="bg-gr-paper text-gr-ink">90 Hari Terakhir</option>
+                    <option value={365} className="bg-gr-paper text-gr-ink">1 Tahun Terakhir</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            {/* Inner Side-by-Side Grid layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              {/* Chart Area (lg:col-span-2) */}
+              <div className="lg:col-span-2 bg-white border border-gr-line p-6 rounded-3xl shadow-sm min-h-[380px] flex items-center justify-center relative">
                 {fetchingChart ? (
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50" />
@@ -434,29 +433,27 @@ export default function PriceTrendPage() {
                   </div>
                 ) : historyData.length >= 2 ? (
                   <div className="w-full space-y-4">
-                    <div className="flex justify-between items-center px-4 gap-2 flex-wrap">
+                    <div className="flex justify-between items-center px-2 gap-2 flex-wrap">
                       <span className="font-sans text-[10px] text-gr-ink-soft flex items-center gap-1.5 uppercase font-semibold flex-wrap">
                         <Calendar size={10} />
                         TREN HISTORIS: {selectedCommodity}
                         {divergenceData && (
-                          <span className={`ml-2 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${
-                            divergenceData.divergence_score < -5.0
+                          <span className={`ml-2 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${divergenceData.divergence_score < -5.0
                               ? 'text-gr-up bg-gr-up/10 border-gr-up/20'
                               : divergenceData.divergence_score > 5.0
-                              ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
-                              : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
-                          }`}>
+                                ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
+                                : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
+                            }`}>
                             {divergenceData.classification} ({divergenceData.divergence_score > 0 ? '+' : ''}{divergenceData.divergence_score.toFixed(1)}%)
                           </span>
                         )}
                         {trendMetrics && (
-                          <span className={`ml-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-xs font-semibold ${
-                            trendMetrics.isUp
+                          <span className={`ml-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-xs font-semibold ${trendMetrics.isUp
                               ? 'text-gr-up bg-gr-up/10'
                               : trendMetrics.isDown
-                              ? 'text-gr-down bg-gr-down/10'
-                              : 'text-gr-ink-soft bg-gr-ink/5'
-                          }`}>
+                                ? 'text-gr-down bg-gr-down/10'
+                                : 'text-gr-ink-soft bg-gr-ink/5'
+                            }`}>
                             {trendMetrics.isUp && <TrendingUp size={12} />}
                             {trendMetrics.isDown && <TrendingDown size={12} />}
                             {trendMetrics.percentChange > 0 ? '+' : ''}
@@ -478,335 +475,99 @@ export default function PriceTrendPage() {
                       Data Historis Terbatas
                     </h3>
                     <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
-                      Data acuan historis saat ini terlalu sedikit untuk membentuk grafik tren. Data tren akan semakin akurat seiring waktu, karena kami mengumpulkan data setiap hari.
+                      Data acuan historis saat ini terlalu sedikit untuk membentuk grafik tren. Data tren akan semakin akurat seiring waktu.
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Divergence Analysis Card */}
-              {historyData.length >= 2 && (
-                <div className="bg-white border border-gr-line p-6 rounded-3xl shadow-sm space-y-4">
-                  <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2">
-                    <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
-                      <TrendingUp size={14} />
-                      Analisis Stabilitas Harga AI (Groq)
-                    </h3>
-                    {divergenceData && (
-                      <span className={`px-2 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${
-                        divergenceData.divergence_score < -5.0
-                          ? 'text-gr-up bg-gr-up/10 border-gr-up/20'
-                          : divergenceData.divergence_score > 5.0
-                          ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
-                          : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
-                      }`}>
-                        {divergenceData.classification}
-                      </span>
-                    )}
-                  </div>
-
-                  {explanationText ? (
-                    <div className="space-y-4">
-                      <p className="font-sans text-sm text-gr-ink leading-relaxed whitespace-pre-wrap">
-                        {explanationText}
-                        {isStreaming && <span className="inline-block w-1.5 h-4 ml-1 bg-gr-board animate-pulse" />}
-                      </p>
-                      
-                      <div className="pt-2">
-                        <button
-                          onClick={() => setShowTechDetails(!showTechDetails)}
-                          className="font-mono text-[10px] uppercase tracking-wider text-gr-ink-soft hover:text-gr-ink flex items-center gap-1 transition-colors focus:outline-none"
-                        >
-                          <span>Lihat detail teknis</span>
-                          <ChevronDown size={12} className={`transform transition-transform ${showTechDetails ? 'rotate-180' : ''}`} />
-                        </button>
-                        
-                        {showTechDetails && divergenceData && (
-                          <div className="mt-3 bg-gr-paper/30 border border-gr-line rounded-2xl p-4 font-mono text-xs text-gr-ink-soft space-y-2.5">
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                              <div>
-                                <span className="block text-[9px] uppercase tracking-wider opacity-60">Divergence Score</span>
-                                <span className="font-bold text-gr-ink">{divergenceData.divergence_score > 0 ? '+' : ''}{divergenceData.divergence_score.toFixed(2)}%</span>
-                              </div>
-                              <div>
-                                <span className="block text-[9px] uppercase tracking-wider opacity-60">Rata-rata Simpangan</span>
-                                <span className="font-bold text-gr-ink">Rp {divergenceData.average_oscillation_amplitude.toLocaleString('id-ID')}</span>
-                              </div>
-                              <div>
-                                <span className="block text-[9px] uppercase tracking-wider opacity-60">Siklus Fluktuasi</span>
-                                <span className="font-bold text-gr-ink">{divergenceData.average_oscillation_frequency_days.toFixed(1)} hari</span>
-                              </div>
-                              <div>
-                                <span className="block text-[9px] uppercase tracking-wider opacity-60">Tanggal Dihitung</span>
-                                <span className="font-bold text-gr-ink">{new Date().toLocaleDateString('id-ID')}</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="py-6 text-center space-y-4">
-                      <p className="font-sans text-xs text-gr-ink-soft">
-                        Ingin memahami apakah fluktuasi harga komoditas ini wajar atau sedang tidak stabil? Dapatkan analisis mendalam dari AI.
-                      </p>
-                      <button
-                        onClick={handleExplain}
-                        disabled={isExplaining}
-                        className="font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-6 py-3.5 rounded-xl transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 mx-auto cursor-pointer"
-                      >
-                        {isExplaining ? (
-                          <>
-                            <Loader2 size={14} className="animate-spin" />
-                            <span>{loadingText}</span>
-                          </>
-                        ) : (
-                          <span>Jelaskan Tren Harga</span>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* KOLOM KANAN (col-span-1): What-If Simulator */}
-            <div className="lg:col-span-1 space-y-6">
-              {historyData.length >= 2 && (
-                <div className="bg-white border border-gr-line p-6 rounded-3xl shadow-sm space-y-6">
-                  <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2">
-                    <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
-                      <TrendingUp size={14} />
-                      What-If Simulator: Proyeksi Harga Cobweb
-                    </h3>
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft bg-gr-paper border border-gr-line px-2 py-0.5 rounded-sm">
-                      Model Teoretis
-                    </span>
-                  </div>
-
-                  {/* Disclaimer/Warning Box */}
-                  <div className="bg-gr-paper/50 border border-gr-line rounded-2xl p-4 flex gap-3 items-start">
-                    <HelpCircle size={18} className="text-gr-ink-soft flex-shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <span className="block font-sans text-xs font-semibold text-gr-ink">Simulasi Edukatif Asumsi Pasar</span>
-                      <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
-                        Simulator ini memproyeksikan fluktuasi harga berdasarkan <strong>Teorema Cobweb</strong> dan elastisitas asumsi Anda.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Entry Point: Mode Simpel */}
+              {/* Divergence Analysis Card (lg:col-span-1) */}
+              <div className="lg:col-span-1 bg-white border border-gr-line p-6 rounded-3xl shadow-sm min-h-[380px]">
+                {historyData.length >= 2 ? (
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
-                        Pertanyaan Simulasi (Mode Simpel)
-                      </span>
-                      <p className="font-sans text-xs text-gr-ink leading-relaxed">
-                        Menurutmu, musim depan bakal makin banyak petani lain yang ikut nanam <strong>{selectedCommodity}</strong> ini juga?
-                      </p>
+                    <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2">
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
+                        <TrendingUp size={14} />
+                        Stabilitas AI
+                      </h3>
+                      {divergenceData && (
+                        <span className={`px-2 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${divergenceData.divergence_score < -5.0
+                            ? 'text-gr-up bg-gr-up/10 border-gr-up/20'
+                            : divergenceData.divergence_score > 5.0
+                              ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
+                              : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
+                          }`}>
+                          {divergenceData.classification}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Simple Mode Buttons Group */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'sedikit', label: 'Sedikit', desc: 'Stabil' },
-                        { id: 'sedang', label: 'Sedang', desc: 'Netral' },
-                        { id: 'banyak', label: 'Banyak', desc: 'Gejolak' }
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            setSimulatorMode('simple');
-                            setSimpleChoice(item.id as any);
-                          }}
-                          className={`p-2 border rounded-xl font-sans text-left transition-all focus:outline-none flex flex-col justify-between h-16 cursor-pointer ${
-                            simulatorMode === 'simple' && simpleChoice === item.id
-                              ? 'border-gr-board bg-gr-board/5 ring-1 ring-gr-board'
-                              : 'border-gr-line bg-transparent hover:border-gr-ink-soft/45'
-                          }`}
-                        >
-                          <span className="font-semibold text-[10px] text-gr-ink">{item.label}</span>
-                          <span className="text-[8px] text-gr-ink-soft leading-tight">{item.desc}</span>
-                        </button>
-                      ))}
-                    </div>
+                    {explanationText ? (
+                      <div className="space-y-4">
+                        <p className="font-sans text-xs text-gr-ink leading-relaxed whitespace-pre-wrap max-h-[220px] overflow-y-auto pr-1">
+                          {explanationText}
+                          {isStreaming && <span className="inline-block w-1.5 h-3 ml-1 bg-gr-board animate-pulse" />}
+                        </p>
 
-                    {/* Advanced Mode Toggle / Technical Expandable */}
-                    <div className="pt-2">
-                      <button
-                        onClick={() => setShowAdvancedToggle(!showAdvancedToggle)}
-                        className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft hover:text-gr-ink flex items-center gap-1 transition-colors focus:outline-none"
-                      >
-                        <span>Parameter (Mode Lanjutan)</span>
-                        <ChevronDown size={12} className={`transform transition-transform ${showAdvancedToggle ? 'rotate-180' : ''}`} />
-                      </button>
+                        <div className="pt-2">
+                          <button
+                            onClick={() => setShowTechDetails(!showTechDetails)}
+                            className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft hover:text-gr-ink flex items-center gap-1 transition-colors focus:outline-none"
+                          >
+                            <span>detail teknis</span>
+                            <ChevronDown size={10} className={`transform transition-transform ${showTechDetails ? 'rotate-180' : ''}`} />
+                          </button>
 
-                      {showAdvancedToggle && (
-                        <div className="mt-3 bg-gr-paper/30 border border-gr-line rounded-2xl p-4 space-y-4">
-                          <div className="flex justify-between items-center border-b border-gr-line pb-2 mb-1">
-                            <span className="font-mono text-[9px] uppercase tracking-wider text-gr-ink">Atur Parameter</span>
-                            <button
-                              onClick={() => {
-                                setSimulatorMode(simulatorMode === 'advanced' ? 'simple' : 'advanced');
-                              }}
-                              className={`px-2 py-0.5 rounded-full font-mono text-[8px] uppercase tracking-wider border transition-colors ${
-                                simulatorMode === 'advanced'
-                                  ? 'bg-gr-board text-gr-chalk border-gr-board'
-                                  : 'bg-transparent text-gr-ink-soft border-gr-line hover:text-gr-ink'
-                              }`}
-                            >
-                              {simulatorMode === 'advanced' ? 'Lanjutan Aktif' : 'Aktifkan Lanjutan'}
-                            </button>
-                          </div>
-
-                          {/* Slider Custom Es */}
-                          <div className="space-y-1">
-                            <div className="flex justify-between font-mono text-[9px]">
-                              <span className="text-gr-ink-soft">Elastisitas Penawaran (Es)</span>
-                              <span className="font-bold text-gr-ink">{activeEs.toFixed(2)}</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0.1"
-                              max="2.0"
-                              step="0.05"
-                              value={customEs}
-                              onChange={(e) => {
-                                setSimulatorMode('advanced');
-                                setCustomEs(parseFloat(e.target.value));
-                              }}
-                              className="w-full accent-gr-board cursor-pointer"
-                            />
-                          </div>
-
-                          {/* Slider Custom Ed */}
-                          <div className="space-y-1">
-                            <div className="flex justify-between font-mono text-[9px]">
-                              <span className="text-gr-ink-soft">Elastisitas Permintaan (Ed)</span>
-                              <span className="font-bold text-gr-ink">{activeEd.toFixed(2)}</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0.1"
-                              max="2.0"
-                              step="0.05"
-                              value={customEd}
-                              onChange={(e) => {
-                                setSimulatorMode('advanced');
-                                setCustomEd(parseFloat(e.target.value));
-                              }}
-                              className="w-full accent-gr-board cursor-pointer"
-                            />
-                          </div>
-
-                          {/* Slider Custom Periods */}
-                          <div className="space-y-1">
-                            <div className="flex justify-between font-mono text-[9px]">
-                              <span className="text-gr-ink-soft">Simulasi Periode</span>
-                              <span className="font-bold text-gr-ink">{activePeriods} musim</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="3"
-                              max="15"
-                              step="1"
-                              value={customPeriods}
-                              onChange={(e) => {
-                                setSimulatorMode('advanced');
-                                setCustomPeriods(parseInt(e.target.value));
-                              }}
-                              className="w-full accent-gr-board cursor-pointer"
-                            />
-                          </div>
-
-                          {/* Informative Stats & Warning */}
-                          <div className="pt-2 border-t border-gr-line/50 grid grid-cols-2 gap-2 font-mono text-[9px] text-gr-ink-soft">
-                            <div>
-                              <span className="block opacity-60">Rasio Es/Ed</span>
-                              <span className="font-bold text-gr-ink">{simRatio.toFixed(2)}</span>
-                            </div>
-                            <div>
-                              <span className="block opacity-60">Status Teoretis</span>
-                              <span className={`font-bold ${simRatio > 1.0 ? 'text-gr-down' : 'text-gr-up'}`}>
-                                {simRatio > 1.0 ? 'DIVERGEN' : 'KONVERGEN'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {isExtremeRatio && (
-                            <div className="bg-gr-down/5 border border-gr-down/20 rounded-xl p-2.5 flex gap-2 items-start">
-                              <AlertTriangle size={13} className="text-gr-down flex-shrink-0 mt-0.5" />
-                              <div className="space-y-0.5">
-                                <span className="block font-sans text-[9px] font-semibold text-gr-down">Rasio Ekstrem</span>
-                                <p className="font-sans text-[8px] text-gr-down/80 leading-relaxed">
-                                  Kombinasi elastisitas sangat ekstrem.
-                                </p>
+                          {showTechDetails && divergenceData && (
+                            <div className="mt-2 bg-gr-paper/50 border border-gr-line rounded-xl p-3 font-mono text-[10px] text-gr-ink-soft space-y-2">
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between">
+                                  <span>Simpangan</span>
+                                  <span className="font-bold text-gr-ink">Rp {divergenceData.average_oscillation_amplitude.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Siklus</span>
+                                  <span className="font-bold text-gr-ink">{divergenceData.average_oscillation_frequency_days.toFixed(1)} hari</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Skor</span>
+                                  <span className="font-bold text-gr-ink">{divergenceData.divergence_score > 0 ? '+' : ''}{divergenceData.divergence_score.toFixed(1)}%</span>
+                                </div>
                               </div>
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Run button & explanation streaming content */}
-                  {simResult ? (
-                    <div className="space-y-4 pt-4 border-t border-gr-line">
-                      <div className="space-y-2">
-                        <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
-                          Grafik Proyeksi Cobweb
-                        </span>
-                        <CobwebChart prices={simResult.prices} equilibriumPrice={simResult.equilibrium_price} />
-                        
-                        {simResult.prices.some((p: number) => p <= 0.0) && (
-                          <div className="font-mono text-[8px] text-gr-down text-center font-semibold pt-1">
-                            * Teoretis pasar kolaps / harga Rp 0.
-                          </div>
-                        )}
                       </div>
-
-                      <div className="space-y-2 pt-2 border-t border-gr-line/50">
-                        <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-board font-bold flex items-center gap-1">
-                          <TrendingUp size={11} />
-                          Analisis AI (Groq)
-                        </span>
-                        <p className="font-sans text-xs text-gr-ink leading-relaxed whitespace-pre-wrap">
-                          {simExplanation}
-                          {simStreaming && <span className="inline-block w-1 h-3 ml-1 bg-gr-board animate-pulse" />}
+                    ) : (
+                      <div className="py-12 text-center space-y-4">
+                        <p className="font-sans text-xs text-gr-ink-soft">
+                          Dapatkan analisis mendalam tren stabilitas harga komoditas dari AI.
                         </p>
-
                         <button
-                          onClick={handleSimulate}
-                          disabled={isSimulating}
-                          className="font-mono text-[9px] uppercase tracking-widest text-gr-board hover:text-gr-ink border border-gr-line hover:border-gr-ink px-3 py-1.5 rounded-xl transition-all duration-300 disabled:opacity-50 inline-flex items-center gap-1.5 cursor-pointer mt-2"
+                          onClick={handleExplain}
+                          disabled={isExplaining}
+                          className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-4 py-3 rounded-xl transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer"
                         >
-                          {isSimulating ? <Loader2 size={10} className="animate-spin" /> : null}
-                          <span>Ulangi</span>
+                          {isExplaining ? (
+                            <>
+                              <Loader2 size={13} className="animate-spin" />
+                              <span>{loadingText}</span>
+                            </>
+                          ) : (
+                            <span>Jelaskan Tren AI</span>
+                          )}
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="pt-4 border-t border-gr-line">
-                      <button
-                        onClick={handleSimulate}
-                        disabled={isSimulating}
-                        className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-5 py-3 rounded-xl transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-                      >
-                        {isSimulating ? (
-                          <>
-                            <Loader2 size={13} className="animate-spin" />
-                            <span>{simLoadingText}</span>
-                          </>
-                        ) : (
-                          <span>Proyeksikan Harga</span>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-gr-ink-soft text-xs">
+                    Analisis AI tidak tersedia untuk riwayat terbatas.
+                  </div>
+                )}
+              </div>
             </div>
-
+            {/* Simulator section hidden from rendering, logic preserved in component */}
           </div>
         )}
       </div>
