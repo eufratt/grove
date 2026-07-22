@@ -6,7 +6,8 @@ from typing import Optional, Dict, Any
 
 class DivergenceCache:
     def __init__(self):
-        self.cache_file = "c:/codes/grove/backend/.divergence_cache.json"
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        self.cache_file = os.path.join(base_dir, ".divergence_cache.json")
         self._lock = asyncio.Lock()
 
     def _get_key(self, commodity: str, region: str, days: int) -> str:

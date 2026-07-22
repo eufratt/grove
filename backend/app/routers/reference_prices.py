@@ -16,6 +16,16 @@ import asyncio
 
 router = APIRouter(prefix="/reference-prices", tags=["reference-prices"])
 
+def standardize_region(region: Optional[str]) -> Optional[str]:
+    if not region:
+        return region
+    reg_lower = region.lower().strip()
+    if reg_lower == "dki jakarta":
+        return "DKI Jakarta"
+    if reg_lower == "di yogyakarta":
+        return "Di Yogyakarta"
+    return region.title()
+
 @router.get("", response_model=PaginatedReferencePrices)
 async def get_reference_prices(
     commodity: Optional[str] = Query(None),
@@ -25,6 +35,7 @@ async def get_reference_prices(
     limit: int = Query(20, ge=1, le=1000),
     db: AsyncSession = Depends(get_db)
 ):
+    region = standardize_region(region)
     # Distinct commodities
     stmt_distinct = select(ReferencePrice.commodity_name).distinct().order_by(ReferencePrice.commodity_name)
     res_distinct = await db.execute(stmt_distinct)
@@ -100,6 +111,7 @@ async def get_reference_prices_history(
     days: Optional[int] = Query(30),
     db: AsyncSession = Depends(get_db)
 ):
+    region = standardize_region(region)
     query = select(ReferencePrice)
     if commodity:
         query = query.where(ReferencePrice.commodity_name == commodity)
@@ -187,9 +199,10 @@ async def get_reference_prices_history(
 async def get_price_divergence(
     commodity: str = Query(..., description="Nama komoditas"),
     region: str = Query("Nasional", description="Nama region"),
-    days: int = Query(90, ge=10, le=120, description="Rentang hari data historis"),
+    days: int = Query(90, ge=7, le=365, description="Rentang hari data historis"),
     db: AsyncSession = Depends(get_db)
 ):
+    region = standardize_region(region)
     # Check cache first
     cached = await divergence_cache.get(commodity, region, days)
     if cached:
@@ -292,9 +305,10 @@ async def get_price_divergence(
 async def get_price_divergence_stream(
     commodity: str = Query(..., description="Nama komoditas"),
     region: str = Query("Nasional", description="Nama region"),
-    days: int = Query(90, ge=10, le=120, description="Rentang hari data historis"),
+    days: int = Query(90, ge=7, le=365, description="Rentang hari data historis"),
     db: AsyncSession = Depends(get_db)
 ):
+    region = standardize_region(region)
     async def event_generator():
         # Check cache first
         cached = await divergence_cache.get(commodity, region, days)
@@ -448,12 +462,13 @@ async def get_price_divergence_stream(
 async def get_price_cobweb_stream(
     commodity: str = Query(..., description="Nama komoditas"),
     region: str = Query("Nasional", description="Nama region"),
-    days: int = Query(90, ge=10, le=120, description="Rentang hari data historis untuk ekuilibrium"),
+    days: int = Query(90, ge=7, le=365, description="Rentang hari data historis untuk ekuilibrium"),
     es: float = Query(0.8, ge=0.0, le=5.0, description="Elastisitas Penawaran (Es)"),
     ed: float = Query(1.0, ge=0.01, le=5.0, description="Elastisitas Permintaan (Ed)"),
     periods: int = Query(8, ge=3, le=20, description="Jumlah periode simulasi"),
     db: AsyncSession = Depends(get_db)
 ):
+    region = standardize_region(region)
     async def event_generator():
         query = select(ReferencePrice)
         query = query.where(ReferencePrice.commodity_name == commodity)
