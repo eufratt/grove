@@ -442,3 +442,110 @@ async def get_price_divergence_stream(
         await divergence_cache.set(commodity, region, days, cache_payload)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@router.get("/cobweb/stream")
+async def get_price_cobweb_stream(
+    commodity: str = Query(..., description="Nama komoditas"),
+    region: str = Query("Nasional", description="Nama region"),
+    days: int = Query(90, ge=10, le=120, description="Rentang hari data historis untuk ekuilibrium"),
+    es: float = Query(0.8, ge=0.0, le=5.0, description="Elastisitas Penawaran (Es)"),
+    ed: float = Query(1.0, ge=0.01, le=5.0, description="Elastisitas Permintaan (Ed)"),
+    periods: int = Query(8, ge=3, le=20, description="Jumlah periode simulasi"),
+    db: AsyncSession = Depends(get_db)
+):
+    async def event_generator():
+        query = select(ReferencePrice)
+        query = query.where(ReferencePrice.commodity_name == commodity)
+        query = query.where(ReferencePrice.region == region)
+        
+        cutoff = datetime.utcnow() - timedelta(days=days + 15)
+        query = query.where(ReferencePrice.scraped_at >= cutoff)
+        query = query.order_by(ReferencePrice.scraped_at.asc())
+        
+        res = await db.execute(query)
+        items = res.scalars().all()
+        
+        if not items:
+            error_payload = {
+                "prices": [0.0] * (periods + 1),
+                "equilibrium_price": 0.0,
+                "initial_price": 0.0,
+                "es": es,
+                "ed": ed,
+                "periods": periods
+            }
+            yield f"data: {json.dumps({'type': 'simulation', 'data': error_payload})}\n\n"
+            yield f"data: {json.dumps({'type': 'chunk', 'text': 'Tidak ada data historis untuk komoditas dan wilayah ini.'})}\n\n"
+            return
+
+        date_to_item = {}
+        for item in items:
+            d_key = item.scraped_at.date()
+            date_to_item[d_key] = item
+
+        end_date = datetime.utcnow().date()
+        max_db_date = max(item.scraped_at.date() for item in items)
+        if max_db_date > end_date:
+            end_date = max_db_date
+
+        start_date = end_date - timedelta(days=days - 1)
+
+        last_price = None
+        for item in items:
+            if item.scraped_at.date() < start_date:
+                last_price = item.price_per_kg
+            else:
+                break
+
+        fallback_price = items[0].price_per_kg
+
+        filled_prices = []
+        current_date = start_date
+        while current_date <= end_date:
+            if current_date in date_to_item:
+                last_price = date_to_item[current_date].price_per_kg
+                filled_prices.append(last_price)
+            else:
+                price = last_price if last_price is not None else fallback_price
+                filled_prices.append(price)
+            current_date += timedelta(days=1)
+
+        P_0 = sum(filled_prices) / len(filled_prices)
+        P_init = filled_prices[-1]
+
+        simulated_prices = [P_init]
+        ratio = es / ed
+        for t in range(1, periods + 1):
+            next_price = (1.0 + ratio) * P_0 - ratio * simulated_prices[-1]
+            if next_price < 0:
+                next_price = 0.0
+            simulated_prices.append(next_price)
+
+        simulation_payload = {
+            "prices": simulated_prices,
+            "equilibrium_price": P_0,
+            "initial_price": P_init,
+            "es": es,
+            "ed": ed,
+            "periods": periods
+        }
+        yield f"data: {json.dumps({'type': 'simulation', 'data': simulation_payload})}\n\n"
+        await asyncio.sleep(0.1)
+
+        async for chunk in groq_service.generate_cobweb_explanation_stream(
+            commodity_name=commodity,
+            region=region,
+            periods=periods,
+            simulated_prices=simulated_prices,
+            user_elasticity_supply=es,
+            user_elasticity_demand=ed
+        ):
+            chunk_msg = {
+                "type": "chunk",
+                "text": chunk
+            }
+            yield f"data: {json.dumps(chunk_msg)}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+

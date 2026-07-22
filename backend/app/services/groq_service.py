@@ -167,4 +167,97 @@ class GroqService:
                 break
             yield item
 
+    def _get_cobweb_prompt(
+        self,
+        commodity_name: str,
+        region: str,
+        periods: int,
+        simulated_prices: list[float],
+        user_elasticity_supply: float,
+        user_elasticity_demand: float
+    ) -> str:
+        prices_formatted = ", ".join(f"Rp {p:,.0f}" for p in simulated_prices)
+        return (
+            f"Anda adalah analis pasar pangan komoditas pertanian 'Grove'.\n"
+            f"Berikan penjelasan bahasa Indonesia yang sangat ringkas (maksimal 3 kalimat) mengenai hasil proyeksi harga Cobweb berikut:\n"
+            f"- Nama Komoditas: {commodity_name}\n"
+            f"- Wilayah: {region}\n"
+            f"- Jumlah Periode Simulasi: {periods} periode kedepan\n"
+            f"- Elastisitas Penawaran (Es): {user_elasticity_supply:.2f}\n"
+            f"- Elastisitas Permintaan (Ed): {user_elasticity_demand:.2f}\n"
+            f"- Hasil Proyeksi Harga: {prices_formatted}\n\n"
+            f"Ketentuan analisis model Cobweb:\n"
+            f"- Jika Es > Ed, proyeksi bersifat DIVERGEN (fluktuasi makin melebar/tidak stabil dari musim ke musim).\n"
+            f"- Jika Es < Ed, proyeksi bersifat KONVERGEN (fluktuasi mereda dan menuju harga ekuilibrium).\n"
+            f"- Jika Es = Ed, fluktuasi akan berputar konstan (siklus stabil).\n\n"
+            f"Susun penjelasan bahasa Indonesia maksimal 3 kalimat yang berisi:\n"
+            f"1. Status kestabilan proyeksi (konvergen/stabil, divergen/bergejolak, atau siklus konstan).\n"
+            f"2. Gambaran tren harga akhir simulasi (Rp X/kg).\n"
+            f"3. Catatan/rekomendasi taktis bahwa ini adalah simulasi edukasi atas skenario asumsi elastisitas, bukan prediksi pasar pasti.\n\n"
+            f"Jawab hanya teks penjelasan saja langsung ke poinnya, tanpa salam pembuka atau penutup."
+        )
+
+    async def generate_cobweb_explanation_stream(
+        self,
+        commodity_name: str,
+        region: str,
+        periods: int,
+        simulated_prices: list[float],
+        user_elasticity_supply: float,
+        user_elasticity_demand: float
+    ):
+        prompt = self._get_cobweb_prompt(
+            commodity_name, region, periods, simulated_prices, user_elasticity_supply, user_elasticity_demand
+        )
+
+        queue = asyncio.Queue()
+        loop = asyncio.get_running_loop()
+
+        def _fetch_stream():
+            try:
+                stream = self.client.chat.completions.create(
+                    model="openai/gpt-oss-120b",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    max_tokens=1024,
+                    temperature=0.3,
+                    stream=True
+                )
+                for chunk in stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
+                        content = chunk.choices[0].delta.content
+                        loop.call_soon_threadsafe(queue.put_nowait, content)
+            except Exception as e:
+                loop.call_soon_threadsafe(queue.put_nowait, e)
+            finally:
+                loop.call_soon_threadsafe(queue.put_nowait, None)
+
+        # Run synchronous stream reader in a thread pool to avoid blocking FastAPI
+        loop.run_in_executor(None, _fetch_stream)
+
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+            if isinstance(item, Exception):
+                # Fallback explanation if API call fails
+                status = "stabil"
+                if user_elasticity_supply > user_elasticity_demand:
+                    status = "semakin tidak stabil (divergen)"
+                elif user_elasticity_supply < user_elasticity_demand:
+                    status = "menuju stabil (konvergen)"
+                fallback_msg = (
+                    f"Berdasarkan skenario asumsi (Es={user_elasticity_supply:.2f}, Ed={user_elasticity_demand:.2f}), "
+                    f"proyeksi harga {commodity_name} {status} dengan harga akhir berkisar Rp {simulated_prices[-1]:,.0f}/kg. "
+                    f"Skenario ini merupakan alat edukasi berbasis simulasi model Cobweb dan bukan proyeksi pasar riil."
+                )
+                for char in fallback_msg:
+                    yield char
+                break
+            yield item
+
 groq_service = GroqService()
