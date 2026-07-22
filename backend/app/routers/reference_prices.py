@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.db import get_db
@@ -7,6 +8,10 @@ from app.models.product import Product, ProductStatus
 from app.schemas.reference_price import PaginatedReferencePrices
 from typing import Optional
 from datetime import datetime, timedelta
+from app.services.divergence_service import divergence_service
+from app.services.groq_service import groq_service
+from app.services.divergence_cache import divergence_cache
+import json
 
 router = APIRouter(prefix="/reference-prices", tags=["reference-prices"])
 
@@ -175,3 +180,264 @@ async def get_reference_prices_history(
         current_date += timedelta(days=1)
 
     return history
+
+
+@router.get("/divergence")
+async def get_price_divergence(
+    commodity: str = Query(..., description="Nama komoditas"),
+    region: str = Query("Nasional", description="Nama region"),
+    days: int = Query(90, ge=10, le=120, description="Rentang hari data historis"),
+    db: AsyncSession = Depends(get_db)
+):
+    # Check cache first
+    cached = await divergence_cache.get(commodity, region, days)
+    if cached:
+        return cached
+
+    query = select(ReferencePrice)
+    query = query.where(ReferencePrice.commodity_name == commodity)
+    query = query.where(ReferencePrice.region == region)
+    
+    # Fetch slightly more history to help with initial forward fill
+    cutoff = datetime.utcnow() - timedelta(days=days + 15)
+    query = query.where(ReferencePrice.scraped_at >= cutoff)
+    query = query.order_by(ReferencePrice.scraped_at.asc())
+    
+    res = await db.execute(query)
+    items = res.scalars().all()
+    
+    if not items:
+        return {
+            "commodity_name": commodity,
+            "region": region,
+            "days": days,
+            "divergence_score": 0.0,
+            "classification": "Stabil/Fluktuasi Normal",
+            "average_oscillation_amplitude": 0.0,
+            "average_oscillation_frequency_days": 0.0,
+            "explanation": "Tidak ada data historis yang tersedia untuk komoditas dan wilayah ini.",
+            "historical_data_points": 0
+        }
+
+    # Map date to latest price entry
+    date_to_item = {}
+    for item in items:
+        d_key = item.scraped_at.date()
+        date_to_item[d_key] = item
+
+    # Target date range is from (today - days + 1) to today
+    end_date = datetime.utcnow().date()
+    max_db_date = max(item.scraped_at.date() for item in items)
+    if max_db_date > end_date:
+        end_date = max_db_date
+
+    start_date = end_date - timedelta(days=days - 1)
+
+    # Pre-populate last seen price from history before start_date
+    last_price = None
+    for item in items:
+        if item.scraped_at.date() < start_date:
+            last_price = item.price_per_kg
+        else:
+            break
+
+    fallback_price = items[0].price_per_kg
+
+    filled_prices = []
+    current_date = start_date
+    while current_date <= end_date:
+        if current_date in date_to_item:
+            last_price = date_to_item[current_date].price_per_kg
+            filled_prices.append(last_price)
+        else:
+            price = last_price if last_price is not None else fallback_price
+            filled_prices.append(price)
+        current_date += timedelta(days=1)
+
+    # Calculate statistics
+    stats = divergence_service.calculate_divergence(filled_prices)
+
+    # Generate natural language explanation via Groq
+    explanation = await groq_service.generate_explanation(
+        commodity_name=commodity,
+        region=region,
+        days=days,
+        current_price=stats["current_price"],
+        price_change_pct=stats["price_change_pct"],
+        divergence_score=stats["divergence_score"],
+        classification=stats["classification"],
+        avg_amplitude=stats["average_oscillation_amplitude"],
+        avg_frequency=stats["average_oscillation_frequency_days"]
+    )
+
+    result = {
+        "commodity_name": commodity,
+        "region": region,
+        "days": days,
+        "divergence_score": stats["divergence_score"],
+        "classification": stats["classification"],
+        "average_oscillation_amplitude": stats["average_oscillation_amplitude"],
+        "average_oscillation_frequency_days": stats["average_oscillation_frequency_days"],
+        "explanation": explanation,
+        "historical_data_points": len(filled_prices)
+    }
+
+    # Store in daily cache
+    await divergence_cache.set(commodity, region, days, result)
+    return result
+
+
+@router.get("/divergence/stream")
+async def get_price_divergence_stream(
+    commodity: str = Query(..., description="Nama komoditas"),
+    region: str = Query("Nasional", description="Nama region"),
+    days: int = Query(90, ge=10, le=120, description="Rentang hari data historis"),
+    db: AsyncSession = Depends(get_db)
+):
+    async def event_generator():
+        # Check cache first
+        cached = await divergence_cache.get(commodity, region, days)
+        if cached:
+            # Yield stats type message
+            stats_msg = {
+                "type": "stats",
+                "data": {
+                    "commodity_name": cached["commodity_name"],
+                    "region": cached["region"],
+                    "days": cached["days"],
+                    "divergence_score": cached["divergence_score"],
+                    "classification": cached["classification"],
+                    "average_oscillation_amplitude": cached["average_oscillation_amplitude"],
+                    "average_oscillation_frequency_days": cached["average_oscillation_frequency_days"],
+                    "historical_data_points": cached["historical_data_points"]
+                }
+            }
+            yield f"data: {json.dumps(stats_msg)}\n\n"
+            await asyncio.sleep(0.1)
+
+            # Yield explanation chunk-by-chunk for typing effect
+            explanation = cached["explanation"]
+            chunk_size = 8
+            for i in range(0, len(explanation), chunk_size):
+                chunk = explanation[i:i + chunk_size]
+                chunk_msg = {
+                    "type": "chunk",
+                    "text": chunk
+                }
+                yield f"data: {json.dumps(chunk_msg)}\n\n"
+                await asyncio.sleep(0.02)
+            return
+
+        # If not cached, compute stats
+        query = select(ReferencePrice)
+        query = query.where(ReferencePrice.commodity_name == commodity)
+        query = query.where(ReferencePrice.region == region)
+        
+        cutoff = datetime.utcnow() - timedelta(days=days + 15)
+        query = query.where(ReferencePrice.scraped_at >= cutoff)
+        query = query.order_by(ReferencePrice.scraped_at.asc())
+        
+        res = await db.execute(query)
+        items = res.scalars().all()
+        
+        if not items:
+            error_stats = {
+                "commodity_name": commodity,
+                "region": region,
+                "days": days,
+                "divergence_score": 0.0,
+                "classification": "Stabil/Fluktuasi Normal",
+                "average_oscillation_amplitude": 0.0,
+                "average_oscillation_frequency_days": 0.0,
+                "historical_data_points": 0
+            }
+            yield f"data: {json.dumps({'type': 'stats', 'data': error_stats})}\n\n"
+            yield f"data: {json.dumps({'type': 'chunk', 'text': 'Tidak ada data historis yang tersedia untuk komoditas dan wilayah ini.'})}\n\n"
+            return
+
+        date_to_item = {}
+        for item in items:
+            d_key = item.scraped_at.date()
+            date_to_item[d_key] = item
+
+        end_date = datetime.utcnow().date()
+        max_db_date = max(item.scraped_at.date() for item in items)
+        if max_db_date > end_date:
+            end_date = max_db_date
+
+        start_date = end_date - timedelta(days=days - 1)
+
+        last_price = None
+        for item in items:
+            if item.scraped_at.date() < start_date:
+                last_price = item.price_per_kg
+            else:
+                break
+
+        fallback_price = items[0].price_per_kg
+
+        filled_prices = []
+        current_date = start_date
+        while current_date <= end_date:
+            if current_date in date_to_item:
+                last_price = date_to_item[current_date].price_per_kg
+                filled_prices.append(last_price)
+            else:
+                price = last_price if last_price is not None else fallback_price
+                filled_prices.append(price)
+            current_date += timedelta(days=1)
+
+        # Calculate statistics
+        stats = divergence_service.calculate_divergence(filled_prices)
+
+        # Yield stats to client immediately
+        stats_payload = {
+            "commodity_name": commodity,
+            "region": region,
+            "days": days,
+            "divergence_score": stats["divergence_score"],
+            "classification": stats["classification"],
+            "average_oscillation_amplitude": stats["average_oscillation_amplitude"],
+            "average_oscillation_frequency_days": stats["average_oscillation_frequency_days"],
+            "historical_data_points": len(filled_prices)
+        }
+        yield f"data: {json.dumps({'type': 'stats', 'data': stats_payload})}\n\n"
+        await asyncio.sleep(0.1)
+
+        # Stream explanation from LLM
+        full_explanation_list = []
+        async for chunk in groq_service.generate_explanation_stream(
+            commodity_name=commodity,
+            region=region,
+            days=days,
+            current_price=stats["current_price"],
+            price_change_pct=stats["price_change_pct"],
+            divergence_score=stats["divergence_score"],
+            classification=stats["classification"],
+            avg_amplitude=stats["average_oscillation_amplitude"],
+            avg_frequency=stats["average_oscillation_frequency_days"]
+        ):
+            full_explanation_list.append(chunk)
+            chunk_msg = {
+                "type": "chunk",
+                "text": chunk
+            }
+            yield f"data: {json.dumps(chunk_msg)}\n\n"
+
+        full_explanation = "".join(full_explanation_list)
+
+        # Cache the complete result for next requests
+        cache_payload = {
+            "commodity_name": commodity,
+            "region": region,
+            "days": days,
+            "divergence_score": stats["divergence_score"],
+            "classification": stats["classification"],
+            "average_oscillation_amplitude": stats["average_oscillation_amplitude"],
+            "average_oscillation_frequency_days": stats["average_oscillation_frequency_days"],
+            "explanation": full_explanation,
+            "historical_data_points": len(filled_prices)
+        }
+        await divergence_cache.set(commodity, region, days, cache_payload)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
