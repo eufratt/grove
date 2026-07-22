@@ -30,4 +30,11 @@ export const referencePricesApi = {
     });
     return response.json();
   },
+  getPriceDivergence: async (commodity: string, region = 'Nasional', days = 90) => {
+    const url = `/reference-prices/divergence?commodity=${encodeURIComponent(commodity)}&region=${encodeURIComponent(region)}&days=${days}`;
+    const response = await apiClient(url, {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };
