@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     APP_ENV: str = "production"
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
+    # Order Status Timeouts (in seconds)
+    TIMEOUT_KONFIRMASI: int = 86400        # 1 day
+    TIMEOUT_PENGAMBILAN: int = 259200       # 3 days
+    TIMEOUT_AUTO_CONFIRM: int = 172800      # 2 days
+    TIMEOUT_KOMPLAIN: int = 86400          # 1 day
+
     model_config = SettingsConfigDict(env_file=env_file_path, extra="ignore")
 
 settings = Settings()

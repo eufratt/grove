@@ -4,7 +4,7 @@ from uuid import UUID
 from datetime import datetime
 from fastapi import HTTPException, status
 from app.models.rating import Rating, RoleContext, TransactionType
-from app.models.order import Order
+from app.models.order import Order, OrderStatus
 from app.models.product import Product
 from app.models.demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
 from app.models.user import User
@@ -32,9 +32,9 @@ async def create_rating(
         if order.buyer_id != rater_id:
             raise HTTPException(status_code=403, detail="Hanya pembeli yang dapat memberi rating untuk transaksi ini")
         
-        # Verify order has been confirmed by buyer (buyer_confirmed_at is set)
-        if not order.buyer_confirmed_at:
-            raise HTTPException(status_code=400, detail="Transaksi belum dikonfirmasi selesai oleh pembeli")
+        # Verify order status is SELESAI
+        if order.status != OrderStatus.SELESAI:
+            raise HTTPException(status_code=400, detail="Transaksi belum selesai")
 
         # Get product to find seller
         stmt_prod = select(Product).where(Product.id == order.product_id)

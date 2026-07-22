@@ -3,8 +3,17 @@ from app.routers import auth, products, search, orders, admin, users, reference_
 from app.services import connection_manager
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
+from app.services.scheduler import start_scheduler, shutdown_scheduler
 
 app = FastAPI(title="Grove API")
+
+@app.on_event("startup")
+async def startup_event():
+    start_scheduler()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    shutdown_scheduler()
 
 # Parse ALLOWED_ORIGINS to a list of stripped strings
 origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin.strip()]
