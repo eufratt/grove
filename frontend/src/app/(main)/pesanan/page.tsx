@@ -903,24 +903,37 @@ function FarmerProductCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative flex flex-col sm:flex-row gap-4 p-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 transition-all shadow-sm"
+      className="group relative flex flex-col sm:flex-row gap-4 p-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 transition-all shadow-sm overflow-hidden"
     >
-      {/* Product Image */}
-      <div className="relative aspect-square w-24 sm:w-28 shrink-0 overflow-hidden bg-black/5 border border-gr-line rounded-sm">
-        {product.photo_url ? (
-          <img
-            src={product.photo_url}
-            alt={product.name}
-            className="h-full w-full object-cover grayscale-[0.1] hover:grayscale-0 transition-all duration-300"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
-            <Package size={24} />
-          </div>
-        )}
+      {/* LEFT: Stub Container with Image */}
+      <div className="flex flex-col items-center sm:items-start shrink-0 relative pr-0 sm:pr-4 sm:border-r sm:border-dashed sm:border-gr-line/60 w-full sm:w-auto">
+        
+        {/* Punched Hole Stamp */}
+        <div className="hidden sm:flex absolute top-[-8px] left-[50%] sm:left-[-8px] transform -translate-x-1/2 sm:translate-x-0 w-3 h-3 rounded-full bg-gr-paper border border-gr-line shadow-inner items-center justify-center z-10">
+          <div className="w-1 h-1 rounded-full bg-gr-line/80" />
+        </div>
+
+        {/* Separator Ticket Cutouts (Desktop) */}
+        <div className="hidden sm:block absolute top-[-10px] right-[-7px] w-3.5 h-3.5 rounded-full bg-gr-paper border border-gr-line z-10" />
+        <div className="hidden sm:block absolute bottom-[-10px] right-[-7px] w-3.5 h-3.5 rounded-full bg-gr-paper border border-gr-line z-10" />
+
+        {/* Product Image */}
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden bg-black/5 border border-gr-line rounded-sm self-start sm:self-auto">
+          {product.photo_url ? (
+            <img
+              src={product.photo_url}
+              alt={product.name}
+              className="h-full w-full object-cover grayscale-[0.1] hover:grayscale-0 transition-all duration-300"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
+              <Package size={24} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Details */}
+      {/* RIGHT: Details & Actions */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
         <div>
           <div className="flex justify-between items-start gap-2">
@@ -959,22 +972,40 @@ function FarmerProductCard({
 
         {/* Card Footer Actions */}
         <div className="flex items-center justify-between gap-4 mt-4 pt-3 border-t border-gr-line/40">
-          <span className="font-sans text-[10px] text-gr-ink-soft/60 italic">
-            Listing sejak {formattedDate}
-          </span>
           
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
-          >
-            {isDeleting ? (
-              <Loader2 size={10} className="animate-spin" />
-            ) : (
-              <Trash2 size={10} />
-            )}
-            Tarik Produk
-          </button>
+          {/* Simulated Monospace Barcode */}
+          <div className="flex items-end gap-[1.5px] h-6 opacity-40 hover:opacity-75 transition-opacity" title={`ID: ${product.id}`}>
+            <div className="w-[1.5px] h-full bg-gr-ink" />
+            <div className="w-[3px] h-full bg-gr-ink" />
+            <div className="w-[1px] h-[75%] bg-gr-ink" />
+            <div className="w-[2px] h-[75%] bg-gr-ink" />
+            <div className="w-[4px] h-[60%] bg-gr-ink" />
+            <div className="w-[1px] h-full bg-gr-ink" />
+            <div className="w-[2px] h-full bg-gr-ink" />
+            <span className="font-mono text-[7px] tracking-widest ml-1.5 text-gr-ink-soft/90">
+              № {product.id.slice(0, 6).toUpperCase()}
+            </span>
+          </div>
+          
+          {/* Date & Action Button */}
+          <div className="flex items-center gap-3">
+            <span className="font-sans text-[9px] text-gr-ink-soft/60 italic hidden md:inline">
+              Listing {formattedDate}
+            </span>
+            
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
+            >
+              {isDeleting ? (
+                <Loader2 size={10} className="animate-spin" />
+              ) : (
+                <Trash2 size={10} />
+              )}
+              Tarik Produk
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>
