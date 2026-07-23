@@ -1,57 +1,57 @@
 {
   "bawang merah:nasional:90": {
-    "cache_date": "2026-07-22",
+    "cache_date": "2026-07-23",
     "data": {
       "commodity_name": "Bawang Merah",
       "region": "Nasional",
       "days": 90,
-      "divergence_score": 7.5011262841482775,
-      "classification": "Divergen (Makin Bergejolak)",
-      "average_oscillation_amplitude": 675.8620689655172,
-      "average_oscillation_frequency_days": 5.517241379310345,
-      "explanation": "Harga bawang merah nasional kini bergejolak (divergen) dengan Divergence Score +7,5 % dan kenaikan total +29,93 % dalam 90 hari. Fluktuasi rata‑rata sebesar Rp 676 per siklus dengan periode sekitar 5,5 hari. Petani sebaiknya menunda panen atau jual saat harga tinggi, sementara pembeli disarankan membeli segera sebelum harga naik lebih jauh.",
+      "divergence_score": 3.271528969385775,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 3035.672886946683,
+      "average_oscillation_frequency_days": 22.5,
+      "explanation": "Harga bawang merah saat ini berada dalam kondisi fluktuasi normal dengan Divergence Score +3,27% yang menunjukkan sedikit peningkatan volatilitas. Rata‑rata osilasi harga adalah sekitar Rp 3.036 per 22,5 hari. Petani sebaiknya menahan sebagian hasil untuk mengantisipasi kenaikan harga, sementara pembeli dapat memanfaatkan harga saat ini yang masih relatif rendah.",
       "historical_data_points": 90
     }
   },
   "telur ayam ras segar:nasional:90": {
-    "cache_date": "2026-07-22",
+    "cache_date": "2026-07-23",
     "data": {
       "commodity_name": "Telur Ayam Ras Segar",
       "region": "Nasional",
       "days": 90,
-      "divergence_score": 8.82001156283325,
-      "classification": "Divergen (Makin Bergejolak)",
-      "average_oscillation_amplitude": 1277.9411764705883,
-      "average_oscillation_frequency_days": 5.0588235294117645,
-      "explanation": "Harga telur ayam ras segar kini bergejolak (Divergence Score +8,82%). Fluktuasi rata‑rata sekitar Rp 1.278 per kg setiap 5,1 hari. Petani sebaiknya menahan penjualan besar‑besar dan menyesuaikan harga, sementara pembeli dapat memanfaatkan penurunan harga saat ini namun tetap waspada terhadap perubahan cepat.",
+      "divergence_score": 2.595232817170107,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 150.0,
+      "average_oscillation_frequency_days": 9.0,
+      "explanation": "Harga telur ayam ras segar saat ini berada dalam fluktuasi normal dengan sedikit kecenderungan naik (Divergence Score +2,60%). Rata‑rata osilasi harga hanya sekitar Rp150 per kilogram dalam siklus sekitar 9 hari. Petani dapat melanjutkan produksi sambil memantau pasar, sementara pembeli disarankan membeli sekarang sebelum potensi kenaikan lebih lanjut.",
       "historical_data_points": 90
     }
   },
   "cabai rawit merah:nasional:90": {
-    "cache_date": "2026-07-22",
+    "cache_date": "2026-07-23",
     "data": {
       "commodity_name": "Cabai Rawit Merah",
       "region": "Nasional",
       "days": 90,
-      "divergence_score": 6.155914876613457,
+      "divergence_score": 9.5296640905814,
       "classification": "Divergen (Makin Bergejolak)",
-      "average_oscillation_amplitude": 1672.0588235294117,
-      "average_oscillation_frequency_days": 4.9411764705882355,
-      "explanation": "Harga Cabai Rawit Merah kini bergejolak (divergen) dengan Divergence Score +6,16 %. Fluktuasi rata‑rata sekitar Rp 1.672 per kg dalam siklus ≈4,9 hari. Petani sebaiknya menunda panen besar atau jual sebagian sekarang untuk menghindari penurunan lebih lanjut, sementara pembeli dapat manfaatkan penurunan 5,4 % untuk mengisi stok.",
+      "average_oscillation_amplitude": 3775.0,
+      "average_oscillation_frequency_days": 18.0,
+      "explanation": "Harga cabai rawit merah kini bergejolak (divergen). Fluktuasi rata‑rata sekitar Rp 3.775 tiap siklus dengan periode sekitar 18 hari. Petani sebaiknya pertimbangkan kontrak forward atau simpan sebagian hasil untuk menjual saat harga turun, sementara pembeli dapat menunggu penurunan harga sebelum membeli dalam jumlah besar.",
       "historical_data_points": 90
     }
   },
   "bawang merah:jawa timur:30": {
-    "cache_date": "2026-07-22",
+    "cache_date": "2026-07-23",
     "data": {
       "commodity_name": "Bawang Merah",
       "region": "Jawa Timur",
       "days": 30,
-      "divergence_score": 0.8242018405781376,
+      "divergence_score": -0.6066832926849179,
       "classification": "Stabil/Fluktuasi Normal",
-      "average_oscillation_amplitude": 1433.3333333333333,
-      "average_oscillation_frequency_days": 7.333333333333333,
-      "explanation": "Harga bawang merah di Jawa Timur saat ini berada dalam kondisi fluktuasi normal, tidak menunjukkan tren bergejolak. Rata‑rata osilasi harga adalah sekitar Rp 1.433 per siklus dengan periode sekitar 7,3 hari. Petani sebaiknya menahan panen beberapa hari lagi untuk mengoptimalkan margin, sementara pembeli dapat memanfaatkan penurunan harga sekitar 5,7 % ini.",
+      "average_oscillation_amplitude": 100.0,
+      "average_oscillation_frequency_days": 2.0,
+      "explanation": "Harga bawang merah di Jawa Timur saat ini berada dalam kondisi stabil dengan fluktuasi normal. Rata‑rata osilasi harga hanya sekitar Rp 100 per 2 hari, menunjukkan pergerakan yang sangat kecil. Petani dapat melanjutkan produksi tanpa khawatir penurunan harga, sementara pembeli dapat memanfaatkan harga Rp 32.900/kg yang sudah turun 23 % dan relatif stabil.",
       "historical_data_points": 30
     }
   },
@@ -711,6 +711,20 @@
       "average_oscillation_frequency_days": 0.0,
       "explanation": "Harga Bawang Merah di Jawa Timur saat ini berada dalam kondisi stabil/normal. Fluktuasi rata‑rata hanya Rp 0 dalam periode 0 hari, menunjukkan tidak ada osilasi berarti. Petani dapat melanjutkan produksi seperti biasa, sementara pembeli dapat membeli dengan keyakinan harga tidak akan naik secara tiba‑tiba.",
       "historical_data_points": 7
+    }
+  },
+  "bawang merah:di yogyakarta:30": {
+    "cache_date": "2026-07-23",
+    "data": {
+      "commodity_name": "Bawang Merah",
+      "region": "Di Yogyakarta",
+      "days": 30,
+      "divergence_score": 0.5790412173333421,
+      "classification": "Stabil/Fluktuasi Normal",
+      "average_oscillation_amplitude": 1006.9204977995477,
+      "average_oscillation_frequency_days": 7.5,
+      "explanation": "Harga bawang merah di Yogyakarta saat ini berada dalam kondisi fluktuasi normal, karena Divergence Score hanya +0,58% dan klasifikasi volatilitas menunjukkan stabil. Rata‑rata osilasi harga selama 30 hari terakhir sebesar Rp 1.007 per kilogram dengan periode siklus sekitar 7,5 hari. Petani dapat mempertahankan penjualan sekarang mengingat penurunan total –5,61% masih moderat, sementara pembeli disarankan memanfaatkan harga yang sedikit lebih rendah untuk mengamankan stok.",
+      "historical_data_points": 30
     }
   }
 }

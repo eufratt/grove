@@ -43,7 +43,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 p-5 rounded-2xl border border-white/5 bg-white/[0.02] space-y-4">
+    <form onSubmit={handleSubmit} className="mt-4 p-5 rounded-2xl border border-gr-line bg-gr-bg-elevated space-y-4">
       <div>
         <p className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/60 mb-2">
           {label || 'Berikan Rating Anda'}
@@ -65,7 +65,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
                 className={
                   (hoverScore || score) >= star
                     ? 'fill-gr-green text-gr-green drop-shadow-[0_0_8px_rgba(92,255,158,0.3)]'
-                    : 'text-white/20'
+                    : 'text-gr-text-primary/25'
                 }
               />
             </button>
@@ -82,7 +82,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
           onChange={(e) => setComment(e.target.value)}
           placeholder="Bagaimana kualitas produk dan koordinasi transaksinya?"
           rows={3}
-          className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm font-sans text-gr-text-primary placeholder-white/20 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none"
+          className="w-full rounded-xl border border-gr-line bg-gr-bg-elevated p-3 text-sm font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none"
         />
       </div>
 

@@ -23,6 +23,12 @@ class OrderStatus(str, enum.Enum):
     def _missing_(cls, value):
         if isinstance(value, str):
             val = value.upper()
+            if val == "DIPESAN":
+                return cls.MENUNGGU_KONFIRMASI
+            if val == "DIKONFIRMASI":
+                return cls.DIPROSES
+            if val == "BATAL":
+                return cls.DIBATALKAN
             for member in cls:
                 if member.value == val or member.name == val:
                     return member

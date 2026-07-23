@@ -286,14 +286,25 @@ function OrderCard({
   const getStatusConfig = (status: string) => {
     switch (status.toUpperCase()) {
       case 'DIPESAN': 
+      case 'MENUNGGU_KONFIRMASI':
         return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Menunggu Konfirmasi' };
       case 'DIKONFIRMASI': 
-        return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Terkonfirmasi' };
+      case 'DIPROSES':
+        return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Diproses' };
       case 'SIAP_DIAMBIL': 
         return { icon: Truck, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Siap Diambil' };
+      case 'DIKIRIM':
+        return { icon: Truck, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Dikirim' };
+      case 'DITERIMA':
+        return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Diterima' };
+      case 'MASA_KOMPLAIN':
+        return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Masa Komplain' };
+      case 'KOMPLAIN_DIPROSES':
+        return { icon: Clock, pillStyle: 'bg-gr-down/10 text-gr-down border-gr-down/20', label: 'Komplain Diproses' };
       case 'SELESAI': 
         return { icon: CheckCircle2, pillStyle: 'bg-gr-paper text-gr-ink-soft border-gr-line', label: 'Selesai' };
       case 'BATAL': 
+      case 'DIBATALKAN':
         return { icon: XCircle, pillStyle: 'bg-gr-down/10 text-gr-down border-gr-down/20', label: 'Dibatalkan' };
       default: 
         return { icon: Package, pillStyle: 'bg-gr-paper text-gr-ink border-gr-line', label: status };
@@ -462,7 +473,18 @@ function OrderCard({
             {/* Buyer actions */}
             {!isIncoming && (
               <div className="pt-4 border-t border-gr-line space-y-4">
-                {!buyerConfirmedAt && currentStatus !== 'BATAL' && (
+                {(currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && (
+                  <Button
+                    disabled={isUpdating}
+                    variant="ghost"
+                    onClick={() => handleStatusChange('DIBATALKAN')}
+                    className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer transition-all"
+                  >
+                    {isUpdating ? 'Memproses...' : 'Batalkan Pesanan'}
+                  </Button>
+                )}
+
+                {!buyerConfirmedAt && (currentStatus === 'SIAP_DIAMBIL' || currentStatus === 'DIKIRIM') && (
                   <Button
                     disabled={isConfirming}
                     onClick={handleConfirmSuccess}
@@ -494,13 +516,13 @@ function OrderCard({
             )}
 
             {/* Farmer actions */}
-            {isIncoming && currentStatus !== 'SELESAI' && currentStatus !== 'BATAL' && (
+            {isIncoming && currentStatus !== 'SELESAI' && currentStatus !== 'BATAL' && currentStatus !== 'DIBATALKAN' && (
               <div className="flex flex-wrap gap-3 pt-4 border-t border-gr-line">
-                {currentStatus === 'DIPESAN' && (
+                {(currentStatus === 'DIPESAN' || currentStatus === 'MENUNGGU_KONFIRMASI') && (
                   <>
                     <Button
                       disabled={isUpdating}
-                      onClick={() => handleStatusChange('DIKONFIRMASI')}
+                      onClick={() => handleStatusChange('DIPROSES')}
                       className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
                     >
                       Konfirmasi Pesanan
@@ -508,29 +530,20 @@ function OrderCard({
                     <Button
                       disabled={isUpdating}
                       variant="ghost"
-                      onClick={() => handleStatusChange('BATAL')}
+                      onClick={() => handleStatusChange('DIBATALKAN')}
                       className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer transition-all"
                     >
                       Tolak
                     </Button>
                   </>
                 )}
-                {currentStatus === 'DIKONFIRMASI' && (
+                {(currentStatus === 'DIKONFIRMASI' || currentStatus === 'DIPROSES') && (
                   <Button
                     disabled={isUpdating}
                     onClick={() => handleStatusChange('SIAP_DIAMBIL')}
                     className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
                   >
                     Tandai Siap Diambil
-                  </Button>
-                )}
-                {currentStatus === 'SIAP_DIAMBIL' && (
-                  <Button
-                    disabled={isUpdating}
-                    onClick={() => handleStatusChange('SELESAI')}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
-                  >
-                    Selesaikan Pesanan
                   </Button>
                 )}
               </div>
