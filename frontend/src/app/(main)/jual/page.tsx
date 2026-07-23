@@ -288,24 +288,24 @@ export default function JualPage() {
 
   if (checkingAuth) {
     return (
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gr-bg">
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gr-paper">
         <BgPattern />
-        <Loader2 className="h-12 w-12 text-gr-green animate-spin opacity-50 z-10" />
+        <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50 z-10" />
       </main>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-gr-bg py-12 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gr-paper py-12 px-4 sm:px-6 lg:px-8">
       <BgPattern />
       <FilmGrain />
       
       <div className="relative z-10 mx-auto max-w-4xl">
-        <header className="mb-12 text-center">
-          <h1 className="font-display text-5xl font-medium tracking-tight text-gr-text-primary">
+        <header className="mb-12 text-center select-none">
+          <h1 className="font-display text-5xl font-medium tracking-tight text-gr-ink">
             Post Hasil Panen
           </h1>
-          <p className="mt-4 font-sans text-gr-text-primary/60 italic">
+          <p className="mt-4 font-sans text-gr-ink-soft italic">
             "Kejujuran adalah benih dari kepercayaan pelanggan."
           </p>
         </header>
@@ -315,13 +315,13 @@ export default function JualPage() {
           <div className="flex flex-col items-center justify-start space-y-6">
             <div 
               className={cn(
-                "relative bg-gr-bg-paper p-4 pb-16 shadow-2xl transition-transform duration-300 hover:rotate-1",
-                !previewUrl && "flex aspect-[4/5] w-full max-w-sm items-center justify-center border-2 border-dashed border-white/10 bg-transparent"
+                "relative bg-white/60 dark:bg-white/10 backdrop-blur-sm p-4 pb-16 border border-gr-line rounded-sm shadow-sm transition-transform duration-300 hover:rotate-1",
+                !previewUrl && "flex aspect-[4/5] w-full max-w-sm items-center justify-center border border-dashed border-gr-line bg-transparent"
               )}
             >
               {previewUrl ? (
                 <>
-                  <div className="relative aspect-square w-full overflow-hidden bg-black/5">
+                  <div className="relative aspect-square w-full overflow-hidden bg-black/5 border border-gr-line rounded-sm">
                     <img 
                       src={previewUrl} 
                       alt="Preview" 
@@ -331,12 +331,12 @@ export default function JualPage() {
                   <button 
                     type="button"
                     onClick={removePhoto}
-                    className="absolute -right-2 -top-2 rounded-full bg-gr-price-unfair p-1 text-white shadow-lg hover:bg-gr-price-unfair/90"
+                    className="absolute -right-2 -top-2 rounded-sm bg-gr-down p-1.5 text-gr-chalk shadow-md hover:bg-gr-down/90 border border-gr-down"
                   >
-                    <X size={20} />
+                    <X size={16} />
                   </button>
                   <div className="absolute bottom-4 left-0 w-full text-center">
-                    <span className="font-display text-2xl text-gr-text-paper opacity-30">
+                    <span className="font-mono text-xs uppercase tracking-widest text-gr-ink-soft font-bold opacity-40">
                       GROVE SHOT #001
                     </span>
                   </div>
@@ -344,12 +344,12 @@ export default function JualPage() {
               ) : (
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="group flex cursor-pointer flex-col items-center space-y-4 text-gr-text-primary/40 transition-colors hover:text-gr-green"
+                  className="group flex cursor-pointer flex-col items-center space-y-4 text-gr-ink-soft/60 transition-colors hover:text-gr-board"
                 >
-                  <div className="rounded-full border border-current p-6 transition-transform group-hover:scale-110">
-                    <Camera size={48} />
+                  <div className="rounded-full border border-gr-line p-6 bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-105 shadow-sm">
+                    <Camera size={44} className="text-gr-ink-soft" />
                   </div>
-                  <span className="font-sans text-sm font-medium uppercase tracking-widest">
+                  <span className="font-mono text-xs uppercase tracking-widest font-bold">
                     Klik untuk Ambil Foto
                   </span>
                 </div>
@@ -365,16 +365,18 @@ export default function JualPage() {
           </div>
 
           {/* Form Content */}
-          <div className="space-y-8 rounded-2xl bg-[#FAF6EE]/95 dark:bg-[#1E1812]/95 p-8 border border-[#E4DBC5] dark:border-white/10 shadow-2xl backdrop-blur-xl">
+          <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line shadow-sm backdrop-blur-sm text-gr-ink">
             {error && (
-              <div className="rounded bg-gr-price-unfair/10 p-4 text-sm text-gr-price-unfair border border-gr-price-unfair/20">
+              <div className="rounded-sm bg-gr-down/10 p-4 text-sm text-gr-down border border-gr-down/20 font-sans">
                 {error}
               </div>
             )}
 
-            <div className="space-y-6">
+            <div className="space-y-5">
+              
+              {/* Nama Komoditas */}
               <div className="relative" ref={dropdownRef}>
-                <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                   Nama Komoditas
                 </label>
                 <input
@@ -383,7 +385,7 @@ export default function JualPage() {
                   required
                   autoComplete="off"
                   placeholder="Contoh: Cabai Rawit Merah"
-                  className="mt-2 block w-full border-b border-white/20 bg-transparent py-2 font-sans text-xl text-gr-text-primary placeholder-white/10 focus:border-gr-green focus:outline-none transition-colors"
+                  className="mt-2 block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 px-3 py-2 text-sm text-gr-ink focus:outline-none focus:border-gr-board/50 rounded-sm transition-all"
                   value={formData.name}
                   onChange={handleInputChange}
                   onFocus={() => {
@@ -395,13 +397,13 @@ export default function JualPage() {
                   }}
                 />
                 {showDropdown && filteredCommodities.length > 0 && (
-                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-gr-bg/95 backdrop-blur-xl shadow-lg z-30 divide-y divide-white/5">
+                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm shadow-md z-30 divide-y divide-gr-line/40 text-gr-ink">
                     {filteredCommodities.map((item) => (
                       <button
                         key={item}
                         type="button"
                         onClick={() => selectCommodity(item)}
-                        className="w-full text-left px-4 py-3 font-sans text-xs text-gr-text-primary hover:text-gr-green hover:bg-white/5 transition-colors cursor-pointer"
+                        className="w-full text-left px-4 py-3 font-sans text-xs text-gr-ink hover:text-gr-board hover:bg-white/5 transition-colors cursor-pointer"
                       >
                         {item}
                       </button>
@@ -411,16 +413,19 @@ export default function JualPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-6">
+                {/* Harga Referensi */}
                 <div>
-                  <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                     Harga Referensi (PIHPS)
                   </label>
-                  <div className="mt-2 py-2 font-mono text-xl text-gr-green border-b border-white/20 bg-transparent min-h-[42px] flex items-center">
+                  <div className="mt-2 block w-full bg-white/20 border border-gr-line px-3 py-2 text-sm text-gr-board font-mono font-bold rounded-sm h-[38px] flex items-center">
                     {refPrice !== null ? `Rp ${refPrice.toLocaleString('id-ID')}/kg` : '-'}
                   </div>
                 </div>
+                
+                {/* Jumlah */}
                 <div>
-                  <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                     Jumlah (KG)
                   </label>
                   <input
@@ -429,25 +434,26 @@ export default function JualPage() {
                     step="0.1"
                     required
                     placeholder="0.0"
-                    className="mt-2 block w-full border-b border-white/20 bg-transparent py-2 font-mono text-xl text-gr-text-primary focus:border-gr-green focus:outline-none"
+                    className="mt-2 block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 px-3 py-2 text-sm text-gr-ink font-mono focus:outline-none focus:border-gr-board/50 rounded-sm transition-all"
                     value={formData.quantity_kg}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
 
+              {/* Harga per KG */}
               <div>
-                <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                   Harga per KG (IDR)
                 </label>
                 <div className="relative mt-2">
-                  <span className="absolute left-0 top-2 font-mono text-xl text-gr-text-primary/30">Rp</span>
+                  <span className="absolute left-3 top-2.5 font-mono text-sm text-gr-ink-soft/50 font-bold">Rp</span>
                   <input
                     name="price_per_kg"
                     type="number"
                     required
                     placeholder="0"
-                    className="block w-full border-b border-white/20 bg-transparent py-2 pl-10 font-mono text-3xl text-gr-green focus:border-gr-green focus:outline-none"
+                    className="block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 pl-9 pr-3 py-2 text-sm text-gr-ink font-mono font-bold focus:outline-none focus:border-gr-board/50 rounded-sm transition-all"
                     value={formData.price_per_kg}
                     onChange={handleInputChange}
                   />
@@ -458,33 +464,33 @@ export default function JualPage() {
               {refPrice !== null && formData.price_per_kg && (
                 <div className="mt-2 font-sans text-xs">
                   {parseFloat(formData.price_per_kg) < 0.75 * refPrice && (
-                    <div className="rounded-2xl bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start">
+                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start shadow-sm">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold block">Peringatan: Harga Terlalu Murah</span>
-                        <p className="mt-1 leading-relaxed">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Peringatan: Harga Terlalu Murah</span>
+                        <p className="mt-1 leading-relaxed text-xs">
                           Harga pasar rata-rata saat ini adalah <strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>. Anda menjual jauh di bawah pasar seharga <strong>Rp {parseFloat(formData.price_per_kg).toLocaleString('id-ID')}/kg</strong>. Anda bisa meningkatkan harga hingga <strong>Rp {Math.round(0.85 * refPrice).toLocaleString('id-ID')}/kg</strong> dan tetap kompetitif tanpa merugikan hasil kerja keras Anda.
                         </p>
                       </div>
                     </div>
                   )}
                   {parseFloat(formData.price_per_kg) > 1.20 * refPrice && (
-                    <div className="rounded-2xl bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start">
+                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start shadow-sm">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5 animate-pulse" />
                       <div>
-                        <span className="font-semibold block">Peringatan: Harga Cukup Tinggi</span>
-                        <p className="mt-1 leading-relaxed">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Peringatan: Harga Cukup Tinggi</span>
+                        <p className="mt-1 leading-relaxed text-xs">
                           Harga Anda (<strong>Rp {parseFloat(formData.price_per_kg).toLocaleString('id-ID')}/kg</strong>) berada di atas harga pasar rata-rata (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>). Produk Anda mungkin membutuhkan waktu lebih lama untuk laku oleh pembeli.
                         </p>
                       </div>
                     </div>
                   )}
                   {parseFloat(formData.price_per_kg) >= 0.75 * refPrice && parseFloat(formData.price_per_kg) <= 1.20 * refPrice && (
-                    <div className="rounded-2xl bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start">
+                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start shadow-sm">
                       <CheckCircle size={16} className="shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold block">Harga Adil & Kompetitif</span>
-                        <p className="mt-1 leading-relaxed">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Adil & Kompetitif</span>
+                        <p className="mt-1 leading-relaxed text-xs">
                           Harga Anda kompetitif dengan rata-rata harga acuan harga pasar wilayah saat ini (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>).
                         </p>
                       </div>
@@ -493,40 +499,42 @@ export default function JualPage() {
                 </div>
               )}
 
+              {/* Lokasi Produk */}
               <div className="pt-2">
-                <label className="block font-sans text-xs font-medium uppercase tracking-widest text-gr-text-primary/50">
+                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                   Lokasi Produk
                 </label>
-                <div className="mt-3 flex flex-col gap-2">
+                <div className="mt-2 flex flex-col gap-2">
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={handleGetLocation}
                       disabled={locating}
-                      className="px-4 py-2 border border-white/10 hover:border-gr-green text-xs font-mono uppercase tracking-wider bg-white/5 hover:bg-gr-green/10 text-gr-text-primary transition-all duration-200"
+                      className="px-4 py-2 border border-gr-line hover:border-gr-ink text-xs font-mono uppercase tracking-wider bg-white/40 hover:bg-white/60 text-gr-ink rounded-sm transition-all duration-200 shadow-sm cursor-pointer"
                     >
                       {locating ? 'Mencari...' : 'Gunakan Lokasi Saat Ini'}
                     </button>
                     {locationStatus && (
-                      <span className="font-mono text-[10px] text-gr-green">
+                      <span className="font-mono text-[10px] text-gr-board font-semibold">
                         {locationStatus}
                       </span>
                     )}
                   </div>
-                  <span className="font-sans text-[10px] text-gr-text-primary/40 italic">
+                  <span className="font-sans text-[10px] text-gr-ink-soft italic">
                     Kalau tidak diisi, produk akan pakai lokasi profil kamu.
                   </span>
                 </div>
               </div>
             </div>
 
-            <Button
+            {/* Submit Button */}
+            <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans font-bold uppercase tracking-[0.2em] py-8 rounded-none transition-all hover:tracking-[0.3em]"
+              className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all shadow-sm cursor-pointer"
             >
               {loading ? 'Mengunggah...' : 'Publish Hasil Panen'}
-            </Button>
+            </button>
           </div>
         </form>
       </div>
