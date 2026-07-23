@@ -966,7 +966,7 @@ function FarmerProductCard({
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gr-down/10 text-gr-down hover:bg-gr-down hover:text-gr-chalk border border-gr-down/20 font-mono text-[9px] font-bold uppercase tracking-wider rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
           >
             {isDeleting ? (
               <Loader2 size={10} className="animate-spin" />
