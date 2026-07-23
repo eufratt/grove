@@ -75,14 +75,19 @@ async def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    connect_args = {
+        "statement_cache_size": 0,
+    }
+    if settings.APP_ENV == "production":
+        connect_args["ssl"] = "require"
+    else:
+        connect_args["ssl"] = False
+
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        connect_args={
-            "statement_cache_size": 0,
-            "ssl": "require",
-        }
+        connect_args=connect_args
     )
 
     async with connectable.connect() as connection:

@@ -289,12 +289,12 @@ export default function HargaPasarPage() {
             {/* Metadata info cards floating on top right below pill navbar */}
             <div className="absolute top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
               {activeTab === 'pricing' && selectedProvince && (
-                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-line shadow-sm">
+                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line shadow-sm">
                   Provinsi: {selectedProvince}
                 </span>
               )}
               {activeTab === 'products' && userLocation && (
-                <span className="font-sans text-[10px] uppercase font-bold tracking-widest text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-gr-line shadow-sm">
+                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line shadow-sm">
                   Radius: {radiusKm} KM
                 </span>
               )}
@@ -313,12 +313,12 @@ export default function HargaPasarPage() {
           </div>
 
           {/* Sidebar Paper Panel (Floating Overlay on Left below pill navbar) */}
-          <div className="absolute z-20 flex flex-col bg-gr-paper/95 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-[28px] shadow-xl overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
+          <div className="absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm shadow-2xl overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
             
             {/* 1. Header Block (Identitas Panel) */}
             <div className="flex items-center justify-between pb-3 border-b border-gr-line mb-3 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-gr-board/10 flex items-center justify-center border border-gr-board/20">
+                <div className="h-8 w-8 rounded-sm bg-gr-board/10 flex items-center justify-center border border-gr-board/20">
                   <TrendingUp size={16} className="text-gr-board animate-pulse" />
                 </div>
                 <div>
@@ -332,7 +332,7 @@ export default function HargaPasarPage() {
               </div>
               <Link
                 href="/tren-harga"
-                className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-board hover:underline bg-gr-board/10 border border-gr-board/20 px-3 py-1.5 rounded-full hover:bg-gr-board/20 transition-all cursor-pointer shrink-0"
+                className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-board bg-gr-board/10 border border-gr-board/25 px-3 py-1.5 rounded-sm hover:bg-gr-board/20 hover:border-gr-board/40 transition-all cursor-pointer shrink-0 font-bold"
               >
                 Tren Historis &rarr;
               </Link>
@@ -340,7 +340,7 @@ export default function HargaPasarPage() {
  
             {/* Location Message inside Sidebar */}
             {locationMessage && (
-              <div className="mb-3 rounded-xl bg-gr-down/10 p-3 text-[10px] text-gr-down border border-gr-down/20 flex items-center gap-2 shrink-0">
+              <div className="mb-3 rounded-sm bg-gr-down/10 p-3 text-[10px] text-gr-down border border-gr-down/20 flex items-center gap-2 shrink-0 font-mono uppercase tracking-wider">
                 <Info size={12} className="shrink-0" />
                 <span className="leading-relaxed">{locationMessage}</span>
               </div>
@@ -348,26 +348,26 @@ export default function HargaPasarPage() {
 
             {/* 2. Prominent Search Bar */}
             <div className="relative mb-3 shrink-0">
-              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gr-ink-soft" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gr-ink-soft" />
               <input
                 type="text"
                 placeholder="Cari komoditas atau lokasi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-10 pr-4 py-2 rounded-full font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all placeholder:text-gr-ink-soft/40 shadow-inner"
+                className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-9 pr-4 py-2.5 rounded-sm font-mono text-[9px] uppercase tracking-widest focus:outline-none focus:border-gr-board/50 transition-all placeholder:text-gr-ink-soft/40 shadow-sm"
               />
             </div>
  
             {/* 3. Tab Toggle Selector */}
-            <div className="flex bg-gr-ink/5 p-1 rounded-full border border-gr-line mb-4 shrink-0">
+            <div className="flex bg-gr-ink/5 border border-gr-line mb-4 shrink-0 rounded-sm overflow-hidden">
               <button
                 onClick={() => {
                   setActiveTab('pricing');
                   setSearchQuery('');
                 }}
                 className={cn(
-                  "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
-                  activeTab === 'pricing' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink"
+                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer border-r border-gr-line last:border-r-0 rounded-none",
+                  activeTab === 'pricing' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
                 Harga Referensi
@@ -378,8 +378,8 @@ export default function HargaPasarPage() {
                   setSearchQuery('');
                 }}
                 className={cn(
-                  "flex-1 text-center py-2 rounded-full font-sans text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
-                  activeTab === 'products' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink"
+                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer rounded-none",
+                  activeTab === 'products' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
                 Produk Terdekat
@@ -399,19 +399,19 @@ export default function HargaPasarPage() {
                       {selectedProvince || 'Nasional'}
                     </h2>
                   </div>
-                  <span className="font-sans text-[9px] font-bold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
+                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm shadow-sm shrink-0">
                     {filteredPrices.length} ditemukan
                   </span>
                 </div>
  
                 {/* Dropdowns panel without duplicate search bar */}
-                <div className="bg-gr-ink/2 border border-gr-line p-3 rounded-2xl shadow-inner mb-4 shrink-0">
+                <div className="bg-gr-chalk/35 border border-gr-line p-3 rounded-sm shadow-sm mb-4 shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="relative">
                       <select
                         value={selectedProvince || ''}
                         onChange={(e) => handleSelectProvince(e.target.value)}
-                        className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
+                        className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
                       >
                         {availableProvinces.map((prov) => (
                           <option key={prov} value={prov} className="bg-gr-paper text-gr-ink">
@@ -426,7 +426,7 @@ export default function HargaPasarPage() {
                       <select
                         value={selectedCommodity}
                         onChange={(e) => setSelectedCommodity(e.target.value)}
-                        className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
+                        className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer text-ellipsis overflow-hidden"
                       >
                         <option value="ALL" className="bg-gr-paper text-gr-ink">Semua Komoditas</option>
                         {commodities.map((comm) => (
@@ -453,13 +453,13 @@ export default function HargaPasarPage() {
                     filteredPrices.map((item) => (
                       <div 
                         key={item.id}
-                        className="p-4 bg-white hover:bg-gr-paper/30 border border-gr-line rounded-2xl flex justify-between items-center group transition-all"
+                        className="p-4 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex justify-between items-center group transition-all shadow-sm"
                       >
                         <div className="min-w-0 pr-3">
                           <p className="font-display text-sm font-semibold text-gr-ink group-hover:text-gr-board transition-colors truncate">
                             {item.commodity_name}
                           </p>
-                          <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft mt-2 bg-gr-paper/50 border border-gr-line px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft mt-2 bg-gr-paper/50 border border-gr-line px-2 py-0.5 rounded-sm">
                             <Calendar size={9} />
                             {getRelativeTime(item.scraped_at)}
                           </span>
@@ -500,18 +500,18 @@ export default function HargaPasarPage() {
                       Produk Terdekat
                     </h2>
                   </div>
-                  <span className="font-sans text-[9px] font-bold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-full shadow-inner shrink-0">
+                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm shadow-sm shrink-0">
                     {filteredProducts.length} ditemukan
                   </span>
                 </div>
  
                 {/* Radius Slider Panel */}
-                <div className="bg-gr-ink/2 border border-gr-line p-4 rounded-2xl space-y-3 shadow-inner mb-4 shrink-0">
+                <div className="bg-gr-chalk/35 border border-gr-line p-4 rounded-sm space-y-3 shadow-sm mb-4 shrink-0">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
                       Radius Jangkauan
                     </span>
-                    <span className="font-mono text-xs text-gr-board font-bold bg-gr-board/10 px-2 py-0.5 rounded">
+                    <span className="font-mono text-xs text-gr-board font-extrabold bg-gr-board/10 px-2 py-0.5 rounded-sm">
                       {radiusKm} KM
                     </span>
                   </div>
@@ -546,9 +546,9 @@ export default function HargaPasarPage() {
                       <Link
                         key={prod.id}
                         href={`/produk/${prod.id}`}
-                        className="p-3.5 bg-white hover:bg-gr-paper/30 border border-gr-line rounded-2xl flex gap-3 group transition-all cursor-pointer block"
+                        className="p-3.5 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex gap-3 group transition-all cursor-pointer block shadow-sm"
                       >
-                        <div className="h-16 w-16 bg-gr-paper/30 border border-gr-line rounded-xl overflow-hidden shrink-0">
+                        <div className="h-16 w-16 bg-gr-paper/30 border border-gr-line rounded-sm overflow-hidden shrink-0">
                           <img
                             src={prod.photo_url || '/placeholder.png'}
                             alt={prod.name}
@@ -588,9 +588,9 @@ export default function HargaPasarPage() {
                 </div>
               </>
             )}
-
+ 
           </div>
-
+ 
         </div>
     </main>
   );

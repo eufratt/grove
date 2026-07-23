@@ -179,18 +179,40 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch lg:flex-1 lg:min-h-0">
           {/* Left: Polaroid Style Image */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center lg:min-h-0">
-            <div className="bg-gr-bg-paper p-3 pb-10 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500 w-full max-w-[280px] sm:max-w-[320px] aspect-[4/5] flex flex-col justify-between">
-              <div className="aspect-square w-full overflow-hidden bg-black/5">
+            <div className="bg-[#FAF9F5] p-4 pb-5 shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[280px] sm:max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
+              <div className="aspect-square w-full overflow-hidden bg-black/5 rounded-xs border border-gr-line/5">
                 <img 
                   src={product.photo_url || '/placeholder-crop.jpg'} 
                   alt={product.name} 
                   className="h-full w-full object-cover grayscale-[0.1] contrast-[1.05]"
                 />
               </div>
-              <div className="mt-4 text-center">
-                <span className="font-display text-xl text-gr-text-paper opacity-40">
-                  EST. {new Date(product.created_at).getFullYear()}
-                </span>
+              
+              {/* Product Identity stamp/label */}
+              <div className="mt-4 pt-3 border-t border-dashed border-gr-line/20 font-mono text-[9px] text-gr-ink-soft space-y-1.5 text-left w-full">
+                <div className="flex justify-between items-center text-[8px] uppercase tracking-widest text-gr-ink/30 font-bold">
+                  <span>ID PRODUK</span>
+                  <span>#{product.id.slice(0, 8).toUpperCase()}</span>
+                </div>
+                
+                <div className="flex justify-between items-center py-0.5 border-b border-gr-line/5">
+                  <span className="uppercase text-gr-ink/40">TANGGAL PANEN</span>
+                  <span className="font-bold text-gr-ink">
+                    {new Date(product.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center py-0.5 border-b border-gr-line/5">
+                  <span className="uppercase text-gr-ink/40">JUMLAH STOK</span>
+                  <span className="font-bold text-gr-ink">{product.quantity_kg} KG</span>
+                </div>
+
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="uppercase text-gr-ink/40">ASAL DAERAH</span>
+                  <span className="font-bold text-gr-ink uppercase truncate max-w-[120px]" title={product.distance_km ? `${product.distance_km.toFixed(1)} KM DARI ANDA` : 'TERVERIFIKASI'}>
+                    {product.distance_km ? `${product.distance_km.toFixed(1)} KM` : 'TERVERIFIKASI'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -232,22 +254,22 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
  
             {/* Price Gauge Section */}
             {product.reference_price_per_kg && (
-              <div className="rounded-xl bg-gr-chalk/40 p-4 border border-gr-line backdrop-blur-md space-y-3">
-                <div className="flex justify-between items-center">
+              <div className="bg-[#FAF9F5] p-5 border border-gr-line shadow-sm space-y-4 rounded-sm">
+                <div className="flex justify-between items-start gap-4">
                   <div>
-                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/50 mb-0.5">
+                    <h4 className="font-mono text-[8px] uppercase tracking-[0.2em] text-gr-ink-soft mb-0.5">
                       Analisis Transparansi
                     </h4>
-                    <p className="font-display text-lg text-gr-text-primary font-medium">
+                    <p className="font-display text-xl text-gr-ink font-semibold leading-tight">
                       Indikator Keadilan Harga
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="block font-mono text-base font-semibold text-gr-text-primary">
+                    <span className="block font-mono text-base font-bold text-gr-ink leading-tight">
                       Rp {product.reference_price_per_kg.toLocaleString('id-ID')}
                     </span>
-                    <span className="font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">
-                      Harga Referensi Pasar
+                    <span className="font-mono text-[8px] uppercase tracking-wider text-gr-ink-soft">
+                      Referensi Pasar
                     </span>
                   </div>
                 </div>
@@ -257,7 +279,9 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                   hargaReferensi={product.reference_price_per_kg} 
                 />
                 
-                <p className="font-sans text-[9px] text-gr-text-primary/60 leading-relaxed italic">
+                <div className="h-px bg-gr-line/10 my-1" />
+                
+                <p className="font-sans text-[9px] text-gr-ink-soft leading-relaxed italic m-0">
                   * Indikator membandingkan harga petani dengan harga pasar rata-rata untuk menjamin transparansi & keadilan.
                 </p>
               </div>

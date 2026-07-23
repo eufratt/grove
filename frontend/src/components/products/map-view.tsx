@@ -130,8 +130,8 @@ export const MapView: React.FC<MapViewProps> = ({
   // Create styled dot marker icon for each province (no text inside, size scales with density)
   const createProvinceIcon = (provinceName: string, density: number, isSelected: boolean) => {
     const size = Math.min(16, Math.max(10, 8 + density * 0.6));
-    const bgColor = isSelected ? 'var(--gr-orange)' : 'var(--gr-green)';
-    const shadowColor = isSelected ? 'rgba(255, 155, 113, 0.7)' : 'rgba(92, 255, 158, 0.5)';
+    const bgColor = isSelected ? 'var(--gr-down)' : 'var(--gr-green)';
+    const shadowColor = isSelected ? 'rgba(166, 64, 42, 0.6)' : 'rgba(92, 255, 158, 0.5)';
     const shadowRadius = isSelected ? '12px' : '8px';
     return L.divIcon({
       className: `prov-dot-${provinceName.replace(/\s+/g, '-')}`,
@@ -243,7 +243,7 @@ export const MapView: React.FC<MapViewProps> = ({
                   )}
                   <Link 
                     href={`/produk/${product.id}`}
-                    className="w-full mt-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer block text-center"
+                    className="w-full mt-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer block text-center"
                   >
                     Detail Produk
                   </Link>
@@ -299,7 +299,7 @@ export const MapView: React.FC<MapViewProps> = ({
                   </div>
                   <button 
                     onClick={() => onSelectProvince?.(provName)}
-                    className="w-full mt-3 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-[9px] font-bold uppercase tracking-wider py-1.5 rounded transition-all cursor-pointer"
+                    className="w-full mt-3 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer"
                   >
                     Lihat Rincian Sidebar
                   </button>
@@ -314,7 +314,7 @@ export const MapView: React.FC<MapViewProps> = ({
         /* Leaflet Popup overrides for clean theme */
         .custom-popup .leaflet-popup-content-wrapper {
           background: var(--gr-paper) !important;
-          border-radius: 12px;
+          border-radius: 2px !important;
           border: 1px solid var(--gr-line);
           box-shadow: 0 10px 25px -5px rgba(32, 29, 22, 0.1);
         }
