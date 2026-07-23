@@ -132,155 +132,183 @@ export default function OrdersPage() {
   const emptyState = getEmptyState();
 
   return (
-    <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8">
+    <main className="relative flex-1 bg-gr-paper lg:h-[calc(100vh-76px)] lg:max-h-[calc(100vh-76px)] lg:overflow-hidden flex flex-col">
       <BgPattern />
-      
-      <div className="relative z-10 mx-auto max-w-4xl">
-        <header className="mb-10">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-gr-board">
-            Transaksi
-          </span>
-          <h1 className="mt-3 font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
-            Daftar Pesanan
-          </h1>
-          <div className="mt-6 h-px w-full bg-gr-line" />
-        </header>
+      <FilmGrain />
 
-        {/* Tab Navigation */}
-        {user && (
-          <div className={cn(
-            "flex bg-white/60 p-1.5 rounded-full border border-gr-line backdrop-blur-md mb-8 overflow-x-auto shadow-xs",
-            user.role === 'PETANI' ? "max-w-3xl" : "max-w-lg"
-          )}>
-            {user.role === 'PETANI' && (
-              <button
-                onClick={() => handleTabChange('incoming')}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
-                  activeTab === 'incoming'
-                    ? "bg-gr-board text-gr-chalk shadow-md"
-                    : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
+      <div className="relative z-10 w-full h-full flex flex-col min-h-0 px-4 sm:px-8 py-6 max-w-[1100px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 flex-1 min-h-0 items-stretch overflow-hidden">
+          
+          {/* COLUMN 1: Masthead & Vertical Tab Selectors (Left) */}
+          <div className="flex flex-col justify-between lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full space-y-6 shrink-0">
+            <div className="space-y-4">
+              <header className="select-none">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-gr-board">
+                  Transaksi
+                </span>
+                <h1 className="mt-2 font-display text-4xl font-semibold text-gr-ink leading-tight">
+                  Daftar Pesanan
+                </h1>
+                <p className="mt-2 font-sans text-xs text-gr-ink-soft leading-relaxed">
+                  Kelola pesanan masuk, pembelian hasil panen, supply, dan listing marketplace aktif secara terpusat.
+                </p>
+              </header>
+              <div className="h-px bg-gradient-to-r from-gr-line via-gr-line/45 to-transparent" />
+            </div>
+
+            {/* Vertical Index Tabs */}
+            {user && (
+              <div className="flex-1 flex flex-col justify-end space-y-3">
+                {user.role === 'PETANI' && (
+                  <button
+                    onClick={() => handleTabChange('incoming')}
+                    className={cn(
+                      "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
+                      activeTab === 'incoming'
+                        ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                        : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Package size={14} />
+                      Pesanan Masuk
+                    </span>
+                    <span className="text-[10px] opacity-60">→</span>
+                  </button>
                 )}
-              >
-                <Package size={14} />
-                Pesanan Masuk
-              </button>
-            )}
-            <button
-              onClick={() => handleTabChange('purchases')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
-                activeTab === 'purchases'
-                  ? "bg-gr-board text-gr-chalk shadow-md"
-                  : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
-              )}
-            >
-              <ShoppingBag size={14} />
-              Pesanan Saya
-            </button>
-            <button
-              onClick={() => handleTabChange('demands')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
-                activeTab === 'demands'
-                  ? "bg-gr-board text-gr-chalk shadow-md"
-                  : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
-              )}
-            >
-              <ClipboardList size={14} />
-              Permintaan Terpenuhi
-            </button>
-            {user.role === 'PETANI' && (
-              <button
-                onClick={() => handleTabChange('products')}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
-                  activeTab === 'products'
-                    ? "bg-gr-board text-gr-chalk shadow-md"
-                    : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
-                )}
-              >
-                <Tag size={14} />
-                Produk Saya
-              </button>
-            )}
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-32">
-            <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
-          </div>
-        ) : orders.length > 0 ? (
-          <div className="w-full">
-            <AnimatePresence mode="popLayout">
-              {activeTab === 'products' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                  {orders.map((product) => (
-                    <FarmerProductCard 
-                      key={product.id} 
-                      product={product} 
-                      onUpdate={handleUpdate} 
-                    />
-                  ))}
-                </div>
-              ) : activeTab === 'demands' ? (
-                <div className="space-y-6">
-                  {orders.map((demand, index) => (
-                    <DemandCard 
-                      key={demand.id} 
-                      demand={demand} 
-                      index={index} 
-                      onUpdate={handleUpdate} 
-                      role={user?.role}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {orders.map((order, index) => (
-                    <OrderCard 
-                      key={order.id} 
-                      order={order} 
-                      index={index} 
-                      onUpdate={handleUpdate} 
-                      isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
-                    />
-                  ))}
-                </div>
-              )}
-            </AnimatePresence>
-
-            {hasMore && (
-              <div className="flex justify-center mt-8">
-                <Button
-                  disabled={isLoadingMore}
-                  onClick={handleLoadMore}
-                  className="bg-white/80 border border-gr-line hover:border-gr-ink/40 text-gr-ink px-6 py-2.5 rounded-sm font-mono text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer disabled:opacity-50 shadow-xs"
-                >
-                  {isLoadingMore ? (
-                    <>
-                      <Loader2 className="h-3 w-3 animate-spin mr-2" />
-                      Memuat...
-                    </>
-                  ) : (
-                    'Muat Lebih Banyak'
+                
+                <button
+                  onClick={() => handleTabChange('purchases')}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
+                    activeTab === 'purchases'
+                      ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                      : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
                   )}
-                </Button>
+                >
+                  <span className="flex items-center gap-2">
+                    <ShoppingBag size={14} />
+                    Pesanan Saya
+                  </span>
+                  <span className="text-[10px] opacity-60">→</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('demands')}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
+                    activeTab === 'demands'
+                      ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                      : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <ClipboardList size={14} />
+                    Permintaan Terpenuhi
+                  </span>
+                  <span className="text-[10px] opacity-60">→</span>
+                </button>
+
+                {user.role === 'PETANI' && (
+                  <button
+                    onClick={() => handleTabChange('products')}
+                    className={cn(
+                      "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
+                      activeTab === 'products'
+                        ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                        : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Tag size={14} />
+                      Produk Saya
+                    </span>
+                    <span className="text-[10px] opacity-60">→</span>
+                  </button>
+                )}
               </div>
             )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
-            <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
-            <span className="font-display text-2xl font-semibold text-gr-ink">
-              {emptyState.title}
-            </span>
-            <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">
-              {emptyState.desc}
-            </p>
+
+          {/* COLUMN 2: Scrollable Active Content List (Right) */}
+          <div className="flex-1 min-w-0 h-full overflow-y-auto pr-1.5 custom-scrollbar pb-6">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-32">
+                <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
+              </div>
+            ) : orders.length > 0 ? (
+              <div className="w-full space-y-6">
+                <AnimatePresence mode="popLayout">
+                  {activeTab === 'products' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                      {orders.map((product) => (
+                        <FarmerProductCard 
+                          key={product.id} 
+                          product={product} 
+                          onUpdate={handleUpdate} 
+                        />
+                      ))}
+                    </div>
+                  ) : activeTab === 'demands' ? (
+                    <div className="space-y-6">
+                      {orders.map((demand, index) => (
+                        <DemandCard 
+                          key={demand.id} 
+                          demand={demand} 
+                          index={index} 
+                          onUpdate={handleUpdate} 
+                          role={user?.role}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {orders.map((order, index) => (
+                        <OrderCard 
+                          key={order.id} 
+                          order={order} 
+                          index={index} 
+                          onUpdate={handleUpdate} 
+                          isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </AnimatePresence>
+
+                {hasMore && (
+                  <div className="flex justify-center mt-8">
+                    <Button
+                      disabled={isLoadingMore}
+                      onClick={handleLoadMore}
+                      className="bg-white/80 border border-gr-line hover:border-gr-ink/40 text-gr-ink px-6 py-2.5 rounded-sm font-mono text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                          Memuat...
+                        </>
+                      ) : (
+                        'Muat Lebih Banyak'
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
+                <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
+                <span className="font-display text-2xl font-semibold text-gr-ink">
+                  {emptyState.title}
+                </span>
+                <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">
+                  {emptyState.desc}
+                </p>
+              </div>
+            )}
           </div>
-        )}
+
+        </div>
       </div>
     </main>
   );
