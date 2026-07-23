@@ -323,193 +323,205 @@ export default function PriceTrendPage() {
 
   useEffect(() => {
     if (selectedCommodity) {
-      fetchHistory(selectedCommodity, selectedRegion, daysRange);
+  fetchHistory(selectedCommodity, selectedRegion, daysRange);
     }
   }, [selectedCommodity, selectedRegion, daysRange, fetchHistory]);
 
   return (
-    <main className="relative flex-1 bg-gr-paper py-10">
+    <main className="relative flex-1 bg-gr-paper lg:h-[calc(100vh-76px)] lg:max-h-[calc(100vh-76px)] lg:overflow-hidden flex flex-col">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
-      <div className="relative z-10 w-full font-sans">
-        <header className="mb-10">
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board flex items-center gap-2">
-            <TrendingUp size={12} className="text-gr-board animate-pulse" />
-            Statistik Tren
-          </span>
-          <h1 className="mt-4 font-display text-5xl font-medium text-gr-ink">
-            Visualisasi Tren Harga
-          </h1>
-          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-2xl">
-            Lacak perubahan dan fluktuasi harga acuan komoditas pangan nasional secara historis berdasarkan data rekam harian PIHPS.
-          </p>
-          <div className="mt-8 h-px w-full bg-gradient-to-r from-gr-board/30 via-gr-line to-transparent" />
-        </header>
-
+      <div className="relative z-10 w-full h-full flex flex-col min-h-0 px-4 sm:px-8 py-6 max-w-[1100px] mx-auto">
         {initialLoading ? (
-          <div className="flex flex-col items-center justify-center py-40">
+          <div className="flex flex-col items-center justify-center flex-1">
             <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50" />
             <span className="mt-4 font-mono text-xs uppercase tracking-widest text-gr-ink-soft">
               Sinkronisasi indeks komoditas...
             </span>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Control filters pill panel */}
-            <div className="bg-white border border-gr-line p-5 rounded-3xl grid grid-cols-1 sm:grid-cols-3 gap-4 items-end shadow-sm">
-              {/* Select Commodity */}
-              <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                  Komoditas Pangan
-                </label>
-                <div className="relative">
-                  <select
-                    value={selectedCommodity}
-                    onChange={(e) => setSelectedCommodity(e.target.value)}
-                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                  >
-                    {commodities.map((comm) => (
-                      <option key={comm} value={comm} className="bg-gr-paper text-gr-ink">
-                        {comm}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_300px] gap-8 flex-1 min-h-0 items-stretch overflow-hidden">
+            
+            {/* COLUMN 1: Editorial Header & Controls (Left) */}
+            <div className="flex flex-col justify-between lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full space-y-6">
+              <div className="space-y-4">
+                <header className="select-none">
+                  <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board flex items-center gap-2">
+                    <TrendingUp size={12} className="text-gr-board animate-pulse" />
+                    Statistik Tren
+                  </span>
+                  <h1 className="mt-4 font-display text-4xl font-semibold text-gr-ink leading-tight">
+                    Visualisasi Tren Harga
+                  </h1>
+                  <p className="mt-2 font-sans text-xs text-gr-ink-soft leading-relaxed">
+                    Lacak fluktuasi acuan pangan nasional secara historis berdasarkan data harian PIHPS.
+                  </p>
+                </header>
+                <div className="h-px bg-gradient-to-r from-gr-line via-gr-line/45 to-transparent" />
               </div>
 
-              {/* Select Region */}
-              <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                  Wilayah Provinsi
-                </label>
-                <div className="relative">
-                  <select
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
-                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                  >
-                    {regionsList.map((reg) => (
-                      <option key={reg} value={reg} className="bg-gr-paper text-gr-ink">
-                        {reg}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+              {/* Vertical Selectors */}
+              <div className="space-y-4 flex-1 flex flex-col justify-end">
+                {/* Select Commodity */}
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2 font-semibold">
+                    Komoditas Pangan
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedCommodity}
+                      onChange={(e) => setSelectedCommodity(e.target.value)}
+                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2.5 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                    >
+                      {commodities.map((comm) => (
+                        <option key={comm} value={comm} className="bg-gr-paper text-gr-ink">
+                          {comm}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                  </div>
                 </div>
-              </div>
 
-              {/* Date Range filter */}
-              <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                  Rentang Analisis
-                </label>
-                <div className="relative">
-                  <select
-                    value={daysRange}
-                    onChange={(e) => setDaysRange(parseInt(e.target.value))}
-                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink pl-3 pr-8 py-2.5 rounded-xl font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value={7} className="bg-gr-paper text-gr-ink">7 Hari Terakhir</option>
-                    <option value={30} className="bg-gr-paper text-gr-ink">30 Hari Terakhir</option>
-                    <option value={90} className="bg-gr-paper text-gr-ink">90 Hari Terakhir</option>
-                    <option value={365} className="bg-gr-paper text-gr-ink">1 Tahun Terakhir</option>
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                {/* Select Region */}
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2 font-semibold">
+                    Wilayah Provinsi
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedRegion}
+                      onChange={(e) => setSelectedRegion(e.target.value)}
+                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2.5 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                    >
+                      {regionsList.map((reg) => (
+                        <option key={reg} value={reg} className="bg-gr-paper text-gr-ink">
+                          {reg}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Date Range filter */}
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2 font-semibold">
+                    Rentang Analisis
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={daysRange}
+                      onChange={(e) => setDaysRange(parseInt(e.target.value))}
+                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2.5 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value={7} className="bg-gr-paper text-gr-ink">7 Hari Terakhir</option>
+                      <option value={30} className="bg-gr-paper text-gr-ink">30 Hari Terakhir</option>
+                      <option value={90} className="bg-gr-paper text-gr-ink">90 Hari Terakhir</option>
+                      <option value={365} className="bg-gr-paper text-gr-ink">1 Tahun Terakhir</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Inner Side-by-Side Grid layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              {/* Chart Area (lg:col-span-2) */}
-              <div className="lg:col-span-2 bg-white border border-gr-line p-6 rounded-3xl shadow-sm min-h-[380px] flex items-center justify-center relative">
-                {fetchingChart ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50" />
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">Membuat Grafik...</span>
-                  </div>
-                ) : historyData.length >= 2 ? (
-                  <div className="w-full space-y-4">
-                    <div className="flex justify-between items-center px-2 gap-2 flex-wrap">
-                      <span className="font-sans text-[10px] text-gr-ink-soft flex items-center gap-1.5 uppercase font-semibold flex-wrap">
-                        <Calendar size={10} />
-                        TREN HISTORIS: {selectedCommodity}
-                        {divergenceData && (
-                          <span className={`ml-2 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${divergenceData.divergence_score < -5.0
-                              ? 'text-gr-up bg-gr-up/10 border-gr-up/20'
-                              : divergenceData.divergence_score > 5.0
-                                ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
-                                : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
-                            }`}>
-                            {divergenceData.classification} ({divergenceData.divergence_score > 0 ? '+' : ''}{divergenceData.divergence_score.toFixed(1)}%)
-                          </span>
-                        )}
-                        {trendMetrics && (
-                          <span className={`ml-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-xs font-semibold ${trendMetrics.isUp
-                              ? 'text-gr-up bg-gr-up/10'
-                              : trendMetrics.isDown
-                                ? 'text-gr-down bg-gr-down/10'
-                                : 'text-gr-ink-soft bg-gr-ink/5'
-                            }`}>
-                            {trendMetrics.isUp && <TrendingUp size={12} />}
-                            {trendMetrics.isDown && <TrendingDown size={12} />}
-                            {trendMetrics.percentChange > 0 ? '+' : ''}
-                            {trendMetrics.percentChange.toFixed(1)}%
-                          </span>
-                        )}
-                      </span>
-                      <span className="font-sans text-[10px] text-gr-board flex items-center gap-1.5 uppercase font-semibold">
-                        <MapPin size={10} />
-                        {selectedRegion}
-                      </span>
-                    </div>
-                    <PriceTrendChart data={historyData} />
-                  </div>
-                ) : (
-                  <div className="text-center py-10 max-w-sm px-6 space-y-4">
-                    <HelpCircle className="h-10 w-10 text-gr-board/60 mx-auto animate-pulse" />
-                    <h3 className="font-display text-xl font-medium text-gr-ink">
-                      Data Historis Terbatas
-                    </h3>
-                    <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
-                      Data acuan historis saat ini terlalu sedikit untuk membentuk grafik tren. Data tren akan semakin akurat seiring waktu.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Divergence Analysis Card (lg:col-span-1) */}
-              <div className="lg:col-span-1 bg-white border border-gr-line p-6 rounded-3xl shadow-sm min-h-[380px]">
-                {historyData.length >= 2 ? (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2">
-                      <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
-                        <TrendingUp size={14} />
-                        Stabilitas AI
-                      </h3>
+            {/* COLUMN 2: Historical Trend Chart (Middle) */}
+            <div className="flex flex-col lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full min-h-0 space-y-4">
+              {fetchingChart ? (
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50" />
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mt-2">Membuat Grafik...</span>
+                </div>
+              ) : historyData.length >= 2 ? (
+                <div className="flex-1 flex flex-col min-h-0 space-y-4">
+                  <div className="flex justify-between items-center px-1 gap-2 flex-wrap shrink-0">
+                    <span className="font-sans text-[10px] text-gr-ink-soft flex items-center gap-1.5 uppercase font-semibold flex-wrap">
+                      <Calendar size={10} />
+                      TREN HISTORIS: {selectedCommodity}
                       {divergenceData && (
-                        <span className={`px-2 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${divergenceData.divergence_score < -5.0
+                        <span className={`ml-2 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-extrabold border ${divergenceData.divergence_score < -5.0
                             ? 'text-gr-up bg-gr-up/10 border-gr-up/20'
                             : divergenceData.divergence_score > 5.0
                               ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
                               : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
                           }`}>
-                          {divergenceData.classification}
+                          {divergenceData.classification} ({divergenceData.divergence_score > 0 ? '+' : ''}{divergenceData.divergence_score.toFixed(1)}%)
                         </span>
                       )}
+                      {trendMetrics && (
+                        <span className={`ml-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-sm font-mono text-[10px] font-extrabold uppercase tracking-wider ${trendMetrics.isUp
+                            ? 'text-gr-up bg-gr-up/10'
+                            : trendMetrics.isDown
+                              ? 'text-gr-down bg-gr-down/10'
+                              : 'text-gr-ink-soft bg-gr-ink/5'
+                          }`}>
+                          {trendMetrics.isUp && <TrendingUp size={12} />}
+                          {trendMetrics.isDown && <TrendingDown size={12} />}
+                          {trendMetrics.percentChange > 0 ? '+' : ''}
+                          {trendMetrics.percentChange.toFixed(1)}%
+                        </span>
+                      )}
+                    </span>
+                    <span className="font-sans text-[10px] text-gr-board flex items-center gap-1.5 uppercase font-semibold">
+                      <MapPin size={10} />
+                      {selectedRegion}
+                    </span>
+                  </div>
+                  
+                  {/* Chart Wrapper to scale it properly */}
+                  <div className="flex-1 min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm shadow-sm flex items-center justify-center">
+                    <div className="w-full h-full">
+                      <PriceTrendChart data={historyData} />
                     </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
+                  <HelpCircle className="h-10 w-10 text-gr-board/60 mx-auto animate-pulse" />
+                  <h3 className="font-display text-xl font-medium text-gr-ink">
+                    Data Historis Terbatas
+                  </h3>
+                  <p className="font-sans text-xs text-gr-ink-soft leading-relaxed max-w-xs">
+                    Data acuan historis saat ini terlalu sedikit untuk membentuk grafik tren. Data tren akan semakin akurat seiring waktu.
+                  </p>
+                </div>
+              )}
+            </div>
 
+            {/* COLUMN 3: Divergence Analysis Card (Right) */}
+            <div className="flex flex-col h-full min-h-0 space-y-4">
+              {historyData.length >= 2 ? (
+                <div className="flex-1 flex flex-col min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm shadow-sm">
+                  <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2 shrink-0">
+                    <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
+                      <TrendingUp size={14} />
+                      Stabilitas AI
+                    </h3>
+                    {divergenceData && (
+                      <span className={`px-2 py-0.5 rounded-sm font-mono text-[9px] font-bold border ${divergenceData.divergence_score < -5.0
+                          ? 'text-gr-up bg-gr-up/10 border-gr-up/20'
+                          : divergenceData.divergence_score > 5.0
+                            ? 'text-gr-down bg-gr-down/10 border-gr-down/20'
+                            : 'text-gr-ink-soft bg-gr-ink/5 border-gr-line'
+                        }`}>
+                        {divergenceData.classification}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Scrollable Content wrapper for AI text to stay within column boundaries */}
+                  <div className="flex-1 overflow-y-auto mt-4 pr-1.5 custom-scrollbar flex flex-col justify-between min-h-0">
                     {explanationText ? (
-                      <div className="space-y-4">
-                        <p className="font-sans text-xs text-gr-ink leading-relaxed whitespace-pre-wrap max-h-[220px] overflow-y-auto pr-1">
+                      <div className="space-y-4 flex-1 flex flex-col justify-between">
+                        <p className="font-sans text-xs text-gr-ink leading-relaxed whitespace-pre-wrap">
                           {explanationText}
                           {isStreaming && <span className="inline-block w-1.5 h-3 ml-1 bg-gr-board animate-pulse" />}
                         </p>
 
-                        <div className="pt-2">
+                        <div className="pt-2 border-t border-gr-line/30 mt-auto">
                           <button
                             onClick={() => setShowTechDetails(!showTechDetails)}
                             className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft hover:text-gr-ink flex items-center gap-1 transition-colors focus:outline-none"
@@ -519,7 +531,7 @@ export default function PriceTrendPage() {
                           </button>
 
                           {showTechDetails && divergenceData && (
-                            <div className="mt-2 bg-gr-paper/50 border border-gr-line rounded-xl p-3 font-mono text-[10px] text-gr-ink-soft space-y-2">
+                            <div className="mt-2 bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm p-3 font-mono text-[10px] text-gr-ink-soft space-y-2">
                               <div className="space-y-1.5">
                                 <div className="flex justify-between">
                                   <span>Simpangan</span>
@@ -539,14 +551,14 @@ export default function PriceTrendPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="py-12 text-center space-y-4">
+                      <div className="flex-1 flex flex-col justify-center items-center text-center space-y-4">
                         <p className="font-sans text-xs text-gr-ink-soft">
                           Dapatkan analisis mendalam tren stabilitas harga komoditas dari AI.
                         </p>
                         <button
                           onClick={handleExplain}
                           disabled={isExplaining}
-                          className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-4 py-3 rounded-xl transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer"
+                          className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-4 py-3 rounded-sm transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer font-bold shadow-sm"
                         >
                           {isExplaining ? (
                             <>
@@ -560,14 +572,14 @@ export default function PriceTrendPage() {
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="text-center py-12 text-gr-ink-soft text-xs">
-                    Analisis AI tidak tersedia untuk riwayat terbatas.
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-center p-6 text-gr-ink-soft text-xs font-mono uppercase tracking-wider bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm shadow-sm">
+                  Analisis AI tidak tersedia untuk riwayat terbatas.
+                </div>
+              )}
             </div>
-            {/* Simulator section hidden from rendering, logic preserved in component */}
+
           </div>
         )}
       </div>
