@@ -9,6 +9,7 @@ engine = create_async_engine(
     pool_recycle=300,
     connect_args={
         "statement_cache_size": 0,
+        "ssl": "require",
     }
 )
 

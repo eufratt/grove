@@ -118,13 +118,9 @@ async def test_valid_order_flow_pickup(test_context):
     assert order.marked_ready_at is not None
     
     order = await order_status_service.confirm_received(db, order, buyer)
-    assert order.status == OrderStatus.MASA_KOMPLAIN
+    assert order.status == OrderStatus.SELESAI
     assert order.buyer_confirmed_at is not None
     assert order.received_at is not None
-    
-    order = await order_status_service.system_auto_complete_order(db, order)
-    assert order.status == OrderStatus.SELESAI
-    assert order.completed_at is not None
 
 async def test_farmer_reject_flow_and_rollback(test_context):
     db, buyer, seller, product = test_context
@@ -174,22 +170,7 @@ async def test_invalid_state_transitions(test_context):
     assert excinfo.value.status_code == 400
     assert "MENUNGGU_KONFIRMASI" in excinfo.value.detail
 
-async def test_complaint_flow(test_context):
-    db, buyer, seller, product = test_context
-    order = await create_test_order(db, product, buyer, quantity_kg=8.0)
-    
-    order = await order_status_service.accept_order(db, order, seller)
-    order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
-    order = await order_status_service.confirm_received(db, order, buyer)
-    assert order.status == OrderStatus.MASA_KOMPLAIN
-    
-    order = await order_status_service.file_complaint(
-        db, order, buyer, ComplaintReason.KUALITAS_BURUK, "Cabai busuk setengahnya"
-    )
-    assert order.status == OrderStatus.KOMPLAIN_DIPROSES
-    assert order.complaint_reason == ComplaintReason.KUALITAS_BURUK
-    assert order.complaint_description == "Cabai busuk setengahnya"
-    assert order.complained_at is not None
+
 
 async def test_timeout_confirmation_job(test_context):
     db, buyer, seller, product = test_context
@@ -254,22 +235,22 @@ async def test_timeout_auto_confirm_received_job(test_context):
     await scheduler.check_pickup_and_auto_confirm()
     
     await db.refresh(order)
-    assert order.status == OrderStatus.MASA_KOMPLAIN
+    assert order.status == OrderStatus.SELESAI
     assert order.received_at is not None
 
-async def test_buyer_rating_during_masa_komplain(test_context):
+async def test_buyer_rating_after_received(test_context):
     db, buyer, seller, product = test_context
     order = await create_test_order(db, product, buyer, quantity_kg=5.0)
     order = await order_status_service.accept_order(db, order, seller)
     order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
     order = await order_status_service.confirm_received(db, order, buyer)
     
-    assert order.status == OrderStatus.MASA_KOMPLAIN
+    assert order.status == OrderStatus.SELESAI
     
     from app.services.rating_service import create_rating
     from app.models.rating import TransactionType
     
-    # Rating during MASA_KOMPLAIN should succeed now
+    # Rating after SELESAI should succeed
     rating = await create_rating(
         db=db,
         rater_id=buyer.id,

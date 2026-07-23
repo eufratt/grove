@@ -32,8 +32,8 @@ async def create_rating(
         if order.buyer_id != rater_id:
             raise HTTPException(status_code=403, detail="Hanya pembeli yang dapat memberi rating untuk transaksi ini")
         
-        # Verify order status is SELESAI or MASA_KOMPLAIN
-        if order.status not in (OrderStatus.SELESAI, OrderStatus.MASA_KOMPLAIN):
+        # Verify order status is SELESAI
+        if order.status != OrderStatus.SELESAI:
             raise HTTPException(status_code=400, detail="Transaksi belum selesai")
 
         # Get product to find seller

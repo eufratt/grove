@@ -8,8 +8,7 @@ from app.models.order import Order, OrderStatus
 from app.services.order_status_service import (
     system_timeout_confirmation,
     system_timeout_pickup,
-    system_auto_confirm_received,
-    system_auto_complete_order
+    system_auto_confirm_received
 )
 
 scheduler = AsyncIOScheduler()
@@ -68,27 +67,9 @@ async def check_pickup_and_auto_confirm():
             except Exception as e:
                 print(f"Error processing auto-confirm received for order {order.id}: {e}")
 
-async def check_complaint_timeouts():
-    async with AsyncSessionLocal() as db:
-        now = datetime.utcnow()
-        threshold_complaint = now - timedelta(seconds=settings.TIMEOUT_KOMPLAIN)
-        stmt = select(Order).where(
-            Order.status == OrderStatus.MASA_KOMPLAIN,
-            Order.received_at <= threshold_complaint
-        )
-        res = await db.execute(stmt)
-        orders = res.scalars().all()
-        
-        for order in orders:
-            try:
-                await system_auto_complete_order(db, order)
-            except Exception as e:
-                print(f"Error processing complaint timeout for order {order.id}: {e}")
-
 def start_scheduler():
     scheduler.add_job(check_confirmation_timeouts, 'interval', seconds=30, id='check_confirmation_timeouts', replace_existing=True)
     scheduler.add_job(check_pickup_and_auto_confirm, 'interval', seconds=30, id='check_pickup_and_auto_confirm', replace_existing=True)
-    scheduler.add_job(check_complaint_timeouts, 'interval', seconds=30, id='check_complaint_timeouts', replace_existing=True)
     scheduler.start()
     print("APScheduler started successfully.")
 

@@ -30,8 +30,6 @@ def get_countdown_message(target_status: OrderStatus, base_time: datetime) -> st
         deadline = base_time + timedelta(seconds=settings.TIMEOUT_KONFIRMASI)
     elif target_status in (OrderStatus.SIAP_DIAMBIL, OrderStatus.DIKIRIM):
         deadline = base_time + timedelta(seconds=settings.TIMEOUT_PENGAMBILAN)
-    elif target_status == OrderStatus.MASA_KOMPLAIN:
-        deadline = base_time + timedelta(seconds=settings.TIMEOUT_KOMPLAIN)
     else:
         return ""
         
@@ -51,8 +49,6 @@ def get_countdown_message(target_status: OrderStatus, base_time: datetime) -> st
         return f"Sisa waktu ambil barang: {time_str}"
     elif target_status == OrderStatus.DIKIRIM:
         return f"Sisa waktu konfirmasi penerimaan: {time_str}"
-    elif target_status == OrderStatus.MASA_KOMPLAIN:
-        return f"Sisa waktu mengajukan komplain: {time_str}"
         
     return ""
 
@@ -236,47 +232,16 @@ async def confirm_received(db: AsyncSession, order: Order, current_user: User) -
     # Broadcast DITERIMA
     await broadcast_status_change(order, "Pesanan dikonfirmasi diterima oleh pembeli.")
     
-    # Transition automatically to MASA_KOMPLAIN
-    order.status = OrderStatus.MASA_KOMPLAIN
+    # Transition automatically to SELESAI
+    order.status = OrderStatus.SELESAI
+    order.completed_at = now
     order.status_updated_at = now
     db.add(order)
     
     await db.commit()
     await db.refresh(order)
     
-    countdown_msg = get_countdown_message(OrderStatus.MASA_KOMPLAIN, now)
-    ws_msg = f"Pesanan masuk masa komplain. {countdown_msg}" if countdown_msg else "Pesanan masuk masa komplain."
-    await broadcast_status_change(order, ws_msg)
-    
-    return order
-
-# Transition 6: File Complaint (Buyer)
-async def file_complaint(db: AsyncSession, order: Order, current_user: User, reason: ComplaintReason, description: str) -> Order:
-    # 1. Validate sequence
-    if order.status != OrderStatus.MASA_KOMPLAIN:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Komplain hanya dapat diajukan saat pesanan berada dalam MASA_KOMPLAIN"
-        )
-        
-    # 2. Validate auth
-    if order.buyer_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya pembeli yang dapat mengajukan komplain"
-        )
-        
-    order.status = OrderStatus.KOMPLAIN_DIPROSES
-    order.complaint_reason = reason
-    order.complaint_description = description
-    order.complained_at = datetime.utcnow()
-    order.status_updated_at = datetime.utcnow()
-    
-    db.add(order)
-    await db.commit()
-    await db.refresh(order)
-    
-    await broadcast_status_change(order, f"Komplain diajukan oleh pembeli: {reason.value}. Status: KOMPLAIN_DIPROSES.")
+    await broadcast_status_change(order, "Pesanan selesai. Status: SELESAI.")
     return order
 
 
@@ -332,32 +297,13 @@ async def system_auto_confirm_received(db: AsyncSession, order: Order) -> Order:
     
     await broadcast_status_change(order, "Pesanan otomatis dikonfirmasi diterima oleh sistem.")
     
-    order.status = OrderStatus.MASA_KOMPLAIN
-    order.status_updated_at = now
-    db.add(order)
-    
-    await db.commit()
-    await db.refresh(order)
-    
-    countdown_msg = get_countdown_message(OrderStatus.MASA_KOMPLAIN, now)
-    ws_msg = f"Pesanan masuk masa komplain otomatis. {countdown_msg}" if countdown_msg else "Pesanan masuk masa komplain otomatis."
-    await broadcast_status_change(order, ws_msg)
-    
-    return order
-
-# Timeout 4: Auto Complete Order (MASA_KOMPLAIN -> SELESAI)
-async def system_auto_complete_order(db: AsyncSession, order: Order) -> Order:
-    if order.status != OrderStatus.MASA_KOMPLAIN:
-        return order
-        
-    now = datetime.utcnow()
     order.status = OrderStatus.SELESAI
     order.completed_at = now
     order.status_updated_at = now
-    
     db.add(order)
+    
     await db.commit()
     await db.refresh(order)
     
-    await broadcast_status_change(order, "Masa komplain berakhir. Pesanan selesai. Status: SELESAI.")
+    await broadcast_status_change(order, "Pesanan selesai. Status: SELESAI.")
     return order

@@ -14,10 +14,8 @@ class OrderStatus(str, enum.Enum):
     SIAP_DIAMBIL = "SIAP_DIAMBIL"
     DIKIRIM = "DIKIRIM"
     DITERIMA = "DITERIMA"
-    MASA_KOMPLAIN = "MASA_KOMPLAIN"
     SELESAI = "SELESAI"
     DIBATALKAN = "DIBATALKAN"
-    KOMPLAIN_DIPROSES = "KOMPLAIN_DIPROSES"
 
     @classmethod
     def _missing_(cls, value):

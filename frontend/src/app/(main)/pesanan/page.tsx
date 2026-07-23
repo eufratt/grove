@@ -297,10 +297,6 @@ function OrderCard({
         return { icon: Truck, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Dikirim' };
       case 'DITERIMA':
         return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Diterima' };
-      case 'MASA_KOMPLAIN':
-        return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Masa Komplain' };
-      case 'KOMPLAIN_DIPROSES':
-        return { icon: Clock, pillStyle: 'bg-gr-down/10 text-gr-down border-gr-down/20', label: 'Komplain Diproses' };
       case 'SELESAI': 
         return { icon: CheckCircle2, pillStyle: 'bg-gr-paper text-gr-ink-soft border-gr-line', label: 'Selesai' };
       case 'BATAL': 
