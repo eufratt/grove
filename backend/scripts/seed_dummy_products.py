@@ -124,55 +124,61 @@ async def main():
         count = 0
         categories_count = {}
         
-        for cat, name, dist, group, ratio in DUMMY_PRODUCT_SPECS:
-            # Determine coordinates
-            p_lat, p_lng = calculate_coords(YOGYA_LAT, YOGYA_LNG, dist)
-            loc = WKTElement(f"POINT({p_lng} {p_lat})", srid=4326)
-            
-            # Find reference price (based on clean name first)
-            matched_ref = price_matching_service.find_reference_price(cat, cat, ref_prices)
-            
-            # Set price relative to reference
-            if matched_ref is not None:
-                price = round(matched_ref * ratio)
-            else:
-                # Fallback if no reference price matched
-                fallback_base = 15000.0
-                matched_ref = fallback_base
-                price = round(fallback_base * ratio)
-                print(f"Warning: No reference price for {cat}, using fallback base: {fallback_base}")
+        # Loop 7 times to seed 91 products (to test 7+ pages with 12 products per page)
+        for i in range(7):
+            for cat, name, dist, group, ratio in DUMMY_PRODUCT_SPECS:
+                var_name = f"{name} Var-{i+1}" if i > 0 else name
+                var_dist = round(dist * (0.8 + 0.4 * random.random()), 1)
+                var_ratio = ratio * (0.98 + 0.04 * random.random())
+
+                # Determine coordinates
+                p_lat, p_lng = calculate_coords(YOGYA_LAT, YOGYA_LNG, var_dist)
+                loc = WKTElement(f"POINT({p_lng} {p_lat})", srid=4326)
                 
-            # Get Unsplash image
-            photo_url = UNSPLASH_IMAGES.get(cat, FALLBACK_IMAGE)
-            
-            # Generate embedding using the same logic as API
-            embedding_text = f"{name} {cat}"
-            try:
-                embedding = await embedding_service.embedding_service.generate_embedding(embedding_text)
-            except Exception as e:
-                print(f"Failed to generate embedding for '{name}': {e}")
-                embedding = None
+                # Find reference price (based on clean name first)
+                matched_ref = price_matching_service.find_reference_price(cat, cat, ref_prices)
                 
-            # Create product with [DEMO] prefix
-            demo_name = f"[DEMO] {name}"
-            
-            new_product = Product(
-                seller_id=petani.id,
-                name=demo_name,
-                category=cat.upper(),
-                quantity_kg=random.randint(20, 150),
-                price_per_kg=price,
-                reference_price_per_kg=matched_ref,
-                location=loc,
-                photo_url=photo_url,
-                embedding=embedding,
-                status=ProductStatus.TERSEDIA
-            )
-            
-            session.add(new_product)
-            count += 1
-            categories_count[cat] = categories_count.get(cat, 0) + 1
-            print(f"Seeded product {count}: {demo_name} ({cat}) | Price: Rp {price:,} (Ref: Rp {matched_ref:,}, Ratio: {ratio:.2f} [{group}]) | Distance: {dist}km")
+                # Set price relative to reference
+                if matched_ref is not None:
+                    price = round(matched_ref * var_ratio)
+                else:
+                    # Fallback if no reference price matched
+                    fallback_base = 15000.0
+                    matched_ref = fallback_base
+                    price = round(fallback_base * var_ratio)
+                    print(f"Warning: No reference price for {cat}, using fallback base: {fallback_base}")
+                    
+                # Get Unsplash image
+                photo_url = UNSPLASH_IMAGES.get(cat, FALLBACK_IMAGE)
+                
+                # Generate embedding using the same logic as API
+                embedding_text = f"{var_name} {cat}"
+                try:
+                    embedding = await embedding_service.embedding_service.generate_embedding(embedding_text)
+                except Exception as e:
+                    print(f"Failed to generate embedding for '{var_name}': {e}")
+                    embedding = None
+                    
+                # Create product with [DEMO] prefix
+                demo_name = f"[DEMO] {var_name}"
+                
+                new_product = Product(
+                    seller_id=petani.id,
+                    name=demo_name,
+                    category=cat.upper(),
+                    quantity_kg=random.randint(20, 150),
+                    price_per_kg=price,
+                    reference_price_per_kg=matched_ref,
+                    location=loc,
+                    photo_url=photo_url,
+                    embedding=embedding,
+                    status=ProductStatus.TERSEDIA
+                )
+                
+                session.add(new_product)
+                count += 1
+                categories_count[cat] = categories_count.get(cat, 0) + 1
+                print(f"Seeded product {count}: {demo_name} ({cat}) | Price: Rp {price:,} (Ref: Rp {matched_ref:,}, Ratio: {var_ratio:.2f} [{group}]) | Distance: {var_dist}km")
 
         await session.commit()
         print("\n--- Seeding Completed Successfully ---")

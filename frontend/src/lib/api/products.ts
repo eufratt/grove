@@ -25,6 +25,13 @@ export const productsApi = {
     return response.json();
   },
 
+  getProductsCount: async () => {
+    const response = await apiClient('/products/count', {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
   getProductById: async (id: string) => {
     const response = await apiClient(`/products/${id}`, {
       method: 'GET',

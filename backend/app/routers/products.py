@@ -151,6 +151,13 @@ async def list_products(
         })
     return products
 
+@router.get("/count")
+async def get_products_count(db: AsyncSession = Depends(get_db)):
+    sql = text("SELECT COUNT(*) FROM products WHERE status = 'TERSEDIA'")
+    result = await db.execute(sql)
+    count = result.scalar() or 0
+    return {"count": count}
+
 @router.get("/personal-stats")
 async def get_personal_stats(
     db: AsyncSession = Depends(get_db),
