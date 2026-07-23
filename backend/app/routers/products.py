@@ -18,6 +18,36 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/products", tags=["products"])
 
+def _format_product_row(row) -> dict:
+    lat = row.latitude
+    lng = row.longitude
+    region_name = "Nasional"
+    if lat is not None and lng is not None:
+        region_name = price_matching_service.get_nearest_region(lat, lng)
+
+    data = {
+        "id": row.id,
+        "seller_id": row.seller_id,
+        "name": row.name,
+        "category": row.category,
+        "quantity_kg": row.quantity_kg,
+        "price_per_kg": row.price_per_kg,
+        "reference_price_per_kg": row.reference_price_per_kg,
+        "status": row.status,
+        "photo_url": row.photo_url,
+        "created_at": row.created_at,
+        "latitude": lat,
+        "longitude": lng,
+        "region": region_name,
+        "seller_name": row.seller_name,
+        "seller_rating_avg": row.seller_rating_avg,
+        "seller_rating_count": row.seller_rating_count
+    }
+
+    if hasattr(row, 'distance_km'):
+        data['distance_km'] = row.distance_km
+    return data
+
 async def _get_product_by_id(product_id: UUID, db: AsyncSession) -> dict:
     sql = text("""
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
@@ -31,23 +61,7 @@ async def _get_product_by_id(product_id: UUID, db: AsyncSession) -> dict:
     row = result.first()
     if not row:
         return None
-    return {
-        "id": row.id,
-        "seller_id": row.seller_id,
-        "name": row.name,
-        "category": row.category,
-        "quantity_kg": row.quantity_kg,
-        "price_per_kg": row.price_per_kg,
-        "reference_price_per_kg": row.reference_price_per_kg,
-        "status": row.status,
-        "photo_url": row.photo_url,
-        "created_at": row.created_at,
-        "latitude": row.latitude,
-        "longitude": row.longitude,
-        "seller_name": row.seller_name,
-        "seller_rating_avg": row.seller_rating_avg,
-        "seller_rating_count": row.seller_rating_count
-    }
+    return _format_product_row(row)
 
 
 @router.post("", response_model=ProductResponse)
@@ -72,14 +86,22 @@ async def create_product(
     embedding = await embedding_service.embedding_service.generate_embedding(embedding_text)
     
     product_location = None
+    product_lat = lat
+    product_lng = lng
     if lat is not None and lng is not None:
         product_location = WKTElement(f"POINT({lng} {lat})", srid=4326)
     elif current_user.location is not None:
         product_location = current_user.location
+        product_lat = current_user.latitude
+        product_lng = current_user.longitude
+
+    region = "Nasional"
+    if product_lat is not None and product_lng is not None:
+        region = price_matching_service.get_nearest_region(product_lat, product_lng)
 
     reference_price = None
     try:
-        ref_prices = await price_matching_service.get_latest_reference_prices(db)
+        ref_prices = await price_matching_service.get_latest_reference_prices(db, region=region)
         reference_price = price_matching_service.find_reference_price(name, category, ref_prices)
     except Exception as e:
         logger.warning(f"Failed to match reference price: {e}")
@@ -132,23 +154,7 @@ async def list_products(
     
     products = []
     for row in result:
-        products.append({
-            "id": row.id,
-            "seller_id": row.seller_id,
-            "name": row.name,
-            "category": row.category,
-            "quantity_kg": row.quantity_kg,
-            "price_per_kg": row.price_per_kg,
-            "reference_price_per_kg": row.reference_price_per_kg,
-            "status": row.status,
-            "photo_url": row.photo_url,
-            "created_at": row.created_at,
-            "latitude": row.latitude,
-            "longitude": row.longitude,
-            "seller_name": row.seller_name,
-            "seller_rating_avg": row.seller_rating_avg,
-            "seller_rating_count": row.seller_rating_count
-        })
+        products.append(_format_product_row(row))
     return products
 
 @router.get("/count")
@@ -220,24 +226,7 @@ async def get_nearby_products(
     
     products = []
     for row in result:
-        products.append({
-            "id": row.id,
-            "seller_id": row.seller_id,
-            "name": row.name,
-            "category": row.category,
-            "quantity_kg": row.quantity_kg,
-            "price_per_kg": row.price_per_kg,
-            "reference_price_per_kg": row.reference_price_per_kg,
-            "status": row.status,
-            "photo_url": row.photo_url,
-            "created_at": row.created_at,
-            "distance_km": row.distance_km,
-            "latitude": row.latitude,
-            "longitude": row.longitude,
-            "seller_name": row.seller_name,
-            "seller_rating_avg": row.seller_rating_avg,
-            "seller_rating_count": row.seller_rating_count
-        })
+        products.append(_format_product_row(row))
         
     return products
 
@@ -262,23 +251,7 @@ async def list_my_products(
     
     products = []
     for row in result:
-        products.append({
-            "id": row.id,
-            "seller_id": row.seller_id,
-            "name": row.name,
-            "category": row.category,
-            "quantity_kg": row.quantity_kg,
-            "price_per_kg": row.price_per_kg,
-            "reference_price_per_kg": row.reference_price_per_kg,
-            "status": row.status,
-            "photo_url": row.photo_url,
-            "created_at": row.created_at,
-            "latitude": row.latitude,
-            "longitude": row.longitude,
-            "seller_name": row.seller_name,
-            "seller_rating_avg": row.seller_rating_avg,
-            "seller_rating_count": row.seller_rating_count
-        })
+        products.append(_format_product_row(row))
     return products
 
 @router.get("/{product_id}", response_model=ProductResponse)

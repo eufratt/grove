@@ -209,8 +209,8 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
 
                 <div className="flex justify-between items-center py-0.5">
                   <span className="uppercase text-gr-ink/40">ASAL DAERAH</span>
-                  <span className="font-bold text-gr-ink uppercase truncate max-w-[120px]" title={product.distance_km ? `${product.distance_km.toFixed(1)} KM DARI ANDA` : 'TERVERIFIKASI'}>
-                    {product.distance_km ? `${product.distance_km.toFixed(1)} KM` : 'TERVERIFIKASI'}
+                  <span className="font-bold text-gr-ink uppercase truncate max-w-[120px]" title={product.region || 'TERVERIFIKASI'}>
+                    {product.region || 'TERVERIFIKASI'}
                   </span>
                 </div>
               </div>
@@ -309,8 +309,8 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                 <MapPin size={14} className="text-gr-green" />
                 <div className="min-w-0">
                   <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Lokasi</span>
-                  <span className="font-mono text-sm text-gr-text-primary block truncate" title={product.distance_km ? `${product.distance_km.toFixed(1)} km dari Anda` : 'Terverifikasi'}>
-                    {product.distance_km ? `${product.distance_km.toFixed(1)} km` : 'Terverifikasi'}
+                  <span className="font-mono text-sm text-gr-text-primary block truncate" title={product.region || 'Terverifikasi'}>
+                    {product.region || 'Terverifikasi'}
                   </span>
                 </div>
               </div>
