@@ -256,3 +256,27 @@ async def test_timeout_auto_confirm_received_job(test_context):
     await db.refresh(order)
     assert order.status == OrderStatus.MASA_KOMPLAIN
     assert order.received_at is not None
+
+async def test_buyer_rating_during_masa_komplain(test_context):
+    db, buyer, seller, product = test_context
+    order = await create_test_order(db, product, buyer, quantity_kg=5.0)
+    order = await order_status_service.accept_order(db, order, seller)
+    order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
+    order = await order_status_service.confirm_received(db, order, buyer)
+    
+    assert order.status == OrderStatus.MASA_KOMPLAIN
+    
+    from app.services.rating_service import create_rating
+    from app.models.rating import TransactionType
+    
+    # Rating during MASA_KOMPLAIN should succeed now
+    rating = await create_rating(
+        db=db,
+        rater_id=buyer.id,
+        transaction_type=TransactionType.PRODUCT_PURCHASE,
+        reference_id=order.id,
+        score=5,
+        comment="Bagus sekali!"
+    )
+    assert rating.id is not None
+    assert rating.score == 5
