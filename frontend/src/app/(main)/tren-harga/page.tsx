@@ -334,6 +334,22 @@ export default function PriceTrendPage() {
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
       <div className="relative z-10 w-full h-full flex flex-col min-h-0 px-4 sm:px-8 py-6 max-w-[1100px] mx-auto">
+        
+        {/* Standard Page Header at Top */}
+        <header className="mb-6 select-none shrink-0">
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board flex items-center gap-2">
+            <TrendingUp size={12} className="text-gr-board animate-pulse" />
+            Statistik Tren
+          </span>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-gr-ink">
+            Visualisasi Tren Harga
+          </h1>
+          <p className="mt-1.5 font-sans text-xs text-gr-ink-soft max-w-2xl">
+            Lacak perubahan dan fluktuasi harga acuan komoditas pangan nasional secara historis berdasarkan data rekam harian PIHPS.
+          </p>
+          <div className="mt-4 h-px w-full bg-gradient-to-r from-gr-line via-gr-line/30 to-transparent" />
+        </header>
+
         {initialLoading ? (
           <div className="flex flex-col items-center justify-center flex-1">
             <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50" />
@@ -342,101 +358,17 @@ export default function PriceTrendPage() {
             </span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_300px] gap-8 flex-1 min-h-0 items-stretch overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 flex-1 min-h-0 items-stretch overflow-hidden">
             
-            {/* COLUMN 1: Editorial Header & Controls (Left) */}
-            <div className="flex flex-col justify-between lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full space-y-6">
-              <div className="space-y-4">
-                <header className="select-none">
-                  <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board flex items-center gap-2">
-                    <TrendingUp size={12} className="text-gr-board animate-pulse" />
-                    Statistik Tren
-                  </span>
-                  <h1 className="mt-4 font-display text-4xl font-semibold text-gr-ink leading-tight">
-                    Visualisasi Tren Harga
-                  </h1>
-                  <p className="mt-2 font-sans text-xs text-gr-ink-soft leading-relaxed">
-                    Lacak fluktuasi acuan pangan nasional secara historis berdasarkan data harian PIHPS.
-                  </p>
-                </header>
-                <div className="h-px bg-gradient-to-r from-gr-line via-gr-line/45 to-transparent" />
-              </div>
-
-              {/* Vertical Selectors */}
-              <div className="space-y-4 flex-1 flex flex-col justify-end">
-                {/* Select Commodity */}
-                <div>
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2 font-semibold">
-                    Komoditas Pangan
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedCommodity}
-                      onChange={(e) => setSelectedCommodity(e.target.value)}
-                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2.5 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                    >
-                      {commodities.map((comm) => (
-                        <option key={comm} value={comm} className="bg-gr-paper text-gr-ink">
-                          {comm}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Select Region */}
-                <div>
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2 font-semibold">
-                    Wilayah Provinsi
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedRegion}
-                      onChange={(e) => setSelectedRegion(e.target.value)}
-                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2.5 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                    >
-                      {regionsList.map((reg) => (
-                        <option key={reg} value={reg} className="bg-gr-paper text-gr-ink">
-                          {reg}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Date Range filter */}
-                <div>
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-2 font-semibold">
-                    Rentang Analisis
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={daysRange}
-                      onChange={(e) => setDaysRange(parseInt(e.target.value))}
-                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2.5 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value={7} className="bg-gr-paper text-gr-ink">7 Hari Terakhir</option>
-                      <option value={30} className="bg-gr-paper text-gr-ink">30 Hari Terakhir</option>
-                      <option value={90} className="bg-gr-paper text-gr-ink">90 Hari Terakhir</option>
-                      <option value={365} className="bg-gr-paper text-gr-ink">1 Tahun Terakhir</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* COLUMN 2: Historical Trend Chart (Middle) */}
-            <div className="flex flex-col lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full min-h-0 space-y-4">
+            {/* COLUMN 1: Historical Trend Chart (Left - Main) */}
+            <div className="flex flex-col h-full min-h-0 space-y-3">
               {fetchingChart ? (
-                <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="flex-1 flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm shadow-sm">
                   <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50" />
                   <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mt-2">Membuat Grafik...</span>
                 </div>
               ) : historyData.length >= 2 ? (
-                <div className="flex-1 flex flex-col min-h-0 space-y-4">
+                <div className="flex-1 flex flex-col min-h-0 space-y-3">
                   <div className="flex justify-between items-center px-1 gap-2 flex-wrap shrink-0">
                     <span className="font-sans text-[10px] text-gr-ink-soft flex items-center gap-1.5 uppercase font-semibold flex-wrap">
                       <Calendar size={10} />
@@ -472,14 +404,14 @@ export default function PriceTrendPage() {
                   </div>
                   
                   {/* Chart Wrapper to scale it properly */}
-                  <div className="flex-1 min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm shadow-sm flex items-center justify-center">
+                  <div className="flex-1 min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm shadow-sm flex items-center justify-center">
                     <div className="w-full h-full">
                       <PriceTrendChart data={historyData} />
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm shadow-sm space-y-4">
                   <HelpCircle className="h-10 w-10 text-gr-board/60 mx-auto animate-pulse" />
                   <h3 className="font-display text-xl font-medium text-gr-ink">
                     Data Historis Terbatas
@@ -491,11 +423,78 @@ export default function PriceTrendPage() {
               )}
             </div>
 
-            {/* COLUMN 3: Divergence Analysis Card (Right) */}
+            {/* COLUMN 2: Controls & AI Sidebar (Right) */}
             <div className="flex flex-col h-full min-h-0 space-y-4">
+              
+              {/* Controls panel */}
+              <div className="bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm shadow-sm space-y-4 shrink-0">
+                {/* Select Commodity */}
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5 font-semibold">
+                    Komoditas Pangan
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedCommodity}
+                      onChange={(e) => setSelectedCommodity(e.target.value)}
+                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                    >
+                      {commodities.map((comm) => (
+                        <option key={comm} value={comm} className="bg-gr-paper text-gr-ink">
+                          {comm}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Select Region */}
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5 font-semibold">
+                    Wilayah Provinsi
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedRegion}
+                      onChange={(e) => setSelectedRegion(e.target.value)}
+                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                    >
+                      {regionsList.map((reg) => (
+                        <option key={reg} value={reg} className="bg-gr-paper text-gr-ink">
+                          {reg}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Date Range filter */}
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5 font-semibold">
+                    Rentang Analisis
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={daysRange}
+                      onChange={(e) => setDaysRange(parseInt(e.target.value))}
+                      className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-3 pr-8 py-2 rounded-sm font-sans text-xs focus:outline-none focus:border-gr-board/50 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value={7} className="bg-gr-paper text-gr-ink">7 Hari Terakhir</option>
+                      <option value={30} className="bg-gr-paper text-gr-ink">30 Hari Terakhir</option>
+                      <option value={90} className="bg-gr-paper text-gr-ink">90 Hari Terakhir</option>
+                      <option value={365} className="bg-gr-paper text-gr-ink">1 Tahun Terakhir</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gr-ink-soft pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Stability analysis card */}
               {historyData.length >= 2 ? (
-                <div className="flex-1 flex flex-col min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm shadow-sm">
-                  <div className="flex justify-between items-center border-b border-gr-line pb-3 flex-wrap gap-2 shrink-0">
+                <div className="flex-1 flex flex-col min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm shadow-sm">
+                  <div className="flex justify-between items-center border-b border-gr-line pb-2.5 flex-wrap gap-2 shrink-0">
                     <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
                       <TrendingUp size={14} />
                       Stabilitas AI
@@ -513,7 +512,7 @@ export default function PriceTrendPage() {
                   </div>
 
                   {/* Scrollable Content wrapper for AI text to stay within column boundaries */}
-                  <div className="flex-1 overflow-y-auto mt-4 pr-1.5 custom-scrollbar flex flex-col justify-between min-h-0">
+                  <div className="flex-1 overflow-y-auto mt-3.5 pr-1.5 custom-scrollbar flex flex-col justify-between min-h-0">
                     {explanationText ? (
                       <div className="space-y-4 flex-1 flex flex-col justify-between">
                         <p className="font-sans text-xs text-gr-ink leading-relaxed whitespace-pre-wrap">
@@ -551,9 +550,9 @@ export default function PriceTrendPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 flex flex-col justify-center items-center text-center space-y-4">
-                        <p className="font-sans text-xs text-gr-ink-soft">
-                          Dapatkan analisis mendalam tren stabilitas harga komoditas dari AI.
+                      <div className="flex-1 flex flex-col justify-center items-center text-center space-y-4 py-6">
+                        <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
+                          Analisis mendalam stabilitas harga komoditas dari AI.
                         </p>
                         <button
                           onClick={handleExplain}
