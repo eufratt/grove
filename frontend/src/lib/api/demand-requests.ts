@@ -5,6 +5,7 @@ export const demandRequestsApi = {
     commodity_name: string;
     category: string;
     quantity_kg_needed: number;
+    price_per_kg: number;
     deadline: string;
     latitude: number;
     longitude: number;

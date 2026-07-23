@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { ArrowLeft, Calendar, Loader2, Plus, Info, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, Plus, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { provinceCentroids } from '@/lib/data/province-centroids';
 
 const getCategoryForCommodity = (name: string): string => {
   const n = name.toLowerCase();
@@ -38,6 +39,7 @@ export default function AjukanPermintaanPage() {
   const [commodityName, setCommodityName] = useState('');
   const [category, setCategory] = useState('BERAS');
   const [quantity, setQuantity] = useState('');
+  const [pricePerKg, setPricePerKg] = useState('');
   const [deadline, setDeadline] = useState('');
 
   // Autocomplete state
@@ -55,6 +57,56 @@ export default function AjukanPermintaanPage() {
   const [lng, setLng] = useState<number | null>(null);
   const [gettingLocation, setGettingLocation] = useState(false);
   const [locationError, setLocationError] = useState('');
+  const [refPrice, setRefPrice] = useState<number | null>(null);
+  const [refPriceRegion, setRefPriceRegion] = useState<string>('');
+
+  const getClosestProvince = (latitude: number, longitude: number) => {
+    let closestProv = 'Di Yogyakarta';
+    let minDist = Infinity;
+    Object.entries(provinceCentroids).forEach(([provName, coords]) => {
+      const dist = Math.sqrt((coords.lat - latitude) ** 2 + (coords.lng - longitude) ** 2);
+      if (dist < minDist) {
+        minDist = dist;
+        closestProv = provName;
+      }
+    });
+    return closestProv;
+  };
+
+  const fetchReferencePrice = async (commodity: string, latitude: number | null, longitude: number | null) => {
+    try {
+      const region = latitude && longitude ? getClosestProvince(latitude, longitude) : 'Nasional';
+      
+      const [regionRes, nationalRes] = await Promise.all([
+        referencePricesApi.getReferencePrices(1, 1, commodity, undefined, region),
+        region !== 'Nasional' ? referencePricesApi.getReferencePrices(1, 1, commodity, undefined, 'Nasional') : null
+      ]);
+      
+      if (regionRes.items && regionRes.items.length > 0) {
+        setRefPrice(regionRes.items[0].price_per_kg);
+        setRefPriceRegion(region);
+      } else if (nationalRes && nationalRes.items && nationalRes.items.length > 0) {
+        setRefPrice(nationalRes.items[0].price_per_kg);
+        setRefPriceRegion('Nasional');
+      } else {
+        setRefPrice(null);
+        setRefPriceRegion('');
+      }
+    } catch (err) {
+      console.error('Failed to fetch ref price:', err);
+      setRefPrice(null);
+      setRefPriceRegion('');
+    }
+  };
+
+  // Reactively fetch reference price when commodity name or coordinates change
+  useEffect(() => {
+    if (commodityName.trim()) {
+      fetchReferencePrice(commodityName, lat, lng);
+    } else {
+      setRefPrice(null);
+    }
+  }, [commodityName, lat, lng]);
 
   const requestLocation = () => {
     setGettingLocation(true);
@@ -173,6 +225,11 @@ export default function AjukanPermintaanPage() {
       setError('Jumlah (kg) harus bernilai lebih dari 0');
       return;
     }
+    const parsedPrice = parseFloat(pricePerKg);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      setError('Harga penawaran per KG harus bernilai lebih dari 0');
+      return;
+    }
     if (!deadline) {
       setError('Tanggal tenggat waktu (deadline) harus ditentukan');
       return;
@@ -202,6 +259,7 @@ export default function AjukanPermintaanPage() {
         commodity_name: commodityName,
         category,
         quantity_kg_needed: parsedQty,
+        price_per_kg: parsedPrice,
         deadline: new Date(deadline).toISOString(),
         latitude: lat,
         longitude: lng
@@ -296,7 +354,10 @@ export default function AjukanPermintaanPage() {
                 placeholder="Contoh: Beras Medium, Cabai Rawit Merah..."
                 value={commodityName}
                 onChange={handleCommodityChange}
-                onFocus={() => commodityName && setFilteredCommodities(allCommodities.filter(item => item.toLowerCase().includes(commodityName.toLowerCase())))}
+                onFocus={() => {
+                  setFilteredCommodities(commodityName ? allCommodities.filter(item => item.toLowerCase().includes(commodityName.toLowerCase())) : allCommodities);
+                  setShowDropdown(true);
+                }}
                 className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
               />
               {/* Autocomplete Dropdown */}
@@ -315,34 +376,30 @@ export default function AjukanPermintaanPage() {
                 </div>
               )}
             </div>
- 
-            {/* Category */}
-            <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
-                Kategori
-              </label>
-              <div className="relative">
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option value="BERAS" className="bg-gr-paper text-gr-ink">BERAS</option>
-                  <option value="BAWANG MERAH" className="bg-gr-paper text-gr-ink">BAWANG MERAH</option>
-                  <option value="BAWANG PUTIH" className="bg-gr-paper text-gr-ink">BAWANG PUTIH</option>
-                  <option value="CABAI MERAH" className="bg-gr-paper text-gr-ink">CABAI MERAH</option>
-                  <option value="CABAI RAWIT" className="bg-gr-paper text-gr-ink">CABAI RAWIT</option>
-                  <option value="DAGING AYAM" className="bg-gr-paper text-gr-ink">DAGING AYAM</option>
-                  <option value="TELUR AYAM" className="bg-gr-paper text-gr-ink">TELUR AYAM</option>
-                  <option value="DAGING SAPI" className="bg-gr-paper text-gr-ink">DAGING SAPI</option>
-                  <option value="MINYAK GORENG" className="bg-gr-paper text-gr-ink">MINYAK GORENG</option>
-                  <option value="GULA PASIR" className="bg-gr-paper text-gr-ink">GULA PASIR</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gr-ink-soft">
-                  <Plus size={14} className="rotate-45" />
+
+            {/* Reference Price Info Box */}
+            <div className="rounded-2xl border border-gr-line bg-gr-paper/10 p-4 font-sans text-xs">
+              <span className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
+                Harga Acuan Pasar (PIHPS)
+              </span>
+              {refPrice !== null ? (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-gr-board font-medium">
+                    <Info size={14} className="text-gr-board shrink-0" />
+                    <span>Terdeteksi wilayah <span className="font-bold">{refPriceRegion}</span> untuk komoditas <span className="font-bold">{commodityName}</span></span>
+                  </div>
+                  <span className="font-mono text-sm font-bold text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 py-1 rounded-full w-fit">
+                    Rp {refPrice.toLocaleString('id-ID')}/KG
+                  </span>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center gap-2 text-gr-ink-soft/75">
+                  <Info size={14} className="shrink-0" />
+                  <span>Silakan ketik dan pilih nama komoditas di atas untuk memuat harga acuan pasar wilayah Anda.</span>
+                </div>
+              )}
             </div>
+
  
             {/* Quantity */}
             <div>
@@ -358,6 +415,73 @@ export default function AjukanPermintaanPage() {
                 onChange={(e) => setQuantity(e.target.value)}
                 className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
               />
+            </div>
+
+            {/* Price per KG */}
+            <div>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 mb-2">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft">
+                  Harga Penawaran per KG (IDR)
+                </label>
+                {refPrice !== null && (
+                  <span className="font-sans text-[11px] text-gr-board bg-gr-board/10 border border-gr-board/20 px-2.5 py-0.5 rounded-full flex items-center gap-1 font-medium w-fit animate-fade-in">
+                    <Info size={11} className="shrink-0" />
+                    Harga Acuan ({refPriceRegion}): <span className="font-mono font-bold">Rp {refPrice.toLocaleString('id-ID')}/KG</span>
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm text-gr-ink-soft/60">
+                  Rp
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Contoh: 35000"
+                  value={pricePerKg}
+                  onChange={(e) => setPricePerKg(e.target.value)}
+                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-11 pr-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                />
+              </div>
+
+              {/* Price Assistant Box */}
+              {refPrice !== null && pricePerKg && (
+                <div className="mt-3 font-sans text-xs">
+                  {parseFloat(pricePerKg) < 0.75 * refPrice && (
+                    <div className="rounded-2xl bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start">
+                      <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold block">Harga Penawaran Cukup Rendah</span>
+                        <p className="mt-1 leading-relaxed">
+                          Rata-rata harga acuan saat ini adalah <strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>. Penawaran Anda jauh di bawah pasar. Petani mungkin akan ragu untuk mengambil komitmen ini.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {parseFloat(pricePerKg) > 1.20 * refPrice && (
+                    <div className="rounded-2xl bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start">
+                      <CheckCircle size={16} className="shrink-0 mt-0.5 text-gr-board animate-pulse" />
+                      <div>
+                        <span className="font-semibold block">Penawaran Sangat Menarik</span>
+                        <p className="mt-1 leading-relaxed">
+                          Penawaran Anda (<strong>Rp {parseFloat(pricePerKg).toLocaleString('id-ID')}/kg</strong>) berada di atas harga pasar rata-rata (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>). Ini akan sangat menarik bagi para petani!
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {parseFloat(pricePerKg) >= 0.75 * refPrice && parseFloat(pricePerKg) <= 1.20 * refPrice && (
+                    <div className="rounded-2xl bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start">
+                      <CheckCircle size={16} className="shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold block">Harga Penawaran Adil & Kompetitif</span>
+                        <p className="mt-1 leading-relaxed">
+                          Penawaran Anda kompetitif dengan rata-rata acuan harga pasar saat ini (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>).
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
  
             {/* Deadline */}

@@ -155,6 +155,9 @@ export default function PermintaanSayaPage() {
                     <p className="font-sans text-xs text-gr-ink-soft mt-1">
                       Kategori: {req.category}
                     </p>
+                    <p className="font-sans text-xs font-semibold text-gr-board mt-1 font-mono">
+                      Harga Penawaran: Rp {req.price_per_kg ? req.price_per_kg.toLocaleString('id-ID') : '-'}/KG
+                    </p>
 
                     {/* Progress details */}
                     <div className="mt-6 space-y-2">

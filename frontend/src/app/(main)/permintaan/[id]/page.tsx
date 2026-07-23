@@ -3,10 +3,11 @@
 import React, { useState, useEffect, use } from 'react';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { authApi } from '@/lib/api/auth';
+import { referencePricesApi } from '@/lib/api/reference-prices';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, CheckCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { provinceCentroids } from '@/lib/data/province-centroids';
@@ -46,6 +47,65 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [commitQty, setCommitQty] = useState('');
   const [submittingCommit, setSubmittingCommit] = useState(false);
   const [commitSuccess, setCommitSuccess] = useState(false);
+
+  // User location & Reference price states
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [refPrice, setRefPrice] = useState<number | null>(null);
+  const [refPriceRegion, setRefPriceRegion] = useState<string>('');
+
+  const requestLocation = () => {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLat(position.coords.latitude);
+          setLng(position.coords.longitude);
+        },
+        (err) => {
+          console.warn("Detail page geolocation error:", err.message);
+        },
+        { timeout: 8000 }
+      );
+    }
+  };
+
+  const fetchReferencePrice = async (commodity: string, latitude: number | null, longitude: number | null) => {
+    try {
+      const region = latitude && longitude ? getClosestProvince(latitude, longitude) : 'Nasional';
+      
+      const [regionRes, nationalRes] = await Promise.all([
+        referencePricesApi.getReferencePrices(1, 1, commodity, undefined, region),
+        region !== 'Nasional' ? referencePricesApi.getReferencePrices(1, 1, commodity, undefined, 'Nasional') : null
+      ]);
+      
+      if (regionRes.items && regionRes.items.length > 0) {
+        setRefPrice(regionRes.items[0].price_per_kg);
+        setRefPriceRegion(region);
+      } else if (nationalRes && nationalRes.items && nationalRes.items.length > 0) {
+        setRefPrice(nationalRes.items[0].price_per_kg);
+        setRefPriceRegion('Nasional');
+      } else {
+        setRefPrice(null);
+        setRefPriceRegion('');
+      }
+    } catch (err) {
+      console.error('Failed to fetch ref price in detail page:', err);
+      setRefPrice(null);
+      setRefPriceRegion('');
+    }
+  };
+
+  // Detect location on mount
+  useEffect(() => {
+    requestLocation();
+  }, []);
+
+  // Fetch reference price when commodity name or coordinates change
+  useEffect(() => {
+    if (request && request.commodity_name) {
+      fetchReferencePrice(request.commodity_name, lat, lng);
+    }
+  }, [request?.commodity_name, lat, lng]);
 
   // 1. Fetch auth user & demand request details
   useEffect(() => {
@@ -264,6 +324,24 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     </span>
                   </p>
                 </div>
+
+                <div className="space-y-1">
+                  <span className="text-gr-ink-soft text-xs">Harga Penawaran</span>
+                  <p className="text-gr-ink font-semibold flex items-center gap-2">
+                    <Tag size={14} className="text-gr-board" />
+                    Rp {request.price_per_kg ? request.price_per_kg.toLocaleString('id-ID') : '-'}/KG
+                  </p>
+                </div>
+
+                {refPrice !== null && (
+                  <div className="space-y-1 animate-fade-in">
+                    <span className="text-gr-ink-soft text-xs">Harga Acuan ({refPriceRegion})</span>
+                    <p className="text-gr-ink font-semibold flex items-center gap-2">
+                      <Info size={14} className="text-gr-board" />
+                      Rp {refPrice.toLocaleString('id-ID')}/KG
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-1">
                   <span className="text-gr-ink-soft text-xs">Status Permintaan</span>
