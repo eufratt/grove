@@ -875,9 +875,11 @@ function FarmerProductCard({
   product: any;
   onUpdate: () => void;
 }) {
+  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!window.confirm(`Apakah Anda yakin ingin menarik komoditas "${product.name}" dari pasar?`)) {
       return;
     }
@@ -903,66 +905,54 @@ function FarmerProductCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative flex flex-col sm:flex-row gap-4 p-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 transition-all shadow-sm overflow-hidden"
+      onClick={() => router.push(`/produk/${product.id}`)}
+      className="group relative flex gap-4 p-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 hover:shadow-md transition-all cursor-pointer overflow-hidden min-h-[140px]"
     >
-      {/* LEFT: Stub Container with Image */}
-      <div className="flex flex-col items-center sm:items-start shrink-0 relative pr-0 sm:pr-4 sm:border-r sm:border-dashed sm:border-gr-line/60 w-full sm:w-auto">
-        
-        {/* Punched Hole Stamp */}
-        <div className="hidden sm:flex absolute top-[-8px] left-[50%] sm:left-[-8px] transform -translate-x-1/2 sm:translate-x-0 w-3 h-3 rounded-full bg-gr-paper border border-gr-line shadow-inner items-center justify-center z-10">
-          <div className="w-1 h-1 rounded-full bg-gr-line/80" />
-        </div>
-
-        {/* Separator Ticket Cutouts (Desktop) */}
-        <div className="hidden sm:block absolute top-[-10px] right-[-7px] w-3.5 h-3.5 rounded-full bg-gr-paper border border-gr-line z-10" />
-        <div className="hidden sm:block absolute bottom-[-10px] right-[-7px] w-3.5 h-3.5 rounded-full bg-gr-paper border border-gr-line z-10" />
-
-        {/* Product Image */}
-        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden bg-black/5 border border-gr-line rounded-sm self-start sm:self-auto">
-          {product.photo_url ? (
-            <img
-              src={product.photo_url}
-              alt={product.name}
-              className="h-full w-full object-cover grayscale-[0.1] hover:grayscale-0 transition-all duration-300"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
-              <Package size={24} />
-            </div>
-          )}
-        </div>
+      {/* Product Image */}
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 overflow-hidden bg-black/5 border border-gr-line rounded-sm">
+        {product.photo_url ? (
+          <img
+            src={product.photo_url}
+            alt={product.name}
+            className="h-full w-full object-cover grayscale-[0.1] group-hover:grayscale-0 transition-all duration-300"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
+            <Package size={24} />
+          </div>
+        )}
       </div>
 
-      {/* RIGHT: Details & Actions */}
+      {/* Details */}
       <div className="flex-1 flex flex-col justify-between min-w-0">
         <div>
           <div className="flex justify-between items-start gap-2">
-            <div>
+            <div className="min-w-0">
               <span className="font-mono text-[9px] uppercase font-bold tracking-widest text-gr-ink-soft/70">
                 {product.category}
               </span>
-              <h3 className="font-display text-lg font-bold text-gr-ink leading-tight mt-0.5 truncate">
+              <h3 className="font-display text-base sm:text-lg font-bold text-gr-ink leading-tight mt-0.5 truncate">
                 {product.name}
               </h3>
             </div>
             
             {/* Status Badge */}
-            <span className="px-2 py-0.5 rounded-sm border border-gr-board/20 bg-gr-board/10 text-gr-board font-mono text-[8px] font-bold uppercase tracking-wider">
+            <span className="px-2 py-0.5 shrink-0 rounded-sm border border-gr-board/20 bg-gr-board/10 text-gr-board font-mono text-[8px] font-bold uppercase tracking-wider">
               {product.status}
             </span>
           </div>
 
-          <div className="mt-2.5 space-y-1 font-sans text-xs">
-            <div className="flex justify-between text-gr-ink-soft">
+          <div className="mt-2 space-y-1 font-sans text-xs">
+            <div className="flex justify-between gap-4 text-gr-ink-soft">
               <span>Harga Jual:</span>
               <span className="font-mono font-bold text-gr-ink">Rp {product.price_per_kg.toLocaleString('id-ID')}/kg</span>
             </div>
-            <div className="flex justify-between text-gr-ink-soft">
+            <div className="flex justify-between gap-4 text-gr-ink-soft">
               <span>Stok Tersedia:</span>
               <span className="font-mono font-bold text-gr-ink">{product.quantity_kg} KG</span>
             </div>
             {product.reference_price_per_kg && (
-              <div className="flex justify-between text-gr-ink-soft">
+              <div className="flex justify-between gap-4 text-gr-ink-soft">
                 <span>Acuan PIHPS:</span>
                 <span className="font-mono font-bold text-gr-board">Rp {product.reference_price_per_kg.toLocaleString('id-ID')}/kg</span>
               </div>
@@ -971,41 +961,23 @@ function FarmerProductCard({
         </div>
 
         {/* Card Footer Actions */}
-        <div className="flex items-center justify-between gap-4 mt-4 pt-3 border-t border-gr-line/40">
+        <div className="flex items-center justify-between gap-4 mt-3 pt-2.5 border-t border-gr-line/45">
+          <span className="font-sans text-[9px] text-gr-ink-soft/50 italic">
+            Listing {formattedDate}
+          </span>
           
-          {/* Simulated Monospace Barcode */}
-          <div className="flex items-end gap-[1.5px] h-6 opacity-40 hover:opacity-75 transition-opacity" title={`ID: ${product.id}`}>
-            <div className="w-[1.5px] h-full bg-gr-ink" />
-            <div className="w-[3px] h-full bg-gr-ink" />
-            <div className="w-[1px] h-[75%] bg-gr-ink" />
-            <div className="w-[2px] h-[75%] bg-gr-ink" />
-            <div className="w-[4px] h-[60%] bg-gr-ink" />
-            <div className="w-[1px] h-full bg-gr-ink" />
-            <div className="w-[2px] h-full bg-gr-ink" />
-            <span className="font-mono text-[7px] tracking-widest ml-1.5 text-gr-ink-soft/90">
-              № {product.id.slice(0, 6).toUpperCase()}
-            </span>
-          </div>
-          
-          {/* Date & Action Button */}
-          <div className="flex items-center gap-3">
-            <span className="font-sans text-[9px] text-gr-ink-soft/60 italic hidden md:inline">
-              Listing {formattedDate}
-            </span>
-            
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
-            >
-              {isDeleting ? (
-                <Loader2 size={10} className="animate-spin" />
-              ) : (
-                <Trash2 size={10} />
-              )}
-              Tarik Produk
-            </button>
-          </div>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-wider rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
+          >
+            {isDeleting ? (
+              <Loader2 size={10} className="animate-spin" />
+            ) : (
+              <Trash2 size={10} />
+            )}
+            Tarik Produk
+          </button>
         </div>
       </div>
     </motion.div>
