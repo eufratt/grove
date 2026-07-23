@@ -67,4 +67,19 @@ export const productsApi = {
     });
     return response.json();
   },
+
+  getMyProducts: async () => {
+    const response = await apiClient('/products/me', {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  deleteProduct: async (id: string) => {
+    const response = await apiClient(`/products/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'DITUTUP' }),
+    });
+    return response.json();
+  },
 };

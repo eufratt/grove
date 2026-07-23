@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ordersApi, useOrderSocket } from '@/lib/api/orders';
 import { demandRequestsApi, useDemandSocket } from '@/lib/api/demand-requests';
+import { productsApi } from '@/lib/api/products';
 import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -21,12 +22,12 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [activeTab, setActiveTab] = useState<'incoming' | 'purchases' | 'demands'>('incoming');
+  const [activeTab, setActiveTab] = useState<'incoming' | 'purchases' | 'demands' | 'products'>('incoming');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const LIMIT = 10;
 
-  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'demands', pageNum: number, append = false) => {
+  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'demands' | 'products', pageNum: number, append = false) => {
     if (pageNum === 1) {
       setIsLoading(true);
     } else {
@@ -37,7 +38,9 @@ export default function OrdersPage() {
       const skip = (pageNum - 1) * LIMIT;
       let data: any[] = [];
 
-      if (tab === 'demands') {
+      if (tab === 'products') {
+        data = await productsApi.getMyProducts();
+      } else if (tab === 'demands') {
         data = await demandRequestsApi.getCommittedDemandRequests();
       } else if (userRole === 'PETANI') {
         if (tab === 'incoming') {
@@ -54,10 +57,10 @@ export default function OrdersPage() {
       } else {
         setOrders(data);
       }
-      setHasMore(tab === 'demands' ? false : data.length === LIMIT);
+      setHasMore(tab === 'demands' || tab === 'products' ? false : data.length === LIMIT);
       setPage(pageNum);
     } catch (err) {
-      console.error('Failed to load orders:', err);
+      console.error('Failed to load orders/products:', err);
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
@@ -84,7 +87,7 @@ export default function OrdersPage() {
     fetchUserAndOrders();
   }, []);
 
-  const handleTabChange = (tab: 'incoming' | 'purchases' | 'demands') => {
+  const handleTabChange = (tab: 'incoming' | 'purchases' | 'demands' | 'products') => {
     if (!user) return;
     setActiveTab(tab);
     loadOrders(user.role, tab, 1, false);
@@ -110,6 +113,11 @@ export default function OrdersPage() {
       return {
         title: 'Kamu belum melakukan pembelian',
         desc: 'Cari hasil panen segar di beranda untuk mulai berbelanja.'
+      };
+    } else if (activeTab === 'products') {
+      return {
+        title: 'Kamu belum melisting produk',
+        desc: 'Mulai tawarkan hasil panenmu di marketplace melalui halaman Jual.'
       };
     } else {
       return {
@@ -142,7 +150,7 @@ export default function OrdersPage() {
         {user && (
           <div className={cn(
             "flex bg-white/60 p-1.5 rounded-full border border-gr-line backdrop-blur-md mb-8 overflow-x-auto shadow-xs",
-            user.role === 'PETANI' ? "max-w-2xl" : "max-w-lg"
+            user.role === 'PETANI' ? "max-w-3xl" : "max-w-lg"
           )}>
             {user.role === 'PETANI' && (
               <button
@@ -182,6 +190,20 @@ export default function OrdersPage() {
               <ClipboardList size={14} />
               Permintaan Terpenuhi
             </button>
+            {user.role === 'PETANI' && (
+              <button
+                onClick={() => handleTabChange('products')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer",
+                  activeTab === 'products'
+                    ? "bg-gr-board text-gr-chalk shadow-md"
+                    : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
+                )}
+              >
+                <Tag size={14} />
+                Produk Saya
+              </button>
+            )}
           </div>
         )}
 
@@ -190,28 +212,42 @@ export default function OrdersPage() {
             <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
           </div>
         ) : orders.length > 0 ? (
-          <div className="space-y-6">
-            <AnimatePresence>
-              {activeTab === 'demands' ? (
-                orders.map((demand, index) => (
-                  <DemandCard 
-                    key={demand.id} 
-                    demand={demand} 
-                    index={index} 
-                    onUpdate={handleUpdate} 
-                    role={user?.role}
-                  />
-                ))
+          <div className="w-full">
+            <AnimatePresence mode="popLayout">
+              {activeTab === 'products' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                  {orders.map((product) => (
+                    <FarmerProductCard 
+                      key={product.id} 
+                      product={product} 
+                      onUpdate={handleUpdate} 
+                    />
+                  ))}
+                </div>
+              ) : activeTab === 'demands' ? (
+                <div className="space-y-6">
+                  {orders.map((demand, index) => (
+                    <DemandCard 
+                      key={demand.id} 
+                      demand={demand} 
+                      index={index} 
+                      onUpdate={handleUpdate} 
+                      role={user?.role}
+                    />
+                  ))}
+                </div>
               ) : (
-                orders.map((order, index) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    index={index} 
-                    onUpdate={handleUpdate} 
-                    isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
-                  />
-                ))
+                <div className="space-y-6">
+                  {orders.map((order, index) => (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      index={index} 
+                      onUpdate={handleUpdate} 
+                      isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
+                    />
+                  ))}
+                </div>
               )}
             </AnimatePresence>
 
@@ -235,7 +271,7 @@ export default function OrdersPage() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs">
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
             <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
             <span className="font-display text-2xl font-semibold text-gr-ink">
               {emptyState.title}
@@ -804,3 +840,115 @@ function DemandCard({
   );
 }
 
+function FarmerProductCard({
+  product,
+  onUpdate
+}: {
+  product: any;
+  onUpdate: () => void;
+}) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Apakah Anda yakin ingin menarik komoditas "${product.name}" dari pasar?`)) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      await productsApi.deleteProduct(product.id);
+      onUpdate();
+    } catch (err) {
+      console.error('Failed to withdraw product:', err);
+      alert('Gagal menarik produk dari pasar.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const formattedDate = new Date(product.created_at).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group relative flex flex-col sm:flex-row gap-4 p-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 transition-all shadow-sm"
+    >
+      {/* Product Image */}
+      <div className="relative aspect-square w-24 sm:w-28 shrink-0 overflow-hidden bg-black/5 border border-gr-line rounded-sm">
+        {product.photo_url ? (
+          <img
+            src={product.photo_url}
+            alt={product.name}
+            className="h-full w-full object-cover grayscale-[0.1] hover:grayscale-0 transition-all duration-300"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
+            <Package size={24} />
+          </div>
+        )}
+      </div>
+
+      {/* Details */}
+      <div className="flex-1 flex flex-col justify-between min-w-0">
+        <div>
+          <div className="flex justify-between items-start gap-2">
+            <div>
+              <span className="font-mono text-[9px] uppercase font-bold tracking-widest text-gr-ink-soft/70">
+                {product.category}
+              </span>
+              <h3 className="font-display text-lg font-bold text-gr-ink leading-tight mt-0.5 truncate">
+                {product.name}
+              </h3>
+            </div>
+            
+            {/* Status Badge */}
+            <span className="px-2 py-0.5 rounded-sm border border-gr-board/20 bg-gr-board/10 text-gr-board font-mono text-[8px] font-bold uppercase tracking-wider">
+              {product.status}
+            </span>
+          </div>
+
+          <div className="mt-2.5 space-y-1 font-sans text-xs">
+            <div className="flex justify-between text-gr-ink-soft">
+              <span>Harga Jual:</span>
+              <span className="font-mono font-bold text-gr-ink">Rp {product.price_per_kg.toLocaleString('id-ID')}/kg</span>
+            </div>
+            <div className="flex justify-between text-gr-ink-soft">
+              <span>Stok Tersedia:</span>
+              <span className="font-mono font-bold text-gr-ink">{product.quantity_kg} KG</span>
+            </div>
+            {product.reference_price_per_kg && (
+              <div className="flex justify-between text-gr-ink-soft">
+                <span>Acuan PIHPS:</span>
+                <span className="font-mono font-bold text-gr-board">Rp {product.reference_price_per_kg.toLocaleString('id-ID')}/kg</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Card Footer Actions */}
+        <div className="flex items-center justify-between gap-4 mt-4 pt-3 border-t border-gr-line/40">
+          <span className="font-sans text-[10px] text-gr-ink-soft/60 italic">
+            Listing sejak {formattedDate}
+          </span>
+          
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gr-down/10 text-gr-down hover:bg-gr-down hover:text-gr-chalk border border-gr-down/20 font-mono text-[9px] font-bold uppercase tracking-wider rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50"
+          >
+            {isDeleting ? (
+              <Loader2 size={10} className="animate-spin" />
+            ) : (
+              <Trash2 size={10} />
+            )}
+            Tarik Produk
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}

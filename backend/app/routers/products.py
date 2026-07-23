@@ -241,6 +241,46 @@ async def get_nearby_products(
         
     return products
 
+@router.get("/me", response_model=List[ProductResponse])
+async def list_my_products(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    if current_user.role != UserRole.PETANI:
+        raise HTTPException(status_code=403, detail="Only farmers have listed products")
+        
+    sql = text("""
+        SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
+               ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
+               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+        FROM products p
+        JOIN users u ON p.seller_id = u.id
+        WHERE p.seller_id = :seller_id AND p.status = 'TERSEDIA'
+        ORDER BY p.created_at DESC
+    """)
+    result = await db.execute(sql, {"seller_id": current_user.id})
+    
+    products = []
+    for row in result:
+        products.append({
+            "id": row.id,
+            "seller_id": row.seller_id,
+            "name": row.name,
+            "category": row.category,
+            "quantity_kg": row.quantity_kg,
+            "price_per_kg": row.price_per_kg,
+            "reference_price_per_kg": row.reference_price_per_kg,
+            "status": row.status,
+            "photo_url": row.photo_url,
+            "created_at": row.created_at,
+            "latitude": row.latitude,
+            "longitude": row.longitude,
+            "seller_name": row.seller_name,
+            "seller_rating_avg": row.seller_rating_avg,
+            "seller_rating_count": row.seller_rating_count
+        })
+    return products
+
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
     product_detail = await _get_product_by_id(product_id, db)
