@@ -266,16 +266,6 @@ function BerandaContent() {
                             </span>
                             <span className="block text-[8px] opacity-65 mt-0.5">Ulasan</span>
                           </div>
-                          <div className="h-6 w-px bg-gr-line/70 hidden sm:block" />
-                          <div>
-                            <span className="block font-bold text-gr-ink font-sans text-xs">100%</span>
-                            <span className="block text-[8px] opacity-65 mt-0.5">Chat Dibalas</span>
-                          </div>
-                          <div className="h-6 w-px bg-gr-line/70 hidden sm:block" />
-                          <div>
-                            <span className="block font-bold text-gr-ink font-sans text-xs">Hitungan Menit</span>
-                            <span className="block text-[8px] opacity-65 mt-0.5">Waktu Balas</span>
-                          </div>
                         </div>
                       </div>
 
