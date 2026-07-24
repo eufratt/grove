@@ -2,12 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { authApi } from '@/lib/api/auth';
-import { productsApi } from '@/lib/api/products';
-import { Loader2 } from 'lucide-react';
 
 export function PersonalGreeting() {
   const [user, setUser] = useState<any | null>(null);
-  const [stats, setStats] = useState<{ user_active_products_count: number; new_products_today_count: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,16 +12,8 @@ export function PersonalGreeting() {
       try {
         const userData = await authApi.getMe();
         setUser(userData);
-        
-        const statsData = await productsApi.getPersonalStats();
-        setStats(statsData);
       } catch (err) {
         setUser(null);
-        // Try to get anonymous stats anyway (for buyer/generik products count today)
-        try {
-          const statsData = await productsApi.getPersonalStats();
-          setStats(statsData);
-        } catch (_) {}
       } finally {
         setLoading(false);
       }
@@ -56,50 +45,20 @@ export function PersonalGreeting() {
   // Render subtext based on login status and role
   const renderSubtext = () => {
     if (loading) {
-      return (
-        <div className="flex items-center justify-center lg:justify-start gap-2 text-gr-text-primary/20 font-mono text-[9px] uppercase tracking-widest h-5">
-          <Loader2 size={10} className="animate-spin text-gr-green" />
-          Memuat sapaan...
-        </div>
-      );
+      return null; // Remove loading text completely
     }
 
-    if (!user) {
+    if (user && user.role === 'PETANI') {
       return (
         <p className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/70 mt-3">
-          Temukan hasil panen segar langsung dari petani lokal di sekitarmu.
+          Kelola produk panen segar Anda dan pantau acuan harga pasar.
         </p>
       );
     }
 
-    if (user.role === 'PETANI') {
-      const activeCount = stats?.user_active_products_count ?? 0;
-      if (activeCount === 0) {
-        return (
-          <p className="font-sans text-sm text-gr-text-primary/75 mt-3">
-            Belum ada hasil panen yang kamu pasang. Yuk mulai jual.
-          </p>
-        );
-      }
-      return (
-        <p className="font-sans text-sm text-gr-text-primary/75 mt-3">
-          <span className="text-gr-green font-mono font-bold">{activeCount}</span> hasil panenmu sedang dicari pembeli.
-        </p>
-      );
-    }
-
-    // Default PEMBELI role or fallback
-    const newCount = stats?.new_products_today_count ?? 0;
-    if (newCount === 0) {
-      return (
-        <p className="font-sans text-sm text-gr-text-primary/70 mt-3">
-          Lihat apa yang segar hari ini.
-        </p>
-      );
-    }
     return (
-      <p className="font-sans text-sm text-gr-text-primary/75 mt-3">
-        <span className="text-gr-green font-mono font-bold">{newCount}</span> produk baru diposting hari ini.
+      <p className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/70 mt-3">
+        Temukan hasil panen segar langsung dari petani lokal di sekitarmu.
       </p>
     );
   };
