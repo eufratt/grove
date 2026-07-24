@@ -28,6 +28,9 @@ export const authApi = {
     theme_color?: string | null;
     full_name?: string | null;
     avatar_url?: string | null;
+    bank_name?: string | null;
+    bank_account_number?: string | null;
+    bank_account_holder?: string | null;
   }) => {
     const response = await apiClient('/users/me', {
       method: 'PATCH',
