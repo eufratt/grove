@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Accessibility } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AccessibilityWidget() {
@@ -44,7 +44,7 @@ export function AccessibilityWidget() {
             : "bg-gr-paper text-gr-ink border-gr-line hover:border-gr-board hover:bg-white"
         )}
       >
-        <Accessibility size={22} className="transition-transform group-hover:scale-110" />
+        <Eye size={22} className="transition-transform group-hover:scale-110" />
         
         {/* Tooltip on desktop hover */}
         <span className="absolute right-full mr-3 hidden md:group-hover:block whitespace-nowrap bg-gr-board text-gr-chalk text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-sm shadow-md pointer-events-none">
