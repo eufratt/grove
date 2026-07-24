@@ -272,16 +272,6 @@ export default function SettingsPage() {
                 <div className="font-display font-bold text-xs text-gr-ink truncate">
                   {fullName}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('profile');
-                    fileInputRef.current?.click();
-                  }}
-                  className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/75 hover:text-gr-board hover:underline text-left"
-                >
-                  ✎ Ubah Foto
-                </button>
               </div>
             </div>
 
