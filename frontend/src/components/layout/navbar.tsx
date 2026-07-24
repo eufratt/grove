@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, LogIn, Leaf, Compass, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
+import { LogOut, LogIn, Leaf, Compass, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { GroveLogo } from '@/components/ui/grove-logo';
@@ -16,6 +16,26 @@ export function Navbar() {
   const isLanding = pathname === '/';
   const [user, setUser] = useState<any | null>(null);
   const [showBanner, setShowBanner] = useState(false);
+  const [isAccessibleMode, setIsAccessibleMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('farmer_accessibility_mode') === 'true';
+    setIsAccessibleMode(saved);
+    if (saved) {
+      document.documentElement.classList.add('farmer-accessibility-mode');
+    }
+  }, []);
+
+  const toggleAccessibility = () => {
+    const next = !isAccessibleMode;
+    setIsAccessibleMode(next);
+    localStorage.setItem('farmer_accessibility_mode', String(next));
+    if (next) {
+      document.documentElement.classList.add('farmer-accessibility-mode');
+    } else {
+      document.documentElement.classList.remove('farmer-accessibility-mode');
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -134,6 +154,21 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={toggleAccessibility}
+              type="button"
+              className={cn(
+                "flex items-center justify-center h-7 px-2 gap-1 rounded-sm border font-mono text-[9px] uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                isAccessibleMode
+                  ? "bg-gr-board text-gr-chalk border-gr-board font-bold shadow-xs"
+                  : "border-gr-line text-gr-ink-soft hover:text-gr-board hover:border-gr-board/40"
+              )}
+              title="Alihkan Mode Aksesibilitas (Teks Besar & Kontras Tinggi)"
+            >
+              <Eye size={12} />
+              <span className="hidden sm:inline">Aksesibilitas</span>
+            </button>
+
             {user ? (
               <div className="flex items-center gap-2">
                 <Link
@@ -216,6 +251,21 @@ export function Navbar() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 flex-shrink-0">
+              <button
+                onClick={toggleAccessibility}
+                type="button"
+                className={cn(
+                  "flex items-center justify-center h-8 px-2.5 gap-1.5 border font-mono text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                  isAccessibleMode
+                    ? "bg-gr-board text-gr-chalk border-gr-board font-bold shadow-xs"
+                    : "border-gr-line text-gr-ink-soft hover:text-gr-board hover:border-gr-board/40"
+                )}
+                title="Alihkan Mode Aksesibilitas (Teks Besar & Kontras Tinggi)"
+              >
+                <Eye size={13} />
+                <span className="hidden sm:inline">Aksesibilitas</span>
+              </button>
+
               {user ? (
                 <div className="flex items-center gap-3">
                   {user.role === 'PETANI' && (

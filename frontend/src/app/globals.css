@@ -284,4 +284,24 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(32, 29, 22, 0.35);
 }
+
+/* ── Mode Aksesibilitas Petani (High Contrast & Enhanced Legibility) ── */
+:root.farmer-accessibility-mode,
+html.farmer-accessibility-mode {
+  font-size: 110% !important; /* Elegant 10% text scaling for enhanced legibility */
+  --gr-ink: #0A0907 !important;
+  --gr-ink-soft: #26221A !important;
+  --gr-line: rgba(10, 9, 7, 0.28) !important;
+}
+
+html.farmer-accessibility-mode body {
+  font-weight: 500 !important;
+}
+
+html.farmer-accessibility-mode button:focus-visible,
+html.farmer-accessibility-mode a:focus-visible,
+html.farmer-accessibility-mode input:focus-visible {
+  outline: 3px solid #1B3A29 !important;
+  outline-offset: 2px !important;
+}
 

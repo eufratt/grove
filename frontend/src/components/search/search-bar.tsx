@@ -102,7 +102,38 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             }
           }}
         />
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center z-10">
+        <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1 z-10">
+          {/* Voice Search Button for Farmer Accessibility */}
+          {typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) && (
+            <button
+              type="button"
+              onClick={() => {
+                const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                  const recognition = new SpeechRecognition();
+                  recognition.lang = 'id-ID';
+                  recognition.start();
+                  setLoadingInternal(true);
+                  recognition.onresult = (event: any) => {
+                    const transcript = event.results[0][0].transcript;
+                    setQuery(transcript);
+                    handleSearch(transcript);
+                    setLoadingInternal(false);
+                  };
+                  recognition.onerror = () => setLoadingInternal(false);
+                  recognition.onend = () => setLoadingInternal(false);
+                }
+              }}
+              className="p-1 rounded-full hover:bg-gr-paper text-gr-ink-soft hover:text-gr-board transition-colors cursor-pointer"
+              title="Pencarian Suara (Bicara untuk mencari)"
+              aria-label="Pencarian suara"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            </button>
+          )}
+
           {loadingInternal ? (
             <Loader2 className="h-3.5 w-3.5 text-gr-board animate-spin" />
           ) : query ? (
