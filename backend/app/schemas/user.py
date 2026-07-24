@@ -11,6 +11,8 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
     role: Optional[UserRole] = None
     phone_whatsapp: Optional[str] = None
+    bio: Optional[str] = None
+    theme_color: Optional[str] = None
     seller_rating_avg: Optional[float] = 0.0
     seller_rating_count: int = 0
     buyer_rating_avg: Optional[float] = 0.0
@@ -31,6 +33,8 @@ class CompleteProfileRequest(BaseModel):
 class UpdateProfileRequest(BaseModel):
     phone_whatsapp: Optional[str] = None
     phone_number: Optional[str] = None
+    bio: Optional[str] = None
+    theme_color: Optional[str] = None
 
 class UpgradeToFarmerRequest(BaseModel):
     phone_whatsapp: str

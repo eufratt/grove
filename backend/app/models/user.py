@@ -31,6 +31,8 @@ class User(Base):
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     role: Mapped[Optional[UserRole]] = mapped_column(Enum(UserRole), nullable=True)
     phone_whatsapp: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    bio: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    theme_color: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     
     # Cache fields for ratings
     seller_rating_avg: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=0.0)

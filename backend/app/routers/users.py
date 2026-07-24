@@ -59,6 +59,13 @@ async def update_profile(
                     detail="Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)"
                 )
             current_user.phone_whatsapp = phone
+
+    if profile_data.bio is not None:
+        current_user.bio = profile_data.bio
+
+    if profile_data.theme_color is not None:
+        current_user.theme_color = profile_data.theme_color
+
     await db.commit()
     await db.refresh(current_user)
     return current_user
