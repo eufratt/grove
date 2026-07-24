@@ -208,58 +208,87 @@ function BerandaContent() {
           <>
             {/* Store search results banner/matching farmers display */}
             {isSearchActive && matchingFarmers.length > 0 && (
-              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-xs">
+              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-xs animate-in fade-in duration-200">
                 <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-4 font-bold border-b border-gr-line/40 pb-2">
                   <span>Petani berkaitan dengan "{searchQuery}"</span>
                 </div>
                 <div className="space-y-3.5">
                   {matchingFarmers.slice(0, 3).map((farmer) => (
-                    <div 
+                    <Link 
+                      href={`/petani/${farmer.id}`}
                       key={farmer.id} 
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white/80 border border-gr-line rounded-sm hover:border-gr-ink-soft/30 transition-all duration-200"
+                      className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-4 sm:p-5 bg-white/80 border border-gr-line rounded-sm hover:border-gr-ink-soft/40 transition-all duration-200 group"
                     >
-                      <div className="flex items-center gap-3">
-                        {/* Avatar */}
-                        <div 
-                          className="relative h-11 w-11 rounded-full bg-white p-0.5 border border-gr-line shrink-0"
-                          style={{ borderColor: farmer.theme_color || '#1b4332' }}
-                        >
-                          <div className="h-full w-full rounded-full bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase border border-gr-line/10">
-                            {farmer.avatar_url ? (
-                              <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
-                            ) : (
-                              <User size={16} className="opacity-30" />
-                            )}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 min-w-0">
+                        {/* Avatar & Name Info */}
+                        <div className="flex items-center gap-3">
+                          {/* Avatar */}
+                          <div 
+                            className="relative h-12 w-12 rounded-full bg-white p-0.5 border border-gr-line shrink-0"
+                            style={{ borderColor: farmer.theme_color || '#1b4332' }}
+                          >
+                            <div className="h-full w-full rounded-full bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase">
+                              {farmer.avatar_url ? (
+                                <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
+                              ) : (
+                                <span className="font-display font-bold text-gr-ink opacity-40">
+                                  {farmer.full_name.charAt(0)}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Name & Details */}
-                        <div>
-                          <h3 className="font-display text-sm font-bold text-gr-text-primary">
-                            {farmer.full_name}
-                          </h3>
-                          <div className="flex items-center gap-2 font-mono text-[9px] text-gr-text-primary/50 uppercase mt-0.5 flex-wrap">
-                            <span className="flex items-center gap-0.5 font-sans font-semibold text-gr-text-primary">
+                          {/* Name & Region */}
+                          <div>
+                            <h3 className="font-display text-sm font-bold text-gr-text-primary group-hover:text-gr-board transition-colors">
+                              {farmer.full_name}
+                            </h3>
+                            <span className="flex items-center gap-0.5 font-sans font-semibold text-gr-text-primary/60 text-[10px] mt-0.5">
                               <MapPin size={10} style={{ color: farmer.theme_color || '#1b4332' }} /> 
                               {farmer.latitude && farmer.longitude ? getClosestProvince(farmer.latitude, farmer.longitude) : 'Nasional'}
                             </span>
-                            <span>•</span>
-                            <SellerRatingBadge avgRating={farmer.seller_rating_avg || 0} ratingCount={farmer.seller_rating_count || 0} size="sm" showCount={true} />
+                          </div>
+                        </div>
+
+                        {/* Detailed Merchant Stats */}
+                        <div className="flex items-center gap-5 sm:gap-6 flex-wrap font-mono text-[9px] uppercase text-gr-ink-soft sm:ml-4 border-t sm:border-t-0 border-gr-line/30 pt-2 sm:pt-0">
+                          <div className="h-6 w-px bg-gr-line/70 hidden md:block" />
+                          <div>
+                            <span className="block font-bold text-gr-ink font-sans text-xs">
+                              ★ {farmer.seller_rating_avg ? farmer.seller_rating_avg.toFixed(1) : '0.0'}
+                            </span>
+                            <span className="block text-[8px] opacity-65 mt-0.5">Penilaian</span>
+                          </div>
+                          <div className="h-6 w-px bg-gr-line/70 hidden sm:block" />
+                          <div>
+                            <span className="block font-bold text-gr-ink font-sans text-xs">
+                              {farmer.seller_rating_count || 0}
+                            </span>
+                            <span className="block text-[8px] opacity-65 mt-0.5">Ulasan</span>
+                          </div>
+                          <div className="h-6 w-px bg-gr-line/70 hidden sm:block" />
+                          <div>
+                            <span className="block font-bold text-gr-ink font-sans text-xs">100%</span>
+                            <span className="block text-[8px] opacity-65 mt-0.5">Chat Dibalas</span>
+                          </div>
+                          <div className="h-6 w-px bg-gr-line/70 hidden sm:block" />
+                          <div>
+                            <span className="block font-bold text-gr-ink font-sans text-xs">Hitungan Menit</span>
+                            <span className="block text-[8px] opacity-65 mt-0.5">Waktu Balas</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Action button */}
-                      <div className="shrink-0">
-                        <Link
-                          href={`/petani/${farmer.id}`}
-                          className="inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest py-2 px-4 rounded-sm transition-all hover:opacity-90"
+                      {/* Action Button */}
+                      <div className="shrink-0 self-end sm:self-center">
+                        <div
+                          className="inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest py-2 px-4 rounded-sm transition-all group-hover:opacity-90 shadow-2xs"
                           style={{ backgroundColor: farmer.theme_color || '#1b4332' }}
                         >
-                          Kunjungi Toko
-                        </Link>
+                          Kunjungi Profil
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
