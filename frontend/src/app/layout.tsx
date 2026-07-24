@@ -27,6 +27,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { AccessibilityWidget } from "@/components/layout/accessibility-widget";
 
 export const metadata: Metadata = {
   title: "Grove — Harga Pangan Pedesaan",
@@ -51,6 +52,7 @@ export default function RootLayout({
             {children}
           </div>
           <BottomNav />
+          <AccessibilityWidget />
       </body>
     </html>
   );
