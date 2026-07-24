@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import { RatingBadge } from '@/components/ratings/rating-badge';
+import { cn } from '@/lib/utils';
 
 export default function DemandRequestDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = use(params);
