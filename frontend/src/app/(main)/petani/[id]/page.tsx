@@ -203,7 +203,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         </div>
 
         {/* Slim & Elegant Banner Header */}
-        <div className="bg-[#FAF9F5] border border-gr-line/80 p-5 rounded-2xl shadow-sm mb-8 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
+        <div className="bg-[#FAF9F5] border border-gr-line/80 p-4 sm:p-5 rounded-2xl shadow-sm mb-6 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
           {/* Subtle themed side bar stripe */}
           <div className="absolute top-0 left-0 bottom-0 w-1.5" style={{ backgroundColor: themeHex }} />
 
@@ -263,11 +263,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           </div>
         </div>
 
-        {/* 2-Column Dashboard Layout */}
+        {/* 2-Column Dashboard Layout: 9/12 for Products, 3/12 for Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* LEFT COLUMN: Available Products (8/12 width) - Penebalan fokus utama */}
-          <section className="lg:col-span-8 space-y-6">
+          {/* LEFT COLUMN: Available Products (9/12 width) - Wider grid for 3 columns */}
+          <section className="lg:col-span-9 space-y-6">
             <div className="flex items-center justify-between border-b border-gr-line pb-3">
               <h2 className="font-display text-lg font-bold text-gr-text-primary flex items-center gap-2">
                 <Tag size={16} style={{ color: themeHex }} /> Hasil Panen Tersedia
@@ -285,7 +285,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {products.map((product, idx) => (
                   <div key={product.id} className="h-full">
                     <ProductCard product={product} index={idx} />
@@ -295,11 +295,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             )}
           </section>
 
-          {/* RIGHT COLUMN: Sidebar (Bio, Customizer, Reviews) (4/12 width) */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* RIGHT COLUMN: Sidebar (Bio, Customizer, Reviews) (3/12 width) - Sits elegantly on the side */}
+          <div className="lg:col-span-3 space-y-6">
             
             {/* 1. Farmer Bio & Customizer Card */}
-            <div className="bg-[#FAF9F5] border border-gr-line/80 p-5 rounded-2xl shadow-sm space-y-4">
+            <div className="bg-[#FAF9F5] border border-gr-line/80 p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
               <h3 className="font-display text-sm font-bold text-gr-text-primary border-b border-gr-line/50 pb-2">
                 Tentang Petani
               </h3>
@@ -311,12 +311,12 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                       Deskripsi / Bio Petani
                     </label>
                     <textarea
-                      rows={4}
+                      rows={5}
                       value={editBio}
                       onChange={(e) => setEditBio(e.target.value)}
                       maxLength={1000}
                       placeholder={defaultBio}
-                      className="w-full bg-white border border-gr-line/80 focus:outline-none focus:ring-1 p-3 font-sans text-xs text-gr-text-primary rounded-xl transition-all shadow-xs"
+                      className="w-full bg-white border border-gr-line/80 focus:outline-none focus:ring-1 p-2.5 font-sans text-xs text-gr-text-primary rounded-xl transition-all shadow-xs"
                       style={{ borderColor: themeHex }}
                     />
                     <span className="block text-right font-mono text-[8px] text-gr-text-primary/30">
@@ -328,23 +328,23 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/55 font-bold">
                       Warna Aksen Halaman
                     </span>
-                    <div className="grid grid-cols-6 gap-1.5">
+                    <div className="grid grid-cols-6 gap-1">
                       {THEME_PRESETS.map((preset) => (
                         <button
                           key={preset.value}
                           type="button"
                           onClick={() => setSelectedTheme(preset.value)}
-                          className="h-6 w-6 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                          className="h-5 w-5 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
                           style={{ 
                             backgroundColor: preset.value, 
                             borderColor: selectedTheme === preset.value ? '#ffffff' : 'transparent', 
-                            borderWidth: '2px', 
+                            borderWidth: '2.5px', 
                             boxShadow: selectedTheme === preset.value ? `0 0 0 1.5px ${preset.value}` : 'none' 
                           }}
                           title={preset.name}
                         >
                           {selectedTheme === preset.value && (
-                            <Check size={10} className="text-white stroke-[3.5]" />
+                            <Check size={8} className="text-white stroke-[4]" />
                           )}
                         </button>
                       ))}
@@ -354,7 +354,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   <Button
                     onClick={handleSaveChanges}
                     disabled={savingEdit}
-                    className="w-full text-white font-mono text-[9px] font-bold uppercase tracking-widest py-3 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    className="w-full text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer font-sans"
                     style={{ backgroundColor: selectedTheme }}
                   >
                     {savingEdit ? <Loader2 size={10} className="animate-spin" /> : 'Simpan'}
@@ -405,7 +405,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   <Star size={15} style={{ color: themeHex }} /> Ulasan Pembeli
                 </h3>
                 <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                  Rata-rata: {ratingsAvg > 0 ? ratingsAvg.toFixed(1) : '-'}
+                  Avg: {ratingsAvg > 0 ? ratingsAvg.toFixed(1) : '-'}
                 </span>
               </div>
 
