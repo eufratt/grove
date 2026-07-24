@@ -12,7 +12,7 @@ import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2 } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -473,6 +473,21 @@ function OrderCard({
             transition={{ duration: 0.2 }}
             className="mt-6 pt-6 border-t border-gr-line space-y-4"
           >
+            {currentStatus === 'DIBATALKAN' && order.cancellation_reason && (
+              <div className="p-3.5 bg-gr-down/5 text-gr-down border border-gr-down/20 rounded-sm text-xs flex items-start gap-2.5">
+                <AlertTriangle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+                <div className="font-sans leading-relaxed">
+                  <p className="font-bold">Informasi Pembatalan:</p>
+                  <p className="mt-0.5 opacity-90">
+                    {order.cancellation_reason === 'PETANI_MENOLAK' && 'Pesanan ditolak oleh penjual/petani.'}
+                    {order.cancellation_reason === 'PEMBELI_BATAL' && 'Pesanan dibatalkan oleh pembeli.'}
+                    {order.cancellation_reason === 'TIMEOUT_KONFIRMASI' && 'Dibatalkan otomatis oleh sistem karena penjual tidak memberikan konfirmasi pesanan tepat waktu.'}
+                    {order.cancellation_reason === 'TIMEOUT_PENGAMBILAN' && 'Dibatalkan otomatis oleh sistem karena barang tidak diambil tepat waktu.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">

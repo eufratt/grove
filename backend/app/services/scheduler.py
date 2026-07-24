@@ -35,10 +35,10 @@ async def check_pickup_and_auto_confirm():
     async with AsyncSessionLocal() as db:
         now = datetime.utcnow()
         
-        # 1. Process pickup timeouts first
+        # 1. Process pickup timeouts first (only for SIAP_DIAMBIL)
         threshold_pickup = now - timedelta(seconds=settings.TIMEOUT_PENGAMBILAN)
         stmt_pickup = select(Order).where(
-            Order.status.in_([OrderStatus.SIAP_DIAMBIL, OrderStatus.DIKIRIM]),
+            Order.status == OrderStatus.SIAP_DIAMBIL,
             Order.marked_ready_at <= threshold_pickup
         )
         res_pickup = await db.execute(stmt_pickup)
@@ -52,10 +52,10 @@ async def check_pickup_and_auto_confirm():
                 
     async with AsyncSessionLocal() as db:
         now = datetime.utcnow()
-        # 2. Process auto-confirm received next for orders still in ready/shipped status
+        # 2. Process auto-confirm received next (only for DIKIRIM)
         threshold_confirm = now - timedelta(seconds=settings.TIMEOUT_AUTO_CONFIRM)
         stmt_confirm = select(Order).where(
-            Order.status.in_([OrderStatus.SIAP_DIAMBIL, OrderStatus.DIKIRIM]),
+            Order.status == OrderStatus.DIKIRIM,
             Order.marked_ready_at <= threshold_confirm
         )
         res_confirm = await db.execute(stmt_confirm)

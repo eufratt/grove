@@ -30,6 +30,8 @@ class OrderResponse(BaseModel):
     has_buyer_rated: bool = False
     created_at: datetime
     
+    cancellation_reason: Optional[CancellationReason] = None
+    
     # Joined metadata fields
     product_name: Optional[str] = None
     product_photo_url: Optional[str] = None
@@ -94,7 +96,8 @@ async def get_full_order_response(db: AsyncSession, order_id: UUID) -> OrderResp
         buyer_phone=row.buyer_phone,
         seller_name=row.seller_name,
         seller_phone=row.seller_phone,
-        has_buyer_rated=row.has_buyer_rated
+        has_buyer_rated=row.has_buyer_rated,
+        cancellation_reason=row.Order.cancellation_reason
     )
 
 @router.post("", response_model=OrderResponse)
@@ -233,7 +236,8 @@ async def list_orders(
             buyer_phone=row.buyer_phone,
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
-            has_buyer_rated=row.has_buyer_rated
+            has_buyer_rated=row.has_buyer_rated,
+            cancellation_reason=order.cancellation_reason
         ))
     return orders_data
 
@@ -303,7 +307,8 @@ async def list_incoming_orders(
             buyer_phone=row.buyer_phone,
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
-            has_buyer_rated=row.has_buyer_rated
+            has_buyer_rated=row.has_buyer_rated,
+            cancellation_reason=order.cancellation_reason
         ))
     return orders_data
 
@@ -367,7 +372,8 @@ async def list_my_purchases(
             buyer_phone=row.buyer_phone,
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
-            has_buyer_rated=row.has_buyer_rated
+            has_buyer_rated=row.has_buyer_rated,
+            cancellation_reason=order.cancellation_reason
         ))
     return orders_data
 

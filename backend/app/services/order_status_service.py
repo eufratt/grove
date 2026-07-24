@@ -28,8 +28,10 @@ def get_countdown_message(target_status: OrderStatus, base_time: datetime) -> st
     
     if target_status == OrderStatus.MENUNGGU_KONFIRMASI:
         deadline = base_time + timedelta(seconds=settings.TIMEOUT_KONFIRMASI)
-    elif target_status in (OrderStatus.SIAP_DIAMBIL, OrderStatus.DIKIRIM):
+    elif target_status == OrderStatus.SIAP_DIAMBIL:
         deadline = base_time + timedelta(seconds=settings.TIMEOUT_PENGAMBILAN)
+    elif target_status == OrderStatus.DIKIRIM:
+        deadline = base_time + timedelta(seconds=settings.TIMEOUT_AUTO_CONFIRM)
     else:
         return ""
         
