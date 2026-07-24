@@ -155,7 +155,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
     return (
       <main className="relative min-h-[calc(100vh-80px)] bg-gr-bg py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 rounded-sm text-center shadow-xl">
+        <div className="relative z-10 max-w-md w-full bg-white/80 border-2 border-gr-ink p-8 rounded-sm text-center shadow-xl">
           <h2 className="font-display text-2xl font-semibold text-gr-text-primary mb-3">Profil Tidak Ditemukan</h2>
           <p className="font-sans text-sm text-gr-text-primary/60 mb-6">{error || 'Data profil petani tidak dapat ditampilkan.'}</p>
           <Link
@@ -192,7 +192,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    // Smooth scroll to top of products list on mobile/tablet
+    // Smooth scroll to top of products list
     const el = document.getElementById('available-harvest');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -200,17 +200,17 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   };
 
   return (
-    <main className="relative min-h-screen bg-gr-bg pt-6 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+    <main className="relative min-h-screen bg-gr-bg pt-8 pb-24 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
       <BgPattern />
       <FilmGrain />
       <Glow color={themePreset.glow} position="top" className="opacity-12 pointer-events-none scale-105 duration-500" />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         {/* Back Link & Customize mode toggle button */}
-        <div className="mb-5 flex justify-between items-center">
+        <div className="mb-6 flex justify-between items-center">
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/45 hover:text-gr-text-primary transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/60 hover:text-gr-text-primary transition-colors font-extrabold"
           >
             ← Kembali ke Beranda
           </Link>
@@ -218,7 +218,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           {isOwner && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-white px-4 py-2 rounded-full hover:scale-102 active:scale-98 transition-all cursor-pointer shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-white px-4.5 py-2.5 border-2 border-gr-ink rounded-full hover:scale-102 active:scale-98 transition-all cursor-pointer shadow-[3px_3px_0px_0px_#201d16]"
               style={{ backgroundColor: themeHex }}
             >
               <Palette size={11} /> {isEditing ? 'Batal Edit' : 'Personalisasi Profil'}
@@ -226,8 +226,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           )}
         </div>
 
-        {/* Slim & Elegant Banner Header */}
-        <div className="bg-[#FAF9F5] border border-gr-line/80 p-4 sm:p-5 rounded-2xl shadow-sm mb-6 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
+        {/* Poster Style Slim Banner Header */}
+        <div 
+          className="bg-[#FCFAF2] border-2 border-gr-ink p-4 sm:p-5 rounded-2xl mb-8 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300"
+          style={{ boxShadow: `5px 5px 0px 0px ${themeHex}` }}
+        >
           {/* Subtle themed side bar stripe */}
           <div className="absolute top-0 left-0 bottom-0 w-1.5" style={{ backgroundColor: themeHex }} />
 
@@ -239,10 +242,9 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 style={{ backgroundColor: themeHex }} 
               />
               <div 
-                className="relative h-14 w-14 rounded-full bg-white p-0.5 border shadow-sm transition-transform duration-300 group-hover:scale-105"
-                style={{ borderColor: themeHex }}
+                className="relative h-14 w-14 rounded-full bg-white p-0.5 border-2 border-gr-ink shadow-sm transition-transform duration-300 group-hover:scale-105"
               >
-                <div className="relative h-full w-full rounded-full bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase border border-gr-line/10">
+                <div className="relative h-full w-full rounded-full bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase">
                   {farmer.avatar_url ? (
                     <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
                   ) : (
@@ -254,16 +256,16 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="font-display text-lg font-bold text-gr-text-primary truncate max-w-[280px]" title={farmer.full_name}>
+                <h1 className="font-display text-xl font-black uppercase tracking-tight text-gr-ink truncate max-w-[280px]" title={farmer.full_name}>
                   {farmer.full_name}
                 </h1>
-                <span className="inline-flex items-center gap-1 bg-gr-green/10 border border-gr-green/20 text-gr-green text-[8px] uppercase tracking-widest font-mono font-extrabold px-1.5 py-0.5 rounded-sm">
+                <span className="inline-flex items-center gap-1 bg-gr-board text-gr-chalk text-[8px] uppercase tracking-widest font-mono font-extrabold px-2 py-0.5 border border-gr-ink rounded-sm">
                   <ShieldCheck size={8} className="stroke-[2.5]" /> Kontak Terverifikasi
                 </span>
               </div>
 
-              <div className="flex items-center gap-2.5 font-mono text-[9px] text-gr-text-primary/50 uppercase mt-0.5 flex-wrap">
-                <span className="flex items-center gap-1 font-sans font-semibold text-gr-text-primary">
+              <div className="flex items-center gap-2.5 font-mono text-[9px] text-gr-text-primary/60 uppercase mt-1 flex-wrap">
+                <span className="flex items-center gap-1 font-sans font-extrabold text-gr-text-primary">
                   <MapPin size={10} style={{ color: themeHex }} /> {locationLabel}
                 </span>
                 <span>•</span>
@@ -278,7 +280,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 px-4 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="inline-flex items-center gap-1.5 text-white font-mono text-[10px] font-bold uppercase tracking-wider py-2.5 px-4.5 border-2 border-gr-ink rounded-xl shadow-[3px_3px_0px_0px_#201d16] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#201d16] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[2px_2px_0px_0px_#201d16] transition-all"
                 style={{ backgroundColor: themeHex }}
               >
                 <MessageSquare size={12} /> Chat WhatsApp
@@ -290,53 +292,53 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         {/* 2-Column Dashboard Layout: 9/12 for Products, 3/12 for Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* LEFT COLUMN: Available Products (9/12 width) - Wider grid for 3 columns */}
+          {/* LEFT COLUMN: Available Products (9/12 width) */}
           <section id="available-harvest" className="lg:col-span-9 space-y-6 scroll-mt-6">
-            <div className="flex items-center justify-between border-b border-gr-line pb-3">
-              <h2 className="font-display text-lg font-bold text-gr-text-primary flex items-center gap-2">
-                <Tag size={16} style={{ color: themeHex }} /> Hasil Panen Tersedia
+            <div className="flex items-center justify-between border-b-2 border-gr-ink pb-3">
+              <h2 className="font-display text-2xl font-black uppercase tracking-tight text-gr-ink flex items-center gap-2">
+                <Tag size={18} style={{ color: themeHex }} className="stroke-[2.5]" /> Hasil Panen Tersedia
               </h2>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
-                {products.length} produk terdaftar
+              <span className="font-mono text-xs font-bold bg-gr-ink text-gr-paper px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                {products.length} Komoditas
               </span>
             </div>
 
             {products.length === 0 ? (
-              <div className="text-center py-16 bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-2xl">
+              <div className="text-center py-16 bg-[#FAF9F5]/40 border-2 border-dashed border-gr-line rounded-2xl">
                 <Info className="h-8 w-8 text-gr-text-primary/20 mx-auto mb-2" />
                 <p className="font-sans text-sm text-gr-text-primary/40 italic">
                   Belum ada produk hasil panen yang didaftarkan saat ini.
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                   {currentProducts.map((product, idx) => (
-                    <div key={product.id} className="h-full">
+                    <div key={product.id} className="h-full transform hover:scale-[1.01] transition-transform duration-300">
                       <ProductCard product={product} index={idx} />
                     </div>
                   ))}
                 </div>
 
-                {/* Pagination Controls */}
+                {/* Highly Visible Retro-Poster Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex justify-between items-center pt-4 border-t border-gr-line/30 font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/50">
+                  <div className="flex justify-between items-center pt-6 border-t-2 border-gr-ink font-mono text-xs font-bold uppercase tracking-wider text-gr-ink">
                     <button
                       onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="px-3 py-1.5 border border-gr-line/80 rounded-xl hover:bg-[#FAF9F5] transition-all hover:text-gr-text-primary disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-gr-text-primary/50 cursor-pointer disabled:cursor-not-allowed font-sans font-bold"
+                      className="px-4 py-2.5 border-2 border-gr-ink bg-white text-gr-ink rounded-xl shadow-[3px_3px_0px_0px_#201d16] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#201d16] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[2px_2px_0px_0px_#201d16] transition-all disabled:opacity-30 disabled:pointer-events-none disabled:shadow-none cursor-pointer"
                     >
-                      Sebelumnya
+                      ← Sebelumnya
                     </button>
-                    <span>
+                    <span className="font-mono text-xs font-extrabold bg-[#FCFAF2] border-2 border-gr-ink px-4 py-2 rounded-xl shadow-[2px_2px_0px_0px_rgba(32,29,22,0.1)]">
                       Halaman {currentPage} dari {totalPages}
                     </span>
                     <button
                       onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1.5 border border-gr-line/80 rounded-xl hover:bg-[#FAF9F5] transition-all hover:text-gr-text-primary disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-gr-text-primary/50 cursor-pointer disabled:cursor-not-allowed font-sans font-bold"
+                      className="px-4 py-2.5 border-2 border-gr-ink bg-white text-gr-ink rounded-xl shadow-[3px_3px_0px_0px_#201d16] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#201d16] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[2px_2px_0px_0px_#201d16] transition-all disabled:opacity-30 disabled:pointer-events-none disabled:shadow-none cursor-pointer"
                     >
-                      Selanjutnya
+                      Selanjutnya →
                     </button>
                   </div>
                 )}
@@ -344,19 +346,23 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             )}
           </section>
 
-          {/* RIGHT COLUMN: Sidebar (Bio, Customizer, Reviews) (3/12 width) - Sits elegantly on the side */}
+          {/* RIGHT COLUMN: Sidebar (Bio, Customizer, Reviews) (3/12 width) */}
           <div className="lg:col-span-3 space-y-6">
             
-            {/* 1. Farmer Bio & Customizer Card */}
-            <div className="bg-[#FAF9F5] border border-gr-line/80 p-4 sm:p-5 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-display text-sm font-bold text-gr-text-primary border-b border-gr-line/50 pb-2">
+            {/* 1. Chalkboard Style "Tentang Petani" Card */}
+            <div 
+              className="bg-gr-board text-gr-chalk border-2 border-gr-ink p-5 rounded-2xl relative shadow-[5px_5px_0px_0px_#201d16] transition-all duration-300"
+              style={{ boxShadow: `5px 5px 0px 0px ${themeHex}` }}
+            >
+              <h3 className="font-display text-xs font-black uppercase tracking-widest border-b border-gr-chalk/20 pb-2 text-gr-chalk flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full border border-gr-ink shrink-0" style={{ backgroundColor: themeHex }} />
                 Tentang Petani
               </h3>
 
               {isEditing ? (
-                <div className="space-y-3">
+                <div className="space-y-3.5 pt-2">
                   <div className="space-y-1.5">
-                    <label className="block font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/45 font-bold">
+                    <label className="block font-mono text-[8px] uppercase tracking-widest text-gr-chalk-soft font-bold">
                       Deskripsi / Bio Petani
                     </label>
                     <textarea
@@ -365,16 +371,15 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                       onChange={(e) => setEditBio(e.target.value)}
                       maxLength={1000}
                       placeholder={defaultBio}
-                      className="w-full bg-white border border-gr-line/80 focus:outline-none focus:ring-1 p-2.5 font-sans text-xs text-gr-text-primary rounded-xl transition-all shadow-xs"
-                      style={{ borderColor: themeHex }}
+                      className="w-full bg-white/10 border border-gr-chalk/35 focus:outline-none focus:ring-1 focus:ring-gr-chalk p-2.5 font-sans text-xs text-gr-chalk rounded-xl transition-all shadow-inner"
                     />
-                    <span className="block text-right font-mono text-[8px] text-gr-text-primary/30">
+                    <span className="block text-right font-mono text-[8px] text-gr-chalk-soft">
                       {editBio.length}/1000
                     </span>
                   </div>
 
                   <div className="space-y-2">
-                    <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/55 font-bold">
+                    <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-chalk-soft font-bold">
                       Warna Aksen Halaman
                     </span>
                     <div className="grid grid-cols-6 gap-1">
@@ -383,7 +388,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                           key={preset.value}
                           type="button"
                           onClick={() => setSelectedTheme(preset.value)}
-                          className="h-5 w-5 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                          className="h-5 w-5 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-115 active:scale-90"
                           style={{ 
                             backgroundColor: preset.value, 
                             borderColor: selectedTheme === preset.value ? '#ffffff' : 'transparent', 
@@ -403,43 +408,42 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   <Button
                     onClick={handleSaveChanges}
                     disabled={savingEdit}
-                    className="w-full text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer font-sans"
-                    style={{ backgroundColor: selectedTheme }}
+                    className="w-full text-gr-board bg-gr-chalk font-mono text-[9px] font-black uppercase tracking-widest py-2.5 rounded-xl border-2 border-gr-ink shadow-[2px_2px_0px_0px_#201d16] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_#201d16] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#201d16] transition-all cursor-pointer"
                   >
-                    {savingEdit ? <Loader2 size={10} className="animate-spin" /> : 'Simpan'}
+                    {savingEdit ? <Loader2 size={10} className="animate-spin text-gr-board" /> : 'Simpan'}
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <p className="font-sans text-xs text-gr-text-primary/70 leading-relaxed">
-                    {farmerBio}
+                <div className="space-y-4 pt-2">
+                  <p className="font-sans text-xs text-gr-chalk/90 leading-relaxed italic">
+                    "{farmerBio}"
                   </p>
 
-                  {/* Location Coordinate Badge */}
+                  {/* Stamp style location coordinates */}
                   {farmer.latitude && farmer.longitude && (
-                    <div className="bg-white/60 border border-gr-line/40 p-3 rounded-xl font-mono text-[8px] text-gr-text-primary/50 space-y-0.5">
-                      <span className="block font-bold tracking-widest text-gr-text-primary/30 uppercase mb-1">KOORDINAT LOKASI</span>
+                    <div className="bg-white/10 border-2 border-dashed border-gr-chalk/20 p-3 rounded-xl font-mono text-[8px] text-gr-chalk/80 space-y-0.5 relative overflow-hidden">
+                      <span className="block font-black tracking-widest text-gr-chalk-soft uppercase mb-1">KOORDINAT LOKASI</span>
                       <span className="block font-semibold">LINTANG: {farmer.latitude.toFixed(5)}</span>
                       <span className="block font-semibold">BUJUR: {farmer.longitude.toFixed(5)}</span>
                     </div>
                   )}
 
-                  {/* Stats grid */}
-                  <div className="grid grid-cols-2 gap-2 text-center pt-2 border-t border-gr-line/40">
-                    <div>
-                      <span className="block font-mono text-base font-bold text-gr-text-primary">
+                  {/* High contrast chalkboard stats */}
+                  <div className="grid grid-cols-2 gap-2 text-center pt-3 border-t border-gr-chalk/20">
+                    <div className="border-r border-gr-chalk/10">
+                      <span className="block font-display text-xl font-black text-gr-chalk leading-none">
                         {products.length}
                       </span>
-                      <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
-                        Produk
+                      <span className="font-mono text-[7px] uppercase tracking-widest text-gr-chalk-soft block mt-1 leading-none">
+                        PRODUK
                       </span>
                     </div>
                     <div>
-                      <span className="block font-mono text-base font-bold text-gr-text-primary">
+                      <span className="block font-display text-xl font-black text-gr-chalk leading-none">
                         {ratingsCount}
                       </span>
-                      <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
-                        Ulasan
+                      <span className="font-mono text-[7px] uppercase tracking-widest text-gr-chalk-soft block mt-1 leading-none">
+                        ULASAN
                       </span>
                     </div>
                   </div>
@@ -447,26 +451,26 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
               )}
             </div>
 
-            {/* 2. Commented Reviews List Card */}
+            {/* 2. Poster Style Commented Reviews List Card */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-gr-line pb-2">
-                <h3 className="font-display text-sm font-bold text-gr-text-primary flex items-center gap-1.5">
-                  <Star size={15} style={{ color: themeHex }} /> Ulasan Pembeli
+              <div className="flex items-center justify-between border-b-2 border-gr-ink pb-2">
+                <h3 className="font-display text-xs font-black uppercase tracking-tight text-gr-ink flex items-center gap-1.5">
+                  <Star size={14} style={{ color: themeHex }} className="stroke-[2.5]" /> Ulasan Pembeli
                 </h3>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink/60 font-bold">
                   Avg: {ratingsAvg > 0 ? ratingsAvg.toFixed(1) : '-'}
                 </span>
               </div>
 
               {ratings.length === 0 ? (
-                <div className="p-6 text-center bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-2xl space-y-1">
+                <div className="p-6 text-center bg-[#FAF9F5]/40 border-2 border-dashed border-gr-ink/30 rounded-2xl space-y-1">
                   <Star className="h-5 w-5 text-gr-text-primary/10 mx-auto" />
                   <p className="font-sans text-[11px] text-gr-text-primary/40 italic">
                     Belum ada ulasan dari pembeli.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3.5 max-h-[400px] overflow-y-auto pr-1.5 custom-scrollbar">
+                <div className="space-y-4.5 max-h-[350px] overflow-y-auto pr-1.5 custom-scrollbar">
                   {ratings.map((review) => {
                     const ratingDate = new Date(review.created_at).toLocaleDateString('id-ID', {
                       day: 'numeric',
@@ -476,20 +480,20 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     return (
                       <div
                         key={review.id}
-                        className="bg-white/60 backdrop-blur-xs border border-gr-line/40 p-4 rounded-xl shadow-xs space-y-2 hover:border-gr-line/85 transition-all duration-300 relative"
+                        className="bg-[#FCFAF2] border-2 border-gr-ink p-4 rounded-xl shadow-[4px_4px_0px_0px_rgba(32,29,22,0.15)] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_rgba(32,29,22,0.15)] transition-all duration-300 relative"
                       >
                         {/* Top: Name & Date */}
-                        <div className="flex justify-between items-center gap-2">
-                          <span className="font-sans text-xs font-bold text-gr-text-primary truncate">
+                        <div className="flex justify-between items-center gap-2 border-b border-gr-ink/10 pb-1.5 mb-2">
+                          <span className="font-sans text-xs font-bold text-gr-ink truncate">
                             {review.rater_name || 'Pembeli Anonim'}
                           </span>
-                          <span className="font-mono text-[8px] text-gr-text-primary/30 uppercase shrink-0">
+                          <span className="font-mono text-[8px] text-gr-text-primary/40 uppercase shrink-0 font-bold">
                             {ratingDate}
                           </span>
                         </div>
 
                         {/* Stars */}
-                        <div className="flex gap-0.5">
+                        <div className="flex gap-0.5 mb-2">
                           {[1, 2, 3, 4, 5].map((s) => (
                             <Star
                               key={s}
@@ -504,7 +508,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
                         {/* Comment */}
                         {review.comment ? (
-                          <p className="font-sans text-[11px] text-gr-text-primary/75 leading-relaxed italic bg-white/40 border border-gr-line/20 p-2.5 rounded-xl">
+                          <p className="font-sans text-[11px] text-gr-text-primary/80 leading-relaxed italic bg-white/60 border border-gr-line/10 p-2.5 rounded-lg">
                             "{review.comment}"
                           </p>
                         ) : (
