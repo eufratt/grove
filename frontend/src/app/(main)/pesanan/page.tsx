@@ -362,9 +362,9 @@ function OrderCard({
       } else {
         alert('Gagal membuat link pembayaran');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Gagal memulai proses checkout pembayaran');
+      alert(`Gagal memulai proses checkout pembayaran: ${err.message || err}`);
     } finally {
       setIsCheckingOut(false);
     }
@@ -376,8 +376,9 @@ function OrderCard({
       await ordersApi.confirmOrderReceived(order.id);
       setBuyerConfirmedAt(new Date().toISOString());
       onUpdate();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Gagal mengonfirmasi penerimaan barang: ${err.message || err}`);
     } finally {
       setIsConfirming(false);
     }
@@ -388,8 +389,9 @@ function OrderCard({
       setIsUpdating(true);
       await ordersApi.disputeOrder(order.id);
       onUpdate();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`Gagal melaporkan sengketa: ${err.message || err}`);
     } finally {
       setIsUpdating(false);
     }
