@@ -365,7 +365,7 @@ const defaultFigPanelsData = [
 ];
 
 export function FigPanels({ pricesData }: FigPanelsProps) {
-  const panelsData: any[] = pricesData && pricesData.length > 0 ? pricesData : defaultFigPanelsData;
+  const panelsData = pricesData && pricesData.length > 0 ? pricesData : defaultFigPanelsData;
 
   return (
     <section className="w-full max-w-[1100px] mx-auto px-8 pb-16 relative z-40 select-none">

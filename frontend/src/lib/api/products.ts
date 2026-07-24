@@ -46,7 +46,7 @@ export const productsApi = {
     return response.json();
   },
 
-  updateProduct: async (id: string, data: any) => {
+  updateProduct: async (id: string, data: Record<string, unknown>) => {
     const response = await apiClient(`/products/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),

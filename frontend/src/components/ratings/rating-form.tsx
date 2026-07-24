@@ -35,8 +35,9 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
         comment: comment || undefined,
       });
       onSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengirim rating');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengirim rating';
+      setError(msg);
     } finally {
       setIsSubmitting(false);
     }

@@ -5,7 +5,7 @@ import { Search, Loader2, X } from 'lucide-react';
 import { searchApi as semanticSearchApi } from '@/lib/api/search';
 
 interface SearchBarProps {
-  onResults: (results: any[]) => void;
+  onResults: (results: unknown[]) => void;
   onLoading: (isLoading: boolean) => void;
   onClear: () => void;
   className?: string;

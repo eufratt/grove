@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { X, Heart, RefreshCw, Users, Loader2, Scale, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { referencePricesApi } from '@/lib/api/reference-prices';
@@ -91,7 +90,10 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
   const [commitRequest, setCommitRequest] = useState<DemandRequest | null>(null);
   const [commitQty, setCommitQty] = useState('');
   const [submittingCommit, setSubmittingCommit] = useState(false);
@@ -155,8 +157,9 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
         setFocusedCardId(null);
       }
       setCurrentSetIndex(nextIndex);
-    } catch (err: any) {
-      setCommitError(err.message || 'Gagal mengirimkan komitmen');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengirimkan komitmen';
+      setCommitError(msg);
     } finally {
       setSubmittingCommit(false);
     }
@@ -230,7 +233,6 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                 userLat={userLat}
                 userLng={userLng}
                 onSwipe={(dir) => handleSwipe(dir, focusedRequest)}
-                onDismiss={() => setFocusedCardId(null)}
               />
             </>
           )}
@@ -418,7 +420,7 @@ const TableCard: React.FC<TableCardProps> = ({
 
   // Build full animate target — opacity MUST be in animate (not style)
   // so Framer Motion can transition from initial opacity:0 → 1
-  let animTarget: Record<string, any>;
+  let animTarget: Record<string, string | number>;
   if (isInvisible) {
     // Card is shown by the fixed overlay; hide placeholder silently
     animTarget = { x: tableX, y: tableY, rotate: tableRot, scale: 1, zIndex: 10 + (totalCards - idx), opacity: 0, filter: 'none' };
@@ -455,7 +457,6 @@ const TableCard: React.FC<TableCardProps> = ({
       <CardFace
         request={request}
         color={color}
-        isFocused={false}
         showDragHint={false}
       />
     </motion.div>
@@ -472,11 +473,10 @@ interface FocusedCardOverlayProps {
   userLat?: number | null;
   userLng?: number | null;
   onSwipe: (direction: 'left' | 'right') => void;
-  onDismiss: () => void;
 }
 
 const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
-  request, userLat, userLng, onSwipe, onDismiss
+  request, userLat, userLng, onSwipe
 }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-20, 20]);
@@ -505,7 +505,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
   const percent = Math.min(100, Math.round((committed / needed) * 100));
   const numPetani = request.num_petani_committed || 0;
 
-  const handleDragEnd = (_: any, info: any) => {
+  const handleDragEnd = (_: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     if (info.offset.x > 80) onSwipe('right');
     else if (info.offset.x < -80) onSwipe('left');
     else x.set(0);
@@ -654,11 +654,10 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
 interface CardFaceProps {
   request: DemandRequest;
   color: typeof COLORS[keyof typeof COLORS];
-  isFocused: boolean;
   showDragHint: boolean;
 }
 
-const CardFace: React.FC<CardFaceProps> = ({ request, color, isFocused, showDragHint }) => {
+const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => {
   const needed = request.quantity_kg_needed;
   const committed = request.quantity_kg_committed;
   const percent = Math.min(100, Math.round((committed / needed) * 100));

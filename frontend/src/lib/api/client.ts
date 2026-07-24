@@ -2,9 +2,9 @@ export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:800
 
 export class ApiError extends Error {
   status: number;
-  info?: any;
+  info?: unknown;
 
-  constructor(message: string, status: number, info?: any) {
+  constructor(message: string, status: number, info?: unknown) {
     super(message);
     this.status = status;
     this.info = info;
@@ -12,7 +12,7 @@ export class ApiError extends Error {
   }
 }
 
-let refreshPromise: Promise<any> | null = null;
+let refreshPromise: Promise<unknown> | null = null;
 
 /**
  * Basic fetch wrapper for API calls.
@@ -72,7 +72,7 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
           }
 
           const errorData = await retryResponse.json().catch(() => ({}));
-          let message = errorData.message || errorData.detail || `API error: ${retryResponse.status}`;
+          const message = errorData.message || errorData.detail || `API error: ${retryResponse.status}`;
           throw new ApiError(message, retryResponse.status, errorData);
         } catch (refreshErr) {
           if (refreshErr instanceof ApiError) {
@@ -89,7 +89,7 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
         if (typeof errorData.detail === 'string') {
           message = errorData.detail;
         } else if (Array.isArray(errorData.detail)) {
-          message = errorData.detail.map((d: any) => {
+          message = errorData.detail.map((d: { loc?: (string | number)[]; msg: string }) => {
             const loc = Array.isArray(d.loc) ? d.loc.join('.') : (d.loc || '');
             return loc ? `${loc}: ${d.msg}` : d.msg;
           }).join(', ');
@@ -102,14 +102,15 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     }
 
     return response;
-  } catch (err: any) {
+  } catch (err) {
     if (err instanceof ApiError) {
       throw err;
     }
+    const errMsg = err instanceof Error ? err.message : String(err);
     throw new ApiError(
       'Koneksi ke server gagal. Pastikan server backend Anda berjalan dan terhubung.',
       0,
-      { originalError: err.message }
+      { originalError: errMsg }
     );
   }
 }
