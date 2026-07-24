@@ -85,4 +85,46 @@ class XenditService:
             data = response.json()
             return data.get("status", "PENDING")
 
+    @classmethod
+    async def create_disbursement(
+        cls,
+        external_id: str,
+        amount: float,
+        bank_code: str,
+        account_holder_name: str,
+        account_number: str,
+        description: str
+    ) -> Dict[str, Any]:
+        """
+        Creates a disbursement (pencairan dana) to a seller's bank account.
+        """
+        url = "https://api.xendit.co/disbursements"
+        payload = {
+            "external_id": external_id,
+            "amount": int(amount),
+            "bank_code": bank_code.upper(),
+            "account_holder_name": account_holder_name,
+            "account_number": account_number,
+            "description": description
+        }
+
+        headers = cls._get_auth_header()
+        headers["X-Idempotency-Key"] = external_id
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=10.0
+            )
+
+            if response.status_code not in (200, 201):
+                raise Exception(
+                    f"Xendit disbursement error {response.status_code}: {response.text}"
+                )
+
+            return response.json()
+
+
 xendit_service = XenditService()
