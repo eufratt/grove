@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     APP_ENV: str = "production"
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
+    # Xendit Sandbox Settings
+    XENDIT_SECRET_KEY: str = "placeholder_xendit_secret_key"
+    XENDIT_WEBHOOK_TOKEN: str = "placeholder_xendit_webhook_token"
+
     # Order Status Timeouts (in seconds)
     TIMEOUT_KONFIRMASI: int = 86400        # 1 day
     TIMEOUT_PENGAMBILAN: int = 259200       # 3 days
