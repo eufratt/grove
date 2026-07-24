@@ -19,14 +19,10 @@ import {
   ShieldCheck,
   Tag,
   Info,
-  Calendar,
   Star,
-  Edit3,
   Check,
   Palette,
-  Mail,
-  User,
-  ExternalLink
+  User
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -173,24 +169,24 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   const themeHex = farmer.theme_color || '#1b4332';
   const themePreset = THEME_PRESETS.find(p => p.value === themeHex) || THEME_PRESETS[0];
 
-  const defaultBio = 'Petani mitra terverifikasi Grove yang berdedikasi menghasilkan produk pertanian segar berkualitas premium secara berkelanjutan dari ladang lokal langsung ke meja makan Anda. Berkomitmen menjaga kelestarian alam dan transparansi harga pasar.';
+  const defaultBio = 'Petani mitra terdaftar Grove yang berdedikasi menghasilkan produk pertanian segar berkualitas premium secara berkelanjutan dari ladang lokal langsung ke meja makan Anda. Berkomitmen menjaga kelestarian alam dan transparansi harga pasar.';
   const farmerBio = farmer.bio || defaultBio;
 
   const waMessage = `Halo Pak/Ibu ${farmer.full_name}, saya melihat profil Anda di Grove dan berminat untuk mendiskusikan hasil panen Anda.`;
   const waUrl = farmer.phone_whatsapp ? getWhatsAppUrl(farmer.phone_whatsapp, waMessage) : null;
 
   return (
-    <main className="relative min-h-screen bg-gr-bg pt-6 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+    <main className="relative min-h-screen bg-gr-bg pt-8 pb-24 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
       <BgPattern />
       <FilmGrain />
       <Glow color={themePreset.glow} position="top" className="opacity-12 pointer-events-none scale-105 duration-500" />
 
       <div className="relative z-10 mx-auto max-w-5xl">
-        {/* Back Link & Edit mode switch */}
-        <div className="mb-6 flex justify-between items-center">
+        {/* Back Link & Customize mode toggle button */}
+        <div className="mb-8 flex justify-between items-center">
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40 hover:text-gr-green transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/45 hover:text-gr-text-primary transition-colors"
           >
             ← Kembali ke Beranda
           </Link>
@@ -198,60 +194,61 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           {isOwner && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-white px-3 py-1.5 rounded-full hover:scale-102 active:scale-98 transition-all cursor-pointer shadow-sm"
+              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-white px-4 py-2 rounded-full hover:scale-102 active:scale-98 transition-all cursor-pointer shadow-md hover:shadow-lg"
               style={{ backgroundColor: themeHex }}
             >
-              <Edit3 size={11} /> {isEditing ? 'Batal Edit' : 'Edit Halaman'}
+              <Palette size={11} /> {isEditing ? 'Batal Edit' : 'Personalisasi Profil'}
             </button>
           )}
         </div>
 
-        {/* Dynamic & Creative Farmer Header Info Card */}
-        <div className="bg-[#FAF9F5] border-2 p-6 sm:p-8 rounded-sm shadow-xl mb-8 flex flex-col md:flex-row gap-8 justify-between relative overflow-hidden transition-all duration-300"
-          style={{ borderColor: `${themeHex}20` }}>
+        {/* Revamped Premium Header Card */}
+        <div className="bg-[#FAF9F5] border border-gr-line p-6 sm:p-8 rounded-2xl shadow-md mb-10 flex flex-col md:flex-row gap-8 justify-between items-start relative overflow-hidden transition-all duration-300">
           
-          {/* Subtle themed side bar stripe */}
-          <div className="absolute top-0 left-0 w-1.5 h-full" style={{ backgroundColor: themeHex }} />
+          {/* Subtle themed left indicator line */}
+          <div className="absolute top-0 left-0 bottom-0 w-1.5" style={{ backgroundColor: themeHex }} />
 
-          <div className="flex flex-col sm:flex-row items-start gap-6 min-w-0 flex-1">
-            {/* Polaroid style frame for avatar */}
-            <div className="bg-white p-2.5 pb-4 shadow-md rotate-1 hover:rotate-0 transition-transform duration-300 shrink-0 border border-gr-line/10 rounded-sm">
-              <div className="relative h-24 w-24 bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-3xl font-bold uppercase shadow-inner border border-gr-line/10">
-                {farmer.avatar_url ? (
-                  <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
-                ) : (
-                  <User size={36} className="opacity-30" />
-                )}
-              </div>
-              <div className="mt-2 text-center font-mono text-[7px] text-gr-text-primary/30 font-bold uppercase tracking-widest leading-none">
-                {farmer.full_name.split(' ')[0]}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 min-w-0 flex-1">
+            {/* Themed ring avatar with glowing shadow */}
+            <div className="relative group shrink-0">
+              <div 
+                className="absolute inset-0 rounded-full blur-md opacity-25 transition-opacity duration-300 group-hover:opacity-40" 
+                style={{ backgroundColor: themeHex }} 
+              />
+              <div 
+                className="relative h-24 w-24 rounded-full bg-white p-1 border shadow-md transition-transform duration-500 group-hover:scale-105"
+                style={{ borderColor: themeHex }}
+              >
+                <div className="relative h-full w-full rounded-full bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-3xl font-bold uppercase border border-gr-line/10">
+                  {farmer.avatar_url ? (
+                    <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
+                  ) : (
+                    <User size={36} className="opacity-30" />
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3 min-w-0 flex-1">
+            <div className="space-y-2.5 min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <h1 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-gr-text-primary truncate max-w-[340px]" title={farmer.full_name}>
+                <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-gr-text-primary truncate max-w-[340px]" title={farmer.full_name}>
                   {farmer.full_name}
                 </h1>
-                <span className="inline-flex items-center gap-1 bg-gr-green/10 border border-gr-green/20 text-gr-green text-[9px] uppercase tracking-widest font-mono font-extrabold px-2 py-0.5 rounded-sm shrink-0">
-                  <ShieldCheck size={10} className="stroke-[2.5]" /> Terverifikasi
+                <span className="inline-flex items-center gap-1 bg-gr-green/10 border border-gr-green/20 text-gr-green text-[9px] uppercase tracking-widest font-mono font-extrabold px-2.5 py-1 rounded-full shrink-0">
+                  <ShieldCheck size={10} className="stroke-[2.5]" /> Kontak Terverifikasi
                 </span>
               </div>
 
-              {/* Email display and phone */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-gr-text-primary/60 font-sans text-xs">
-                <span className="flex items-center gap-1.5">
-                  <Mail size={12} className="opacity-60" /> {farmer.email}
-                </span>
-                {farmer.phone_whatsapp && (
-                  <span className="flex items-center gap-1.5">
-                    <MessageSquare size={12} className="opacity-60" /> {farmer.phone_whatsapp}
-                  </span>
-                )}
-              </div>
+              {/* Phone display */}
+              {farmer.phone_whatsapp && (
+                <div className="text-gr-text-primary/60 font-sans text-xs flex items-center gap-1.5 font-medium">
+                  <MessageSquare size={12} className="opacity-55" style={{ color: themeHex }} /> 
+                  <span>WhatsApp: {farmer.phone_whatsapp}</span>
+                </div>
+              )}
 
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-gr-text-primary/50 uppercase">
-                <span className="flex items-center gap-1 font-sans font-medium text-gr-text-primary">
+                <span className="flex items-center gap-1.5 font-sans font-semibold text-gr-text-primary">
                   <MapPin size={12} style={{ color: themeHex }} /> {locationLabel}
                 </span>
                 <span>•</span>
@@ -261,7 +258,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
               {/* Editable or static Bio */}
               {isEditing ? (
                 <div className="space-y-1.5 pt-2">
-                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40 font-bold">
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/45 font-bold">
                     Deskripsi / Bio Petani
                   </label>
                   <textarea
@@ -270,7 +267,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     onChange={(e) => setEditBio(e.target.value)}
                     maxLength={1000}
                     placeholder={defaultBio}
-                    className="w-full bg-white border border-gr-line focus:outline-none focus:ring-1 p-3 font-sans text-xs text-gr-text-primary rounded-sm transition-all shadow-xs"
+                    className="w-full bg-white border border-gr-line focus:outline-none focus:ring-1 p-3 font-sans text-xs text-gr-text-primary rounded-xl transition-all shadow-xs"
                     style={{ borderColor: themeHex }}
                   />
                   <span className="block text-right font-mono text-[8px] text-gr-text-primary/30">
@@ -278,7 +275,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   </span>
                 </div>
               ) : (
-                <p className="font-sans text-xs text-gr-text-primary/60 max-w-xl leading-relaxed mt-2.5 pt-2.5 border-t border-dashed border-gr-line/30">
+                <p className="font-sans text-xs text-gr-text-primary/60 max-w-xl leading-relaxed mt-2.5 pt-2.5 border-t border-dashed border-gr-line/20">
                   {farmerBio}
                 </p>
               )}
@@ -286,13 +283,13 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           </div>
 
           {/* Right Action column */}
-          <div className="flex flex-col gap-4 min-w-[200px] border-t md:border-t-0 border-gr-line/10 pt-5 md:pt-0 justify-between shrink-0">
+          <div className="flex flex-col gap-4 min-w-[210px] border-t md:border-t-0 border-gr-line/10 pt-5 md:pt-0 justify-between shrink-0 self-stretch">
             {/* Customization controls if in editing mode */}
             {isEditing ? (
-              <div className="space-y-4 bg-white/50 border border-gr-line/60 p-4 rounded-sm">
+              <div className="space-y-4 bg-white/70 border border-gr-line/50 p-4 rounded-2xl shadow-xs">
                 <div className="space-y-2">
                   <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/50 font-bold">
-                    <Palette size={10} /> Warna Tema Halaman
+                    <Palette size={10} /> Pilihan Warna Aksen
                   </span>
                   <div className="grid grid-cols-6 gap-1.5">
                     {THEME_PRESETS.map((preset) => (
@@ -301,7 +298,12 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                         type="button"
                         onClick={() => setSelectedTheme(preset.value)}
                         className="h-6 w-6 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
-                        style={{ backgroundColor: preset.value, borderColor: selectedTheme === preset.value ? '#ffffff' : 'transparent', borderWidth: '2px', boxShadow: selectedTheme === preset.value ? `0 0 0 1.5px ${preset.value}` : 'none' }}
+                        style={{ 
+                          backgroundColor: preset.value, 
+                          borderColor: selectedTheme === preset.value ? '#ffffff' : 'transparent', 
+                          borderWidth: '2px', 
+                          boxShadow: selectedTheme === preset.value ? `0 0 0 1.5px ${preset.value}` : 'none' 
+                        }}
                         title={preset.name}
                       >
                         {selectedTheme === preset.value && (
@@ -315,14 +317,14 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 <Button
                   onClick={handleSaveChanges}
                   disabled={savingEdit}
-                  className="w-full text-white font-mono text-[9px] font-bold uppercase tracking-widest py-4.5 rounded-sm shadow-md transition-all flex items-center justify-center gap-1 cursor-pointer"
+                  className="w-full text-white font-mono text-[9px] font-bold uppercase tracking-widest py-4.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
                   style={{ backgroundColor: selectedTheme }}
                 >
                   {savingEdit ? (
                     <Loader2 size={10} className="animate-spin" />
                   ) : (
                     <>
-                      <Check size={10} /> Simpan Perubahan
+                      <Check size={10} /> Simpan
                     </>
                   )}
                 </Button>
@@ -334,21 +336,21 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-3 px-4 rounded-sm shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-3 px-4 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
                     style={{ backgroundColor: themeHex }}
                   >
                     <MessageSquare size={13} /> Hubungi WhatsApp
                   </a>
                 ) : (
-                  <div className="font-mono text-[10px] uppercase text-gr-text-primary/40 text-center py-2 border border-dashed border-gr-line/40 rounded-sm">
+                  <div className="font-mono text-[10px] uppercase text-gr-text-primary/40 text-center py-2 border border-dashed border-gr-line/45 rounded-xl">
                     Kontak Tidak Tersedia
                   </div>
                 )}
 
-                {/* Coordinate Information Details badge */}
+                {/* Coordinates Info Badge */}
                 {farmer.latitude && farmer.longitude && (
-                  <div className="bg-white/40 border border-gr-line/50 p-2.5 rounded-xs font-mono text-[9px] text-gr-text-primary/50 space-y-0.5 text-left">
-                    <span className="block text-[8px] font-bold tracking-widest text-gr-text-primary/30 uppercase">KOORDINAT LOKASI</span>
+                  <div className="bg-white/50 border border-gr-line/40 p-3 rounded-2xl font-mono text-[9px] text-gr-text-primary/50 space-y-0.5 text-left">
+                    <span className="block text-[8px] font-bold tracking-widest text-gr-text-primary/30 uppercase mb-1">KOORDINAT LOKASI</span>
                     <span className="block font-semibold text-gr-text-primary/70">LAT: {farmer.latitude.toFixed(5)}</span>
                     <span className="block font-semibold text-gr-text-primary/70">LNG: {farmer.longitude.toFixed(5)}</span>
                   </div>
@@ -357,20 +359,20 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             )}
 
             {/* Quick stats box */}
-            <div className="grid grid-cols-2 gap-2 text-center mt-auto pt-2">
-              <div className="bg-white/50 border border-gr-line/40 p-2.5 rounded-xs shadow-xs">
-                <span className="block font-mono text-lg font-bold text-gr-text-primary leading-tight">
+            <div className="grid grid-cols-2 gap-2 text-center mt-auto">
+              <div className="bg-white/80 border border-gr-line/40 p-3 rounded-2xl shadow-xs">
+                <span className="block font-mono text-xl font-bold text-gr-text-primary leading-none">
                   {products.length}
                 </span>
-                <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
-                  Produk Aktif
+                <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-1.5 leading-none">
+                  Produk
                 </span>
               </div>
-              <div className="bg-white/50 border border-gr-line/40 p-2.5 rounded-xs shadow-xs">
-                <span className="block font-mono text-lg font-bold text-gr-text-primary leading-tight">
+              <div className="bg-white/80 border border-gr-line/40 p-3 rounded-2xl shadow-xs">
+                <span className="block font-mono text-xl font-bold text-gr-text-primary leading-none">
                   {ratingsCount}
                 </span>
-                <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
+                <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-1.5 leading-none">
                   Ulasan
                 </span>
               </div>
@@ -382,10 +384,10 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         {/* Grid layout for Products and Reviews */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left / Main Section: Listed Products (7/12 width) */}
+          {/* Left: Listed Products (7/12 width) */}
           <section className="lg:col-span-8 space-y-6">
             <div className="flex items-center justify-between border-b border-gr-line pb-3">
-              <h2 className="font-display text-xl font-semibold text-gr-text-primary flex items-center gap-2">
+              <h2 className="font-display text-xl font-bold text-gr-text-primary flex items-center gap-2">
                 <Tag size={18} style={{ color: themeHex }} /> Hasil Panen Tersedia
               </h2>
               <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
@@ -394,7 +396,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             </div>
 
             {products.length === 0 ? (
-              <div className="text-center py-16 bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-sm">
+              <div className="text-center py-16 bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-2xl">
                 <Info className="h-8 w-8 text-gr-text-primary/20 mx-auto mb-2" />
                 <p className="font-sans text-sm text-gr-text-primary/40 italic">
                   Belum ada produk hasil panen yang didaftarkan saat ini.
@@ -414,7 +416,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           {/* Right Section: Commented Reviews (4/12 width) */}
           <section className="lg:col-span-4 space-y-6">
             <div className="flex items-center justify-between border-b border-gr-line pb-3">
-              <h2 className="font-display text-xl font-semibold text-gr-text-primary flex items-center gap-2">
+              <h2 className="font-display text-xl font-bold text-gr-text-primary flex items-center gap-2">
                 <Star size={18} style={{ color: themeHex }} /> Ulasan Pembeli
               </h2>
               <span className="font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/40">
@@ -423,14 +425,14 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             </div>
 
             {ratings.length === 0 ? (
-              <div className="p-5 text-center bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-sm space-y-2">
+              <div className="p-6 text-center bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-2xl space-y-2">
                 <Star className="h-6 w-6 text-gr-text-primary/10 mx-auto" />
                 <p className="font-sans text-xs text-gr-text-primary/40 italic">
                   Belum ada ulasan dari pembeli.
                 </p>
               </div>
             ) : (
-              <div className="space-y-4.5 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar">
+              <div className="space-y-4 max-h-[550px] overflow-y-auto pr-1.5 custom-scrollbar">
                 {ratings.map((review) => {
                   const ratingDate = new Date(review.created_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
@@ -440,11 +442,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   return (
                     <div
                       key={review.id}
-                      className="bg-white/80 border border-gr-line/80 p-4 rounded-sm shadow-xs space-y-2 hover:border-gr-line transition-colors relative"
+                      className="bg-white/60 backdrop-blur-xs border border-gr-line/40 p-4 rounded-2xl shadow-xs space-y-2.5 hover:border-gr-line/80 transition-all duration-300 relative overflow-hidden"
                     >
                       {/* Top: Rater Name & Date */}
                       <div className="flex justify-between items-center gap-2">
-                        <span className="font-sans text-xs font-semibold text-gr-text-primary truncate">
+                        <span className="font-sans text-xs font-bold text-gr-text-primary truncate">
                           {review.rater_name || 'Pembeli Anonim'}
                         </span>
                         <span className="font-mono text-[8px] text-gr-text-primary/30 uppercase shrink-0">
@@ -466,9 +468,9 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                         ))}
                       </div>
 
-                      {/* Bottom: Comment */}
+                      {/* Bottom: Comment (Modern bubble text styling) */}
                       {review.comment ? (
-                        <p className="font-sans text-[11px] text-gr-text-primary/70 leading-relaxed italic bg-gr-bg/10 p-2 rounded-xs">
+                        <p className="font-sans text-[11px] text-gr-text-primary/75 leading-relaxed italic bg-white/40 border border-gr-line/20 p-2.5 rounded-xl">
                           "{review.comment}"
                         </p>
                       ) : (
