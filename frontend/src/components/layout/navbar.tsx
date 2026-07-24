@@ -136,9 +136,12 @@ export function Navbar() {
           <div className="flex items-center gap-2 flex-shrink-0">
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
+                <Link
+                  href={user.role === 'PETANI' ? `/petani/${user.id}` : '/settings'}
+                  className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft hover:text-gr-board hover:underline cursor-pointer"
+                >
                   {getFirstName(user.full_name || user.email) || 'Pengguna'}
-                </span>
+                </Link>
                 <Link
                   href="/settings"
                   className="flex items-center justify-center h-7 w-7 rounded-sm border border-gr-line hover:border-gr-board/40 text-gr-ink-soft hover:text-gr-board transition-all duration-200 cursor-pointer"
@@ -220,9 +223,12 @@ export function Navbar() {
                       Farmer
                     </span>
                   )}
-                  <span className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
+                  <Link
+                    href={user.role === 'PETANI' ? `/petani/${user.id}` : '/settings'}
+                    className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft hover:text-gr-board hover:underline cursor-pointer"
+                  >
                     {getFirstName(user.full_name || user.email) || 'Pengguna'}
-                  </span>
+                  </Link>
                   <Link
                     href="/settings"
                     className="flex items-center justify-center h-8 w-8 border border-gr-line hover:border-gr-board/40 text-gr-ink-soft hover:text-gr-board transition-all duration-200 cursor-pointer"

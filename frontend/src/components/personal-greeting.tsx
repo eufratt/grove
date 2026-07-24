@@ -3,6 +3,39 @@
 import React, { useEffect, useState } from 'react';
 import { authApi } from '@/lib/api/auth';
 
+const ScrambleText: React.FC<{ text: string }> = ({ text }) => {
+  const [displayTxt, setDisplayTxt] = useState('');
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+  useEffect(() => {
+    if (!text) return;
+    let iterations = 0;
+    const interval = setInterval(() => {
+      setDisplayTxt(
+        text
+          .split('')
+          .map((char, index) => {
+            if (char === ' ') return ' ';
+            if (index < iterations) {
+              return text[index];
+            }
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join('')
+      );
+      
+      if (iterations >= text.length) {
+        clearInterval(interval);
+      }
+      iterations += 1/3; // Scramble speed factor
+    }, 25);
+
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <span>{displayTxt || text}</span>;
+};
+
 export function PersonalGreeting() {
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +105,7 @@ export function PersonalGreeting() {
         <h1 className="mt-4 font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
           {user ? (
             <>
-              {greeting}, {firstName}
+              {greeting}, <ScrambleText text={firstName} />
             </>
           ) : (
             `${greeting}.`
