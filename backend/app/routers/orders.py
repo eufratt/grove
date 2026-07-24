@@ -11,38 +11,10 @@ from app.models.product import Product, ProductStatus
 from app.models.order import Order, OrderStatus, CancellationReason, ComplaintReason
 from app.models.rating import Rating, TransactionType
 from app.services import auth_service, connection_manager
-from pydantic import BaseModel
 from datetime import datetime
+from app.schemas.order import OrderCreate, OrderResponse, OrderComplaint
 
 router = APIRouter(prefix="/orders", tags=["orders"])
-
-class OrderCreate(BaseModel):
-    product_id: UUID
-    quantity_kg: float
-
-class OrderResponse(BaseModel):
-    id: UUID
-    product_id: UUID
-    buyer_id: UUID
-    quantity_kg: float
-    status: OrderStatus
-    buyer_confirmed_at: Optional[datetime] = None
-    has_buyer_rated: bool = False
-    created_at: datetime
-    
-    cancellation_reason: Optional[CancellationReason] = None
-    
-    # Joined metadata fields
-    product_name: Optional[str] = None
-    product_photo_url: Optional[str] = None
-    price_per_kg: Optional[float] = None
-    buyer_name: Optional[str] = None
-    buyer_phone: Optional[str] = None
-    seller_name: Optional[str] = None
-    seller_phone: Optional[str] = None
-    
-    class Config:
-        from_attributes = True
 
 async def get_full_order_response(db: AsyncSession, order_id: UUID) -> OrderResponse:
     BuyerUser = aliased(User, name="buyer")
@@ -377,9 +349,6 @@ async def list_my_purchases(
         ))
     return orders_data
 
-class OrderComplaint(BaseModel):
-    reason: ComplaintReason
-    description: str
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
 async def update_order_status(
