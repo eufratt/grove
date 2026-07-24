@@ -6,7 +6,8 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 
 from app.db import get_db
-from app.schemas.auth import UserResponse, GoogleLoginRequest, CompleteProfileRequest
+from app.schemas.auth import GoogleLoginRequest
+from app.schemas.user import UserResponse, CompleteProfileRequest
 from app.models.user import User, UserRole
 from app.models.token import RefreshToken
 from app.services import auth_service

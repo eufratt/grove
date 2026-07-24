@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import WKTElement
 
 from app.db import get_db
-from app.schemas.auth import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest, UpdateProfileRequest
+from app.schemas.user import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest, UpdateProfileRequest
 from app.models.user import User, UserRole
 from app.services import auth_service
 from app.services.auth_service import validate_indonesian_phone
