@@ -24,7 +24,7 @@ if not DATABASE_URL:
     sys.exit(1)
 
 # Configure async engine and sessionmaker
-engine = create_async_engine(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL, connect_args={"statement_cache_size": 0})
 AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 async def scrape_from_url(page, url: str) -> list[dict]:
@@ -178,6 +178,81 @@ async def scrape_data() -> list[dict]:
             print(f"Error scraping producer market: {e}")
             await browser.close()
             raise e
+PARENT_CHILD_MAP = {
+    "Beras": [
+        "Beras Kualitas Bawah I",
+        "Beras Kualitas Bawah II",
+        "Beras Kualitas Medium I",
+        "Beras Kualitas Medium II",
+        "Beras Kualitas Super I",
+        "Beras Kualitas Super II"
+    ],
+    "Bawang Merah": [
+        "Bawang Merah Ukuran Sedang"
+    ],
+    "Bawang Putih": [
+        "Bawang Putih Ukuran Sedang"
+    ],
+    "Cabai Merah": [
+        "Cabai Merah Keriting",
+        "Cabai Merah Besar"
+    ],
+    "Cabai Rawit": [
+        "Cabai Rawit Merah",
+        "Cabai Rawit Hijau"
+    ],
+    "Daging Ayam": [
+        "Daging Ayam Ras Segar"
+    ],
+    "Telur Ayam": [
+        "Telur Ayam Ras Segar"
+    ],
+    "Daging Sapi": [
+        "Daging Sapi Kualitas 1",
+        "Daging Sapi Kualitas 2"
+    ],
+    "Minyak Goreng": [
+        "Minyak Goreng Curah",
+        "Minyak Goreng Kemasan Bermerk 1",
+        "Minyak Goreng Kemasan Bermerk 2"
+    ],
+    "Gula Pasir": [
+        "Gula Pasir Lokal",
+        "Gula Pasir Kualitas Premium"
+    ]
+}
+
+def calculate_parent_averages(data: list[dict]) -> list[dict]:
+    from collections import defaultdict
+    # Group existing records by (region, scraped_at)
+    grouped = defaultdict(list)
+    for item in data:
+        grouped[(item["region"], item["scraped_at"])].append(item)
+        
+    calculated_data = []
+    
+    for (region, scraped_at), items in grouped.items():
+        present_comms = {item["commodity_name"]: item for item in items}
+        
+        for parent, children in PARENT_CHILD_MAP.items():
+            if parent not in present_comms:
+                child_prices = []
+                for child in children:
+                    if child in present_comms:
+                        child_prices.append(present_comms[child]["price_per_kg"])
+                
+                if child_prices:
+                    avg_price = sum(child_prices) / len(child_prices)
+                    avg_price = round(avg_price / 100.0) * 100.0
+                    calculated_data.append({
+                        "commodity_name": parent,
+                        "price_per_kg": float(avg_price),
+                        "source": "PIHPS BI (Calculated Average)",
+                        "region": region,
+                        "scraped_at": scraped_at
+                    })
+                    
+    return calculated_data
 
 async def main():
     start_time = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -190,6 +265,10 @@ async def main():
         items_scraped = len(data)
         
         if items_scraped > 0:
+            parent_averages = calculate_parent_averages(data)
+            data.extend(parent_averages)
+            items_scraped = len(data)
+            
             async with AsyncSessionLocal() as db:
                 print("Deleting old reference prices...")
                 await db.execute(text("DELETE FROM reference_prices;"))
