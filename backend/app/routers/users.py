@@ -66,6 +66,14 @@ async def update_profile(
     if profile_data.theme_color is not None:
         current_user.theme_color = profile_data.theme_color
 
+    if profile_data.full_name is not None:
+        if not profile_data.full_name.strip():
+            raise HTTPException(status_code=400, detail="Nama lengkap tidak boleh kosong")
+        current_user.full_name = profile_data.full_name.strip()
+
+    if profile_data.avatar_url is not None:
+        current_user.avatar_url = profile_data.avatar_url.strip() or None
+
     await db.commit()
     await db.refresh(current_user)
     return current_user

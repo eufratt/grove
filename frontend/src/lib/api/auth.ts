@@ -21,7 +21,14 @@ export const authApi = {
     return response.json();
   },
 
-  updateProfile: async (data: { phone_whatsapp?: string | null; phone_number?: string | null; bio?: string | null; theme_color?: string | null }) => {
+  updateProfile: async (data: { 
+    phone_whatsapp?: string | null; 
+    phone_number?: string | null; 
+    bio?: string | null; 
+    theme_color?: string | null;
+    full_name?: string | null;
+    avatar_url?: string | null;
+  }) => {
     const response = await apiClient('/users/me', {
       method: 'PATCH',
       body: JSON.stringify(data),

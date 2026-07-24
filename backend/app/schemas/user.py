@@ -35,6 +35,9 @@ class UpdateProfileRequest(BaseModel):
     phone_number: Optional[str] = None
     bio: Optional[str] = None
     theme_color: Optional[str] = None
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
 
 class UpgradeToFarmerRequest(BaseModel):
     phone_whatsapp: str
