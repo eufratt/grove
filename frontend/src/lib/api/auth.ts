@@ -69,6 +69,16 @@ export const authApi = {
     return response.json();
   },
 
+  getFarmers: async (query?: string) => {
+    const url = query 
+      ? `/users?role=PETANI&q=${encodeURIComponent(query)}` 
+      : '/users?role=PETANI';
+    const response = await apiClient(url, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
   logout: async () => {
     const response = await apiClient('/auth/logout', {
       method: 'POST',
@@ -76,3 +86,4 @@ export const authApi = {
     return response.json();
   },
 };
+

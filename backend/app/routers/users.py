@@ -82,3 +82,19 @@ async def get_user_by_id(
         raise HTTPException(status_code=404, detail="User tidak ditemukan")
     return user
 
+@router.get("", response_model=list[UserResponse])
+async def list_users(
+    role: UserRole = None,
+    q: str = None,
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(User)
+    if role:
+        stmt = stmt.where(User.role == role)
+    if q:
+        stmt = stmt.where(User.full_name.ilike(f"%{q}%"))
+    res = await db.execute(stmt)
+    users = res.scalars().all()
+    return users
+
+

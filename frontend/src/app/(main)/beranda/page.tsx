@@ -3,16 +3,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { productsApi } from '@/lib/api/products';
 import { authApi } from '@/lib/api/auth';
+import { searchApi as semanticSearchApi } from '@/lib/api/search';
 import { ProductCard } from '@/components/products/product-card';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { SearchBar } from '@/components/search/search-bar';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, MapPin, User } from 'lucide-react';
 import { PersonalGreeting } from '@/components/personal-greeting';
+import { SellerRatingBadge } from '@/components/ratings/seller-rating-badge';
+import { provinceCentroids } from '@/lib/data/province-centroids';
 import Link from 'next/link';
-
-
 
 function BerandaContent() {
   const [products, setProducts] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -23,6 +24,10 @@ function BerandaContent() {
   const [locationError, setLocationError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [user, setUser] = useState<any | null>(null); // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 
+  // Search details states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [matchingFarmers, setMatchingFarmers] = useState<any[]>([]);
+
   // Pagination states
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -32,6 +37,19 @@ function BerandaContent() {
   const totalPages = Math.ceil(totalCount / LIMIT);
   const hasMore = page < totalPages;
   const hasPrev = page > 1;
+
+  const getClosestProvince = (latitude: number, longitude: number) => {
+    let closestProv = 'Di Yogyakarta';
+    let minDist = Infinity;
+    Object.entries(provinceCentroids).forEach(([provName, coords]) => {
+      const dist = Math.sqrt((coords.lat - latitude) ** 2 + (coords.lng - longitude) ** 2);
+      if (dist < minDist) {
+        minDist = dist;
+        closestProv = provName;
+      }
+    });
+    return closestProv;
+  };
 
   const getPageNumbers = () => {
     const pages = [];
@@ -109,13 +127,43 @@ function BerandaContent() {
     requestLocation();
   }, [fetchProducts]);
 
-  const handleSearchResults = useCallback((results: any[]) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+  const handleSearchResults = useCallback(async (results: any[], query: string) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     setIsSearchActive(true);
+    setSearchQuery(query);
     setProducts(results);
+    try {
+      const farmersData = await authApi.getFarmers(query);
+      setMatchingFarmers(farmersData);
+    } catch (error) {
+      console.error('Failed to fetch matching farmers:', error);
+      setMatchingFarmers([]);
+    }
+  }, []);
+
+  const handleSearchFarmers = useCallback(async (query: string) => {
+    setIsSearchActive(true);
+    setSearchQuery(query);
+    setIsSearching(true);
+    try {
+      const [farmersData, productsData] = await Promise.all([
+        authApi.getFarmers(query),
+        semanticSearchApi.semanticSearch(query).catch(() => [])
+      ]);
+      setMatchingFarmers(farmersData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Failed to search farmers/products:', error);
+      setMatchingFarmers([]);
+      setProducts([]);
+    } finally {
+      setIsSearching(false);
+    }
   }, []);
 
   const handleClearSearch = useCallback(() => {
     setIsSearchActive(false);
+    setSearchQuery('');
+    setMatchingFarmers([]);
     setProducts(pageProducts);
   }, [pageProducts]);
 
@@ -125,7 +173,7 @@ function BerandaContent() {
       <FilmGrain />
       <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
       
-      <div className="relative z-10 w-full">
+      <div className="relative z-10 w-full font-sans">
         <header className="mb-8 text-center lg:text-left">
           <PersonalGreeting />
           
@@ -134,6 +182,7 @@ function BerandaContent() {
               onResults={handleSearchResults} 
               onLoading={setIsSearching} 
               onClear={handleClearSearch} 
+              onSearchFarmers={handleSearchFarmers}
             />
             <div className="flex justify-start px-2">
               <Link 
@@ -155,13 +204,81 @@ function BerandaContent() {
               {isSearching ? 'Mencari hasil terdekat...' : 'Memuat produk...'}
             </span>
           </div>
-        ) : products.length > 0 ? (
+        ) : (products.length > 0 || matchingFarmers.length > 0) ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-              {products.map((product: any, index: number) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
+            {/* Store search results banner/matching farmers display */}
+            {isSearchActive && matchingFarmers.length > 0 && (
+              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-2xl shadow-2xs">
+                <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-3.5 font-bold">
+                  <span>Petani berkaitan dengan "{searchQuery}"</span>
+                </div>
+                <div className="space-y-3.5">
+                  {matchingFarmers.slice(0, 3).map((farmer) => (
+                    <div 
+                      key={farmer.id} 
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white/60 backdrop-blur-xs border border-gr-line/60 rounded-xl hover:border-gr-line transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Avatar */}
+                        <div 
+                          className="relative h-11 w-11 rounded-full bg-white p-0.5 border shadow-xs shrink-0"
+                          style={{ borderColor: farmer.theme_color || '#1b4332' }}
+                        >
+                          <div className="h-full w-full rounded-full bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase border border-gr-line/10">
+                            {farmer.avatar_url ? (
+                              <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
+                            ) : (
+                              <User size={16} className="opacity-30" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Name & Details */}
+                        <div>
+                          <h3 className="font-display text-sm font-bold text-gr-text-primary">
+                            {farmer.full_name}
+                          </h3>
+                          <div className="flex items-center gap-2 font-mono text-[9px] text-gr-text-primary/50 uppercase mt-0.5 flex-wrap">
+                            <span className="flex items-center gap-0.5 font-sans font-semibold text-gr-text-primary">
+                              <MapPin size={10} style={{ color: farmer.theme_color || '#1b4332' }} /> 
+                              {farmer.latitude && farmer.longitude ? getClosestProvince(farmer.latitude, farmer.longitude) : 'Nasional'}
+                            </span>
+                            <span>•</span>
+                            <SellerRatingBadge avgRating={farmer.seller_rating_avg || 0} ratingCount={farmer.seller_rating_count || 0} size="sm" showCount={true} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action button */}
+                      <div className="shrink-0">
+                        <Link
+                          href={`/petani/${farmer.id}`}
+                          className="inline-flex items-center gap-1.5 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2 px-4 rounded-xl shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
+                          style={{ backgroundColor: farmer.theme_color || '#1b4332' }}
+                        >
+                          Kunjungi Toko
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Products listings */}
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                {products.map((product: any, index: number) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
+                  <ProductCard key={product.id} product={product} index={index} />
+                ))}
+              </div>
+            ) : isSearchActive && (
+              <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-gr-line/40 rounded-2xl bg-white/20">
+                <p className="font-sans text-sm text-gr-text-primary/45 italic">
+                  Tidak ada produk hasil panen yang cocok dengan pencarian Anda dari petani ini.
+                </p>
+              </div>
+            )}
 
             {!isSearchActive && totalPages > 1 && (
               <div className="mt-12 flex flex-wrap justify-center items-center gap-4">

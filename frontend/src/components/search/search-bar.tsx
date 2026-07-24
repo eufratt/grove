@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, Loader2, X } from 'lucide-react';
+import { Search, Loader2, X, Store } from 'lucide-react';
 import { searchApi as semanticSearchApi } from '@/lib/api/search';
 
 interface SearchBarProps {
-  onResults: (results: unknown[]) => void;
+  onResults: (results: any[], query: string) => void;
   onLoading: (isLoading: boolean) => void;
   onClear: () => void;
+  onSearchFarmers?: (query: string) => void;
   className?: string;
   placeholder?: string;
 }
@@ -16,13 +17,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onResults, 
   onLoading, 
   onClear,
+  onSearchFarmers,
   className = '',
   placeholder = "Cari hasil panen... (misal: 'sayur segar')"
 }) => {
   const [query, setQuery] = useState('');
   const [loadingInternal, setLoadingInternal] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const isFirstRender = useRef(true);
   const prevQuery = useRef('');
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -34,10 +38,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     onLoading(true);
     try {
       const results = await semanticSearchApi.semanticSearch(searchQuery);
-      onResults(results);
+      onResults(results, searchQuery);
     } catch (error) {
       console.error('Semantic search failed:', error);
-      onResults([]);
+      onResults([], searchQuery);
     } finally {
       setLoadingInternal(false);
       onLoading(false);
@@ -67,8 +71,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [query, handleSearch, onClear]);
 
+  // Handle clicking outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className={`relative w-full max-w-md ${className}`}>
+    <div ref={containerRef} className={`relative w-full max-w-md ${className}`}>
       <div className="relative group flex items-center">
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
           <Search className="h-4 w-4 text-gr-ink-soft group-focus-within:text-gr-board transition-colors" />
@@ -79,6 +94,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch(query);
+              setIsFocused(false);
+            }
+          }}
         />
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center z-10">
           {loadingInternal ? (
@@ -98,6 +120,41 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           ) : null}
         </div>
       </div>
+
+      {/* Autocomplete Suggestion Dropdown */}
+      {isFocused && query.trim() && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gr-line rounded-2xl shadow-md z-50 overflow-hidden font-sans text-xs text-gr-ink animate-in fade-in slide-in-from-top-1 duration-200">
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault(); // Prevent input blur from firing before action
+              if (onSearchFarmers) {
+                onSearchFarmers(query);
+              }
+              setIsFocused(false);
+            }}
+            className="w-full text-left px-4 py-3.5 hover:bg-gr-ink/5 flex items-center gap-2.5 border-b border-gr-line/50 transition-colors font-semibold"
+          >
+            <Store className="h-4 w-4 text-gr-board" />
+            <span>Cari Petani "{query}"</span>
+          </button>
+          <div className="px-4 py-2 bg-gr-paper/30 font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft">
+            Saran Pencarian Produk
+          </div>
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleSearch(query);
+              setIsFocused(false);
+            }}
+            className="w-full text-left px-4 py-3 hover:bg-gr-ink/5 flex items-center gap-2.5 transition-colors"
+          >
+            <Search className="h-3.5 w-3.5 text-gr-ink-soft" />
+            <span>{query.toLowerCase()}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
