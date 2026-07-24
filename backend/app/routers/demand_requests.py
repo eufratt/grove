@@ -765,3 +765,27 @@ async def dispute_demand(
     )
     return {"status": "success"}
 
+
+@router.post("/{id}/disburse")
+async def disburse_demand_escrow(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Manually triggers/retries the Xendit disbursement payout for the farmer.
+    """
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    res = await db.execute(stmt)
+    dt = res.scalar_one_or_none()
+    if not dt:
+        raise HTTPException(status_code=404, detail="Transaksi tidak ditemukan")
+
+    await escrow_service.trigger_disbursement(
+        db=db,
+        source_type="permintaan",
+        source_id=dt.id,
+        user_id=current_user.id
+    )
+    return {"status": "success"}
+

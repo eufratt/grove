@@ -74,6 +74,15 @@ async def update_profile(
     if profile_data.avatar_url is not None:
         current_user.avatar_url = profile_data.avatar_url.strip() or None
 
+    if profile_data.bank_name is not None:
+        current_user.bank_name = profile_data.bank_name.strip() or None
+
+    if profile_data.bank_account_number is not None:
+        current_user.bank_account_number = profile_data.bank_account_number.strip() or None
+
+    if profile_data.bank_account_holder is not None:
+        current_user.bank_account_holder = profile_data.bank_account_holder.strip() or None
+
     await db.commit()
     await db.refresh(current_user)
     return current_user

@@ -535,3 +535,21 @@ async def dispute_order(
     return await get_full_order_response(db, order_id)
 
 
+@router.post("/{order_id}/disburse", response_model=OrderResponse)
+async def disburse_order_escrow(
+    order_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Manually triggers/retries the Xendit disbursement payout for the farmer.
+    """
+    await escrow_service.trigger_disbursement(
+        db=db,
+        source_type="pesanan",
+        source_id=order_id,
+        user_id=current_user.id
+    )
+    return await get_full_order_response(db, order_id)
+
+

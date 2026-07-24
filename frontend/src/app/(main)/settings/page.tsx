@@ -38,6 +38,9 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [bankAccountHolder, setBankAccountHolder] = useState('');
 
   // Location States
   const [lat, setLat] = useState<number | null>(null);
@@ -81,6 +84,9 @@ export default function SettingsPage() {
         setPhone(userData.phone_whatsapp || '');
         setAvatarUrl(userData.avatar_url || '');
         setBio(userData.bio || '');
+        setBankName(userData.bank_name || '');
+        setBankAccountNumber(userData.bank_account_number || '');
+        setBankAccountHolder(userData.bank_account_holder || '');
         setLat(userData.latitude || null);
         setLng(userData.longitude || null);
         
@@ -192,7 +198,10 @@ export default function SettingsPage() {
         full_name: fullName.trim(),
         phone_whatsapp: phone || null,
         avatar_url: avatarUrl.trim() || null,
-        bio: bio.trim() || null
+        bio: bio.trim() || null,
+        bank_name: bankName.trim() || null,
+        bank_account_number: bankAccountNumber.trim() || null,
+        bank_account_holder: bankAccountHolder.trim() || null
       });
       setUser(updatedUser);
       setSuccess('Profil berhasil diperbarui!');
@@ -448,8 +457,68 @@ export default function SettingsPage() {
                           onChange={(e) => setBio(e.target.value)}
                         />
                         <div className="flex justify-between items-center mt-1 font-mono text-[8px] text-gr-ink-soft/50">
-                          <span>Karakter maksimal: 1000</span>
+                          <span>maksimal 1000 karakter</span>
                           <span>{bio.length}/1000</span>
+                        </div>
+                      </div>
+
+                      {/* Bank Details */}
+                      <div className="border-t border-gr-line/40 pt-6 space-y-4">
+                        <h4 className="font-display text-sm font-semibold text-gr-ink uppercase tracking-wider">
+                          Rekening Bank (Penerimaan Dana Escrow)
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="bank-name" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                              Nama Bank
+                            </label>
+                            <select
+                              id="bank-name"
+                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                              value={bankName}
+                              onChange={(e) => setBankName(e.target.value)}
+                            >
+                              <option value="">Pilih Bank</option>
+                              <option value="MANDIRI">Bank Mandiri</option>
+                              <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
+                              <option value="BCA">Bank Central Asia (BCA)</option>
+                              <option value="BNI">Bank Negara Indonesia (BNI)</option>
+                              <option value="CIMB">CIMB Niaga</option>
+                              <option value="PERMATA">Bank Permata</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label htmlFor="bank-acc-holder" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                              Nama Pemilik Rekening
+                            </label>
+                            <input
+                              id="bank-acc-holder"
+                              type="text"
+                              placeholder="Nama sesuai buku tabungan"
+                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                              value={bankAccountHolder}
+                              onChange={(e) => setBankAccountHolder(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label htmlFor="bank-acc-number" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                            Nomor Rekening
+                          </label>
+                          <input
+                            id="bank-acc-number"
+                            type="text"
+                            placeholder="Contoh: 1234567890"
+                            className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                            value={bankAccountNumber}
+                            onChange={(e) => setBankAccountNumber(e.target.value)}
+                          />
+                          <span className="block font-mono text-[8px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
+                            Pencairan dana otomatis dari Xendit akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
+                          </span>
                         </div>
                       </div>
                     )}
