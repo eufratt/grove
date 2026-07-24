@@ -20,6 +20,9 @@ class UserResponse(BaseModel):
     created_at: datetime
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_account_holder: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -37,6 +40,9 @@ class UpdateProfileRequest(BaseModel):
     theme_color: Optional[str] = None
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
+    bank_name: Optional[str] = None
+    bank_account_number: Optional[str] = None
+    bank_account_holder: Optional[str] = None
 
 
 class UpgradeToFarmerRequest(BaseModel):

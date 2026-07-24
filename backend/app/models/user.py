@@ -46,6 +46,10 @@ class User(Base):
         nullable=True
     )
     
+    bank_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    bank_account_number: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    bank_account_holder: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     latitude = column_property(func.ST_Y(location))

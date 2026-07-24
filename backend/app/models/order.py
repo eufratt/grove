@@ -94,3 +94,6 @@ class Order(Base):
     paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     confirmed_received_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     released_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    disbursement_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    disbursement_status: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    disbursed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
