@@ -285,7 +285,7 @@ export function Sparkline({ history, color }: { history: { price_per_kg: number 
 }
 
 interface FigPanelsProps {
-  pricesData?: {
+  pricesData: {
     commodityName: string;
     priceToday: number;
     priceComparison: number;
@@ -304,7 +304,7 @@ interface FigPanelsProps {
   }[];
 }
 
-const defaultFigPanelsData = [
+const defaultFigPanelsData: FigPanelsProps['pricesData'] = [
   {
     commodityName: 'Cabai rawit merah',
     priceToday: 42500,
@@ -364,8 +364,8 @@ const defaultFigPanelsData = [
   }
 ];
 
-export function FigPanels({ pricesData }: FigPanelsProps) {
-  const panelsData = pricesData && pricesData.length > 0 ? pricesData : defaultFigPanelsData;
+export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps) {
+  const panelsData: FigPanelsProps['pricesData'] = (pricesData?.length ? pricesData : defaultFigPanelsData);
 
   return (
     <section className="w-full max-w-[1100px] mx-auto px-8 pb-16 relative z-40 select-none">
@@ -382,7 +382,7 @@ export function FigPanels({ pricesData }: FigPanelsProps) {
 
       {/* Grid Panels */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-        {panelsData.map((panel, idx) => {
+        {panelsData!.map((panel, idx) => {
           // Dynamic calculation of color and delta display
           const isUp = panel.delta > 0;
           const isDown = panel.delta < 0;
