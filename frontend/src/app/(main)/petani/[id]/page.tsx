@@ -55,6 +55,10 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   const [selectedTheme, setSelectedTheme] = useState('#1b4332');
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 6;
+
   const getClosestProvince = (latitude: number, longitude: number) => {
     let closestProv = 'Di Yogyakarta';
     let minDist = Infinity;
@@ -111,6 +115,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   useEffect(() => {
     fetchFarmerData();
   }, [id]);
+
+  // Reset page to 1 when products change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [products.length]);
 
   const handleSaveChanges = async () => {
     setSavingEdit(true);
@@ -174,6 +183,21 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
   const waMessage = `Halo Pak/Ibu ${farmer.full_name}, saya melihat profil Anda di Grove dan berminat untuk mendiskusikan hasil panen Anda.`;
   const waUrl = farmer.phone_whatsapp ? getWhatsAppUrl(farmer.phone_whatsapp, waMessage) : null;
+
+  // Pagination calculation
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(products.length / productsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    // Smooth scroll to top of products list on mobile/tablet
+    const el = document.getElementById('available-harvest');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <main className="relative min-h-screen bg-gr-bg pt-6 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
@@ -267,7 +291,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT COLUMN: Available Products (9/12 width) - Wider grid for 3 columns */}
-          <section className="lg:col-span-9 space-y-6">
+          <section id="available-harvest" className="lg:col-span-9 space-y-6 scroll-mt-6">
             <div className="flex items-center justify-between border-b border-gr-line pb-3">
               <h2 className="font-display text-lg font-bold text-gr-text-primary flex items-center gap-2">
                 <Tag size={16} style={{ color: themeHex }} /> Hasil Panen Tersedia
@@ -285,12 +309,37 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {products.map((product, idx) => (
-                  <div key={product.id} className="h-full">
-                    <ProductCard product={product} index={idx} />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {currentProducts.map((product, idx) => (
+                    <div key={product.id} className="h-full">
+                      <ProductCard product={product} index={idx} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex justify-between items-center pt-4 border-t border-gr-line/30 font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/50">
+                    <button
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1.5 border border-gr-line/80 rounded-xl hover:bg-[#FAF9F5] transition-all hover:text-gr-text-primary disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-gr-text-primary/50 cursor-pointer disabled:cursor-not-allowed font-sans font-bold"
+                    >
+                      Sebelumnya
+                    </button>
+                    <span>
+                      Halaman {currentPage} dari {totalPages}
+                    </span>
+                    <button
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1.5 border border-gr-line/80 rounded-xl hover:bg-[#FAF9F5] transition-all hover:text-gr-text-primary disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-gr-text-primary/50 cursor-pointer disabled:cursor-not-allowed font-sans font-bold"
+                    >
+                      Selanjutnya
+                    </button>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </section>
