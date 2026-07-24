@@ -48,6 +48,12 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [submittingCommit, setSubmittingCommit] = useState(false);
   const [commitSuccess, setCommitSuccess] = useState(false);
 
+  // Escrow & Matching states
+  const [matching, setMatching] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [confirmingReceived, setConfirmingReceived] = useState(false);
+  const [disputing, setDisputing] = useState(false);
+
   // User location & Reference price states
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -190,6 +196,71 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       setError(err.message || 'Gagal mengirimkan komitmen supply');
     } finally {
       setSubmittingCommit(false);
+    }
+  };
+
+  const handleMatch = async () => {
+    try {
+      setMatching(true);
+      setError('');
+      await demandRequestsApi.matchDemandRequest(id);
+      const updatedData = await demandRequestsApi.getDemandRequestById(id);
+      setRequest(updatedData);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal mencari pencocokan petani yang sesuai');
+    } finally {
+      setMatching(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      setCheckingOut(true);
+      setError('');
+      const successUrl = `${window.location.origin}/permintaan/${id}?status=success`;
+      const failureUrl = `${window.location.origin}/permintaan/${id}?status=failed`;
+      const res = await demandRequestsApi.checkoutDemand(id, successUrl, failureUrl);
+      if (res.invoice_url) {
+        window.location.href = res.invoice_url;
+      } else {
+        setError('Gagal membuat URL pembayaran Xendit');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal memulai checkout pembayaran');
+    } finally {
+      setCheckingOut(false);
+    }
+  };
+
+  const handleConfirmReceived = async () => {
+    try {
+      setConfirmingReceived(true);
+      setError('');
+      await demandRequestsApi.confirmDemandReceived(id);
+      const updatedData = await demandRequestsApi.getDemandRequestById(id);
+      setRequest(updatedData);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal mengonfirmasi penerimaan barang');
+    } finally {
+      setConfirmingReceived(false);
+    }
+  };
+
+  const handleDispute = async () => {
+    try {
+      setDisputing(true);
+      setError('');
+      await demandRequestsApi.disputeDemand(id);
+      const updatedData = await demandRequestsApi.getDemandRequestById(id);
+      setRequest(updatedData);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal melaporkan sengketa');
+    } finally {
+      setDisputing(false);
     }
   };
 
@@ -410,6 +481,156 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
           {/* Right Column: Commit actions for Farmers & Commitments log (1/3 width) */}
           <div className="space-y-6">
+            {/* Buyer Match & Escrow Panel */}
+            {user && user.role === 'PEMBELI' && request.buyer_id === user.id && (
+              <>
+                {/* Case 1: Already matched */}
+                {request.match_transaction ? (
+                  <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                    <div>
+                      <span className="bg-gr-up/10 border border-gr-up/20 px-2 py-0.5 font-mono text-[9px] uppercase font-bold tracking-wider text-gr-up rounded-xs inline-block mb-2">
+                        Telah Dicocokkan
+                      </span>
+                      <h3 className="font-display text-xl font-semibold text-gr-ink">
+                        Pencocokan Escrow
+                      </h3>
+                      <p className="font-sans text-[11px] text-gr-ink-soft mt-1 leading-relaxed">
+                        Permintaan Anda berhasil dicocokkan dengan produk petani.
+                      </p>
+                    </div>
+
+                    <div className="border-t border-gr-line/60 pt-3 space-y-2 text-xs font-sans">
+                      <div className="flex justify-between">
+                        <span className="text-gr-ink-soft">Petani:</span>
+                        <span className="text-gr-ink font-semibold">{request.match_transaction.seller_name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gr-ink-soft">Jumlah KG:</span>
+                        <span className="text-gr-ink font-mono font-bold">{request.match_transaction.quantity_kg} KG</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gr-ink-soft">Harga per KG:</span>
+                        <span className="text-gr-ink font-mono">Rp {request.match_transaction.price_per_kg.toLocaleString('id-ID')}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-gr-line pt-2 font-bold text-sm">
+                        <span className="text-gr-ink-soft">Total Pembayaran:</span>
+                        <span className="text-gr-up font-mono">Rp {request.match_transaction.amount.toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gr-line/60 pt-3 space-y-2 text-xs font-sans">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gr-ink-soft">Status Pembayaran:</span>
+                        <span className={cn(
+                          "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs",
+                          request.match_transaction.payment_status === 'paid' ? "bg-gr-up/10 text-gr-up border border-gr-up/20" : "bg-gr-board/10 text-gr-board border border-gr-board/20"
+                        )}>
+                          {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : request.match_transaction.payment_status?.toUpperCase() || 'PENDING'}
+                        </span>
+                      </div>
+
+                      {request.match_transaction.escrow_status && request.match_transaction.escrow_status !== 'not_started' && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gr-ink-soft">Status Escrow:</span>
+                          <span className={cn(
+                            "font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded-xs",
+                            request.match_transaction.escrow_status === 'held' && "bg-amber-500/10 text-amber-600 border border-amber-500/20",
+                            request.match_transaction.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border border-gr-up/20",
+                            request.match_transaction.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border border-gr-down/20"
+                          )}>
+                            {request.match_transaction.escrow_status === 'held' && 'DANA DITAHAN'}
+                            {request.match_transaction.escrow_status === 'released' && 'DANA DICAIRKAN'}
+                            {request.match_transaction.escrow_status === 'disputed' && 'SENGKETA'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 space-y-3">
+                      {request.match_transaction.payment_status !== 'paid' && (
+                        <Button
+                          disabled={checkingOut}
+                          onClick={handleCheckout}
+                          className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-2"
+                        >
+                          {checkingOut ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Memproses...
+                            </>
+                          ) : (
+                            'Bayar Sekarang (Xendit)'
+                          )}
+                        </Button>
+                      )}
+
+                      {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'held' && (
+                        <div className="space-y-2">
+                          <Button
+                            disabled={confirmingReceived}
+                            onClick={handleConfirmReceived}
+                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md"
+                          >
+                            {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                          </Button>
+                          <Button
+                            disabled={disputing}
+                            variant="ghost"
+                            onClick={handleDispute}
+                            className="w-full border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all cursor-pointer"
+                          >
+                            {disputing ? 'Memproses...' : 'Laporkan Masalah (Dispute)'}
+                          </Button>
+                        </div>
+                      )}
+
+                      {request.match_transaction.seller_phone && (
+                        <a
+                          href={getWhatsAppUrl(
+                            request.match_transaction.seller_phone,
+                            `Halo ${request.match_transaction.seller_name}, saya adalah pembeli yang dicocokkan dengan hasil panen Anda (Request ID: ${request.id.slice(0, 8)}).`
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-gr-line hover:border-gr-ink bg-white/40 hover:bg-white/60 font-mono text-xs font-bold uppercase tracking-wider text-gr-ink transition-all shadow-xs cursor-pointer"
+                        >
+                          Hubungi Penjual (WhatsApp)
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Case 2: Not matched yet */
+                  request.status === 'TERBUKA' && (
+                    <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                      <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
+                        <Users size={18} className="text-gr-board" />
+                        Cari Pencocokan
+                      </h3>
+                      <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
+                        Sistem kami dapat mencocokkan kebutuhan panen Anda secara otomatis dengan produk petani yang terdaftar di marketplace.
+                      </p>
+
+                      <Button
+                        disabled={matching}
+                        onClick={handleMatch}
+                        className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-2"
+                      >
+                        {matching ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Mencari Kecocokan...
+                          </>
+                        ) : (
+                          'Cocokkan dengan Petani'
+                        )}
+                      </Button>
+                    </div>
+                  )
+                )}
+              </>
+            )}
+
             {/* Farmer Commitment Action Panel */}
             {user && user.role === 'PETANI' && request.status === 'TERBUKA' && (
               <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group">

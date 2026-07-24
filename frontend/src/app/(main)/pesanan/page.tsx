@@ -331,8 +331,12 @@ function OrderCard({
   const [buyerConfirmedAt, setBuyerConfirmedAt] = useState<string | null>(order.buyer_confirmed_at);
   const [hasBuyerRated, setHasBuyerRated] = useState<boolean>(order.has_buyer_rated);
   
-  const liveStatus = useOrderSocket(order.id);
+  const liveData = useOrderSocket(order.id);
+  const liveStatus = liveData.status;
   const currentStatus = liveStatus || order.status;
+  const currentPaymentStatus = liveData.payment_status || order.payment_status;
+  const currentEscrowStatus = liveData.escrow_status || order.escrow_status;
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleConfirmSuccess = async () => {
     try {
@@ -344,6 +348,50 @@ function OrderCard({
       console.error('Failed to confirm success:', err);
     } finally {
       setIsConfirming(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      setIsCheckingOut(true);
+      const successUrl = `${window.location.origin}/pesanan?status=success`;
+      const failureUrl = `${window.location.origin}/pesanan?status=failed`;
+      const res = await ordersApi.checkoutOrder(order.id, successUrl, failureUrl);
+      if (res.invoice_url) {
+        window.location.href = res.invoice_url;
+      } else {
+        alert('Gagal membuat link pembayaran');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal memulai proses checkout pembayaran');
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  const handleEscrowConfirmReceived = async () => {
+    try {
+      setIsConfirming(true);
+      await ordersApi.confirmOrderReceived(order.id);
+      setBuyerConfirmedAt(new Date().toISOString());
+      onUpdate();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  const handleEscrowDispute = async () => {
+    try {
+      setIsUpdating(true);
+      await ordersApi.disputeOrder(order.id);
+      onUpdate();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -510,6 +558,34 @@ function OrderCard({
                       {order.price_per_kg ? `Rp ${(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
                     </span>
                   </div>
+                  {currentPaymentStatus && (
+                    <div className="flex justify-between max-w-xs pt-1.5 border-t border-gr-line/40">
+                      <span className="text-gr-ink-soft">Status Pembayaran:</span>
+                      <span className={cn(
+                        "font-mono text-xs uppercase font-bold px-2 py-0.5 rounded-xs",
+                        currentPaymentStatus === 'paid' ? "bg-gr-up/10 text-gr-up border border-gr-up/20" : "bg-gr-board/10 text-gr-board border border-gr-board/20"
+                      )}>
+                        {currentPaymentStatus === 'paid' ? 'LUNAS' : currentPaymentStatus.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  {currentEscrowStatus && currentEscrowStatus !== 'not_started' && (
+                    <div className="flex justify-between max-w-xs">
+                      <span className="text-gr-ink-soft">Status Escrow:</span>
+                      <span className={cn(
+                        "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs",
+                        currentEscrowStatus === 'held' && "bg-amber-500/10 text-amber-600 border border-amber-500/20",
+                        currentEscrowStatus === 'released' && "bg-gr-up/10 text-gr-up border border-gr-up/20",
+                        currentEscrowStatus === 'disputed' && "bg-gr-down/10 text-gr-down border border-gr-down/20",
+                        currentEscrowStatus === 'refunded' && "bg-blue-500/10 text-blue-600 border border-blue-500/20"
+                      )}>
+                        {currentEscrowStatus === 'held' && 'DANA DITAHAN'}
+                        {currentEscrowStatus === 'released' && 'DANA DICAIRKAN'}
+                        {currentEscrowStatus === 'disputed' && 'SENGKETA'}
+                        {currentEscrowStatus === 'refunded' && 'PENGEMBALIAN'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -548,7 +624,7 @@ function OrderCard({
             {/* Buyer actions */}
             {!isIncoming && (
               <div className="pt-4 border-t border-gr-line space-y-4">
-                {(currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && (
+                {currentPaymentStatus !== 'paid' && (currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && (
                   <Button
                     disabled={isUpdating}
                     variant="ghost"
@@ -559,14 +635,41 @@ function OrderCard({
                   </Button>
                 )}
 
-                {!buyerConfirmedAt && (currentStatus === 'SIAP_DIAMBIL' || currentStatus === 'DIKIRIM') && (
+                {currentPaymentStatus !== 'paid' && currentStatus !== 'DIBATALKAN' && (
                   <Button
-                    disabled={isConfirming}
-                    onClick={handleConfirmSuccess}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
+                    disabled={isCheckingOut}
+                    onClick={handleCheckout}
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all flex items-center justify-center gap-2"
                   >
-                    {isConfirming ? 'Memproses...' : 'Konfirmasi Transaksi Berhasil'}
+                    {isCheckingOut ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Memproses Pembayaran...
+                      </>
+                    ) : (
+                      'Bayar Sekarang (Xendit Escrow)'
+                    )}
                   </Button>
+                )}
+
+                {currentPaymentStatus === 'paid' && currentEscrowStatus === 'held' && !buyerConfirmedAt && (
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      disabled={isConfirming}
+                      onClick={handleEscrowConfirmReceived}
+                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
+                    >
+                      {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                    </Button>
+                    <Button
+                      disabled={isUpdating}
+                      variant="ghost"
+                      onClick={handleEscrowDispute}
+                      className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer transition-all"
+                    >
+                      {isUpdating ? 'Memproses...' : 'Laporkan Sengketa'}
+                    </Button>
+                  </div>
                 )}
 
                 {buyerConfirmedAt && !hasBuyerRated && (

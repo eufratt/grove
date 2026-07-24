@@ -52,6 +52,37 @@ export const demandRequestsApi = {
     });
     return response.json();
   },
+
+  matchDemandRequest: async (id: string) => {
+    const response = await apiClient(`/demand-requests/${id}/match`, {
+      method: 'POST',
+    });
+    return response.json();
+  },
+
+  checkoutDemand: async (id: string, successRedirectUrl: string, failureRedirectUrl: string) => {
+    const response = await apiClient(
+      `/demand-requests/${id}/checkout?success_redirect_url=${encodeURIComponent(successRedirectUrl)}&failure_redirect_url=${encodeURIComponent(failureRedirectUrl)}`,
+      {
+        method: 'POST',
+      }
+    );
+    return response.json();
+  },
+
+  confirmDemandReceived: async (id: string) => {
+    const response = await apiClient(`/demand-requests/${id}/confirm-received`, {
+      method: 'POST',
+    });
+    return response.json();
+  },
+
+  disputeDemand: async (id: string) => {
+    const response = await apiClient(`/demand-requests/${id}/dispute`, {
+      method: 'POST',
+    });
+    return response.json();
+  },
 };
 
 // WebSocket Hook for real-time status updates

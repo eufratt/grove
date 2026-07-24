@@ -43,24 +43,62 @@ export const ordersApi = {
     });
     return response.json();
   },
+
+  checkoutOrder: async (orderId: string, successRedirectUrl: string, failureRedirectUrl: string) => {
+    const response = await apiClient(
+      `/orders/${orderId}/checkout?success_redirect_url=${encodeURIComponent(successRedirectUrl)}&failure_redirect_url=${encodeURIComponent(failureRedirectUrl)}`,
+      {
+        method: 'POST',
+      }
+    );
+    return response.json();
+  },
+
+  confirmOrderReceived: async (orderId: string) => {
+    const response = await apiClient(`/orders/${orderId}/confirm-received`, {
+      method: 'POST',
+    });
+    return response.json();
+  },
+
+  disputeOrder: async (orderId: string) => {
+    const response = await apiClient(`/orders/${orderId}/dispute`, {
+      method: 'POST',
+    });
+    return response.json();
+  },
 };
 
 // WebSocket Hook for real-time status updates
 import { useEffect, useState } from 'react';
 
 export function useOrderSocket(orderId: string | null) {
-  const [status, setStatus] = useState<string | null>(null);
+  const [data, setData] = useState<{
+    status: string | null;
+    payment_status: string | null;
+    escrow_status: string | null;
+  }>({
+    status: null,
+    payment_status: null,
+    escrow_status: null,
+  });
 
   useEffect(() => {
     if (!orderId) return;
 
-    const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws')}/ws/orders/${orderId}`;
+    const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws') || 'ws://localhost:8000'}/ws/orders/${orderId}`;
     const socket = new WebSocket(wsUrl);
 
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.status) {
-        setStatus(data.status);
+      try {
+        const payload = JSON.parse(event.data);
+        setData({
+          status: payload.status || null,
+          payment_status: payload.payment_status || null,
+          escrow_status: payload.escrow_status || null,
+        });
+      } catch (err) {
+        console.error('Failed to parse order socket event:', err);
       }
     };
 
@@ -69,5 +107,5 @@ export function useOrderSocket(orderId: string | null) {
     };
   }, [orderId]);
 
-  return status;
+  return data;
 }
