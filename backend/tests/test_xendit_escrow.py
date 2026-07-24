@@ -102,12 +102,21 @@ async def test_escrow_context():
                 await db.rollback()
             await db.close()
 
+@patch("app.services.xendit_service.xendit_service.create_disbursement", new_callable=AsyncMock)
 @patch("app.services.xendit_service.xendit_service.create_invoice", new_callable=AsyncMock)
-async def test_order_escrow_lifecycle(mock_create_invoice, test_escrow_context):
+async def test_order_escrow_lifecycle(mock_create_invoice, mock_create_disbursement, test_escrow_context):
     db, buyer, seller, product, demand = test_escrow_context
 
-    # Mock create_invoice return value
+    # Mock return values
     mock_create_invoice.return_value = ("https://checkout.xendit.co/v2/test-invoice", "inv-12345")
+    mock_create_disbursement.return_value = {"id": "disb-1111", "status": "PENDING"}
+
+    # Set seller bank details
+    seller.bank_name = "MANDIRI"
+    seller.bank_account_number = "1234567890"
+    seller.bank_account_holder = "Test Seller"
+    db.add(seller)
+    await db.commit()
 
     # 1. Create order
     order = Order(
@@ -163,11 +172,23 @@ async def test_order_escrow_lifecycle(mock_create_invoice, test_escrow_context):
     assert order.escrow_status == EscrowStatus.RELEASED
     assert order.status == OrderStatus.SELESAI
     assert order.confirmed_received_at is not None
+    assert order.disbursement_id == "disb-1111"
+    assert order.disbursement_status == "pending"
+    assert order.disbursed_at is not None
 
+@patch("app.services.xendit_service.xendit_service.create_disbursement", new_callable=AsyncMock)
 @patch("app.services.xendit_service.xendit_service.create_invoice", new_callable=AsyncMock)
-async def test_demand_escrow_lifecycle(mock_create_invoice, test_escrow_context):
+async def test_demand_escrow_lifecycle(mock_create_invoice, mock_create_disbursement, test_escrow_context):
     db, buyer, seller, product, demand = test_escrow_context
     mock_create_invoice.return_value = ("https://checkout.xendit.co/v2/test-invoice-demand", "inv-67890")
+    mock_create_disbursement.return_value = {"id": "disb-2222", "status": "PENDING"}
+
+    # Set seller bank details
+    seller.bank_name = "BRI"
+    seller.bank_account_number = "0987654321"
+    seller.bank_account_holder = "Test Seller"
+    db.add(seller)
+    await db.commit()
 
     # 1. Create a matched DemandTransaction (transaksi_permintaan)
     dt = DemandTransaction(
@@ -203,7 +224,6 @@ async def test_demand_escrow_lifecycle(mock_create_invoice, test_escrow_context)
     assert dt.xendit_invoice_id == "inv-67890"
 
     # 3. Simulate payment webhook
-    # We need to find the payment transaction's external ID because checkout_transaction updates it
     await escrow_service.handle_payment_success(db, dt.xendit_external_id, "inv-67890")
     await db.refresh(dt)
     assert dt.payment_status == PaymentStatus.PAID
@@ -214,3 +234,6 @@ async def test_demand_escrow_lifecycle(mock_create_invoice, test_escrow_context)
     await db.refresh(dt)
     assert dt.escrow_status == EscrowStatus.RELEASED
     assert dt.released_at is not None
+    assert dt.disbursement_id == "disb-2222"
+    assert dt.disbursement_status == "pending"
+    assert dt.disbursed_at is not None
