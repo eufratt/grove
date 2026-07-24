@@ -19,20 +19,9 @@ import {
   Tag,
   Info,
   Star,
-  Check,
-  Palette,
   User
 } from 'lucide-react';
 import Link from 'next/link';
-
-const THEME_PRESETS = [
-  { name: 'Forest Green', value: '#1b4332', glow: '#2d6a4f' },
-  { name: 'Harvest Gold', value: '#d97706', glow: '#f59e0b' },
-  { name: 'Sunset Orange', value: '#ea580c', glow: '#f97316' },
-  { name: 'Ocean Blue', value: '#0284c7', glow: '#38bdf8' },
-  { name: 'Earth Brown', value: '#78350f', glow: '#b45309' },
-  { name: 'Royal Purple', value: '#7c3aed', glow: '#a78bfa' },
-];
 
 export default function FarmerProfilePage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -51,7 +40,6 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   // Editing States
   const [isEditing, setIsEditing] = useState(false);
   const [editBio, setEditBio] = useState('');
-  const [selectedTheme, setSelectedTheme] = useState('#1b4332');
   const [savingEdit, setSavingEdit] = useState(false);
 
   // Pagination States
@@ -96,7 +84,6 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
       setProducts(productsData);
       setCurrentUser(meData);
       setEditBio(farmerData.bio || '');
-      setSelectedTheme(farmerData.theme_color || '#1b4332');
 
       if (ratingsData) {
         setRatings(ratingsData.ratings || []);
@@ -124,13 +111,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
     setSavingEdit(true);
     try {
       const updatedUser = await authApi.updateProfile({
-        bio: editBio,
-        theme_color: selectedTheme
+        bio: editBio
       });
       setFarmer((prev: any) => ({
         ...prev,
-        bio: updatedUser.bio,
-        theme_color: updatedUser.theme_color
+        bio: updatedUser.bio
       }));
       setIsEditing(false);
     } catch (err: any) {
@@ -154,12 +139,12 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
     return (
       <main className="relative min-h-[calc(100vh-80px)] bg-gr-bg py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 rounded-sm text-center shadow-xl">
+        <div className="relative z-10 max-w-md w-full bg-white/85 border border-gr-line p-8 rounded-sm text-center shadow-xl">
           <h2 className="font-display text-2xl font-semibold text-gr-text-primary mb-3">Profil Tidak Ditemukan</h2>
           <p className="font-sans text-sm text-gr-text-primary/60 mb-6">{error || 'Data profil petani tidak dapat ditampilkan.'}</p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-gr-green text-gr-bg hover:bg-gr-green/95 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all"
           >
             <ArrowLeft size={12} /> Kembali ke Beranda
           </Link>
@@ -172,10 +157,6 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   const locationLabel = farmer.latitude && farmer.longitude
     ? getClosestProvince(farmer.latitude, farmer.longitude)
     : 'Nasional';
-
-  // Selected Theme styling values
-  const themeHex = farmer.theme_color || '#1b4332';
-  const themePreset = THEME_PRESETS.find(p => p.value === themeHex) || THEME_PRESETS[0];
 
   const defaultBio = 'Petani mitra terdaftar Grove yang berdedikasi menghasilkan produk pertanian segar berkualitas premium secara berkelanjutan dari ladang lokal langsung ke meja makan Anda. Berkomitmen menjaga kelestarian alam dan transparansi harga pasar.';
   const farmerBio = farmer.bio || defaultBio;
@@ -199,14 +180,14 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   };
 
   return (
-    <main className="relative min-h-screen bg-gr-bg pt-8 pb-24 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+    <main className="relative min-h-screen bg-gr-bg pt-8 pb-24 px-4 sm:px-6 lg:px-8">
       <BgPattern />
       <FilmGrain />
-      <Glow color={themePreset.glow} position="top" className="opacity-12 pointer-events-none scale-105 duration-500" />
+      <Glow color="#2d6a4f" position="top" className="opacity-8 pointer-events-none scale-105" />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         {/* Back Link & Customize mode toggle button */}
-        <div className="mb-5 flex justify-between items-center">
+        <div className="mb-6 flex justify-between items-center">
           <Link
             href="/beranda"
             className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-text-primary/45 hover:text-gr-text-primary transition-colors"
@@ -217,35 +198,31 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           {isOwner && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-white px-4 py-2 rounded-full hover:scale-102 active:scale-98 transition-all cursor-pointer shadow-md hover:shadow-lg"
-              style={{ backgroundColor: themeHex }}
+              className="inline-flex items-center gap-1.5 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2 rounded-sm transition-all shadow-2xs hover:border-gr-ink-soft/40 cursor-pointer"
             >
-              <Palette size={11} /> {isEditing ? 'Batal Edit' : 'Personalisasi Profil'}
+              {isEditing ? 'Batal Edit' : 'Edit Profil'}
             </button>
           )}
         </div>
 
         {/* Clean, Theme-compliant Banner Header */}
-        <div className="bg-[#FAF9F5] border border-gr-line p-5 rounded-2xl shadow-xs mb-8 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
+        <div className="bg-[#FAF9F5] border border-gr-line p-6 rounded-sm shadow-xs mb-8 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
           {/* Subtle themed side bar stripe */}
-          <div className="absolute top-0 left-0 bottom-0 w-1.5" style={{ backgroundColor: themeHex }} />
+          <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gr-board" />
 
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            {/* Themed ring avatar with glowing shadow */}
+            {/* Themed ring avatar */}
             <div className="relative group shrink-0">
               <div 
-                className="absolute inset-0 rounded-full blur-md opacity-25" 
-                style={{ backgroundColor: themeHex }} 
-              />
-              <div 
-                className="relative h-14 w-14 rounded-full bg-white p-0.5 border shadow-sm transition-transform duration-300 group-hover:scale-105"
-                style={{ borderColor: themeHex }}
+                className="relative h-14 w-14 rounded-full bg-white p-0.5 border border-gr-line shadow-2xs transition-transform duration-300 group-hover:scale-102"
               >
-                <div className="relative h-full w-full rounded-full bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase border border-gr-line/10">
+                <div className="relative h-full w-full rounded-full bg-gr-paper/50 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase">
                   {farmer.avatar_url ? (
                     <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
                   ) : (
-                    <User size={22} className="opacity-30" />
+                    <span className="font-display font-bold text-gr-ink opacity-40">
+                      {farmer.full_name.charAt(0)}
+                    </span>
                   )}
                 </div>
               </div>
@@ -258,7 +235,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
               <div className="flex items-center gap-2.5 font-mono text-[9px] text-gr-text-primary/50 uppercase mt-0.5 flex-wrap">
                 <span className="flex items-center gap-1 font-sans font-semibold text-gr-text-primary">
-                  <MapPin size={10} style={{ color: themeHex }} /> {locationLabel}
+                  <MapPin size={10} className="text-gr-board" /> {locationLabel}
                 </span>
                 <span>•</span>
                 <SellerRatingBadge avgRating={ratingsAvg} ratingCount={ratingsCount} size="sm" showCount={true} />
@@ -272,8 +249,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 px-4 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
-                style={{ backgroundColor: themeHex }}
+                className="inline-flex items-center gap-1.5 bg-gr-board text-gr-chalk font-mono text-[10px] uppercase tracking-widest py-2.5 px-5 rounded-sm shadow-2xs hover:opacity-90 transition-all"
               >
                 <MessageSquare size={12} /> Chat WhatsApp
               </a>
@@ -284,11 +260,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         {/* 2-Column Dashboard Layout: 9/12 for Products, 3/12 for Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* LEFT COLUMN: Available Products (9/12 width) - Wider grid for 3 columns */}
+          {/* LEFT COLUMN: Available Products (9/12 width) */}
           <section id="available-harvest" className="lg:col-span-9 space-y-6 scroll-mt-6">
             <div className="flex items-center justify-between border-b border-gr-line pb-3">
               <h2 className="font-display text-lg font-semibold text-gr-text-primary flex items-center gap-2">
-                <Tag size={16} style={{ color: themeHex }} /> Hasil Panen Tersedia
+                <Tag size={16} className="text-gr-board" /> Hasil Panen Tersedia
               </h2>
               <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/45">
                 {products.length} produk terdaftar
@@ -296,7 +272,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             </div>
 
             {products.length === 0 ? (
-              <div className="text-center py-16 bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-2xl">
+              <div className="text-center py-16 bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-sm">
                 <Info className="h-8 w-8 text-gr-text-primary/20 mx-auto mb-2" />
                 <p className="font-sans text-sm text-gr-text-primary/40 italic">
                   Belum ada produk hasil panen yang didaftarkan saat ini.
@@ -318,7 +294,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     <button
                       onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 border border-gr-line rounded-lg hover:bg-gr-ink/5 transition-all text-gr-ink disabled:opacity-25 cursor-pointer disabled:cursor-not-allowed"
+                      className="px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
                     >
                       Sebelumnya
                     </button>
@@ -328,7 +304,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     <button
                       onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 border border-gr-line rounded-lg hover:bg-gr-ink/5 transition-all text-gr-ink disabled:opacity-25 cursor-pointer disabled:cursor-not-allowed"
+                      className="px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
                     >
                       Selanjutnya
                     </button>
@@ -338,11 +314,11 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             )}
           </section>
 
-          {/* RIGHT COLUMN: Sidebar (Bio, Customizer, Reviews) (3/12 width) - Sits elegantly on the side */}
+          {/* RIGHT COLUMN: Sidebar (Bio, Reviews) (3/12 width) */}
           <div className="lg:col-span-3 space-y-6">
             
-            {/* 1. Farmer Bio & Customizer Card - Theme Compliant (Parhment-colored card) */}
-            <div className="bg-[#FAF9F5] border border-gr-line/80 p-4 sm:p-5 rounded-2xl shadow-xs space-y-4">
+            {/* 1. Farmer Bio Card - Theme Compliant */}
+            <div className="bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-xs space-y-4">
               <h3 className="font-display text-sm font-semibold text-gr-text-primary border-b border-gr-line/50 pb-2">
                 Tentang Petani
               </h3>
@@ -359,46 +335,17 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                       onChange={(e) => setEditBio(e.target.value)}
                       maxLength={1000}
                       placeholder={defaultBio}
-                      className="w-full bg-white border border-gr-line/80 focus:outline-none focus:ring-1 p-2.5 font-sans text-xs text-gr-text-primary rounded-xl transition-all shadow-xs"
-                      style={{ borderColor: themeHex }}
+                      className="w-full bg-white border border-gr-line focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary rounded-sm transition-all shadow-xs"
                     />
                     <span className="block text-right font-mono text-[8px] text-gr-text-primary/30">
                       {editBio.length}/1000
                     </span>
                   </div>
 
-                  <div className="space-y-2">
-                    <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/55 font-bold">
-                      Warna Aksen Halaman
-                    </span>
-                    <div className="grid grid-cols-6 gap-1">
-                      {THEME_PRESETS.map((preset) => (
-                        <button
-                          key={preset.value}
-                          type="button"
-                          onClick={() => setSelectedTheme(preset.value)}
-                          className="h-5 w-5 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
-                          style={{ 
-                            backgroundColor: preset.value, 
-                            borderColor: selectedTheme === preset.value ? '#ffffff' : 'transparent', 
-                            borderWidth: '2.5px', 
-                            boxShadow: selectedTheme === preset.value ? `0 0 0 1.5px ${preset.value}` : 'none' 
-                          }}
-                          title={preset.name}
-                        >
-                          {selectedTheme === preset.value && (
-                            <Check size={8} className="text-white stroke-[4]" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   <Button
                     onClick={handleSaveChanges}
                     disabled={savingEdit}
-                    className="w-full text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer font-sans"
-                    style={{ backgroundColor: selectedTheme }}
+                    className="w-full bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] uppercase tracking-widest py-2.5 rounded-sm shadow-2xs transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
                   >
                     {savingEdit ? <Loader2 size={10} className="animate-spin" /> : 'Simpan'}
                   </Button>
@@ -410,7 +357,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   </p>
 
                   {/* Stats grid */}
-                  <div className="grid grid-cols-2 gap-2 text-center pt-2 border-t border-gr-line/40">
+                  <div className="grid grid-cols-2 gap-2 text-center pt-2 border-t border-gr-line/45">
                     <div>
                       <span className="block font-mono text-base font-bold text-gr-text-primary">
                         {products.length}
@@ -436,7 +383,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-gr-line pb-2">
                 <h3 className="font-display text-sm font-semibold text-gr-text-primary flex items-center gap-1.5">
-                  <Star size={15} style={{ color: themeHex }} /> Ulasan Pembeli
+                  <Star size={15} className="text-gr-board" /> Ulasan Pembeli
                 </h3>
                 <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/40">
                   Avg: {ratingsAvg > 0 ? ratingsAvg.toFixed(1) : '-'}
@@ -444,7 +391,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
               </div>
 
               {ratings.length === 0 ? (
-                <div className="p-6 text-center bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-2xl space-y-1">
+                <div className="p-6 text-center bg-[#FAF9F5]/40 border border-dashed border-gr-line/50 rounded-sm space-y-1">
                   <Star className="h-5 w-5 text-gr-text-primary/10 mx-auto" />
                   <p className="font-sans text-[11px] text-gr-text-primary/40 italic">
                     Belum ada ulasan dari pembeli.
@@ -461,7 +408,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     return (
                       <div
                         key={review.id}
-                        className="bg-white/80 backdrop-blur-xs border border-gr-line/40 p-4 rounded-xl shadow-xs space-y-2 hover:border-gr-line/85 transition-all duration-300 relative"
+                        className="bg-white/80 border border-gr-line p-4 rounded-sm shadow-2xs space-y-2.5 hover:border-gr-ink-soft/30 transition-all duration-200 relative"
                       >
                         {/* Top: Name & Date */}
                         <div className="flex justify-between items-center gap-2">
@@ -489,7 +436,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
                         {/* Comment */}
                         {review.comment ? (
-                          <p className="font-sans text-[11px] text-gr-text-primary/75 leading-relaxed italic bg-white/40 border border-gr-line/20 p-2.5 rounded-xl">
+                          <p className="font-sans text-[11px] text-gr-text-primary/75 leading-relaxed italic bg-[#FAF9F5]/40 border border-gr-line/45 p-2.5 rounded-sm">
                             "{review.comment}"
                           </p>
                         ) : (
