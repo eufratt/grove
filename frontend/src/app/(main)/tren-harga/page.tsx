@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { referencePricesApi } from '@/lib/api/reference-prices';
+import { productsApi } from '@/lib/api/products';
 import { BASE_URL } from '@/lib/api/client';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
@@ -16,6 +17,22 @@ export default function PriceTrendPage() {
   const [selectedCommodity, setSelectedCommodity] = useState<string>('');
   const [selectedRegion, setSelectedRegion] = useState<string>('Jawa Timur');
   const [daysRange, setDaysRange] = useState<number>(30);
+  const [lastScrapedAt, setLastScrapedAt] = useState<string | null>(null);
+
+  // Fetch last scraped time on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await productsApi.getLiveStats();
+        if (stats && stats.last_scraped_at) {
+          setLastScrapedAt(stats.last_scraped_at);
+        }
+      } catch (err) {
+        console.error('Failed to fetch live stats:', err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // Chart data
   const [historyData, setHistoryData] = useState<any[]>([]);
@@ -344,9 +361,19 @@ export default function PriceTrendPage() {
           <h1 className="mt-2 font-display text-4xl font-semibold text-gr-ink">
             Visualisasi Tren Harga
           </h1>
-          <p className="mt-1.5 font-sans text-xs text-gr-ink-soft max-w-2xl">
-            Lacak perubahan dan fluktuasi harga acuan komoditas pangan nasional secara historis berdasarkan data rekam harian PIHPS.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1.5">
+            <p className="font-sans text-xs text-gr-ink-soft max-w-2xl">
+              Lacak perubahan dan fluktuasi harga acuan komoditas pangan nasional secara historis berdasarkan data rekam harian PIHPS.
+            </p>
+            {lastScrapedAt && (
+              <span className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft bg-gr-ink/5 border border-gr-line px-2.5 py-1 rounded-sm w-fit font-bold shrink-0">
+                Sinkronisasi PIHPS: {new Date(lastScrapedAt).toLocaleString('id-ID', {
+                  dateStyle: 'medium',
+                  timeStyle: 'short'
+                })}
+              </span>
+            )}
+          </div>
           <div className="mt-4 h-px w-full bg-gradient-to-r from-gr-line via-gr-line/30 to-transparent" />
         </header>
 

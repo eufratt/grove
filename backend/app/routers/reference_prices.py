@@ -5,6 +5,7 @@ from sqlalchemy import select, func
 from app.db import get_db
 from app.models.reference_price import ReferencePrice
 from app.models.product import Product, ProductStatus
+from app.models.scraper_status import ScraperStatus
 from app.schemas.reference_price import PaginatedReferencePrices
 from typing import Optional
 from datetime import datetime, timedelta, timezone
@@ -98,10 +99,21 @@ async def get_reference_prices_count(db: AsyncSession = Depends(get_db)):
     prod_res = await db.execute(stmt_prod)
     active_products = prod_res.scalar() or 0
 
+    # 4. Actual last scraped time from scraper_statuses
+    stmt_scraper = select(ScraperStatus.last_run_at).order_by(ScraperStatus.last_run_at.desc()).limit(1)
+    scraper_res = await db.execute(stmt_scraper)
+    last_scraped_at = scraper_res.scalar_one_or_none()
+
+    if last_updated:
+        last_updated = last_updated.replace(tzinfo=timezone.utc)
+    if last_scraped_at:
+        last_scraped_at = last_scraped_at.replace(tzinfo=timezone.utc)
+
     return {
         "total_commodities": total_commodities,
         "last_updated": last_updated,
-        "active_products": active_products
+        "active_products": active_products,
+        "last_scraped_at": last_scraped_at
     }
 
 @router.get("/history")
