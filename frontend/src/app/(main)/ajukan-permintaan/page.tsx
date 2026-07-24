@@ -8,8 +8,7 @@ import { referencePricesApi } from '@/lib/api/reference-prices';
 import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Glow } from '@/components/effects/glow';
-import { ArrowLeft, Calendar, Loader2, Plus, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 
@@ -152,7 +151,6 @@ export default function AjukanPermintaanPage() {
         const userData = await authApi.getMe();
         setUser(userData);
         if (userData.role !== 'PEMBELI') {
-          // Keep checkingAuth true, but handle restricted message in render
           setCheckingAuth(false);
           return;
         }
@@ -274,19 +272,20 @@ export default function AjukanPermintaanPage() {
 
   if (checkingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gr-paper">
-        <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50" />
-      </div>
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gr-paper">
+        <BgPattern />
+        <Loader2 className="h-12 w-12 text-gr-board animate-spin opacity-50 z-10" />
+      </main>
     );
   }
- 
+
   // Restricted access for non-buyers
   if (user && user.role !== 'PEMBELI') {
     return (
       <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
         <FilmGrain />
-        <div className="relative z-10 max-w-md w-full bg-white border border-gr-line p-8 rounded-3xl shadow-sm text-center">
+        <div className="relative z-10 max-w-md w-full bg-white/60 dark:bg-white/10 border border-gr-line p-8 rounded-sm shadow-sm text-center backdrop-blur-sm">
           <AlertTriangle className="h-16 w-16 text-gr-down mx-auto mb-6 animate-pulse" />
           <h2 className="font-display text-2xl font-medium text-gr-ink mb-3">Akses Dibatasi</h2>
           <p className="font-sans text-sm text-gr-ink-soft mb-6 leading-relaxed">
@@ -294,7 +293,7 @@ export default function AjukanPermintaanPage() {
           </p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 text-gr-ink font-sans text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
           >
             Kembali ke Beranda
           </Link>
@@ -304,40 +303,35 @@ export default function AjukanPermintaanPage() {
   }
 
   return (
-    <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gr-paper py-12 px-4 sm:px-6 lg:px-8">
       <BgPattern />
       <FilmGrain />
-      <Glow color="var(--gr-board)" position="top" className="opacity-5 scale-110 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-2xl">
         {/* Back Link */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link 
             href="/permintaan-saya" 
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft hover:text-gr-board transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-gr-ink-soft hover:text-gr-ink transition-colors"
           >
             <ArrowLeft size={12} />
             Kembali ke Permintaan Saya
           </Link>
         </div>
 
-        <header className="mb-10">
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-gr-board">
-            Form Pemesanan
-          </span>
-          <h1 className="mt-4 font-display text-5xl font-medium text-gr-ink">
+        <header className="mb-12 text-center select-none">
+          <h1 className="font-display text-5xl font-medium tracking-tight text-gr-ink">
             Ajukan Permintaan
           </h1>
-          <p className="mt-2 font-sans text-sm text-gr-ink-soft">
-            Ajukan kebutuhan komoditas panen di masa depan agar para petani lokal dapat mulai mempersiapkan dan mengalokasikan hasil kebun mereka untuk Anda.
+          <p className="mt-4 font-sans text-gr-ink-soft italic">
+            "Ajukan kebutuhan panen Anda agar para petani dapat mempersiapkan dan mengalokasikan hasil kebun mereka."
           </p>
-          <div className="mt-8 h-px w-full bg-gradient-to-r from-gr-board/30 via-gr-line to-transparent" />
         </header>
 
         {/* Form Container */}
-        <div className="rounded-3xl border border-gr-line bg-white p-8 sm:p-10 shadow-sm">
+        <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line shadow-sm backdrop-blur-sm text-gr-ink">
           {error && (
-            <div className="mb-6 rounded-2xl bg-gr-down/10 p-4 text-xs text-gr-down border border-gr-down/20 flex items-center gap-2">
+            <div className="rounded-sm bg-gr-down/10 p-4 text-xs text-gr-down border border-gr-down/20 font-sans flex items-center gap-2">
               <Info size={14} className="shrink-0" />
               <span>{error}</span>
             </div>
@@ -346,7 +340,7 @@ export default function AjukanPermintaanPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Commodity Name Autocomplete */}
             <div className="relative" ref={dropdownRef}>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
+              <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                 Nama Komoditas
               </label>
               <input
@@ -358,17 +352,17 @@ export default function AjukanPermintaanPage() {
                   setFilteredCommodities(commodityName ? allCommodities.filter(item => item.toLowerCase().includes(commodityName.toLowerCase())) : allCommodities);
                   setShowDropdown(true);
                 }}
-                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                className="mt-2 block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 px-3 py-2 text-sm text-gr-ink focus:outline-none focus:border-gr-board/50 rounded-sm transition-all placeholder:text-gr-ink-soft/40"
               />
               {/* Autocomplete Dropdown */}
               {showDropdown && filteredCommodities.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-2xl border border-gr-line bg-white/95 backdrop-blur-xl shadow-lg z-30 divide-y divide-gr-line">
+                <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm shadow-md z-30 divide-y divide-gr-line/40 text-gr-ink">
                   {filteredCommodities.map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => selectCommodity(item)}
-                      className="w-full text-left px-4 py-3 font-sans text-xs text-gr-ink hover:text-gr-board hover:bg-gr-paper/30 transition-colors cursor-pointer"
+                      className="w-full text-left px-4 py-3 font-sans text-xs text-gr-ink hover:text-gr-board hover:bg-white/5 transition-colors cursor-pointer"
                     >
                       {item}
                     </button>
@@ -378,8 +372,8 @@ export default function AjukanPermintaanPage() {
             </div>
 
             {/* Reference Price Info Box */}
-            <div className="rounded-2xl border border-gr-line bg-gr-paper/10 p-4 font-sans text-xs">
-              <span className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
+            <div className="rounded-sm border border-gr-line bg-white/20 p-4 font-sans text-xs">
+              <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-2">
                 Harga Acuan Pasar (PIHPS)
               </span>
               {refPrice !== null ? (
@@ -388,7 +382,7 @@ export default function AjukanPermintaanPage() {
                     <Info size={14} className="text-gr-board shrink-0" />
                     <span>Terdeteksi wilayah <span className="font-bold">{refPriceRegion}</span> untuk komoditas <span className="font-bold">{commodityName}</span></span>
                   </div>
-                  <span className="font-mono text-sm font-bold text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 py-1 rounded-full w-fit">
+                  <span className="font-mono text-sm font-bold text-gr-board bg-white/40 border border-gr-line px-3 py-1 rounded-sm w-fit">
                     Rp {refPrice.toLocaleString('id-ID')}/KG
                   </span>
                 </div>
@@ -400,10 +394,9 @@ export default function AjukanPermintaanPage() {
               )}
             </div>
 
- 
             {/* Quantity */}
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
+              <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                 Jumlah yang Dibutuhkan (KG)
               </label>
               <input
@@ -413,25 +406,17 @@ export default function AjukanPermintaanPage() {
                 placeholder="Contoh: 150"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink px-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                className="mt-2 block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 px-3 py-2 text-sm text-gr-ink font-mono focus:outline-none focus:border-gr-board/50 rounded-sm transition-all placeholder:text-gr-ink-soft/40"
               />
             </div>
 
             {/* Price per KG */}
             <div>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 mb-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft">
-                  Harga Penawaran per KG (IDR)
-                </label>
-                {refPrice !== null && (
-                  <span className="font-sans text-[11px] text-gr-board bg-gr-board/10 border border-gr-board/20 px-2.5 py-0.5 rounded-full flex items-center gap-1 font-medium w-fit animate-fade-in">
-                    <Info size={11} className="shrink-0" />
-                    Harga Acuan ({refPriceRegion}): <span className="font-mono font-bold">Rp {refPrice.toLocaleString('id-ID')}/KG</span>
-                  </span>
-                )}
-              </div>
+              <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-2">
+                Harga Penawaran per KG (IDR)
+              </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm text-gr-ink-soft/60">
+                <span className="absolute left-3 top-2.5 font-mono text-sm text-gr-ink-soft/50 font-bold">
                   Rp
                 </span>
                 <input
@@ -440,7 +425,7 @@ export default function AjukanPermintaanPage() {
                   placeholder="Contoh: 35000"
                   value={pricePerKg}
                   onChange={(e) => setPricePerKg(e.target.value)}
-                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-11 pr-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                  className="block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 pl-9 pr-3 py-2 text-sm text-gr-ink font-mono font-bold focus:outline-none focus:border-gr-board/50 rounded-sm transition-all placeholder:text-gr-ink-soft/40"
                 />
               </div>
 
@@ -448,33 +433,33 @@ export default function AjukanPermintaanPage() {
               {refPrice !== null && pricePerKg && (
                 <div className="mt-3 font-sans text-xs">
                   {parseFloat(pricePerKg) < 0.75 * refPrice && (
-                    <div className="rounded-2xl bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start">
+                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start shadow-sm">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold block">Harga Penawaran Cukup Rendah</span>
-                        <p className="mt-1 leading-relaxed">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Penawaran Cukup Rendah</span>
+                        <p className="mt-1 leading-relaxed text-xs">
                           Rata-rata harga acuan saat ini adalah <strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>. Penawaran Anda jauh di bawah pasar. Petani mungkin akan ragu untuk mengambil komitmen ini.
                         </p>
                       </div>
                     </div>
                   )}
                   {parseFloat(pricePerKg) > 1.20 * refPrice && (
-                    <div className="rounded-2xl bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start">
+                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start shadow-sm">
                       <CheckCircle size={16} className="shrink-0 mt-0.5 text-gr-board animate-pulse" />
                       <div>
-                        <span className="font-semibold block">Penawaran Sangat Menarik</span>
-                        <p className="mt-1 leading-relaxed">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Penawaran Sangat Menarik</span>
+                        <p className="mt-1 leading-relaxed text-xs">
                           Penawaran Anda (<strong>Rp {parseFloat(pricePerKg).toLocaleString('id-ID')}/kg</strong>) berada di atas harga pasar rata-rata (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>). Ini akan sangat menarik bagi para petani!
                         </p>
                       </div>
                     </div>
                   )}
                   {parseFloat(pricePerKg) >= 0.75 * refPrice && parseFloat(pricePerKg) <= 1.20 * refPrice && (
-                    <div className="rounded-2xl bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start">
+                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start shadow-sm">
                       <CheckCircle size={16} className="shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold block">Harga Penawaran Adil & Kompetitif</span>
-                        <p className="mt-1 leading-relaxed">
+                        <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Penawaran Adil & Kompetitif</span>
+                        <p className="mt-1 leading-relaxed text-xs">
                           Penawaran Anda kompetitif dengan rata-rata acuan harga pasar saat ini (<strong>Rp {refPrice.toLocaleString('id-ID')}/kg</strong>).
                         </p>
                       </div>
@@ -483,10 +468,10 @@ export default function AjukanPermintaanPage() {
                 </div>
               )}
             </div>
- 
+
             {/* Deadline */}
             <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
+              <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-2">
                 Batas Akhir Pemenuhan (Deadline)
               </label>
               <div className="relative">
@@ -495,9 +480,9 @@ export default function AjukanPermintaanPage() {
                   min={getMinDateString()}
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-11 pr-4 py-3 rounded-2xl font-sans text-sm focus:outline-none transition-all cursor-pointer"
+                  className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 pl-9 pr-3 py-2 text-sm text-gr-ink font-mono focus:outline-none focus:border-gr-board/50 rounded-sm transition-all cursor-pointer"
                 />
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gr-ink-soft pointer-events-none" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gr-ink-soft pointer-events-none" />
               </div>
               <p className="mt-2 font-sans text-[10px] text-gr-ink-soft leading-relaxed flex items-center gap-1.5">
                 <Info size={11} className="text-gr-board shrink-0" />
@@ -506,8 +491,8 @@ export default function AjukanPermintaanPage() {
             </div>
 
             {/* Geolocation Status */}
-            <div className="rounded-2xl border border-gr-line bg-gr-paper/10 p-4 font-sans text-xs">
-              <span className="block font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft mb-2">
+            <div className="rounded-sm border border-gr-line bg-white/20 p-4 font-sans text-xs">
+              <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-2">
                 Lokasi Pengiriman (Browser GPS)
               </span>
               {gettingLocation ? (
@@ -524,7 +509,7 @@ export default function AjukanPermintaanPage() {
                   <button
                     type="button"
                     onClick={requestLocation}
-                    className="text-gr-board hover:underline text-[10px] font-mono uppercase tracking-wider cursor-pointer"
+                    className="px-3 py-1.5 border border-gr-line hover:border-gr-ink text-[10px] font-mono uppercase tracking-wider bg-white/40 hover:bg-white/60 text-gr-ink rounded-sm transition-all duration-200 shadow-sm cursor-pointer"
                   >
                     Coba Dapatkan Ulang Lokasi
                   </button>
@@ -535,7 +520,7 @@ export default function AjukanPermintaanPage() {
                     <div className="h-2 w-2 rounded-full bg-gr-board animate-pulse" />
                     <span>Koordinat berhasil didapatkan</span>
                   </div>
-                  <span className="font-mono text-[10px] text-gr-ink-soft bg-gr-paper/50 border border-gr-line px-2 py-1 rounded-md">
+                  <span className="font-mono text-[10px] text-gr-ink-soft bg-white/40 border border-gr-line px-2 py-1 rounded-sm">
                     {lat.toFixed(6)}, {lng.toFixed(6)}
                   </span>
                 </div>
@@ -546,13 +531,13 @@ export default function AjukanPermintaanPage() {
                 </div>
               )}
             </div>
- 
+
             {/* Submit Button */}
-            <div className="pt-4">
-              <Button
+            <div className="pt-2">
+              <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-gr-board/10"
+                className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -560,15 +545,13 @@ export default function AjukanPermintaanPage() {
                     Memproses Pengajuan...
                   </>
                 ) : (
-                  <>
-                    Ajukan Permintaan Sekarang
-                  </>
+                  'Ajukan Permintaan Sekarang'
                 )}
-              </Button>
+              </button>
             </div>
           </form>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
