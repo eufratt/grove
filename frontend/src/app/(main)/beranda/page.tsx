@@ -130,13 +130,25 @@ function BerandaContent() {
   const handleSearchResults = useCallback(async (results: any[], query: string) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     setIsSearchActive(true);
     setSearchQuery(query);
-    setProducts(results);
     try {
       const farmersData = await authApi.getFarmers(query);
       setMatchingFarmers(farmersData);
+
+      if (farmersData.length > 0) {
+        // If the query matches a farmer profile, fetch products from those farmers
+        const productsPromises = farmersData.slice(0, 3).map((f: any) => 
+          productsApi.getProducts(0, 100, f.id).catch(() => [])
+        );
+        const productsResults = await Promise.all(productsPromises);
+        setProducts(productsResults.flat());
+      } else {
+        // Otherwise, show semantic search results of products
+        setProducts(results);
+      }
     } catch (error) {
       console.error('Failed to fetch matching farmers:', error);
       setMatchingFarmers([]);
+      setProducts(results);
     }
   }, []);
 
@@ -145,11 +157,19 @@ function BerandaContent() {
     setSearchQuery(query);
     setIsSearching(true);
     try {
-      const [farmersData, productsData] = await Promise.all([
-        authApi.getFarmers(query),
-        semanticSearchApi.semanticSearch(query).catch(() => [])
-      ]);
+      const farmersData = await authApi.getFarmers(query);
       setMatchingFarmers(farmersData);
+
+      let productsData: any[] = [];
+      if (farmersData.length > 0) {
+        const productsPromises = farmersData.slice(0, 3).map((f: any) => 
+          productsApi.getProducts(0, 100, f.id).catch(() => [])
+        );
+        const productsResults = await Promise.all(productsPromises);
+        productsData = productsResults.flat();
+      } else {
+        productsData = await semanticSearchApi.semanticSearch(query).catch(() => []);
+      }
       setProducts(productsData);
     } catch (error) {
       console.error('Failed to search farmers/products:', error);
