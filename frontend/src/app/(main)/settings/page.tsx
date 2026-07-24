@@ -443,84 +443,86 @@ export default function SettingsPage() {
 
                     {/* Bio (Farmers Only) */}
                     {user?.role === 'PETANI' && (
-                      <div>
-                        <label htmlFor="shopee-bio" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                          Deskripsi / Bio Petani
-                        </label>
-                        <textarea
-                          id="shopee-bio"
-                          rows={4}
-                          maxLength={1000}
-                          placeholder="Ceritakan tentang ladang, jenis tanaman, dan komoditas pertanian Anda..."
-                          className="block w-full rounded-sm border border-gr-line bg-white focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary transition-all shadow-2xs"
-                          value={bio}
-                          onChange={(e) => setBio(e.target.value)}
-                        />
-                        <div className="flex justify-between items-center mt-1 font-mono text-[8px] text-gr-ink-soft/50">
-                          <span>maksimal 1000 karakter</span>
-                          <span>{bio.length}/1000</span>
+                      <>
+                        <div>
+                          <label htmlFor="shopee-bio" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                            Deskripsi / Bio Petani
+                          </label>
+                          <textarea
+                            id="shopee-bio"
+                            rows={4}
+                            maxLength={1000}
+                            placeholder="Ceritakan tentang ladang, jenis tanaman, dan komoditas pertanian Anda..."
+                            className="block w-full rounded-sm border border-gr-line bg-white focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary transition-all shadow-2xs"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                          />
+                          <div className="flex justify-between items-center mt-1 font-mono text-[8px] text-gr-ink-soft/50">
+                            <span>maksimal 1000 karakter</span>
+                            <span>{bio.length}/1000</span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Bank Details */}
-                      <div className="border-t border-gr-line/40 pt-6 space-y-4">
-                        <h4 className="font-display text-sm font-semibold text-gr-ink uppercase tracking-wider">
-                          Rekening Bank (Penerimaan Dana Escrow)
-                        </h4>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label htmlFor="bank-name" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                              Nama Bank
-                            </label>
-                            <select
-                              id="bank-name"
-                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
-                              value={bankName}
-                              onChange={(e) => setBankName(e.target.value)}
-                            >
-                              <option value="">Pilih Bank</option>
-                              <option value="MANDIRI">Bank Mandiri</option>
-                              <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
-                              <option value="BCA">Bank Central Asia (BCA)</option>
-                              <option value="BNI">Bank Negara Indonesia (BNI)</option>
-                              <option value="CIMB">CIMB Niaga</option>
-                              <option value="PERMATA">Bank Permata</option>
-                            </select>
+                        {/* Bank Details */}
+                        <div className="border-t border-gr-line/40 pt-6 space-y-4">
+                          <h4 className="font-display text-sm font-semibold text-gr-ink uppercase tracking-wider">
+                            Rekening Bank (Penerimaan Dana Escrow)
+                          </h4>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label htmlFor="bank-name" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                                Nama Bank
+                              </label>
+                              <select
+                                id="bank-name"
+                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                                value={bankName}
+                                onChange={(e) => setBankName(e.target.value)}
+                              >
+                                <option value="">Pilih Bank</option>
+                                <option value="MANDIRI">Bank Mandiri</option>
+                                <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
+                                <option value="BCA">Bank Central Asia (BCA)</option>
+                                <option value="BNI">Bank Negara Indonesia (BNI)</option>
+                                <option value="CIMB">CIMB Niaga</option>
+                                <option value="PERMATA">Bank Permata</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label htmlFor="bank-acc-holder" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                                Nama Pemilik Rekening
+                              </label>
+                              <input
+                                id="bank-acc-holder"
+                                type="text"
+                                placeholder="Nama sesuai buku tabungan"
+                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                                value={bankAccountHolder}
+                                onChange={(e) => setBankAccountHolder(e.target.value)}
+                              />
+                            </div>
                           </div>
 
                           <div>
-                            <label htmlFor="bank-acc-holder" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                              Nama Pemilik Rekening
+                            <label htmlFor="bank-acc-number" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                              Nomor Rekening
                             </label>
                             <input
-                              id="bank-acc-holder"
+                              id="bank-acc-number"
                               type="text"
-                              placeholder="Nama sesuai buku tabungan"
+                              placeholder="Contoh: 1234567890"
                               className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
-                              value={bankAccountHolder}
-                              onChange={(e) => setBankAccountHolder(e.target.value)}
+                              value={bankAccountNumber}
+                              onChange={(e) => setBankAccountNumber(e.target.value)}
                             />
+                            <span className="block font-mono text-[8px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
+                              Pencairan dana otomatis dari Xendit akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
+                            </span>
                           </div>
                         </div>
-
-                        <div>
-                          <label htmlFor="bank-acc-number" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                            Nomor Rekening
-                          </label>
-                          <input
-                            id="bank-acc-number"
-                            type="text"
-                            placeholder="Contoh: 1234567890"
-                            className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
-                            value={bankAccountNumber}
-                            onChange={(e) => setBankAccountNumber(e.target.value)}
-                          />
-                          <span className="block font-mono text-[8px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
-                            Pencairan dana otomatis dari Xendit akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
-                          </span>
-                        </div>
-                      </div>
+                      </>
                     )}
 
                     <div className="pt-3">
