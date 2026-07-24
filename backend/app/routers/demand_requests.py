@@ -14,6 +14,10 @@ from app.schemas.demand_request import (
 )
 from app.services import auth_service
 from app.services.connection_manager import demand_manager
+from app.models.payment_transaction import DemandTransaction, PaymentStatus, EscrowStatus
+from app.models.product import Product, ProductStatus
+from app.services.escrow_service import escrow_service
+import difflib
 from typing import List, Optional
 import uuid
 from geoalchemy2 import WKTElement
@@ -454,6 +458,31 @@ async def get_demand_request_detail(
         res_r = await db.execute(stmt_r)
         has_petani_rated = res_r.scalar_one_or_none() is not None
 
+    # Fetch matched transaction if any
+    stmt_tx = select(DemandTransaction).options(joinedload(DemandTransaction.seller)).where(DemandTransaction.demand_request_id == id)
+    res_tx = await db.execute(stmt_tx)
+    dt = res_tx.scalar_one_or_none()
+    
+    match_dict = None
+    if dt:
+        match_dict = {
+            "id": str(dt.id),
+            "seller_id": str(dt.seller_id),
+            "seller_name": dt.seller.full_name if dt.seller else None,
+            "seller_phone": dt.seller.phone_whatsapp if dt.seller else None,
+            "quantity_kg": dt.quantity_kg,
+            "price_per_kg": dt.price_per_kg,
+            "amount": dt.amount,
+            "payment_status": dt.payment_status.value if dt.payment_status else None,
+            "escrow_status": dt.escrow_status.value if dt.escrow_status else None,
+            "xendit_invoice_id": dt.xendit_invoice_id,
+            "xendit_invoice_url": dt.xendit_invoice_url,
+            "xendit_external_id": dt.xendit_external_id,
+            "paid_at": dt.paid_at.isoformat() if dt.paid_at else None,
+            "confirmed_received_at": dt.confirmed_received_at.isoformat() if dt.confirmed_received_at else None,
+            "released_at": dt.released_at.isoformat() if dt.released_at else None
+        }
+
     return {
         "id": request.id,
         "buyer_id": request.buyer_id,
@@ -473,7 +502,8 @@ async def get_demand_request_detail(
         "longitude": lng,
         "commitments": commits_list,
         "num_petani_committed": num_petani,
-        "has_petani_rated": has_petani_rated
+        "has_petani_rated": has_petani_rated,
+        "match_transaction": match_dict
     }
 
 @router.post("/{id}/commit", response_model=SupplyCommitmentSummary)
@@ -552,3 +582,186 @@ async def commit_supply_to_demand(
         "quantity_kg_committed": commitment.quantity_kg_committed,
         "committed_at": commitment.committed_at
     }
+
+
+@router.post("/{id}/match")
+async def match_demand_request_with_seller(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Search for a matching seller/product and create a DemandTransaction (transaksi_permintaan).
+    """
+    # Fetch demand request
+    stmt = select(DemandRequest).where(DemandRequest.id == id)
+    res = await db.execute(stmt)
+    req = res.scalar_one_or_none()
+    if not req:
+        raise HTTPException(status_code=404, detail="Permintaan tidak ditemukan")
+
+    if req.buyer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Hanya pembeli yang membuat permintaan yang dapat mencocokkan")
+
+    # Check if already matched
+    stmt_tx = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    res_tx = await db.execute(stmt_tx)
+    if res_tx.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Permintaan ini sudah dicocokkan dengan penjual")
+
+    # Fetch available products from other sellers
+    stmt_products = select(Product).where(
+        Product.status == ProductStatus.TERSEDIA,
+        Product.seller_id != current_user.id
+    )
+    res_products = await db.execute(stmt_products)
+    products = res_products.scalars().all()
+
+    # Match using commodity name similarity
+    best_product = None
+    best_ratio = 0.0
+
+    for p in products:
+        ratio = difflib.SequenceMatcher(None, p.name.lower(), req.commodity_name.lower()).ratio()
+        if p.category.lower() == req.category.lower() and ratio < 0.4:
+            ratio = 0.4
+        
+        if ratio >= 0.5 and ratio > best_ratio:
+            best_ratio = ratio
+            best_product = p
+
+    if not best_product:
+        raise HTTPException(
+            status_code=404,
+            detail="Tidak ada produk petani yang cocok dengan komoditas penawaran Anda saat ini."
+        )
+
+    # Create DemandTransaction
+    quantity_kg = min(best_product.quantity_kg, req.quantity_kg_needed)
+    amount = quantity_kg * best_product.price_per_kg
+    
+    # Deduct product stock
+    best_product.quantity_kg -= quantity_kg
+    if best_product.quantity_kg <= 0:
+        best_product.quantity_kg = 0.0
+        best_product.status = ProductStatus.TERJUAL
+    db.add(best_product)
+
+    dt = DemandTransaction(
+        id=uuid.uuid4(),
+        demand_request_id=id,
+        seller_id=best_product.seller_id,
+        quantity_kg=quantity_kg,
+        price_per_kg=best_product.price_per_kg,
+        amount=amount,
+        payment_status=PaymentStatus.PENDING,
+        escrow_status=EscrowStatus.NOT_STARTED,
+        xendit_external_id=f"permintaan_{id.hex}_{uuid.uuid4().hex[:6]}"
+    )
+    db.add(dt)
+    
+    # Update request progress
+    req.quantity_kg_committed = quantity_kg
+    req.status = DemandRequestStatus.TERPENUHI
+    db.add(req)
+
+    await db.commit()
+    await db.refresh(dt)
+
+    # Broadcast updated stats to active WebSocket subscribers
+    await demand_manager.broadcast(
+        str(id),
+        {
+            "quantity_kg_committed": req.quantity_kg_committed,
+            "status": req.status.value,
+            "message": f"Permintaan dicocokkan dengan petani {best_product.seller_id.hex[:6]}."
+        }
+    )
+
+    return {
+        "status": "success",
+        "matched": True,
+        "transaction_id": str(dt.id),
+        "seller_name": best_product.name,
+        "amount": amount
+    }
+
+
+@router.post("/{id}/checkout")
+async def checkout_demand(
+    id: uuid.UUID,
+    success_redirect_url: str = Query(..., description="Frontend success redirect URL"),
+    failure_redirect_url: str = Query(..., description="Frontend failure redirect URL"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Creates a Xendit Invoice for checkout of a matched demand request.
+    """
+    # Fetch matched demand transaction
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    res = await db.execute(stmt)
+    dt = res.scalar_one_or_none()
+    if not dt:
+        raise HTTPException(status_code=404, detail="Belum ada pencocokan transaksi untuk permintaan ini")
+
+    # Call Escrow Service to process checkout
+    invoice_url = await escrow_service.checkout_transaction(
+        db=db,
+        source_type="permintaan",
+        source_id=dt.id,
+        buyer_email=current_user.email,
+        success_redirect_url=success_redirect_url,
+        failure_redirect_url=failure_redirect_url
+    )
+    return {"invoice_url": invoice_url}
+
+
+@router.post("/{id}/confirm-received")
+async def confirm_demand_received(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Confirm arrival of products and release escrow funds.
+    """
+    # Find transaction
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    res = await db.execute(stmt)
+    dt = res.scalar_one_or_none()
+    if not dt:
+        raise HTTPException(status_code=404, detail="Transaksi tidak ditemukan")
+
+    await escrow_service.confirm_received_and_release(
+        db=db,
+        source_type="permintaan",
+        source_id=dt.id,
+        user_id=current_user.id
+    )
+    return {"status": "success"}
+
+
+@router.post("/{id}/dispute")
+async def dispute_demand(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    File an escrow dispute for the demand match.
+    """
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    res = await db.execute(stmt)
+    dt = res.scalar_one_or_none()
+    if not dt:
+        raise HTTPException(status_code=404, detail="Transaksi tidak ditemukan")
+
+    await escrow_service.dispute_transaction(
+        db=db,
+        source_type="permintaan",
+        source_id=dt.id,
+        user_id=current_user.id
+    )
+    return {"status": "success"}
+

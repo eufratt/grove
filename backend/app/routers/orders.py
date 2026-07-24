@@ -11,6 +11,7 @@ from app.models.product import Product, ProductStatus
 from app.models.order import Order, OrderStatus, CancellationReason, ComplaintReason
 from app.models.rating import Rating, TransactionType
 from app.services import auth_service, connection_manager
+from app.services.escrow_service import escrow_service
 from datetime import datetime
 from app.schemas.order import OrderCreate, OrderResponse, OrderComplaint
 
@@ -69,7 +70,15 @@ async def get_full_order_response(db: AsyncSession, order_id: UUID) -> OrderResp
         seller_name=row.seller_name,
         seller_phone=row.seller_phone,
         has_buyer_rated=row.has_buyer_rated,
-        cancellation_reason=row.Order.cancellation_reason
+        cancellation_reason=row.Order.cancellation_reason,
+        payment_status=row.Order.payment_status.value if row.Order.payment_status else None,
+        escrow_status=row.Order.escrow_status.value if row.Order.escrow_status else None,
+        xendit_invoice_id=row.Order.xendit_invoice_id,
+        xendit_invoice_url=row.Order.xendit_invoice_url,
+        xendit_external_id=row.Order.xendit_external_id,
+        paid_at=row.Order.paid_at,
+        confirmed_received_at=row.Order.confirmed_received_at,
+        released_at=row.Order.released_at
     )
 
 @router.post("", response_model=OrderResponse)
@@ -209,7 +218,15 @@ async def list_orders(
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
             has_buyer_rated=row.has_buyer_rated,
-            cancellation_reason=order.cancellation_reason
+            cancellation_reason=order.cancellation_reason,
+            payment_status=order.payment_status.value if order.payment_status else None,
+            escrow_status=order.escrow_status.value if order.escrow_status else None,
+            xendit_invoice_id=order.xendit_invoice_id,
+            xendit_invoice_url=order.xendit_invoice_url,
+            xendit_external_id=order.xendit_external_id,
+            paid_at=order.paid_at,
+            confirmed_received_at=order.confirmed_received_at,
+            released_at=order.released_at
         ))
     return orders_data
 
@@ -280,7 +297,15 @@ async def list_incoming_orders(
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
             has_buyer_rated=row.has_buyer_rated,
-            cancellation_reason=order.cancellation_reason
+            cancellation_reason=order.cancellation_reason,
+            payment_status=order.payment_status.value if order.payment_status else None,
+            escrow_status=order.escrow_status.value if order.escrow_status else None,
+            xendit_invoice_id=order.xendit_invoice_id,
+            xendit_invoice_url=order.xendit_invoice_url,
+            xendit_external_id=order.xendit_external_id,
+            paid_at=order.paid_at,
+            confirmed_received_at=order.confirmed_received_at,
+            released_at=order.released_at
         ))
     return orders_data
 
@@ -345,7 +370,15 @@ async def list_my_purchases(
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
             has_buyer_rated=row.has_buyer_rated,
-            cancellation_reason=order.cancellation_reason
+            cancellation_reason=order.cancellation_reason,
+            payment_status=order.payment_status.value if order.payment_status else None,
+            escrow_status=order.escrow_status.value if order.escrow_status else None,
+            xendit_invoice_id=order.xendit_invoice_id,
+            xendit_invoice_url=order.xendit_invoice_url,
+            xendit_external_id=order.xendit_external_id,
+            paid_at=order.paid_at,
+            confirmed_received_at=order.confirmed_received_at,
+            released_at=order.released_at
         ))
     return orders_data
 
@@ -431,4 +464,74 @@ async def complain_order(
     )
     
     return await get_full_order_response(db, order.id)
+
+
+@router.post("/{order_id}/checkout")
+async def checkout_order(
+    order_id: UUID,
+    success_redirect_url: str = Query(..., description="Frontend success redirect URL"),
+    failure_redirect_url: str = Query(..., description="Frontend failure redirect URL"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Creates a Xendit Invoice for checkout of a standard order.
+    """
+    # Fetch order
+    stmt = select(Order).where(Order.id == order_id)
+    res = await db.execute(stmt)
+    order = res.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+
+    if order.buyer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Hanya pembeli order ini yang dapat melakukan checkout")
+
+    # Call Escrow Service to process checkout
+    invoice_url = await escrow_service.checkout_transaction(
+        db=db,
+        source_type="pesanan",
+        source_id=order_id,
+        buyer_email=current_user.email,
+        success_redirect_url=success_redirect_url,
+        failure_redirect_url=failure_redirect_url
+    )
+    return {"invoice_url": invoice_url}
+
+
+@router.post("/{order_id}/confirm-received", response_model=OrderResponse)
+async def confirm_order_received(
+    order_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Confirm arrival of products and release escrow funds.
+    """
+    await escrow_service.confirm_received_and_release(
+        db=db,
+        source_type="pesanan",
+        source_id=order_id,
+        user_id=current_user.id
+    )
+    return await get_full_order_response(db, order_id)
+
+
+@router.post("/{order_id}/dispute", response_model=OrderResponse)
+async def dispute_order(
+    order_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    File an escrow dispute for the order.
+    """
+    await escrow_service.dispute_transaction(
+        db=db,
+        source_type="pesanan",
+        source_id=order_id,
+        user_id=current_user.id
+    )
+    return await get_full_order_response(db, order_id)
+
 

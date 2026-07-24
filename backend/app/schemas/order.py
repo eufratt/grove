@@ -28,6 +28,16 @@ class OrderResponse(BaseModel):
     buyer_phone: Optional[str] = None
     seller_name: Optional[str] = None
     seller_phone: Optional[str] = None
+
+    # Escrow payment fields
+    payment_status: Optional[str] = None
+    escrow_status: Optional[str] = None
+    xendit_invoice_id: Optional[str] = None
+    xendit_invoice_url: Optional[str] = None
+    xendit_external_id: Optional[str] = None
+    paid_at: Optional[datetime] = None
+    confirmed_received_at: Optional[datetime] = None
+    released_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True

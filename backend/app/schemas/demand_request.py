@@ -51,6 +51,7 @@ class DemandRequestDetailResponse(DemandRequestResponse):
     commitments: List[SupplyCommitmentSummary] = []
     num_petani_committed: int = 0
     has_petani_rated: bool = False
+    match_transaction: Optional[dict] = None
 
     class Config:
         from_attributes = True
