@@ -62,6 +62,13 @@ export const authApi = {
     return response.json();
   },
 
+  getUserById: async (id: string) => {
+    const response = await apiClient(`/users/${id}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
   logout: async () => {
     const response = await apiClient('/auth/logout', {
       method: 'POST',

@@ -143,6 +143,13 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
     setCommitError('');
     const qty = parseFloat(commitQty);
     if (isNaN(qty) || qty <= 0) { setCommitError('Masukkan jumlah valid lebih dari 0 kg'); return; }
+    
+    const remainingQty = Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed);
+    if (qty > remainingQty) {
+      setCommitError(`Jumlah komitmen tidak boleh melebihi sisa kebutuhan (${remainingQty.toLocaleString('id-ID')} kg)`);
+      return;
+    }
+    
     setSubmittingCommit(true);
     try {
       await demandRequestsApi.commitSupply(commitRequest.id, qty);

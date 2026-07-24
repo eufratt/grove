@@ -236,7 +236,10 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-gr-text-primary/40 uppercase tracking-wider">
                 <span className="font-sans">
-                  Petani: <span className="font-semibold text-gr-text-primary normal-case">{product.seller_name || 'Petani Grove'}</span>
+                  Petani:{' '}
+                  <Link href={`/petani/${product.seller_id}`} className="font-semibold text-gr-text-primary normal-case hover:text-gr-green hover:underline">
+                    {product.seller_name || 'Petani Grove'}
+                  </Link>
                 </span>
                 <span>|</span>
                 <SellerRatingBadge avgRating={product.seller_rating_avg} ratingCount={product.seller_rating_count} size="sm" />

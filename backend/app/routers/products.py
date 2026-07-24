@@ -135,22 +135,29 @@ async def create_product(
 
 @router.get("", response_model=List[ProductResponse])
 async def list_products(
+    seller_id: Optional[UUID] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    sql = text("""
+    params = {"skip": skip, "limit": limit}
+    where_clause = "WHERE p.status = 'TERSEDIA'"
+    if seller_id:
+        where_clause += " AND p.seller_id = :seller_id"
+        params["seller_id"] = seller_id
+
+    sql = text(f"""
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
                ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
                u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
         FROM products p
         JOIN users u ON p.seller_id = u.id
-        WHERE p.status = 'TERSEDIA'
+        {where_clause}
         ORDER BY p.created_at DESC
         OFFSET :skip
         LIMIT :limit
     """)
-    result = await db.execute(sql, {"skip": skip, "limit": limit})
+    result = await db.execute(sql, params)
     
     products = []
     for row in result:

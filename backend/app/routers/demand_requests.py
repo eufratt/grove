@@ -505,6 +505,13 @@ async def commit_supply_to_demand(
             detail="Permintaan sudah tidak terbuka untuk komitmen"
         )
 
+    remaining_kg = max(0.0, request.quantity_kg_needed - request.quantity_kg_committed)
+    if body.quantity_kg > remaining_kg:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Jumlah komitmen melebihi sisa kebutuhan ({remaining_kg} kg)"
+        )
+
     # Create commitment
     commitment = SupplyCommitment(
         demand_request_id=id,

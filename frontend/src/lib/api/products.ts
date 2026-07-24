@@ -18,8 +18,12 @@ export const productsApi = {
     return response.json();
   },
 
-  getProducts: async (skip = 0, limit = 20) => {
-    const response = await apiClient(`/products?skip=${skip}&limit=${limit}`, {
+  getProducts: async (skip = 0, limit = 20, sellerId?: string) => {
+    let url = `/products?skip=${skip}&limit=${limit}`;
+    if (sellerId) {
+      url += `&seller_id=${sellerId}`;
+    }
+    const response = await apiClient(url, {
       method: 'GET',
     });
     return response.json();

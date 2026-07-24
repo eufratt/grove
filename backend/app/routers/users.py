@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import WKTElement
+from sqlalchemy import select
+from uuid import UUID
 
 from app.db import get_db
 from app.schemas.user import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest, UpdateProfileRequest
@@ -60,4 +62,16 @@ async def update_profile(
     await db.commit()
     await db.refresh(current_user)
     return current_user
+
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user_by_id(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(User).where(User.id == user_id)
+    res = await db.execute(stmt)
+    user = res.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User tidak ditemukan")
+    return user
 

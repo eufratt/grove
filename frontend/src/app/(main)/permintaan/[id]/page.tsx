@@ -172,6 +172,12 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       return;
     }
 
+    const remainingKg = Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed);
+    if (qty > remainingKg) {
+      setError(`Jumlah komitmen tidak boleh melebihi sisa kebutuhan (${remainingKg.toLocaleString('id-ID')} kg)`);
+      return;
+    }
+
     setSubmittingCommit(true);
     try {
       await demandRequestsApi.commitSupply(id, qty);
