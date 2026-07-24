@@ -208,23 +208,23 @@ function BerandaContent() {
           <>
             {/* Store search results banner/matching farmers display */}
             {isSearchActive && matchingFarmers.length > 0 && (
-              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-2xl shadow-2xs">
-                <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-3.5 font-bold">
+              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-xs">
+                <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-4 font-bold border-b border-gr-line/40 pb-2">
                   <span>Petani berkaitan dengan "{searchQuery}"</span>
                 </div>
                 <div className="space-y-3.5">
                   {matchingFarmers.slice(0, 3).map((farmer) => (
                     <div 
                       key={farmer.id} 
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white/60 backdrop-blur-xs border border-gr-line/60 rounded-xl hover:border-gr-line transition-all duration-300"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white/80 border border-gr-line rounded-sm hover:border-gr-ink-soft/30 transition-all duration-200"
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
                         <div 
-                          className="relative h-11 w-11 rounded-full bg-white p-0.5 border shadow-xs shrink-0"
+                          className="relative h-11 w-11 rounded-full bg-white p-0.5 border border-gr-line shrink-0"
                           style={{ borderColor: farmer.theme_color || '#1b4332' }}
                         >
-                          <div className="h-full w-full rounded-full bg-gr-paper/60 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase border border-gr-line/10">
+                          <div className="h-full w-full rounded-full bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase border border-gr-line/10">
                             {farmer.avatar_url ? (
                               <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
                             ) : (
@@ -253,7 +253,7 @@ function BerandaContent() {
                       <div className="shrink-0">
                         <Link
                           href={`/petani/${farmer.id}`}
-                          className="inline-flex items-center gap-1.5 text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2 px-4 rounded-xl shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
+                          className="inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest py-2 px-4 rounded-sm transition-all hover:opacity-90"
                           style={{ backgroundColor: farmer.theme_color || '#1b4332' }}
                         >
                           Kunjungi Toko

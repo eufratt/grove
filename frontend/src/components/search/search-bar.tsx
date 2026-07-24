@@ -123,7 +123,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Autocomplete Suggestion Dropdown */}
       {isFocused && query.trim() && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gr-line rounded-2xl shadow-md z-50 overflow-hidden font-sans text-xs text-gr-ink animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#FAF9F5]/95 backdrop-blur-md border border-gr-line rounded-sm shadow-md z-50 overflow-hidden font-sans text-xs text-gr-ink animate-in fade-in slide-in-from-top-1 duration-150">
           <button
             type="button"
             onMouseDown={(e) => {
@@ -133,12 +133,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               }
               setIsFocused(false);
             }}
-            className="w-full text-left px-4 py-3.5 hover:bg-gr-ink/5 flex items-center gap-2.5 border-b border-gr-line/50 transition-colors font-semibold"
+            className="w-full text-left px-4 py-3 hover:bg-gr-ink/5 flex items-center gap-2 border-b border-gr-line/40 transition-colors font-semibold"
           >
             <Store className="h-4 w-4 text-gr-board" />
             <span>Cari Petani "{query}"</span>
           </button>
-          <div className="px-4 py-2 bg-gr-paper/30 font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft">
+          <div className="px-4 py-1.5 bg-gr-ink/5 font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft border-b border-gr-line/30">
             Saran Pencarian Produk
           </div>
           <button
@@ -148,9 +148,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               handleSearch(query);
               setIsFocused(false);
             }}
-            className="w-full text-left px-4 py-3 hover:bg-gr-ink/5 flex items-center gap-2.5 transition-colors"
+            className="w-full text-left px-4.5 py-2.5 hover:bg-gr-ink/5 flex items-center gap-2 transition-colors text-gr-ink-soft hover:text-gr-ink"
           >
-            <Search className="h-3.5 w-3.5 text-gr-ink-soft" />
+            <Search className="h-3.5 w-3.5 opacity-65" />
             <span>{query.toLowerCase()}</span>
           </button>
         </div>
