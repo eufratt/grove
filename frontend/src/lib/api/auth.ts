@@ -86,6 +86,24 @@ export const authApi = {
     return response.json();
   },
 
+  uploadAvatar: async (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/avatar`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Gagal mengunggah foto profil: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
   logout: async () => {
     const response = await apiClient('/auth/logout', {
       method: 'POST',

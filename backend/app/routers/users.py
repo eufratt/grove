@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import WKTElement
 from sqlalchemy import select
@@ -7,7 +7,7 @@ from uuid import UUID
 from app.db import get_db
 from app.schemas.user import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest, UpdateProfileRequest
 from app.models.user import User, UserRole
-from app.services import auth_service
+from app.services import auth_service, storage_service
 from app.services.auth_service import validate_indonesian_phone
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -104,5 +104,20 @@ async def list_users(
     res = await db.execute(stmt)
     users = res.scalars().all()
     return users
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    avatar: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    try:
+        avatar_url = await storage_service.upload_product_photo(avatar)
+        current_user.avatar_url = avatar_url
+        await db.commit()
+        await db.refresh(current_user)
+        return current_user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal mengunggah foto profil: {str(e)}")
 
 
