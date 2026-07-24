@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 from fastapi import HTTPException, status
@@ -19,12 +19,12 @@ async def broadcast_status_change(order: Order, message_text: str):
             "order_id": str(order.id),
             "status": order.status.value,
             "message": message_text,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         }
     )
 
 def get_countdown_message(target_status: OrderStatus, base_time: datetime) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     
     if target_status == OrderStatus.MENUNGGU_KONFIRMASI:
         deadline = base_time + timedelta(seconds=settings.TIMEOUT_KONFIRMASI)
@@ -93,7 +93,7 @@ async def accept_order(db: AsyncSession, order: Order, current_user: User) -> Or
         )
         
     order.status = OrderStatus.DIPROSES
-    order.status_updated_at = datetime.utcnow()
+    order.status_updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     
     db.add(order)
     await db.commit()
@@ -126,7 +126,7 @@ async def reject_order(db: AsyncSession, order: Order, current_user: User) -> Or
     
     order.status = OrderStatus.DIBATALKAN
     order.cancellation_reason = CancellationReason.PETANI_MENOLAK
-    order.status_updated_at = datetime.utcnow()
+    order.status_updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     
     db.add(order)
     await db.commit()
@@ -156,7 +156,7 @@ async def cancel_order_by_buyer(db: AsyncSession, order: Order, current_user: Us
     
     order.status = OrderStatus.DIBATALKAN
     order.cancellation_reason = CancellationReason.PEMBELI_BATAL
-    order.status_updated_at = datetime.utcnow()
+    order.status_updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     
     db.add(order)
     await db.commit()
@@ -190,7 +190,7 @@ async def mark_order_ready(db: AsyncSession, order: Order, current_user: User, t
             detail="Hanya petani pemilik produk yang dapat menandai pesanan siap"
         )
         
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     order.status = target_status
     order.marked_ready_at = now
     order.status_updated_at = now
@@ -222,7 +222,7 @@ async def confirm_received(db: AsyncSession, order: Order, current_user: User) -
             detail="Hanya pembeli yang dapat mengonfirmasi pesanan diterima"
         )
         
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     
     # Transition to DITERIMA transiently
     order.status = OrderStatus.DITERIMA
@@ -258,7 +258,7 @@ async def system_timeout_confirmation(db: AsyncSession, order: Order) -> Order:
     
     order.status = OrderStatus.DIBATALKAN
     order.cancellation_reason = CancellationReason.TIMEOUT_KONFIRMASI
-    order.status_updated_at = datetime.utcnow()
+    order.status_updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     
     db.add(order)
     await db.commit()
@@ -276,7 +276,7 @@ async def system_timeout_pickup(db: AsyncSession, order: Order) -> Order:
     
     order.status = OrderStatus.DIBATALKAN
     order.cancellation_reason = CancellationReason.TIMEOUT_PENGAMBILAN
-    order.status_updated_at = datetime.utcnow()
+    order.status_updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
     
     db.add(order)
     await db.commit()
@@ -290,7 +290,7 @@ async def system_auto_confirm_received(db: AsyncSession, order: Order) -> Order:
     if order.status not in (OrderStatus.SIAP_DIAMBIL, OrderStatus.DIKIRIM):
         return order
         
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     
     order.status = OrderStatus.DITERIMA
     order.received_at = now

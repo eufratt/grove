@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import Enum, DateTime, ForeignKey, Float, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -71,13 +71,13 @@ class Order(Base):
     quantity_kg: Mapped[float] = mapped_column(Float, nullable=False)
     status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.MENUNGGU_KONFIRMASI)
     buyer_confirmed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # New fields for state machine
     cancellation_reason: Mapped[Optional[CancellationReason]] = mapped_column(Enum(CancellationReason), nullable=True)
     complaint_reason: Mapped[Optional[ComplaintReason]] = mapped_column(Enum(ComplaintReason), nullable=True)
     complaint_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    status_updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    status_updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None), onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
     marked_ready_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     complained_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

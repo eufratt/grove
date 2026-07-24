@@ -7,7 +7,7 @@ from app.models.reference_price import ReferencePrice
 from app.models.product import Product, ProductStatus
 from app.schemas.reference_price import PaginatedReferencePrices
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.services.divergence_service import divergence_service
 from app.services.groq_service import groq_service
 from app.services.divergence_cache import divergence_cache
@@ -119,7 +119,7 @@ async def get_reference_prices_history(
         query = query.where(ReferencePrice.region == region)
     if days:
         # Fetch slightly more history to help with initial forward fill
-        cutoff = datetime.utcnow() - timedelta(days=days + 15)
+        cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days + 15)
         query = query.where(ReferencePrice.scraped_at >= cutoff)
         
     query = query.order_by(ReferencePrice.scraped_at.asc())
@@ -137,7 +137,7 @@ async def get_reference_prices_history(
         date_to_item[d_key] = item
 
     # Target date range is from (today - days + 1) to today
-    end_date = datetime.utcnow().date()
+    end_date = datetime.now(timezone.utc).replace(tzinfo=None).date()
     # In case DB has slightly more recent date
     max_db_date = max(item.scraped_at.date() for item in items)
     if max_db_date > end_date:
@@ -213,7 +213,7 @@ async def get_price_divergence(
     query = query.where(ReferencePrice.region == region)
     
     # Fetch slightly more history to help with initial forward fill
-    cutoff = datetime.utcnow() - timedelta(days=days + 15)
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days + 15)
     query = query.where(ReferencePrice.scraped_at >= cutoff)
     query = query.order_by(ReferencePrice.scraped_at.asc())
     
@@ -240,7 +240,7 @@ async def get_price_divergence(
         date_to_item[d_key] = item
 
     # Target date range is from (today - days + 1) to today
-    end_date = datetime.utcnow().date()
+    end_date = datetime.now(timezone.utc).replace(tzinfo=None).date()
     max_db_date = max(item.scraped_at.date() for item in items)
     if max_db_date > end_date:
         end_date = max_db_date
@@ -348,7 +348,7 @@ async def get_price_divergence_stream(
         query = query.where(ReferencePrice.commodity_name == commodity)
         query = query.where(ReferencePrice.region == region)
         
-        cutoff = datetime.utcnow() - timedelta(days=days + 15)
+        cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days + 15)
         query = query.where(ReferencePrice.scraped_at >= cutoff)
         query = query.order_by(ReferencePrice.scraped_at.asc())
         
@@ -375,7 +375,7 @@ async def get_price_divergence_stream(
             d_key = item.scraped_at.date()
             date_to_item[d_key] = item
 
-        end_date = datetime.utcnow().date()
+        end_date = datetime.now(timezone.utc).replace(tzinfo=None).date()
         max_db_date = max(item.scraped_at.date() for item in items)
         if max_db_date > end_date:
             end_date = max_db_date
@@ -474,7 +474,7 @@ async def get_price_cobweb_stream(
         query = query.where(ReferencePrice.commodity_name == commodity)
         query = query.where(ReferencePrice.region == region)
         
-        cutoff = datetime.utcnow() - timedelta(days=days + 15)
+        cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days + 15)
         query = query.where(ReferencePrice.scraped_at >= cutoff)
         query = query.order_by(ReferencePrice.scraped_at.asc())
         
@@ -499,7 +499,7 @@ async def get_price_cobweb_stream(
             d_key = item.scraped_at.date()
             date_to_item[d_key] = item
 
-        end_date = datetime.utcnow().date()
+        end_date = datetime.now(timezone.utc).replace(tzinfo=None).date()
         max_db_date = max(item.scraped_at.date() for item in items)
         if max_db_date > end_date:
             end_date = max_db_date

@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, Enum, DateTime, Float, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column, column_property
@@ -44,7 +44,7 @@ class User(Base):
         nullable=True
     )
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     latitude = column_property(func.ST_Y(location))
     longitude = column_property(func.ST_X(location))

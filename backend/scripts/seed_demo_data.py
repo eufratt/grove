@@ -2,7 +2,7 @@ import os
 import sys
 import asyncio
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from geoalchemy2 import WKTElement
@@ -127,7 +127,7 @@ async def main():
         for i, mock in enumerate(DEMAND_MOCKS):
             buyer = buyers[i % len(buyers)]
             lat, lng = offset_coords(YOGYA_LAT, YOGYA_LNG, i)
-            deadline_date = datetime.utcnow() + timedelta(days=mock["days_to_deadline"])
+            deadline_date = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=mock["days_to_deadline"])
             
             # Create request
             embedding_text = f"{mock['commodity']} {mock['category']}"

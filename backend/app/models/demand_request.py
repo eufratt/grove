@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from sqlalchemy import String, Enum, DateTime, ForeignKey, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -36,7 +36,7 @@ class DemandRequest(Base):
     price_per_kg: Mapped[float] = mapped_column(Float, default=0.0)
     deadline: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     status: Mapped[DemandRequestStatus] = mapped_column(Enum(DemandRequestStatus), default=DemandRequestStatus.TERBUKA)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Geography Point (SRID 4326 for WGS84)
     location: Mapped[Optional[Geometry]] = mapped_column(
@@ -58,7 +58,7 @@ class SupplyCommitment(Base):
     demand_request_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("demand_requests.id"), nullable=False)
     petani_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     quantity_kg_committed: Mapped[float] = mapped_column(Float, nullable=False)
-    committed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    committed_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Relationships
     demand_request = relationship("DemandRequest", back_populates="commitments")

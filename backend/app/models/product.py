@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, Enum, DateTime, ForeignKey, Float
 from sqlalchemy.orm import Mapped, mapped_column
@@ -46,4 +46,4 @@ class Product(Base):
     # pgvector embedding (dimensi 768)
     embedding: Mapped[Optional[Vector]] = mapped_column(Vector(768), nullable=True)
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

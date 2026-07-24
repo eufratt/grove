@@ -3,7 +3,7 @@ import sys
 import asyncio
 import random
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import select, delete, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
@@ -128,7 +128,7 @@ async def main():
 
         # Generate data
         records = []
-        today = datetime.utcnow()
+        today = datetime.now(timezone.utc).replace(tzinfo=None)
         
         # We seed 90 days of data (from 90 days ago up to today)
         total_days = 90

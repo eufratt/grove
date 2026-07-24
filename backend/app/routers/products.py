@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, text, func
@@ -170,7 +170,7 @@ async def get_personal_stats(
     current_user: Optional[User] = Depends(auth_service.get_optional_current_user)
 ):
     # Calculate WIB start of today in UTC
-    now_utc = datetime.utcnow()
+    now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
     wib_now = now_utc + timedelta(hours=7)
     wib_today_start = datetime(wib_now.year, wib_now.month, wib_now.day)
     utc_today_start = wib_today_start - timedelta(hours=7)

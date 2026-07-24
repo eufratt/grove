@@ -1,7 +1,7 @@
 import os
 import json
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 
 class DivergenceCache:
@@ -15,7 +15,7 @@ class DivergenceCache:
 
     def _get_today_date_str(self) -> str:
         # Standardized UTC date string
-        return datetime.utcnow().date().isoformat()
+        return datetime.now(timezone.utc).date().isoformat()
 
     async def get(self, commodity: str, region: str, days: int) -> Optional[Dict[str, Any]]:
         async with self._lock:

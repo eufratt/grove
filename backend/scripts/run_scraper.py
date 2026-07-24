@@ -2,7 +2,7 @@ import os
 import sys
 import asyncio
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from playwright.async_api import async_playwright
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -44,7 +44,7 @@ async def scrape_from_url(page, url: str) -> list[dict]:
     await page.wait_for_selector("#CommodityTree", timeout=20000)
     
     # Set date range to last 30 days
-    end_dt = datetime.utcnow()
+    end_dt = datetime.now(timezone.utc).replace(tzinfo=None)
     start_dt = end_dt - timedelta(days=30)
     start_date_str = start_dt.strftime("%Y-%m-%d")
     end_date_str = end_dt.strftime("%Y-%m-%d")
@@ -180,7 +180,7 @@ async def scrape_data() -> list[dict]:
             raise e
 
 async def main():
-    start_time = datetime.utcnow()
+    start_time = datetime.now(timezone.utc).replace(tzinfo=None)
     status = ScrapeStatusEnum.FAILED
     error_message = None
     items_scraped = 0

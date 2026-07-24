@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 from fastapi import HTTPException
 
@@ -89,7 +89,7 @@ async def create_test_order(db, product, buyer, quantity_kg=10.0, initial_status
         buyer_id=buyer.id,
         quantity_kg=quantity_kg,
         status=initial_status,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc).replace(tzinfo=None)
     )
     # Deduct product stock initially
     stmt = select(Product).where(Product.id == product.id).with_for_update()
@@ -180,7 +180,7 @@ async def test_timeout_confirmation_job(test_context):
     
     order = await create_test_order(db, product, buyer, quantity_kg=12.0)
     
-    order.created_at = datetime.utcnow() - timedelta(seconds=settings.TIMEOUT_KONFIRMASI + 10)
+    order.created_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=settings.TIMEOUT_KONFIRMASI + 10)
     db.add(order)
     await db.commit()
     await db.refresh(order)
@@ -205,7 +205,7 @@ async def test_timeout_pickup_job(test_context):
     order = await order_status_service.accept_order(db, order, seller)
     order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.SIAP_DIAMBIL)
     
-    order.marked_ready_at = datetime.utcnow() - timedelta(seconds=settings.TIMEOUT_PENGAMBILAN + 10)
+    order.marked_ready_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=settings.TIMEOUT_PENGAMBILAN + 10)
     db.add(order)
     await db.commit()
     await db.refresh(order)
@@ -226,7 +226,7 @@ async def test_timeout_auto_confirm_received_job(test_context):
     order = await order_status_service.accept_order(db, order, seller)
     order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
     
-    order.marked_ready_at = datetime.utcnow() - timedelta(seconds=settings.TIMEOUT_AUTO_CONFIRM + 10)
+    order.marked_ready_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=settings.TIMEOUT_AUTO_CONFIRM + 10)
     db.add(order)
     await db.commit()
     await db.refresh(order)

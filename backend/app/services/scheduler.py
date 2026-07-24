@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -15,7 +15,7 @@ scheduler = AsyncIOScheduler()
 
 async def check_confirmation_timeouts():
     async with AsyncSessionLocal() as db:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         threshold = now - timedelta(seconds=settings.TIMEOUT_KONFIRMASI)
         stmt = select(Order).where(
             Order.status == OrderStatus.MENUNGGU_KONFIRMASI,
@@ -33,7 +33,7 @@ async def check_confirmation_timeouts():
 
 async def check_pickup_and_auto_confirm():
     async with AsyncSessionLocal() as db:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         
         # 1. Process pickup timeouts first (only for SIAP_DIAMBIL)
         threshold_pickup = now - timedelta(seconds=settings.TIMEOUT_PENGAMBILAN)
@@ -51,7 +51,7 @@ async def check_pickup_and_auto_confirm():
                 print(f"Error processing pickup timeout for order {order.id}: {e}")
                 
     async with AsyncSessionLocal() as db:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         # 2. Process auto-confirm received next (only for DIKIRIM)
         threshold_confirm = now - timedelta(seconds=settings.TIMEOUT_AUTO_CONFIRM)
         stmt_confirm = select(Order).where(
