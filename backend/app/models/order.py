@@ -62,6 +62,8 @@ class ComplaintReason(str, enum.Enum):
                     return member
         return None
 
+from app.models.payment_transaction import PaymentStatus, EscrowStatus
+
 class Order(Base):
     __tablename__ = "orders"
 
@@ -82,3 +84,13 @@ class Order(Base):
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     complained_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+    # Escrow payment fields
+    payment_status: Mapped[Optional[PaymentStatus]] = mapped_column(Enum(PaymentStatus), default=PaymentStatus.PENDING, nullable=True)
+    escrow_status: Mapped[Optional[EscrowStatus]] = mapped_column(Enum(EscrowStatus), default=EscrowStatus.NOT_STARTED, nullable=True)
+    xendit_invoice_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    xendit_invoice_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    xendit_external_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
+    paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    confirmed_received_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    released_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

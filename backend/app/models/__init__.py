@@ -7,6 +7,7 @@ from .token import RefreshToken
 from .scraper_status import ScraperStatus, ScrapeStatusEnum
 from .demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
 from .rating import Rating, RoleContext, TransactionType
+from .payment_transaction import PaymentStatus, EscrowStatus, DemandTransaction, PaymentTransaction
 
 __all__ = [
     "Base",
@@ -26,4 +27,8 @@ __all__ = [
     "Rating",
     "RoleContext",
     "TransactionType",
+    "PaymentStatus",
+    "EscrowStatus",
+    "DemandTransaction",
+    "PaymentTransaction",
 ]
