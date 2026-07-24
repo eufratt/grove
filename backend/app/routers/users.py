@@ -1,4 +1,3 @@
-import re
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import WKTElement
@@ -7,15 +6,9 @@ from app.db import get_db
 from app.schemas.auth import UserResponse, UserLocationUpdate, UpgradeToFarmerRequest, UpdateProfileRequest
 from app.models.user import User, UserRole
 from app.services import auth_service
+from app.services.auth_service import validate_indonesian_phone
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-def validate_indonesian_phone(phone: str) -> bool:
-    # Remove any spaces, dashes, or parentheses
-    cleaned = re.sub(r'[\s\-()]', '', phone)
-    # Check regex: starts with +628, 628, or 08, followed by 7 to 11 digits
-    pattern = r'^(\+628|628|08)[0-9]{7,11}$'
-    return bool(re.match(pattern, cleaned))
 
 @router.patch("/me/location", response_model=UserResponse)
 async def update_location(

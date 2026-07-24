@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -76,7 +76,7 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
     new_refresh_token = RefreshToken(
         user_id=user.id,
         token_hash=auth_service.hash_password(refresh_token_raw),
-        expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at=datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     )
     db.add(new_refresh_token)
     await db.commit()
@@ -120,8 +120,16 @@ async def complete_profile(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
+    phone = profile_data.phone_whatsapp
+    if phone:
+        if not auth_service.validate_indonesian_phone(phone):
+            raise HTTPException(
+                status_code=400,
+                detail="Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)"
+            )
+        current_user.phone_whatsapp = phone
+
     current_user.role = profile_data.role or UserRole.PEMBELI
-    current_user.phone_whatsapp = profile_data.phone_whatsapp
     if profile_data.lat is not None and profile_data.lng is not None:
         current_user.location = WKTElement(f"POINT({profile_data.lng} {profile_data.lat})", srid=4326)
     await db.commit()
@@ -139,7 +147,7 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
         select(RefreshToken).where(
             RefreshToken.token_hash == hashed_token,
             RefreshToken.revoked == False,
-            RefreshToken.expires_at > datetime.utcnow()
+            RefreshToken.expires_at > datetime.now(timezone.utc).replace(tzinfo=None)
         )
     )
     found_token = result.scalar_one_or_none()

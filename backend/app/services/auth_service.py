@@ -1,5 +1,6 @@
+import re
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Any, Union
 import hashlib
 from jose import jwt, JWTError
@@ -20,9 +21,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc).replace(tzinfo=None) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
@@ -65,3 +66,10 @@ async def get_optional_current_user(request: Request, db: AsyncSession = Depends
     
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
+
+def validate_indonesian_phone(phone: str) -> bool:
+    # Remove any spaces, dashes, or parentheses
+    cleaned = re.sub(r'[\s\-()]', '', phone)
+    # Check regex: starts with +628, 628, or 08, followed by 7 to 11 digits
+    pattern = r'^(\+628|628|08)[0-9]{7,11}$'
+    return bool(re.match(pattern, cleaned))
