@@ -74,10 +74,11 @@ function MapController({
   const flyToKey = flyToCoords ? `${flyToCoords[0]},${flyToCoords[1]}` : null;
   useEffect(() => {
     if (flyToCoords) {
-      map.flyTo(flyToCoords, 9, { animate: true, duration: 1.2 });
+      const targetZoom = mode === 'pricing' ? 9 : 14;
+      map.flyTo(flyToCoords, targetZoom, { animate: true, duration: 1.2 });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flyToKey, map]);
+  }, [flyToKey, map, mode]);
 
   return null;
 }
