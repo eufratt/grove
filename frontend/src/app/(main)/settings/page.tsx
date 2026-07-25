@@ -9,6 +9,7 @@ import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { provinceCentroids } from '@/lib/data/province-centroids';
+import { cn } from '@/lib/utils';
 import { 
   User, 
   Store, 
@@ -41,6 +42,7 @@ export default function SettingsPage() {
   const [bankName, setBankName] = useState('');
   const [bankAccountNumber, setBankAccountNumber] = useState('');
   const [bankAccountHolder, setBankAccountHolder] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'PETANI' | 'PEMBELI'>('PEMBELI');
 
   // Location States
   const [lat, setLat] = useState<number | null>(null);
@@ -87,6 +89,7 @@ export default function SettingsPage() {
         setBankName(userData.bank_name || '');
         setBankAccountNumber(userData.bank_account_number || '');
         setBankAccountHolder(userData.bank_account_holder || '');
+        setSelectedRole(userData.role || 'PEMBELI');
         setLat(userData.latitude || null);
         setLng(userData.longitude || null);
         
@@ -195,6 +198,7 @@ export default function SettingsPage() {
 
     try {
       const updatedUser = await authApi.updateProfile({ 
+        role: selectedRole,
         full_name: fullName.trim(),
         phone_whatsapp: phone || null,
         avatar_url: avatarUrl.trim() || null,
@@ -399,6 +403,37 @@ export default function SettingsPage() {
                       </span>
                     </div>
 
+                    {/* Tipe Akun (Peran) */}
+                    <div>
+                      <span className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                        Tipe Akun (Peran)
+                      </span>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        {[
+                          { value: 'PETANI', label: 'Petani (Farmer)', desc: 'Menjual hasil panen & merespons permintaan' },
+                          { value: 'PEMBELI', label: 'Pembeli (Buyer)', desc: 'Mengajukan permintaan & membeli bahan pangan' }
+                        ].map((roleOpt) => {
+                          const isSelected = selectedRole === roleOpt.value;
+                          return (
+                            <button
+                              key={roleOpt.value}
+                              type="button"
+                              onClick={() => setSelectedRole(roleOpt.value as 'PETANI' | 'PEMBELI')}
+                              className={cn(
+                                "flex-1 border p-3 rounded-sm text-left transition-all duration-200 cursor-pointer focus:outline-none",
+                                isSelected 
+                                  ? "border-gr-board bg-gr-board/5 text-gr-ink shadow-3xs" 
+                                  : "border-gr-line bg-white text-gr-ink-soft hover:border-gr-ink-soft/45 hover:bg-gr-paper/10"
+                              )}
+                            >
+                              <span className="block font-sans text-xs font-extrabold">{roleOpt.label}</span>
+                              <span className="block font-sans text-[9px] text-gr-ink-soft/60 mt-0.5 leading-tight">{roleOpt.desc}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     {/* Full Name */}
                     <div>
                       <label htmlFor="shopee-name" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
@@ -442,7 +477,7 @@ export default function SettingsPage() {
                     </div>
 
                     {/* Bio (Farmers Only) */}
-                    {user?.role === 'PETANI' && (
+                    {selectedRole === 'PETANI' && (
                       <>
                         <div>
                           <label htmlFor="shopee-bio" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">

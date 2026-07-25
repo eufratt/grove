@@ -48,6 +48,9 @@ async def update_profile(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
+    if profile_data.role is not None:
+        current_user.role = profile_data.role
+
     phone = profile_data.phone_whatsapp or profile_data.phone_number
     if phone is not None:
         if phone == "":

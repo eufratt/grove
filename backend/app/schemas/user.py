@@ -34,6 +34,7 @@ class CompleteProfileRequest(BaseModel):
     lng: Optional[float] = None
 
 class UpdateProfileRequest(BaseModel):
+    role: Optional[UserRole] = None
     phone_whatsapp: Optional[str] = None
     phone_number: Optional[str] = None
     bio: Optional[str] = None

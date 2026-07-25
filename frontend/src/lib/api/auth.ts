@@ -22,6 +22,7 @@ export const authApi = {
   },
 
   updateProfile: async (data: { 
+    role?: string | null;
     phone_whatsapp?: string | null; 
     phone_number?: string | null; 
     bio?: string | null; 
