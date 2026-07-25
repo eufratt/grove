@@ -140,7 +140,7 @@ export default function OrdersPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 flex-1 min-h-0 items-stretch overflow-hidden">
           
           {/* COLUMN 1: Masthead & Vertical Tab Selectors (Left) */}
-          <div className="flex flex-col justify-between lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full space-y-6 shrink-0">
+          <div className="flex flex-col lg:border-r lg:border-dashed lg:border-gr-line/40 lg:pr-8 h-full space-y-6 shrink-0">
             <div className="space-y-4">
               <header className="select-none">
                 <span className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-gr-board">
@@ -158,7 +158,7 @@ export default function OrdersPage() {
 
             {/* Vertical Index Tabs */}
             {user && (
-              <div className="flex-1 flex flex-col justify-end space-y-3">
+              <div className="flex flex-col space-y-3">
                 {user.role === 'PETANI' && (
                   <button
                     onClick={() => handleTabChange('incoming')}
