@@ -48,7 +48,7 @@ export function GoogleSignInButton({
     }
   };
 
-  const initAndRender = () => {
+  const renderGoogleButton = () => {
     if (!buttonRef.current || !window.google?.accounts?.id) return;
 
     if (!gsiInitialized) {
@@ -59,29 +59,50 @@ export function GoogleSignInButton({
       gsiInitialized = true;
     }
 
+    // Clear the container's inner HTML to prevent duplicate button renders
+    buttonRef.current.innerHTML = '';
+
+    const parentWidth = buttonRef.current.parentElement?.clientWidth || 320;
+    const targetWidth = width ? Math.min(width, parentWidth) : parentWidth;
+    const clampedWidth = Math.max(200, Math.min(400, Math.floor(targetWidth)));
+
     window.google.accounts.id.renderButton(buttonRef.current, {
       theme,
       shape,
       size,
-      width,
+      width: clampedWidth,
     });
   };
 
   useEffect(() => {
-    // Script may already be loaded on remounts
+    // If google client is already loaded, render the button
     if (window.google?.accounts?.id) {
-      initAndRender();
+      renderGoogleButton();
     }
-    // Otherwise the Script onLoad below will trigger initAndRender
+
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        renderGoogleButton();
+      }, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [theme, shape, size, width]);
 
   return (
     <>
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={initAndRender}
+        onLoad={renderGoogleButton}
       />
       <div ref={buttonRef} />
     </>

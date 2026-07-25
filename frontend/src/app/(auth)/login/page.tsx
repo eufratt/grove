@@ -40,25 +40,6 @@ export default function LoginPage() {
     }
   };
 
-  // Mock login for development bypass when Client ID is missing
-  const handleMockLogin = async (role: string) => {
-    setLoading(true);
-    setError('');
-    try {
-      const mockToken = role === 'new' ? 'mock_token_new' : 'mock_token_existing';
-      const res = await authApi.loginWithGoogle(mockToken);
-      if (res.need_onboarding) {
-        router.push('/lengkapi-profil');
-      } else {
-        router.push('/beranda');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Gagal mock login');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gr-paper">
       <Navbar />
@@ -67,7 +48,7 @@ export default function LoginPage() {
         <BgPattern />
         <Glow color="var(--gr-board)" position="center" className="opacity-10 pointer-events-none" />
         
-        <div className="z-10 w-full max-w-md bg-white/80 backdrop-blur-xl border border-gr-line rounded-sm p-8 sm:p-10 shadow-xl relative overflow-hidden space-y-6">
+        <div className="z-10 w-full max-w-md bg-white/80 backdrop-blur-xl border border-gr-line rounded-sm p-6 sm:p-10 shadow-xl relative overflow-hidden space-y-6">
           {/* Editorial Double Rule Top Accent */}
           <div className="absolute top-0 inset-x-0">
             <div className="h-[3px] bg-gr-ink w-full" />
@@ -101,43 +82,18 @@ export default function LoginPage() {
                 <span>Memproses otentikasi...</span>
               </div>
             ) : (
-              <>
-                <div className="w-full flex justify-center [&_iframe]:!w-full">
-                  <GoogleSignInButton
-                    onSuccess={(credential) =>
-                      handleGoogleSuccess({ credential })
-                    }
-                    onError={() => setError('Google Sign-In failed. Please try again.')}
-                    theme="filled_black"
-                    shape="pill"
-                    size="large"
-                    width={320}
-                  />
-                </div>
-
-                {/* Dev/Demo Bypass Mode */}
-                {process.env.NODE_ENV === 'development' && (
-                  <div className="w-full border-t border-gr-line/70 pt-4 mt-2">
-                    <p className="text-center font-mono text-[9px] uppercase tracking-[0.2em] text-gr-ink-soft/70 mb-3">
-                      — Mode Pengembang (Bypass OAuth) —
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                      <button
-                        onClick={() => handleMockLogin('existing')}
-                        className="flex-1 font-mono text-[10px] uppercase tracking-wider border border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-3 py-2.5 rounded-sm transition-all duration-200 cursor-pointer text-center"
-                      >
-                        User Terdaftar
-                      </button>
-                      <button
-                        onClick={() => handleMockLogin('new')}
-                        className="flex-1 font-mono text-[10px] uppercase tracking-wider border border-gr-line hover:border-gr-ink bg-gr-paper/50 hover:bg-gr-paper text-gr-ink px-3 py-2.5 rounded-sm transition-all duration-200 cursor-pointer text-center"
-                      >
-                        Pendaftaran Baru
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
+              <div className="w-full flex justify-center [&_iframe]:!w-full">
+                <GoogleSignInButton
+                  onSuccess={(credential) =>
+                    handleGoogleSuccess({ credential })
+                  }
+                  onError={() => setError('Google Sign-In failed. Please try again.')}
+                  theme="filled_black"
+                  shape="pill"
+                  size="large"
+                  width={320}
+                />
+              </div>
             )}
           </div>
           
