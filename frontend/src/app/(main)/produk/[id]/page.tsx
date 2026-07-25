@@ -14,6 +14,7 @@ import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plu
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PhoneModal } from '@/components/auth/phone-modal';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export default function ProductDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = React.use(params);
@@ -27,6 +28,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const [error, setError] = useState('');
   const [successToast, setSuccessToast] = useState('');
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [qtyInput, setQtyInput] = useState('1');
 
@@ -96,6 +98,19 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     }
   };
 
+  const handleContactFarmer = () => {
+    if (!product || !product.seller_phone) {
+      setError('Nomor WhatsApp petani tidak tersedia.');
+      return;
+    }
+    const msg = `Halo ${product.seller_name || 'Petani Grove'}, saya ingin bertanya tentang produk "${product.name}" yang dijual di Grove. Apakah stoknya masih tersedia?`;
+    let cleaned = product.seller_phone.replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('0')) {
+      cleaned = '62' + cleaned.slice(1);
+    }
+    window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   const handleBuyNow = async () => {
     if (!product || product.status !== 'TERSEDIA') return;
 
@@ -105,7 +120,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
         setPhoneModalOpen(true);
         return;
       }
-      await proceedToCheckout();
+      setConfirmModalOpen(true);
     } catch (err: any) {
       setError(err.message || 'Gagal memverifikasi pengguna');
     }
@@ -117,11 +132,13 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     try {
       await ordersApi.createOrder({ product_id: id, quantity_kg: quantity });
       setSuccessToast('Pesanan berhasil dibuat! Mengalihkan...');
+      setConfirmModalOpen(false);
       setTimeout(() => {
         router.push('/pesanan');
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Gagal membuat pesanan. Silakan coba lagi.');
+      setConfirmModalOpen(false);
     } finally {
       setCheckingOut(false);
     }
@@ -396,7 +413,11 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" className="flex-1 border-gr-line hover:bg-gr-chalk/60 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleContactFarmer}
+                    className="flex-1 border-gr-line hover:bg-gr-chalk/60 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary"
+                  >
                     <MessageCircle className="mr-2 h-4 w-4" />
                     Hubungi Petani
                   </Button>
@@ -422,16 +443,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               </div>
             )}
 
-            {/* Banners/Alerts at the very bottom */}
-            {isAvailable && !isOwnProduct && (
-              <div className="flex items-center gap-2 bg-gr-orange/5 border border-gr-orange/20 px-3 py-2">
-                <ShieldAlert className="text-gr-orange shrink-0" size={14} />
-                <div className="font-sans text-[10px] text-gr-text-primary/70">
-                  <strong className="text-gr-orange uppercase tracking-wider text-[9px] mr-1">Pemberitahuan Keamanan:</strong>
-                  Hindari transfer langsung. Gunakan transaksi <strong className="text-gr-green font-semibold">tunai (CoD)</strong> saat bertemu.
-                </div>
-              </div>
-            )}
+
 
             {isOwnProduct && (
               <div className="flex items-center gap-2 bg-gr-orange/5 border border-gr-orange/20 px-3 py-2">
@@ -450,8 +462,51 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
         onClose={() => setPhoneModalOpen(false)}
         onSuccess={async () => {
           setPhoneModalOpen(false);
-          await proceedToCheckout();
+          setConfirmModalOpen(true);
         }}
+      />
+      <ConfirmModal
+        isOpen={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        onConfirm={proceedToCheckout}
+        title="Konfirmasi Pembelian"
+        confirmText="Konfirmasi"
+        cancelText="Batal"
+        variant="info"
+        isLoading={checkingOut}
+        description={
+          <div className="space-y-3">
+            <p className="font-sans text-xs text-gr-ink-soft">Apakah Anda yakin ingin membeli produk ini dengan rincian berikut?</p>
+            <div className="bg-[#FAF9F5] border border-gr-line p-3 space-y-1.5 font-mono text-[10px] text-gr-text-primary">
+              <div className="flex justify-between gap-4">
+                <span className="text-gr-text-primary/60">PRODUK:</span>
+                <span className="font-bold text-gr-text-primary uppercase truncate max-w-[160px]" title={product.name}>
+                  {product.name}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gr-text-primary/60">HARGA:</span>
+                <span className="font-bold text-gr-text-primary">
+                  Rp {product.price_per_kg.toLocaleString('id-ID')} / KG
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gr-text-primary/60">QUANTITY:</span>
+                <span className="font-bold text-gr-text-primary">{quantity} KG</span>
+              </div>
+              <div className="border-t border-dashed border-gr-line/30 my-1" />
+              <div className="flex justify-between text-xs font-sans">
+                <span className="text-gr-text-primary font-bold">TOTAL HARGA:</span>
+                <span className="font-bold text-gr-green">
+                  Rp {(product.price_per_kg * quantity).toLocaleString('id-ID')}
+                </span>
+              </div>
+            </div>
+            <p className="font-sans text-[10px] text-gr-orange leading-normal">
+              * Pesanan akan diteruskan ke petani.
+            </p>
+          </div>
+        }
       />
     </main>
   );
