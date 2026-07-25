@@ -531,6 +531,8 @@ function OrderCard({
     : `Halo ${contactName}, saya adalah pembeli dari pesanan Anda (Order ID: ${order.id.slice(0, 8)}) untuk ${order.quantity_kg} KG ${order.product_name || 'Hasil Panen'}.`;
 
   const waUrl = contactPhone ? getWhatsAppUrl(contactPhone, waMessage) : null;
+  const basePrice = (order.price_per_kg || 0) * (order.quantity_kg || 0);
+  const estimatedAdminFee = Math.round(basePrice * 0.02);
 
   return (
     <motion.div
@@ -557,9 +559,19 @@ function OrderCard({
           )}
         </div>
 
-        <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-sm border font-mono text-[10px] uppercase font-bold tracking-wider shadow-2xs", config.pillStyle)}>
-          <StatusIcon size={12} />
-          <span>{config.label}</span>
+        <div className="flex items-center gap-1.5 py-1 text-xs">
+          <span className={cn(
+            "h-1.5 w-1.5 rounded-full shrink-0",
+            currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN' ? "bg-amber-500 animate-pulse" :
+            currentStatus === 'BATAL' || currentStatus === 'DIBATALKAN' ? "bg-gr-down" : "bg-gr-up"
+          )} />
+          <span className={cn(
+            "font-sans font-bold",
+            currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN' ? "text-amber-700" :
+            currentStatus === 'BATAL' || currentStatus === 'DIBATALKAN' ? "text-gr-down" : "text-gr-up"
+          )}>
+            {config.label}
+          </span>
         </div>
       </div>
 
@@ -669,8 +681,8 @@ function OrderCard({
                 <div className="flex items-center justify-between font-sans text-xs pt-1">
                   <span className="text-gr-ink-soft">Status Pembayaran</span>
                   <span className={cn(
-                    "text-[10px] font-bold uppercase px-2 py-0.5 rounded-xs border font-mono",
-                    currentPaymentStatus === 'paid' ? "bg-gr-up/10 text-gr-up border-gr-up/20" : "bg-amber-500/10 text-amber-700 border-amber-500/20"
+                    "font-bold font-mono text-xs uppercase",
+                    currentPaymentStatus === 'paid' ? "text-gr-up" : "text-amber-600"
                   )}>
                     {currentPaymentStatus === 'paid' ? 'Lunas' : 'Belum Dibayar'}
                   </span>
@@ -694,9 +706,9 @@ function OrderCard({
                       href={waUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#25D366] hover:bg-[#20ba5a] text-white font-sans text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0"
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-[#25D366] text-[#128C7E] hover:bg-[#25D366]/10 font-sans text-xs font-semibold shadow-3xs transition-all cursor-pointer shrink-0"
                     >
-                      <svg className="h-4 w-4 fill-white shrink-0" viewBox="0 0 24 24">
+                      <svg className="h-3.5 w-3.5 fill-[#128C7E] shrink-0" viewBox="0 0 24 24">
                         <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
                       </svg>
                       <span>WhatsApp</span>
@@ -723,12 +735,12 @@ function OrderCard({
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekber Grove)</span>
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-gr-up bg-gr-up/10 border border-gr-up/20 px-1.5 py-0.5 rounded-xs font-bold">
-                          Otomatis
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-gr-up font-bold">
+                          • Otomatis
                         </span>
                       </div>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
-                        Pembayaran ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi barang telah diterima.
+                        Dana ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi penerimaan barang. Dikenakan perkiraan biaya admin/gerbang pembayaran sebesar <strong className="font-semibold text-gr-board">Rp {estimatedAdminFee.toLocaleString('id-ID')}</strong> (2% dari total tagihan).
                       </p>
                     </div>
                   </div>
@@ -741,12 +753,12 @@ function OrderCard({
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gr-ink">Pembayaran Tunai (Cash / COD)</span>
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-amber-700 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-xs font-bold">
-                          Di Tempat
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-amber-700 font-bold">
+                          • Di Tempat
                         </span>
                       </div>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
-                        Dapat dibayar tunai langsung saat serah terima barang. Koordinasikan titik temu & penimbangan melalui WhatsApp.
+                        Dapat dibayar tunai langsung saat penimbangan & serah terima barang. <strong className="text-amber-700">Tanpa biaya admin tambahan (Gratis biaya transaksi)</strong>.
                       </p>
                     </div>
                   </div>
