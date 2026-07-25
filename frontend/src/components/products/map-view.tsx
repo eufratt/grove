@@ -30,17 +30,17 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
 // Custom product marker icon (forest green with brand signature Sprout SVG)
 const productIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-product-marker',
-  html: '<div class="product-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="var(--gr-board)" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5-.4-4.3-1.5-.7-1-1-2.2-.7-3.5.3-.2.7-.2 1-.1 1.1.2 1.6.8 1.7 1.4Z"/><path d="M14.1 6a1 1 0 0 0-1.1 0c-1.1.8-1.8 2.2-2.3 3.7 2 .4 3.5-.4 4.3-1.5.7-1 1-2.2.7-3.5-.3-.2-.7-.2-1-.1-1.1.2-1.6.8-1.7 1.4Z"/></svg></div><div class="product-marker-pulse"></div>',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
+  html: '<div class="product-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#388e3c" stroke="#0f271d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5-.4-4.3-1.5-.7-1-1-2.2-.7-3.5.3-.2.7-.2 1-.1 1.1.2 1.6.8 1.7 1.4Z"/><path d="M14.1 6a1 1 0 0 0-1.1 0c-1.1.8-1.8 2.2-2.3 3.7 2 .4 3.5-.4 4.3-1.5.7-1 1-2.2.7-3.5-.3-.2-.7-.2-1-.1-1.1.2-1.6.8-1.7 1.4Z"/></svg></div><div class="product-marker-pulse"></div>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
 }) : undefined;
 
 // Custom demand request marker icon (deep orange/amber with Shopping Bag SVG)
 const demandIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-demand-marker',
-  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#e65100" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
+  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#e65100" stroke="#4a1500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
 }) : undefined;
 
 // Component to handle map centering and flyTo transition effects
@@ -536,7 +536,6 @@ export const MapView: React.FC<MapViewProps> = ({
           z-index: 1;
         }
 
-        /* Custom Product Marker Styling (Forest Green Leaf Pin) */
         /* Custom Product Marker Styling (Solid Leaf Logo) */
         .product-logo-wrapper {
           position: absolute;
@@ -546,7 +545,7 @@ export const MapView: React.FC<MapViewProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
           z-index: 2;
           transition: all 0.15s ease;
         }
@@ -558,9 +557,9 @@ export const MapView: React.FC<MapViewProps> = ({
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 24px;
-          height: 24px;
-          background-color: rgba(45, 90, 39, 0.2);
+          width: 28px;
+          height: 28px;
+          background-color: rgba(56, 142, 60, 0.35);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
           z-index: 1;
@@ -575,7 +574,7 @@ export const MapView: React.FC<MapViewProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
           z-index: 2;
           transition: all 0.15s ease;
         }
@@ -587,9 +586,9 @@ export const MapView: React.FC<MapViewProps> = ({
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 24px;
-          height: 24px;
-          background-color: rgba(230, 81, 0, 0.15);
+          width: 28px;
+          height: 28px;
+          background-color: rgba(230, 81, 0, 0.25);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
           z-index: 1;
