@@ -165,8 +165,15 @@ export default function JelajahPage() {
     }
   };
 
-  // Filter requests
-  const filteredRequests = demandRequests;
+  // Filter out expired demand requests
+  const filteredRequests = useMemo(() => {
+    const now = new Date();
+    return demandRequests.filter((req) => {
+      if (!req.deadline) return true;
+      const deadlineDate = new Date(req.deadline);
+      return deadlineDate.getTime() >= now.getTime();
+    });
+  }, [demandRequests]);
 
   return (
     <main className="relative flex-1 bg-gr-paper py-10 overflow-hidden min-h-[calc(100vh-80px)]">
