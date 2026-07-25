@@ -27,10 +27,10 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
   iconAnchor: [12, 12],
 }) : undefined;
 
-// Custom product marker icon (forest green with brand signature Sprout SVG)
+// Custom product marker icon (forest green with brand signature Store SVG)
 const productIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-product-marker',
-  html: '<div class="product-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#388e3c" stroke="#0f271d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5-.4-4.3-1.5-.7-1-1-2.2-.7-3.5.3-.2.7-.2 1-.1 1.1.2 1.6.8 1.7 1.4Z"/><path d="M14.1 6a1 1 0 0 0-1.1 0c-1.1.8-1.8 2.2-2.3 3.7 2 .4 3.5-.4 4.3-1.5.7-1 1-2.2.7-3.5-.3-.2-.7-.2-1-.1-1.1.2-1.6.8-1.7 1.4Z"/></svg></div><div class="product-marker-pulse"></div>',
+  html: '<div class="product-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#388e3c" stroke="#0f271d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12V22h16V12"/><path d="M9 12v5h6v-5"/><path d="M2 7h20"/><path d="M12 2v5"/></svg></div><div class="product-marker-pulse"></div>',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
 }) : undefined;
