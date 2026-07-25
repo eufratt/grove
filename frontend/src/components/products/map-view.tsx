@@ -313,19 +313,19 @@ export const MapView: React.FC<MapViewProps> = ({
           )
         ))}
 
-        {/* Global Popup for Products and Demands */}
         {activePopup && (
           <Popup 
             position={activePopup.position}
+            offset={[0, -20]}
             eventHandlers={{
               remove: () => setActivePopup(null)
             }}
             className="custom-popup"
           >
             {activePopup.type === 'product' ? (
-              <div className="p-2.5 min-w-[200px] font-sans text-xs text-gr-ink space-y-3">
+              <div className="p-2 min-w-[170px] max-w-[190px] font-sans text-xs text-gr-ink space-y-2">
                 {activePopup.data.photo_url && (
-                  <div className="w-full h-28 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/20">
+                  <div className="w-full h-20 overflow-hidden rounded-xs border border-gr-line bg-gr-paper/20">
                     <img 
                       src={activePopup.data.photo_url} 
                       alt={activePopup.data.name} 
@@ -333,26 +333,26 @@ export const MapView: React.FC<MapViewProps> = ({
                     />
                   </div>
                 )}
-                <div className="space-y-1">
-                  <h3 className="font-display text-sm font-bold text-gr-ink capitalize m-0 leading-tight">
+                <div className="space-y-0.5">
+                  <h3 className="font-display text-xs font-bold text-gr-ink capitalize m-0 leading-tight">
                     {activePopup.data.name}
                   </h3>
-                  <span className="inline-block font-mono text-[8px] uppercase tracking-wider text-gr-board bg-gr-board/5 px-2 py-0.5 rounded-sm border border-gr-board/15 font-bold mt-1">
+                  <span className="inline-block font-mono text-[7px] uppercase tracking-wider text-gr-board bg-gr-board/5 px-1.5 py-0.5 rounded-xs border border-gr-board/15 font-bold mt-1">
                     {activePopup.data.category || 'Hasil Panen'}
                   </span>
                 </div>
                 
                 <div className="h-px bg-gr-line/50" />
                 
-                <div className="grid grid-cols-2 gap-2 py-1 text-[10px]">
+                <div className="grid grid-cols-2 gap-2 py-0.5 text-[9px]">
                   <div>
-                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Harga</span>
+                    <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Harga</span>
                     <span className="font-mono font-bold text-gr-ink">
-                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[8px] font-normal text-gr-ink-soft">/kg</span>
+                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft">/kg</span>
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Stok</span>
+                    <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Stok</span>
                     <span className="font-mono font-bold text-gr-ink">
                       {activePopup.data.quantity_kg.toLocaleString('id-ID')} KG
                     </span>
@@ -360,27 +360,28 @@ export const MapView: React.FC<MapViewProps> = ({
                 </div>
 
                 {activePopup.data.distance_km !== undefined && activePopup.data.distance_km !== null && (
-                  <div className="flex items-center gap-1 font-mono text-[10px] text-gr-down bg-[#FAF9F5] border border-gr-line px-2 py-1 rounded-xs">
-                    <MapPin size={11} className="text-gr-down shrink-0" />
+                  <div className="flex items-center gap-1 font-mono text-[9px] text-gr-down bg-[#FAF9F5] border border-gr-line px-1.5 py-0.5 rounded-xs">
+                    <MapPin size={9} className="text-gr-down shrink-0" />
                     <span>{activePopup.data.distance_km.toFixed(1)} km dari Anda</span>
                   </div>
                 )}
 
                 <Link 
                   href={`/produk/${activePopup.data.id}`}
-                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-widest py-2 rounded-sm transition-all text-center block shadow-2xs font-extrabold"
+                  style={{ color: 'var(--gr-chalk)' }}
+                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[8px] font-bold uppercase tracking-widest py-1.5 rounded-sm transition-all text-center block shadow-2xs font-extrabold"
                 >
                   Detail Produk
                 </Link>
               </div>
             ) : (
-              <div className="p-2.5 min-w-[200px] font-sans text-xs text-gr-ink space-y-3">
-                <div className="space-y-1">
+              <div className="p-2 min-w-[170px] max-w-[190px] font-sans text-xs text-gr-ink space-y-2">
+                <div className="space-y-0.5">
                   <div className="flex justify-between items-start gap-2">
-                    <h3 className="font-display text-sm font-bold text-gr-ink capitalize m-0 leading-tight">
+                    <h3 className="font-display text-xs font-bold text-gr-ink capitalize m-0 leading-tight">
                       {activePopup.data.commodity_name}
                     </h3>
-                    <span className="font-mono text-[8px] uppercase tracking-wider text-[#e65100] bg-[#e65100]/5 border border-[#e65100]/15 px-1.5 py-0.5 rounded-sm font-bold shrink-0">
+                    <span className="font-mono text-[7px] uppercase tracking-wider text-[#e65100] bg-[#e65100]/5 border border-[#e65100]/15 px-1.5 py-0.5 rounded-xs font-bold shrink-0">
                       {activePopup.data.category}
                     </span>
                   </div>
@@ -388,29 +389,29 @@ export const MapView: React.FC<MapViewProps> = ({
 
                 <div className="h-px bg-gr-line/50" />
 
-                <div className="grid grid-cols-2 gap-2 py-1 text-[10px]">
+                <div className="grid grid-cols-2 gap-2 py-0.5 text-[9px]">
                   <div>
-                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Penawaran</span>
+                    <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Penawaran</span>
                     <span className="font-mono font-bold text-gr-ink">
-                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[8px] font-normal text-gr-ink-soft">/kg</span>
+                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft">/kg</span>
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Sisa Kebutuhan</span>
+                    <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Sisa Kebutuhan</span>
                     <span className="font-mono font-bold text-[#e65100]">
                       {Math.max(0, activePopup.data.quantity_kg_needed - activePopup.data.quantity_kg_committed).toLocaleString('id-ID')} KG
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-1 text-[10px] text-gr-ink-soft">
+                <div className="space-y-0.5 text-[9px] text-gr-ink-soft">
                   <p>Pemohon: <span className="font-semibold text-gr-ink">{activePopup.data.buyer_name || 'Pembeli'}</span></p>
                   <p>Tenggat: <span className="font-semibold text-gr-ink">{new Date(activePopup.data.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span></p>
                 </div>
 
                 {activePopup.data.distance_km !== undefined && activePopup.data.distance_km !== null && (
-                  <div className="flex items-center gap-1 font-mono text-[10px] text-gr-down bg-[#FAF9F5] border border-gr-line px-2 py-1 rounded-xs">
-                    <MapPin size={11} className="text-gr-down shrink-0" />
+                  <div className="flex items-center gap-1 font-mono text-[9px] text-gr-down bg-[#FAF9F5] border border-gr-line px-1.5 py-0.5 rounded-xs">
+                    <MapPin size={9} className="text-gr-down shrink-0" />
                     <span>{activePopup.data.distance_km.toFixed(1)} km dari Anda</span>
                   </div>
                 )}
@@ -420,7 +421,8 @@ export const MapView: React.FC<MapViewProps> = ({
                     setActivePopup(null);
                     onCommitDemand?.(activePopup.data);
                   }}
-                  className="w-full bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2 rounded-sm transition-all text-center block cursor-pointer shadow-2xs font-extrabold"
+                  style={{ color: '#ffffff' }}
+                  className="w-full bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[8px] font-bold uppercase tracking-widest py-1.5 rounded-sm transition-all text-center block cursor-pointer shadow-2xs font-extrabold"
                 >
                   Penuhi Pasokan
                 </button>
