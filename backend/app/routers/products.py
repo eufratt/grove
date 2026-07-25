@@ -40,6 +40,7 @@ def _format_product_row(row) -> dict:
         "longitude": lng,
         "region": region_name,
         "seller_name": row.seller_name,
+        "seller_phone": row.seller_phone,
         "seller_rating_avg": row.seller_rating_avg,
         "seller_rating_count": row.seller_rating_count
     }
@@ -52,7 +53,7 @@ async def _get_product_by_id(product_id: UUID, db: AsyncSession) -> dict:
     sql = text("""
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
                ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
-               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+               u.full_name as seller_name, u.phone_whatsapp as seller_phone, u.seller_rating_avg, u.seller_rating_count
         FROM products p
         JOIN users u ON p.seller_id = u.id
         WHERE p.id = :product_id
@@ -149,7 +150,7 @@ async def list_products(
     sql = text(f"""
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
                ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
-               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+               u.full_name as seller_name, u.phone_whatsapp as seller_phone, u.seller_rating_avg, u.seller_rating_count
         FROM products p
         JOIN users u ON p.seller_id = u.id
         {where_clause}
@@ -217,7 +218,7 @@ async def get_nearby_products(
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
                ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
                ST_Distance(p.location, ST_MakePoint(:lng, :lat)::geography) / 1000 as distance_km,
-               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+               u.full_name as seller_name, u.phone_whatsapp as seller_phone, u.seller_rating_avg, u.seller_rating_count
         FROM products p
         JOIN users u ON p.seller_id = u.id
         WHERE p.status = 'TERSEDIA' 
@@ -248,7 +249,7 @@ async def list_my_products(
     sql = text("""
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,
                ST_Y(p.location::geometry) as latitude, ST_X(p.location::geometry) as longitude,
-               u.full_name as seller_name, u.seller_rating_avg, u.seller_rating_count
+               u.full_name as seller_name, u.phone_whatsapp as seller_phone, u.seller_rating_avg, u.seller_rating_count
         FROM products p
         JOIN users u ON p.seller_id = u.id
         WHERE p.seller_id = :seller_id AND p.status = 'TERSEDIA'
