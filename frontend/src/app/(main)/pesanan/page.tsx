@@ -559,19 +559,19 @@ function OrderCard({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 py-1 text-xs">
+        <div className={cn(
+          "flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-sans font-bold uppercase tracking-wider shadow-3xs",
+          (currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && "bg-amber-500/5 text-amber-800 border-amber-500/20",
+          (currentStatus === 'DIKONFIRMASI' || currentStatus === 'DIPROSES' || currentStatus === 'DITERIMA') && "bg-emerald-50 text-emerald-800 border-[#C8E6C9]",
+          (currentStatus === 'SELESAI') && "bg-gr-board/5 text-gr-board border-gr-line",
+          (currentStatus === 'BATAL' || currentStatus === 'DIBATALKAN') && "bg-red-50 text-gr-down border-gr-down/20"
+        )}>
           <span className={cn(
             "h-1.5 w-1.5 rounded-full shrink-0",
-            currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN' ? "bg-amber-500 animate-pulse" :
-            currentStatus === 'BATAL' || currentStatus === 'DIBATALKAN' ? "bg-gr-down" : "bg-gr-up"
+            (currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') ? "bg-amber-500 animate-pulse" :
+            (currentStatus === 'BATAL' || currentStatus === 'DIBATALKAN') ? "bg-gr-down" : "bg-gr-up"
           )} />
-          <span className={cn(
-            "font-sans font-bold",
-            currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN' ? "text-amber-700" :
-            currentStatus === 'BATAL' || currentStatus === 'DIBATALKAN' ? "text-gr-down" : "text-gr-up"
-          )}>
-            {config.label}
-          </span>
+          <span>{config.label}</span>
         </div>
       </div>
 
@@ -680,12 +680,18 @@ function OrderCard({
                 </h4>
                 <div className="flex items-center justify-between font-sans text-xs pt-1">
                   <span className="text-gr-ink-soft">Status Pembayaran</span>
-                  <span className={cn(
-                    "font-bold font-mono text-xs uppercase",
-                    currentPaymentStatus === 'paid' ? "text-gr-up" : "text-amber-600"
-                  )}>
-                    {currentPaymentStatus === 'paid' ? 'Lunas' : 'Belum Dibayar'}
-                  </span>
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <span className={cn(
+                      "h-1.5 w-1.5 rounded-full shrink-0",
+                      currentPaymentStatus === 'paid' ? "bg-gr-up" : "bg-amber-500 animate-pulse"
+                    )} />
+                    <span className={cn(
+                      "font-sans text-xs",
+                      currentPaymentStatus === 'paid' ? "text-gr-up" : "text-amber-700"
+                    )}>
+                      {currentPaymentStatus === 'paid' ? 'Lunas' : 'Belum Dibayar'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
