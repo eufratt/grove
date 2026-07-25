@@ -567,12 +567,15 @@ function OrderCard({
       <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
           {/* Product Thumbnail */}
-          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80 shadow-2xs">
+          <Link
+            href={`/produk/${order.product_id}`}
+            className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80 shadow-2xs hover:border-gr-board/40 transition-all group/thumb"
+          >
             {order.product_photo_url ? (
               <img
                 src={order.product_photo_url}
                 alt={order.product_name || 'Hasil Panen'}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover/thumb:scale-105"
                 onError={(e) => {
                   (e.currentTarget as HTMLElement).style.display = 'none';
                   const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -586,13 +589,15 @@ function OrderCard({
             )}>
               <Package size={28} className="text-gr-board/50" />
             </div>
-          </div>
+          </Link>
 
           {/* Product Title & Details */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-display text-2xl font-bold tracking-tight text-gr-ink capitalize truncate" title={order.product_name || 'Hasil Panen'}>
-              {order.product_name || 'Hasil Panen'}
-            </h3>
+            <Link href={`/produk/${order.product_id}`} className="hover:underline decoration-gr-board/40">
+              <h3 className="font-display text-2xl font-bold tracking-tight text-gr-ink capitalize truncate" title={order.product_name || 'Hasil Panen'}>
+                {order.product_name || 'Hasil Panen'}
+              </h3>
+            </Link>
             
             <div className="mt-1.5 flex items-center gap-3 text-xs font-sans text-gr-ink-soft flex-wrap">
               <span className="font-semibold text-gr-ink bg-gr-paper px-2.5 py-0.5 rounded-xs border border-gr-line/50">
