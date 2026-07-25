@@ -26,6 +26,14 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
   iconAnchor: [12, 12],
 }) : undefined;
 
+// Custom demand request marker icon (pulsing orange/amber)
+const demandIcon = typeof window !== 'undefined' ? L.divIcon({
+  className: 'custom-demand-marker',
+  html: '<div class="demand-marker-dot"></div><div class="demand-marker-pulse"></div>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+}) : undefined;
+
 // Component to handle map centering and flyTo transition effects
 // Only acts on explicit flyTo requests — does NOT auto-reset the view on every render
 function MapController({ 
@@ -38,7 +46,7 @@ function MapController({
   flyToCoords?: [number, number] | null;
   initialCenter: [number, number];
   initialZoom: number;
-  mode: 'products' | 'pricing';
+  mode: 'products' | 'pricing' | 'demands';
   userLocation?: [number, number] | null;
 }) {
   const map = useMap();
@@ -54,9 +62,9 @@ function MapController({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When switching to products mode, fly to user location
+  // When switching to products or demands mode, fly to user location
   useEffect(() => {
-    if (mode === 'products' && prevMode.current === 'pricing' && userLocation) {
+    if ((mode === 'products' || mode === 'demands') && prevMode.current === 'pricing' && userLocation) {
       map.flyTo(userLocation, 12, { animate: true, duration: 1.0 });
     }
     prevMode.current = mode;
@@ -75,7 +83,7 @@ function MapController({
 }
 
 interface MapViewProps {
-  mode?: 'products' | 'pricing';
+  mode?: 'products' | 'pricing' | 'demands';
   
   // Products mode parameters
   products?: any[];
@@ -87,11 +95,16 @@ interface MapViewProps {
   selectedProvince?: string | null;
   onSelectProvince?: (province: string) => void;
   
+  // Demands mode parameters
+  demands?: any[];
+  onCommitDemand?: (demand: any) => void;
+  
   // Common parameters
   center?: [number, number];
   zoom?: number;
   userLocation?: [number, number] | null;
   className?: string;
+  flyToCoords?: [number, number] | null;
 }
 
 export const MapView: React.FC<MapViewProps> = ({ 
@@ -102,19 +115,22 @@ export const MapView: React.FC<MapViewProps> = ({
   pricesByProvince = {},
   selectedProvince = null,
   onSelectProvince,
+  demands = [],
+  onCommitDemand,
   center = [-6.2000, 106.8166], // Default Jakarta
   zoom = 13,
   userLocation,
-  className 
+  className,
+  flyToCoords: propFlyToCoords = null
 }) => {
 
   // Determine initial center and zoom based on mode and available data
   let initialCenter: [number, number];
   let initialZoom: number;
-  let flyToCoords: [number, number] | null = null;
+  let flyToCoords: [number, number] | null = propFlyToCoords;
 
-  if (mode === 'products') {
-    // In products mode: center on user location if available, else Indonesia overview
+  if (mode === 'products' || mode === 'demands') {
+    // In products or demands mode: center on user location if available, else Indonesia overview
     initialCenter = userLocation ?? [-2.5489, 118.0149];
     initialZoom = userLocation ? 12 : 5;
   } else {
@@ -253,6 +269,47 @@ export const MapView: React.FC<MapViewProps> = ({
           )
         ))}
 
+        {/* 1. Demands Mode Markers */}
+        {mode === 'demands' && demands.map((demand) => (
+          demand.latitude && demand.longitude && (
+            <Marker 
+              key={demand.id} 
+              position={[demand.latitude, demand.longitude]}
+              icon={demandIcon}
+            >
+              <Popup className="custom-popup">
+                <div className="p-1.5 min-w-[170px] text-gr-ink">
+                  <span className="font-mono text-[8px] uppercase tracking-widest text-[#e65100] font-bold block mb-1">
+                    Permintaan Aktif
+                  </span>
+                  <h3 className="font-display text-sm font-bold m-0 text-gr-ink capitalize">
+                    {demand.commodity_name}
+                  </h3>
+                  <p className="font-mono text-xs text-[#e65100] font-bold mt-0.5">
+                    Penawaran: Rp {demand.price_per_kg.toLocaleString('id-ID')}/KG
+                  </p>
+                  <p className="font-sans text-[10px] text-gr-ink-soft mt-1">
+                    Dibutuhkan: {demand.quantity_kg_needed} KG
+                  </p>
+                  {demand.distance_km !== undefined && demand.distance_km !== null && (
+                    <p className="font-sans text-[10px] text-gr-ink-soft font-bold mt-1">
+                      📍 {demand.distance_km.toFixed(1)} km dari Anda
+                    </p>
+                  )}
+                  {onCommitDemand && (
+                    <button 
+                      onClick={() => onCommitDemand(demand)}
+                      className="w-full mt-3 bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer block text-center shadow-xs"
+                    >
+                      Penuhi Permintaan
+                    </button>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          )
+        ))}
+
         {/* 2. Pricing Mode Markers (Indonesian Provinces) */}
         {mode === 'pricing' && Object.entries(pricesByProvince).map(([provName, list]) => {
           const coords = provinceCentroids[provName];
@@ -347,6 +404,33 @@ export const MapView: React.FC<MapViewProps> = ({
           animation: pulse-ring 2s infinite ease-out;
           z-index: 1;
         }
+
+        /* Custom Demand Marker Styling */
+        .custom-demand-marker {
+          position: relative;
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+        }
+        .demand-marker-dot {
+          width: 10px;
+          height: 10px;
+          background-color: #e65100;
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 0 6px #e65100;
+          z-index: 2;
+        }
+        .demand-marker-pulse {
+          position: absolute;
+          width: 24px;
+          height: 24px;
+          background-color: rgba(230, 81, 0, 0.25);
+          border-radius: 50%;
+          animation: pulse-ring 2s infinite ease-out;
+          z-index: 1;
+        }
+
         @keyframes pulse-ring {
           0% {
             transform: scale(0.4);

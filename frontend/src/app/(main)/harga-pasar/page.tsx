@@ -3,10 +3,13 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { referencePricesApi } from '@/lib/api/reference-prices';
 import { productsApi } from '@/lib/api/products';
+import { demandRequestsApi } from '@/lib/api/demand-requests';
+import { RatingBadge } from '@/components/ratings/rating-badge';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { Search, Calendar, Loader2, TrendingUp, ChevronDown, Info, Tag } from 'lucide-react';
+import { Search, Calendar, Loader2, TrendingUp, ChevronDown, Info, Tag, ShoppingBag, Scale, Check, Users, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -45,7 +48,20 @@ let cachedPricesData: { items: any[]; distinct_commodities: string[] } | null = 
 
 export default function HargaPasarPage() {
   // Mode selection state
-  const [activeTab, setActiveTab] = useState<'pricing' | 'products'>('pricing');
+  const [activeTab, setActiveTab] = useState<'pricing' | 'products' | 'demands'>('pricing');
+
+  // Explicit flyTo coordinates (to target from list card click)
+  const [flyToCoords, setFlyToCoords] = useState<[number, number] | null>(null);
+
+  // Demands state
+  const [demandRequests, setDemandRequests] = useState<any[]>([]);
+  const [fetchingDemands, setFetchingDemands] = useState<boolean>(false);
+
+  // Commit Modal state
+  const [commitRequest, setCommitRequest] = useState<any | null>(null);
+  const [commitQty, setCommitQty] = useState<string>('');
+  const [submittingCommit, setSubmittingCommit] = useState<boolean>(false);
+  const [commitError, setCommitError] = useState<string>('');
 
   // Track if user has manually selected a province to prevent override by background geolocation success
   const isManuallySelectedRef = useRef<boolean>(false);
@@ -160,6 +176,71 @@ export default function HargaPasarPage() {
       setFetchingProducts(false);
     }
   }, []);
+
+  // Fetch demands helper
+  const fetchDemands = useCallback(async () => {
+    setFetchingDemands(true);
+    try {
+      const data = await demandRequestsApi.getOpenDemandRequests();
+      const now = new Date();
+      const openDemands = data.filter((req: any) => {
+        if (!req.deadline) return true;
+        return new Date(req.deadline).getTime() >= now.getTime();
+      });
+      setDemandRequests(openDemands);
+    } catch (err) {
+      console.error('Failed to fetch demands:', err);
+    } finally {
+      setFetchingDemands(false);
+    }
+  }, []);
+
+  // Read URL query tab parameter on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'demands') {
+        setActiveTab('demands');
+      }
+    }
+  }, []);
+
+  // Fetch demands when tab changes to demands
+  useEffect(() => {
+    if (activeTab === 'demands') {
+      fetchDemands();
+    }
+  }, [activeTab, fetchDemands]);
+
+  const handleCommitSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commitRequest) return;
+    setCommitError('');
+    const qty = parseFloat(commitQty);
+    if (isNaN(qty) || qty <= 0) {
+      setCommitError('Masukkan jumlah valid lebih dari 0 kg');
+      return;
+    }
+    
+    const remainingQty = Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed);
+    if (qty > remainingQty) {
+      setCommitError(`Jumlah komitmen tidak boleh melebihi sisa kebutuhan (${remainingQty.toLocaleString('id-ID')} kg)`);
+      return;
+    }
+    
+    setSubmittingCommit(true);
+    try {
+      await demandRequestsApi.commitSupply(commitRequest.id, qty);
+      setCommitRequest(null);
+      fetchDemands(); // refresh demands list
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengirimkan komitmen';
+      setCommitError(msg);
+    } finally {
+      setSubmittingCommit(false);
+    }
+  };
 
   // Geolocation and reference prices fetch on mount
   useEffect(() => {
@@ -276,6 +357,51 @@ export default function HargaPasarPage() {
     return list;
   }, [nearbyProducts, searchQuery]);
 
+  // Sidebar demands filtering and distance calculation
+  const filteredDemands = useMemo(() => {
+    let list = demandRequests.map((req) => {
+      let distance_km: number | null = null;
+      if (userLocation && req.latitude && req.longitude) {
+        const R = 6371;
+        const dLat = (req.latitude - userLocation[0]) * Math.PI / 180;
+        const dLon = (req.longitude - userLocation[1]) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(userLocation[0] * Math.PI / 180) * Math.cos(req.latitude * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+        distance_km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+      return { ...req, distance_km };
+    });
+
+    // Calculate closest province name using centroids
+    list = list.map((req) => {
+      let closestProv = 'Di Yogyakarta';
+      let minDist = Infinity;
+      Object.entries(provinceCentroids).forEach(([provName, coords]) => {
+        const dist = Math.sqrt((coords.lat - req.latitude) ** 2 + (coords.lng - req.longitude) ** 2);
+        if (dist < minDist) {
+          minDist = dist;
+          closestProv = provName;
+        }
+      });
+      return { ...req, provinceName: closestProv };
+    });
+
+    if (searchQuery.trim() !== '') {
+      list = list.filter((req) =>
+        req.commodity_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (req.buyer_name || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    list.sort((a, b) => {
+      if (a.distance_km !== null && b.distance_km !== null) {
+        return a.distance_km - b.distance_km;
+      }
+      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+    });
+
+    return list;
+  }, [demandRequests, searchQuery, userLocation]);
+
   return (
     <main className="fixed inset-0 w-full h-screen overflow-hidden bg-gr-paper z-0">
       <BgPattern />
@@ -298,16 +424,28 @@ export default function HargaPasarPage() {
                   Radius: {radiusKm} KM
                 </span>
               )}
+              {activeTab === 'demands' && (
+                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line shadow-sm">
+                  Kebutuhan: {filteredDemands.length} Permintaan
+                </span>
+              )}
             </div>
             
             <MapView
               mode={activeTab}
               products={activeTab === 'products' ? filteredProducts : []}
+              demands={activeTab === 'demands' ? filteredDemands : []}
+              onCommitDemand={(demand) => {
+                setCommitRequest(demand);
+                setCommitQty('');
+                setCommitError('');
+              }}
               radiusKm={radiusKm}
               pricesByProvince={pricesByProvince}
               selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
               onSelectProvince={handleSelectProvince}
               userLocation={userLocation}
+              flyToCoords={flyToCoords}
               className="h-full w-full"
             />
           </div>
@@ -364,9 +502,10 @@ export default function HargaPasarPage() {
                 onClick={() => {
                   setActiveTab('pricing');
                   setSearchQuery('');
+                  setFlyToCoords(null);
                 }}
                 className={cn(
-                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer border-r border-gr-line last:border-r-0 rounded-none",
+                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer border-r border-gr-line rounded-none",
                   activeTab === 'pricing' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
@@ -376,13 +515,27 @@ export default function HargaPasarPage() {
                 onClick={() => {
                   setActiveTab('products');
                   setSearchQuery('');
+                  setFlyToCoords(null);
                 }}
                 className={cn(
-                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer rounded-none",
+                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer border-r border-gr-line rounded-none",
                   activeTab === 'products' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
                 Produk Terdekat
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('demands');
+                  setSearchQuery('');
+                  setFlyToCoords(null);
+                }}
+                className={cn(
+                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer rounded-none",
+                  activeTab === 'demands' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
+                )}
+              >
+                Permintaan Pembeli
               </button>
             </div>
 
@@ -588,10 +741,263 @@ export default function HargaPasarPage() {
                 </div>
               </>
             )}
+            {/* Layout Mode 3: Permintaan Pembeli */}
+            {activeTab === 'demands' && (
+              <>
+                {/* Title and Count Badge */}
+                <div className="mb-4 flex items-center justify-between shrink-0">
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
+                      Penelusuran Kebutuhan Pangan
+                    </span>
+                    <h2 className="font-display text-2xl font-medium text-gr-board mt-0.5">
+                      Permintaan Pembeli
+                    </h2>
+                  </div>
+                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm shadow-sm shrink-0">
+                    {filteredDemands.length} permintaan
+                  </span>
+                </div>
+
+                {/* Info Tip */}
+                <div className="bg-[#FAF9F5]/80 border border-gr-line p-3 rounded-sm space-y-1 shadow-sm mb-4 shrink-0 font-sans text-[10px] text-gr-ink-soft leading-relaxed flex items-start gap-2">
+                  <Info size={14} className="text-gr-board mt-0.5 shrink-0" />
+                  <div>
+                    Klik kartu permintaan untuk mengarahkan peta ke lokasi pembeli. Klik <strong>Penuhi Pasokan</strong> untuk menyanggupi kebutuhan tersebut.
+                  </div>
+                </div>
+
+                {/* Demands Card List */}
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1.5 custom-scrollbar">
+                  {fetchingDemands ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50 mx-auto mb-2" />
+                      <span className="mt-2 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
+                        Memuat Permintaan...
+                      </span>
+                    </div>
+                  ) : filteredDemands.length > 0 ? (
+                    filteredDemands.map((req) => (
+                      <div
+                        key={req.id}
+                        onClick={() => {
+                          if (req.latitude && req.longitude) {
+                            setFlyToCoords([req.latitude, req.longitude]);
+                          }
+                        }}
+                        className="p-4 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex flex-col gap-2.5 cursor-pointer group transition-all shadow-sm"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="min-w-0 pr-2">
+                            <p className="font-display text-sm font-semibold text-gr-ink group-hover:text-gr-board transition-colors truncate capitalize">
+                              {req.commodity_name}
+                            </p>
+                            <span className="inline-flex items-center gap-1 font-mono text-[8px] uppercase tracking-wider text-[#e65100] mt-1 bg-[#e65100]/5 border border-[#e65100]/25 px-1.5 py-0.5 rounded-xs font-bold">
+                              {req.category}
+                            </span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="block font-mono text-sm font-bold text-gr-ink">
+                              Rp {req.price_per_kg.toLocaleString('id-ID')}
+                            </span>
+                            <span className="font-sans text-[9px] text-gr-ink-soft uppercase tracking-widest mt-0.5 block">
+                              per KG
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center text-[10px] font-sans text-gr-ink-soft">
+                          <div>
+                            <span className="font-semibold block text-gr-ink text-xs">{req.buyer_name || 'Pembeli'}</span>
+                            <span className="text-[9px] text-gr-ink-soft block mt-0.5">
+                              📍 {req.provinceName || 'DI Yogyakarta'} {req.distance_km !== null ? `(${req.distance_km.toFixed(1)} km)` : ''}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="block font-mono text-[9px] font-bold uppercase tracking-wider text-gr-board">
+                              Sisa: {Math.max(0, req.quantity_kg_needed - req.quantity_kg_committed).toLocaleString('id-ID')} / {req.quantity_kg_needed.toLocaleString('id-ID')} KG
+                            </span>
+                            <span className="block text-[8px] text-gr-ink-soft mt-0.5">
+                              Tenggat: {new Date(req.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full space-y-1">
+                          <div className="w-full h-1 bg-gr-line rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gr-board rounded-full" 
+                              style={{ width: `${Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}%` }} 
+                            />
+                          </div>
+                          <div className="flex justify-between text-[8px] font-mono text-gr-ink-soft/60">
+                            <span>{Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}% Terpenuhi</span>
+                            <span className="flex items-center gap-1"><Users size={9} /> {req.num_petani_committed || 0} Petani</span>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCommitRequest(req);
+                            setCommitQty('');
+                            setCommitError('');
+                          }}
+                          className="w-full mt-1 bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer text-center font-bold shadow-2xs"
+                        >
+                          Penuhi Pasokan
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-20 text-center">
+                      <ShoppingBag className="h-8 w-8 text-gr-ink-soft/20 mx-auto mb-2" />
+                      <p className="font-sans text-xs text-gr-ink-soft italic">
+                        Tidak ada permintaan pangan aktif saat ini
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
  
           </div>
  
         </div>
+
+        {/* ── Commit Modal Overlay — portaled to document.body */}
+        {commitRequest && typeof window !== 'undefined' && createPortal(
+          <div
+            onClick={(e) => { if (e.target === e.currentTarget) setCommitRequest(null); }}
+            className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-gr-line p-6 sm:p-7 rounded-sm w-full max-w-sm shadow-[0_24px_50px_rgba(0,0,0,0.25)] cursor-default flex flex-col relative"
+            >
+              {/* Decorative Icon Header */}
+              <div className="flex items-center gap-3.5 mb-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-gr-board/10 text-gr-board border border-gr-board/20">
+                  <Scale size={22} className="stroke-[2.2]" />
+                </div>
+                <div>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 font-bold block">
+                    Konfirmasi Komitmen
+                  </span>
+                  <h3 className="font-display text-lg font-bold text-gr-ink leading-tight">
+                    Penuhi Permintaan
+                  </h3>
+                </div>
+              </div>
+
+              {/* Commodity & Demand summary box */}
+              <div className="bg-gr-paper border border-gr-line rounded-sm p-4 mb-5 space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="font-sans text-xs font-semibold text-gr-ink-soft">Komoditas</span>
+                  <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-sm capitalize">
+                    {commitRequest.commodity_name}
+                  </span>
+                </div>
+                <div className="h-px bg-gr-line" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Penawaran</span>
+                    <span className="font-mono text-xs font-bold text-gr-ink">
+                      Rp {commitRequest.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Sisa Kebutuhan</span>
+                    <span className="font-mono text-xs font-bold text-gr-ink">
+                      {Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed).toLocaleString('id-ID')} KG
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {commitError && (
+                <div className="mb-4 rounded-sm bg-[#FFF5F5] p-3 text-xs text-gr-down border border-gr-down/20 font-sans font-medium">
+                  {commitError}
+                </div>
+              )}
+
+              <form onSubmit={handleCommitSubmit} className="space-y-4">
+                <div>
+                  <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-1.5">
+                    Jumlah Pasokan (KG)
+                  </label>
+                  <div className="relative flex items-center">
+                    <input
+                      type="number"
+                      step="any"
+                      min="0.1"
+                      placeholder="Contoh: 50"
+                      value={commitQty}
+                      onChange={(e) => setCommitQty(e.target.value)}
+                      className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/35 focus:border-gr-board/50 text-gr-ink pl-4 pr-12 py-3 rounded-sm font-mono text-sm font-bold focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                      autoFocus
+                    />
+                    <span className="absolute right-4 font-mono text-xs font-bold text-gr-ink-soft/40">
+                      KG
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="space-y-1.5">
+                  <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/40">
+                    Pilihan Cepat
+                  </span>
+                  <div className="flex gap-2">
+                    {[
+                      { label: '25%', val: Math.round(Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed) * 0.25) },
+                      { label: '50%', val: Math.round(Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed) * 0.5) },
+                      { label: 'Semua', val: Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed) }
+                    ].map((preset, pIdx) => {
+                      if (preset.val <= 0) return null;
+                      return (
+                        <button
+                          key={pIdx}
+                          type="button"
+                          onClick={() => setCommitQty(preset.val.toString())}
+                          className="flex-1 bg-gr-paper hover:bg-gr-board/10 hover:text-gr-board hover:border-gr-board/40 border border-gr-line text-gr-ink-soft font-mono text-[10px] font-bold py-1.5 rounded-sm transition-all cursor-pointer"
+                        >
+                          {preset.label} ({preset.val} kg)
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-gr-line">
+                  <button
+                    type="button"
+                    onClick={() => setCommitRequest(null)}
+                    className="flex-1 bg-gr-paper hover:bg-gr-paper/60 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-sm transition-all cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingCommit}
+                    className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    {submittingCommit ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <>
+                        <Check size={14} className="stroke-[2.5]" />
+                        Kirim
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </main>
   );
 }
