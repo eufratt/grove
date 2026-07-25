@@ -919,8 +919,23 @@ export default function HargaPasarPage() {
         {/* ── Commit Right Panel — portaled to document.body */}
         {mounted && commitRequest && createPortal(
           <div
-            className="fixed top-[84px] right-4 w-[calc(100vw-32px)] sm:w-[360px] bg-white border border-gr-line p-6 sm:p-7 rounded-sm shadow-[0_12px_40px_rgba(0,0,0,0.18)] z-[9999] flex flex-col relative animate-in slide-in-from-right duration-200"
+            className="fixed top-[84px] right-4 w-[calc(100vw-32px)] sm:w-[360px] bg-white border border-gr-line p-6 sm:p-7 rounded-sm shadow-[0_12px_40px_rgba(0,0,0,0.18)] z-[9999] flex flex-col drawer-slide-in"
           >
+            <style>{`
+              @keyframes slideInRight {
+                from {
+                  transform: translateX(110%);
+                  opacity: 0.8;
+                }
+                to {
+                  transform: translateX(0);
+                  opacity: 1;
+                }
+              }
+              .drawer-slide-in {
+                animation: slideInRight 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+              }
+            `}</style>
             {/* Close Button */}
             <button
               type="button"
