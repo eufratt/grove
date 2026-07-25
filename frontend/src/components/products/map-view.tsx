@@ -382,11 +382,12 @@ export const MapView: React.FC<MapViewProps> = ({
         /* Custom User Location Marker Styling */
         .custom-user-marker {
           position: relative;
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
         }
         .user-marker-dot {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           width: 10px;
           height: 10px;
           background-color: #3b82f6;
@@ -397,6 +398,9 @@ export const MapView: React.FC<MapViewProps> = ({
         }
         .user-marker-pulse {
           position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           width: 24px;
           height: 24px;
           background-color: rgba(59, 130, 246, 0.35);
@@ -408,11 +412,12 @@ export const MapView: React.FC<MapViewProps> = ({
         /* Custom Demand Marker Styling */
         .custom-demand-marker {
           position: relative;
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
         }
         .demand-marker-dot {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           width: 10px;
           height: 10px;
           background-color: #e65100;
@@ -423,6 +428,9 @@ export const MapView: React.FC<MapViewProps> = ({
         }
         .demand-marker-pulse {
           position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           width: 24px;
           height: 24px;
           background-color: rgba(230, 81, 0, 0.25);
@@ -433,11 +441,11 @@ export const MapView: React.FC<MapViewProps> = ({
 
         @keyframes pulse-ring {
           0% {
-            transform: scale(0.4);
+            transform: translate(-50%, -50%) scale(0.4);
             opacity: 0.9;
           }
           100% {
-            transform: scale(2.2);
+            transform: translate(-50%, -50%) scale(2.2);
             opacity: 0;
           }
         }

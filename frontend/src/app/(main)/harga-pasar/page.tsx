@@ -777,79 +777,105 @@ export default function HargaPasarPage() {
                       </span>
                     </div>
                   ) : filteredDemands.length > 0 ? (
-                    filteredDemands.map((req) => (
-                      <div
-                        key={req.id}
-                        onClick={() => {
-                          if (req.latitude && req.longitude) {
-                            setFlyToCoords([req.latitude, req.longitude]);
-                          }
-                        }}
-                        className="p-4 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex flex-col gap-2.5 cursor-pointer group transition-all shadow-sm"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="min-w-0 pr-2">
-                            <p className="font-display text-sm font-semibold text-gr-ink group-hover:text-gr-board transition-colors truncate capitalize">
-                              {req.commodity_name}
-                            </p>
-                            <span className="inline-flex items-center gap-1 font-mono text-[8px] uppercase tracking-wider text-[#e65100] mt-1 bg-[#e65100]/5 border border-[#e65100]/25 px-1.5 py-0.5 rounded-xs font-bold">
-                              {req.category}
-                            </span>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className="block font-mono text-sm font-bold text-gr-ink">
-                              Rp {req.price_per_kg.toLocaleString('id-ID')}
-                            </span>
-                            <span className="font-sans text-[9px] text-gr-ink-soft uppercase tracking-widest mt-0.5 block">
-                              per KG
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between items-center text-[10px] font-sans text-gr-ink-soft">
-                          <div>
-                            <span className="font-semibold block text-gr-ink text-xs">{req.buyer_name || 'Pembeli'}</span>
-                            <span className="text-[9px] text-gr-ink-soft block mt-0.5">
-                              📍 {req.provinceName || 'DI Yogyakarta'} {req.distance_km !== null ? `(${req.distance_km.toFixed(1)} km)` : ''}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <span className="block font-mono text-[9px] font-bold uppercase tracking-wider text-gr-board">
-                              Sisa: {Math.max(0, req.quantity_kg_needed - req.quantity_kg_committed).toLocaleString('id-ID')} / {req.quantity_kg_needed.toLocaleString('id-ID')} KG
-                            </span>
-                            <span className="block text-[8px] text-gr-ink-soft mt-0.5">
-                              Tenggat: {new Date(req.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="w-full space-y-1">
-                          <div className="w-full h-1 bg-gr-line rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-gr-board rounded-full" 
-                              style={{ width: `${Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}%` }} 
-                            />
-                          </div>
-                          <div className="flex justify-between text-[8px] font-mono text-gr-ink-soft/60">
-                            <span>{Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}% Terpenuhi</span>
-                            <span className="flex items-center gap-1"><Users size={9} /> {req.num_petani_committed || 0} Petani</span>
-                          </div>
-                        </div>
-
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCommitRequest(req);
-                            setCommitQty('');
-                            setCommitError('');
+                    filteredDemands.map((req) => {
+                      const daysLeft = Math.ceil((new Date(req.deadline).getTime() - Date.now()) / 86400000);
+                      return (
+                        <div
+                          key={req.id}
+                          onClick={() => {
+                            if (req.latitude && req.longitude) {
+                              setFlyToCoords([req.latitude, req.longitude]);
+                            }
                           }}
-                          className="w-full mt-1 bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer text-center font-bold shadow-2xs"
+                          className="p-5 bg-white border border-gr-line hover:border-gr-board/40 rounded-sm flex flex-col gap-4 cursor-pointer group transition-all duration-200 shadow-sm relative overflow-hidden border-l-[3px] border-l-[#e65100]"
                         >
-                          Penuhi Pasokan
-                        </button>
-                      </div>
-                    ))
+                          {/* Header row: title and price */}
+                          <div className="flex justify-between items-start gap-4">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-display text-base font-bold text-gr-ink capitalize leading-tight group-hover:text-gr-board transition-colors">
+                                {req.commodity_name}
+                              </h3>
+                              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                <span className="inline-flex items-center font-mono text-[8px] uppercase tracking-wider text-[#e65100] bg-[#e65100]/5 px-2 py-0.5 rounded-sm border border-[#e65100]/15 font-bold">
+                                  {req.category}
+                                </span>
+                                {daysLeft <= 7 && (
+                                  <span className="font-mono text-[8px] uppercase tracking-wider bg-red-50 text-red-600 px-1.5 py-0.5 rounded-sm font-bold border border-red-200/50 animate-pulse">
+                                    Mendesak
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="font-mono text-sm font-extrabold text-gr-ink block">
+                                Rp {req.price_per_kg.toLocaleString('id-ID')} <span className="text-[9px] font-normal text-gr-ink-soft">/ kg</span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Metadata grid */}
+                          <div className="grid grid-cols-2 gap-3 text-xs font-sans border-t border-b border-gr-line/50 py-3 bg-[#FAF9F5]/40 px-2 rounded-xs">
+                            <div>
+                              <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/50 font-bold mb-0.5">Pemohon</span>
+                              <span className="font-sans text-xs text-gr-ink font-bold block truncate">{req.buyer_name || 'Pembeli'}</span>
+                              <div className="mt-1">
+                                <RatingBadge avgRating={req.buyer_rating_avg} ratingCount={req.buyer_rating_count} size="sm" countSuffix="" />
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/50 font-bold mb-0.5">Tujuan & Jarak</span>
+                              <span className="font-sans text-xs text-gr-ink font-bold block truncate" title={req.provinceName}>
+                                {req.provinceName || 'DI Yogyakarta'}
+                              </span>
+                              <span className="block text-[10px] text-gr-ink-soft font-mono mt-0.5">
+                                📍 {req.distance_km !== null ? `${req.distance_km.toFixed(1)} km` : 'Terdekat'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Progress and deadline */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center text-[10px] font-sans">
+                              <div className="flex items-center gap-1.5 text-gr-ink-soft">
+                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/50 font-bold">Kebutuhan</span>
+                                <span className="font-bold text-gr-ink">
+                                  {Math.max(0, req.quantity_kg_needed - req.quantity_kg_committed).toLocaleString('id-ID')} KG <span className="font-normal text-gr-ink-soft">sisa</span>
+                                </span>
+                              </div>
+                              <div className="text-right font-mono text-[9px] text-gr-ink-soft">
+                                Tenggat: <span className="font-bold text-gr-ink">{new Date(req.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                              </div>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="w-full">
+                              <div className="w-full h-1.5 bg-gr-line rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-gr-board rounded-full transition-all duration-300" 
+                                  style={{ width: `${Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}%` }} 
+                                />
+                              </div>
+                              <div className="flex justify-between text-[9px] font-mono text-gr-ink-soft mt-1">
+                                <span className="font-bold text-gr-board">{Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}% terpenuhi</span>
+                                <span className="flex items-center gap-1 text-gr-ink-soft"><Users size={10} /> {req.num_petani_committed || 0} Petani</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCommitRequest(req);
+                              setCommitQty('');
+                              setCommitError('');
+                            }}
+                            className="w-full border border-[#e65100] text-[#e65100] hover:bg-[#e65100]/5 font-mono text-[9px] font-bold uppercase tracking-wider py-2.5 rounded-sm transition-all duration-150 cursor-pointer text-center shadow-3xs"
+                          >
+                            Penuhi Pasokan
+                          </button>
+                        </div>
+                      );
+                    })
                   ) : (
                     <div className="py-20 text-center">
                       <ShoppingBag className="h-8 w-8 text-gr-ink-soft/20 mx-auto mb-2" />
