@@ -27,6 +27,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const isFirstRender = useRef(true);
   const prevQuery = useRef('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hasSpeechSupport, setHasSpeechSupport] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setHasSpeechSupport(true);
+      }
+    }
+  }, []);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -104,7 +114,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         />
         <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1 z-10">
           {/* Voice Search Button for Farmer Accessibility */}
-          {typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) && (
+          {hasSpeechSupport && (
             <button
               type="button"
               onClick={() => {
