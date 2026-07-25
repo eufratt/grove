@@ -734,10 +734,7 @@ function OrderCard({
                     </div>
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekber Grove)</span>
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-gr-up font-bold">
-                          • Otomatis
-                        </span>
+                        <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekening Bersama)</span>
                       </div>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
                         Dana ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi penerimaan barang. Dikenakan perkiraan biaya admin/gerbang pembayaran sebesar <strong className="font-semibold text-gr-board">Rp {estimatedAdminFee.toLocaleString('id-ID')}</strong> (2% dari total tagihan).
@@ -753,9 +750,6 @@ function OrderCard({
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gr-ink">Pembayaran Tunai (Cash / COD)</span>
-                        <span className="font-mono text-[9px] uppercase tracking-wider text-amber-700 font-bold">
-                          • Di Tempat
-                        </span>
                       </div>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
                         Dapat dibayar tunai langsung saat penimbangan & serah terima barang. <strong className="text-amber-700">Tanpa biaya admin tambahan (Gratis biaya transaksi)</strong>.
