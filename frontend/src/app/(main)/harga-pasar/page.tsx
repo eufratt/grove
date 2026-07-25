@@ -8,7 +8,7 @@ import { RatingBadge } from '@/components/ratings/rating-badge';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { Search, Calendar, Loader2, TrendingUp, ChevronDown, Info, Tag, ShoppingBag, Scale, Check, Users, X } from 'lucide-react';
+import { Search, Calendar, Loader2, TrendingUp, ChevronDown, Info, Tag, ShoppingBag, Scale, Check, Users, X, MapPin, Star } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import dynamic from 'next/dynamic';
@@ -787,7 +787,7 @@ export default function HargaPasarPage() {
                               setFlyToCoords([req.latitude, req.longitude]);
                             }
                           }}
-                          className="p-5 bg-white border border-gr-line hover:border-gr-board/40 rounded-sm flex flex-col gap-4 cursor-pointer group transition-all duration-200 shadow-sm relative overflow-hidden border-l-[3px] border-l-[#e65100]"
+                          className="p-5 bg-white border border-gr-line hover:border-gr-board/30 hover:shadow-md rounded-sm flex flex-col gap-3.5 cursor-pointer group transition-all duration-200 shadow-sm relative overflow-hidden"
                         >
                           {/* Header row: title and price */}
                           <div className="flex justify-between items-start gap-4">
@@ -796,7 +796,7 @@ export default function HargaPasarPage() {
                                 {req.commodity_name}
                               </h3>
                               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                <span className="inline-flex items-center font-mono text-[8px] uppercase tracking-wider text-[#e65100] bg-[#e65100]/5 px-2 py-0.5 rounded-sm border border-[#e65100]/15 font-bold">
+                                <span className="inline-flex items-center font-mono text-[8px] uppercase tracking-wider text-gr-board bg-gr-board/5 px-2 py-0.5 rounded-sm border border-gr-board/15 font-bold">
                                   {req.category}
                                 </span>
                                 {daysLeft <= 7 && (
@@ -813,31 +813,36 @@ export default function HargaPasarPage() {
                             </div>
                           </div>
 
-                          {/* Metadata grid */}
-                          <div className="grid grid-cols-2 gap-3 text-xs font-sans border-t border-b border-gr-line/50 py-3 bg-[#FAF9F5]/40 px-2 rounded-xs">
-                            <div>
-                              <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/50 font-bold mb-0.5">Pemohon</span>
-                              <span className="font-sans text-xs text-gr-ink font-bold block truncate">{req.buyer_name || 'Pembeli'}</span>
-                              <div className="mt-1">
+                          {/* Simplified Info Row (Buyer & Region) */}
+                          <div className="space-y-2 text-xs font-sans border-t border-b border-gr-line/50 py-3.5 mt-0.5">
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold shrink-0">Pemohon:</span>
+                                <span className="font-sans text-xs text-gr-ink font-semibold truncate">{req.buyer_name || 'Pembeli'}</span>
+                              </div>
+                              <div className="shrink-0 flex items-center">
                                 <RatingBadge avgRating={req.buyer_rating_avg} ratingCount={req.buyer_rating_count} size="sm" countSuffix="" />
                               </div>
                             </div>
-                            <div className="text-right">
-                              <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/50 font-bold mb-0.5">Tujuan & Jarak</span>
-                              <span className="font-sans text-xs text-gr-ink font-bold block truncate" title={req.provinceName}>
-                                {req.provinceName || 'DI Yogyakarta'}
-                              </span>
-                              <span className="block text-[10px] text-gr-ink-soft font-mono mt-0.5">
-                                📍 {req.distance_km !== null ? `${req.distance_km.toFixed(1)} km` : 'Terdekat'}
-                              </span>
+                            <div className="flex items-center justify-between gap-4 text-xs">
+                              <div className="flex items-center gap-1.5 min-w-0 text-gr-ink-soft">
+                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold shrink-0">Tujuan:</span>
+                                <span className="font-sans text-xs font-semibold text-gr-ink truncate">{req.provinceName || 'DI Yogyakarta'}</span>
+                              </div>
+                              {req.distance_km !== null && (
+                                <div className="shrink-0 flex items-center gap-1 font-mono text-[10px] text-gr-ink-soft">
+                                  <MapPin size={11} className="text-gr-board" />
+                                  <span>{req.distance_km.toFixed(1)} km</span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
                           {/* Progress and deadline */}
-                          <div className="space-y-2">
+                          <div className="space-y-2.5">
                             <div className="flex justify-between items-center text-[10px] font-sans">
                               <div className="flex items-center gap-1.5 text-gr-ink-soft">
-                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/50 font-bold">Kebutuhan</span>
+                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold">Kebutuhan</span>
                                 <span className="font-bold text-gr-ink">
                                   {Math.max(0, req.quantity_kg_needed - req.quantity_kg_committed).toLocaleString('id-ID')} KG <span className="font-normal text-gr-ink-soft">sisa</span>
                                 </span>
@@ -855,7 +860,7 @@ export default function HargaPasarPage() {
                                   style={{ width: `${Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}%` }} 
                                 />
                               </div>
-                              <div className="flex justify-between text-[9px] font-mono text-gr-ink-soft mt-1">
+                              <div className="flex justify-between text-[9px] font-mono text-gr-ink-soft mt-1.5">
                                 <span className="font-bold text-gr-board">{Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}% terpenuhi</span>
                                 <span className="flex items-center gap-1 text-gr-ink-soft"><Users size={10} /> {req.num_petani_committed || 0} Petani</span>
                               </div>
@@ -869,7 +874,7 @@ export default function HargaPasarPage() {
                               setCommitQty('');
                               setCommitError('');
                             }}
-                            className="w-full border border-[#e65100] text-[#e65100] hover:bg-[#e65100]/5 font-mono text-[9px] font-bold uppercase tracking-wider py-2.5 rounded-sm transition-all duration-150 cursor-pointer text-center shadow-3xs"
+                            className="w-full border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[9px] font-bold uppercase tracking-wider py-2.5 rounded-sm transition-all duration-150 cursor-pointer text-center shadow-3xs"
                           >
                             Penuhi Pasokan
                           </button>

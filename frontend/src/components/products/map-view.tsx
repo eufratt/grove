@@ -380,9 +380,6 @@ export const MapView: React.FC<MapViewProps> = ({
         }
         
         /* Custom User Location Marker Styling */
-        .custom-user-marker {
-          position: relative;
-        }
         .user-marker-dot {
           position: absolute;
           top: 50%;
@@ -410,9 +407,6 @@ export const MapView: React.FC<MapViewProps> = ({
         }
 
         /* Custom Demand Marker Styling */
-        .custom-demand-marker {
-          position: relative;
-        }
         .demand-marker-dot {
           position: absolute;
           top: 50%;
