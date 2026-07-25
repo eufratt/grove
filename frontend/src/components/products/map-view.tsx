@@ -30,17 +30,17 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
 // Custom product marker icon (forest green with brand signature Leaf SVG)
 const productIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-product-marker',
-  html: '<div class="product-marker-pin"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2Zm0 0v-5"/></svg></div><div class="product-marker-pulse"></div>',
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  html: '<div class="product-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="var(--gr-board)" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2Zm0 0v-5"/></svg></div><div class="product-marker-pulse"></div>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
 }) : undefined;
 
 // Custom demand request marker icon (deep orange/amber with Shopping Bag SVG)
 const demandIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-demand-marker',
-  html: '<div class="demand-marker-pin"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#e65100" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
 }) : undefined;
 
 // Component to handle map centering and flyTo transition effects
@@ -537,70 +537,59 @@ export const MapView: React.FC<MapViewProps> = ({
         }
 
         /* Custom Product Marker Styling (Forest Green Leaf Pin) */
-        .product-marker-pin {
+        /* Custom Product Marker Styling (Solid Leaf Logo) */
+        .product-logo-wrapper {
           position: absolute;
-          top: 35%;
+          top: 50%;
           left: 50%;
-          width: 24px;
-          height: 24px;
-          border-radius: 50% 50% 50% 0;
-          background-color: var(--gr-board);
-          border: 2px solid white;
-          transform: translate(-50%, -50%) rotate(45deg);
-          box-shadow: -2px 3px 8px rgba(0, 0, 0, 0.2), 0 0 6px rgba(45, 90, 39, 0.25);
+          transform: translate(-50%, -50%);
           display: flex;
           align-items: center;
           justify-content: center;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
           z-index: 2;
+          transition: all 0.15s ease;
         }
-        .product-marker-pin svg {
-          transform: rotate(-45deg);
-          color: white;
-          display: block;
+        .product-logo-wrapper:hover {
+          transform: translate(-50%, -50%) scale(1.15);
         }
         .product-marker-pulse {
           position: absolute;
-          top: 35%;
+          top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 30px;
-          height: 30px;
-          background-color: rgba(45, 90, 39, 0.25);
+          width: 24px;
+          height: 24px;
+          background-color: rgba(45, 90, 39, 0.2);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
           z-index: 1;
         }
 
-        /* Custom Demand Marker Styling (Deep Orange Shopping Bag Pin) */
-        .demand-marker-pin {
+        /* Custom Demand Marker Styling (Solid Shopping Bag Logo) */
+        .demand-logo-wrapper {
           position: absolute;
-          top: 35%;
+          top: 50%;
           left: 50%;
-          width: 24px;
-          height: 24px;
-          border-radius: 50% 50% 50% 0;
-          background-color: #e65100;
-          border: 2px solid white;
-          transform: translate(-50%, -50%) rotate(45deg);
-          box-shadow: -2px 3px 8px rgba(0, 0, 0, 0.2), 0 0 6px rgba(230, 81, 0, 0.25);
+          transform: translate(-50%, -50%);
           display: flex;
           align-items: center;
           justify-content: center;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
           z-index: 2;
+          transition: all 0.15s ease;
         }
-        .demand-marker-pin svg {
-          transform: rotate(-45deg);
-          color: white;
-          display: block;
+        .demand-logo-wrapper:hover {
+          transform: translate(-50%, -50%) scale(1.15);
         }
         .demand-marker-pulse {
           position: absolute;
-          top: 35%;
+          top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 30px;
-          height: 30px;
-          background-color: rgba(230, 81, 0, 0.2);
+          width: 24px;
+          height: 24px;
+          background-color: rgba(230, 81, 0, 0.15);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
           z-index: 1;
