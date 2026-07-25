@@ -62,11 +62,14 @@ export default function HargaPasarPage() {
   const [demandRequests, setDemandRequests] = useState<any[]>([]);
   const [fetchingDemands, setFetchingDemands] = useState<boolean>(false);
 
-  // Commit Modal state
-  const [commitRequest, setCommitRequest] = useState<any | null>(null);
-  const [commitQty, setCommitQty] = useState<string>('');
-  const [submittingCommit, setSubmittingCommit] = useState<boolean>(false);
-  const [commitError, setCommitError] = useState<string>('');
+  // Selected demand requests for comparison & commitment
+  const [comparisonDemands, setComparisonDemands] = useState<any[]>([]);
+  // Quantities for each demand (keyed by demand ID)
+  const [commitQuantities, setCommitQuantities] = useState<Record<string | number, string>>({});
+  // Errors for each demand (keyed by demand ID)
+  const [commitErrors, setCommitErrors] = useState<Record<string | number, string>>({});
+  // Submitting state for each demand (keyed by demand ID)
+  const [submittingCommits, setSubmittingCommits] = useState<Record<string | number, boolean>>({});
 
   // Track if user has manually selected a province to prevent override by background geolocation success
   const isManuallySelectedRef = useRef<boolean>(false);
@@ -218,32 +221,62 @@ export default function HargaPasarPage() {
     }
   }, [activeTab, fetchDemands]);
 
-  const handleCommitSubmit = async (e: React.FormEvent) => {
+  const handleAddDemandToComparison = useCallback((demand: any) => {
+    setComparisonDemands((prev) => {
+      if (prev.some((d) => d.id === demand.id)) {
+        return prev;
+      }
+      return [...prev, demand];
+    });
+    setCommitQuantities((prev) => ({ ...prev, [demand.id]: '' }));
+    setCommitErrors((prev) => ({ ...prev, [demand.id]: '' }));
+  }, []);
+
+  const handleRemoveDemandFromComparison = useCallback((demandId: string | number) => {
+    setComparisonDemands((prev) => prev.filter((d) => d.id !== demandId));
+    setCommitQuantities((prev) => {
+      const next = { ...prev };
+      delete next[demandId];
+      return next;
+    });
+    setCommitErrors((prev) => {
+      const next = { ...prev };
+      delete next[demandId];
+      return next;
+    });
+  }, []);
+
+  const handleIndividualCommitSubmit = async (demand: any, e: React.FormEvent) => {
     e.preventDefault();
-    if (!commitRequest) return;
-    setCommitError('');
-    const qty = parseFloat(commitQty);
+    const qtyStr = commitQuantities[demand.id] || '';
+    const qty = parseFloat(qtyStr);
+    
+    setCommitErrors((prev) => ({ ...prev, [demand.id]: '' }));
+
     if (isNaN(qty) || qty <= 0) {
-      setCommitError('Masukkan jumlah valid lebih dari 0 kg');
+      setCommitErrors((prev) => ({ ...prev, [demand.id]: 'Masukkan jumlah valid lebih dari 0 kg' }));
       return;
     }
-    
-    const remainingQty = Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed);
+
+    const remainingQty = Math.max(0, demand.quantity_kg_needed - demand.quantity_kg_committed);
     if (qty > remainingQty) {
-      setCommitError(`Jumlah komitmen tidak boleh melebihi sisa kebutuhan (${remainingQty.toLocaleString('id-ID')} kg)`);
+      setCommitErrors((prev) => ({
+        ...prev,
+        [demand.id]: `Jumlah pasokan tidak boleh melebihi sisa kebutuhan (${remainingQty.toLocaleString('id-ID')} kg)`
+      }));
       return;
     }
-    
-    setSubmittingCommit(true);
+
+    setSubmittingCommits((prev) => ({ ...prev, [demand.id]: true }));
     try {
-      await demandRequestsApi.commitSupply(commitRequest.id, qty);
-      setCommitRequest(null);
+      await demandRequestsApi.commitSupply(demand.id, qty);
+      handleRemoveDemandFromComparison(demand.id);
       fetchDemands(); // refresh demands list
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Gagal mengirimkan komitmen';
-      setCommitError(msg);
+      setCommitErrors((prev) => ({ ...prev, [demand.id]: msg }));
     } finally {
-      setSubmittingCommit(false);
+      setSubmittingCommits((prev) => ({ ...prev, [demand.id]: false }));
     }
   };
 
@@ -440,11 +473,7 @@ export default function HargaPasarPage() {
               mode={activeTab}
               products={activeTab === 'products' ? filteredProducts : []}
               demands={activeTab === 'demands' ? filteredDemands : []}
-              onCommitDemand={(demand) => {
-                setCommitRequest(demand);
-                setCommitQty('');
-                setCommitError('');
-              }}
+              onCommitDemand={handleAddDemandToComparison}
               radiusKm={radiusKm}
               pricesByProvince={pricesByProvince}
               selectedProvince={activeTab === 'pricing' ? selectedProvince : null}
@@ -889,9 +918,7 @@ export default function HargaPasarPage() {
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCommitRequest(req);
-                              setCommitQty('');
-                              setCommitError('');
+                              handleAddDemandToComparison(req);
                             }}
                             className="w-full border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[9px] font-bold uppercase tracking-wider py-2.5 rounded-sm transition-all duration-150 cursor-pointer text-center shadow-3xs"
                           >
@@ -917,9 +944,9 @@ export default function HargaPasarPage() {
         </div>
 
         {/* ── Commit Right Panel — portaled to document.body */}
-        {mounted && commitRequest && createPortal(
+        {mounted && comparisonDemands.length > 0 && createPortal(
           <div
-            className="fixed top-[84px] right-4 w-[calc(100vw-32px)] sm:w-[360px] bg-white border border-gr-line p-6 sm:p-7 rounded-sm shadow-[0_12px_40px_rgba(0,0,0,0.18)] z-[9999] flex flex-col drawer-slide-in"
+            className="fixed top-[84px] right-4 w-[calc(100vw-32px)] sm:w-[385px] bg-white border border-gr-line p-5 rounded-sm shadow-[0_12px_40px_rgba(0,0,0,0.18)] z-[9999] flex flex-col drawer-slide-in h-[calc(100vh-105px)]"
           >
             <style>{`
               @keyframes slideInRight {
@@ -939,131 +966,167 @@ export default function HargaPasarPage() {
             {/* Close Button */}
             <button
               type="button"
-              onClick={() => setCommitRequest(null)}
+              onClick={() => setComparisonDemands([])}
               className="absolute top-5 right-5 text-gr-ink-soft hover:text-gr-ink transition-colors cursor-pointer"
-              title="Tutup"
+              title="Tutup Semua"
             >
               <X size={18} />
             </button>
 
             {/* Decorative Icon Header */}
-            <div className="flex items-center gap-3.5 mb-4">
+            <div className="flex items-center gap-3.5 mb-4 shrink-0">
               <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-gr-board/10 text-gr-board border border-gr-board/20">
                 <Scale size={22} className="stroke-[2.2]" />
               </div>
               <div>
                 <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 font-bold block">
-                  Konfirmasi Komitmen
+                  Perbandingan & Komitmen
                 </span>
-                <h3 className="font-display text-lg font-bold text-gr-ink leading-tight">
-                  Penuhi Permintaan
+                <h3 className="font-display text-base font-bold text-gr-ink leading-tight">
+                  Pasokan Komoditas ({comparisonDemands.length})
                 </h3>
               </div>
             </div>
 
-            {/* Commodity & Demand summary box */}
-            <div className="bg-gr-paper border border-gr-line rounded-sm p-4 mb-5 space-y-2.5">
-              <div className="flex justify-between items-center">
-                <span className="font-sans text-xs font-semibold text-gr-ink-soft">Komoditas</span>
-                <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-sm capitalize">
-                  {commitRequest.commodity_name}
-                </span>
-              </div>
-              <div className="h-px bg-gr-line" />
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Penawaran</span>
-                  <span className="font-mono text-xs font-bold text-gr-ink">
-                    Rp {commitRequest.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
-                  </span>
-                </div>
-                <div>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Sisa Kebutuhan</span>
-                  <span className="font-mono text-xs font-bold text-gr-ink">
-                    {Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed).toLocaleString('id-ID')} KG
-                  </span>
-                </div>
-              </div>
-            </div>
+            {/* Scrollable list of comparison demands */}
+            <div className="space-y-4 overflow-y-auto pr-1 flex-1 min-h-0">
+              {comparisonDemands.map((demand) => {
+                const remainingQty = Math.max(0, demand.quantity_kg_needed - demand.quantity_kg_committed);
+                const qtyStr = commitQuantities[demand.id] || '';
+                const errorStr = commitErrors[demand.id] || '';
+                const isSubmitting = submittingCommits[demand.id] || false;
 
-            {commitError && (
-              <div className="mb-4 rounded-sm bg-[#FFF5F5] p-3 text-xs text-gr-down border border-gr-down/20 font-sans font-medium">
-                {commitError}
-              </div>
-            )}
-
-            <form onSubmit={handleCommitSubmit} className="space-y-4">
-              <div>
-                <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-1.5">
-                  Jumlah Pasokan (KG)
-                </label>
-                <div className="relative flex items-center">
-                  <input
-                    type="number"
-                    step="any"
-                    min="0.1"
-                    placeholder="Contoh: 50"
-                    value={commitQty}
-                    onChange={(e) => setCommitQty(e.target.value)}
-                    className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/35 focus:border-gr-board/50 text-gr-ink pl-4 pr-12 py-3 rounded-sm font-mono text-sm font-bold focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
-                    autoFocus
-                  />
-                  <span className="absolute right-4 font-mono text-xs font-bold text-gr-ink-soft/40">
-                    KG
-                  </span>
-                </div>
-              </div>
-
-              {/* Quick Presets */}
-              <div className="space-y-1.5">
-                <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/40">
-                  Pilihan Cepat
-                </span>
-                <div className="flex gap-2">
-                  {[
-                    { label: '25%', val: Math.round(Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed) * 0.25) },
-                    { label: '50%', val: Math.round(Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed) * 0.5) },
-                    { label: 'Semua', val: Math.max(0, commitRequest.quantity_kg_needed - commitRequest.quantity_kg_committed) }
-                  ].map((preset, pIdx) => {
-                    if (preset.val <= 0) return null;
-                    return (
+                return (
+                  <div key={demand.id} className="bg-gr-paper border border-gr-line rounded-sm p-4 space-y-3 relative animate-in fade-in duration-150 shadow-2xs">
+                    {/* Card Header (Buyer Details & Close) */}
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <span className="font-mono text-[8px] uppercase tracking-wider text-gr-ink-soft/60 font-bold block mb-0.5">PEMOHON</span>
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-display text-xs font-bold text-gr-ink leading-tight capitalize">
+                            {demand.buyer_name || 'Pembeli'}
+                          </h4>
+                          {demand.buyer_rating !== undefined && demand.buyer_rating !== null && (
+                            <div className="flex items-center gap-0.5 text-[10px] text-amber-600 shrink-0 font-bold">
+                              <Star size={10} className="fill-amber-600 text-amber-600 shrink-0" />
+                              <span>{demand.buyer_rating.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <button
-                        key={pIdx}
                         type="button"
-                        onClick={() => setCommitQty(preset.val.toString())}
-                        className="flex-1 bg-gr-paper hover:bg-gr-board/10 hover:text-gr-board hover:border-gr-board/40 border border-gr-line text-gr-ink-soft font-mono text-[10px] font-bold py-1.5 rounded-sm transition-all cursor-pointer"
+                        onClick={() => handleRemoveDemandFromComparison(demand.id)}
+                        className="text-gr-ink-soft hover:text-gr-down transition-colors p-1"
+                        title="Hapus dari Perbandingan"
                       >
-                        {preset.label} ({preset.val} kg)
+                        <X size={14} />
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
+                    </div>
 
-              <div className="flex gap-3 pt-4 border-t border-gr-line">
-                <button
-                  type="button"
-                  onClick={() => setCommitRequest(null)}
-                  className="flex-1 bg-gr-paper hover:bg-gr-paper/60 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-sm transition-all cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingCommit}
-                  className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-                >
-                  {submittingCommit ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Check size={14} className="stroke-[2.5]" />
-                      Kirim
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+                    {/* Commodity Info */}
+                    <div className="bg-white border border-gr-line/60 rounded-xs p-3 space-y-2 text-[10px]">
+                      <div className="flex justify-between items-center">
+                        <span className="font-sans text-xs font-semibold text-gr-ink-soft">Komoditas</span>
+                        <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2 py-0.5 rounded-sm capitalize">
+                          {demand.commodity_name}
+                        </span>
+                      </div>
+                      <div className="h-px bg-gr-line/40" />
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/50 font-bold">Penawaran</span>
+                          <span className="font-mono font-bold text-gr-ink">
+                            Rp {demand.price_per_kg.toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft/60">/kg</span>
+                          </span>
+                        </div>
+                        <div>
+                          <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/50 font-bold">Sisa Kebutuhan</span>
+                          <span className="font-mono font-bold text-gr-ink">
+                            {remainingQty.toLocaleString('id-ID')} KG
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/50 font-bold">Tenggat</span>
+                          <span className="font-mono font-bold text-gr-ink">
+                            {new Date(demand.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {errorStr && (
+                      <div className="rounded-sm bg-[#FFF5F5] p-2 text-[10px] text-gr-down border border-gr-down/20 font-sans font-medium">
+                        {errorStr}
+                      </div>
+                    )}
+
+                    {/* Input Form */}
+                    <form onSubmit={(e) => handleIndividualCommitSubmit(demand, e)} className="space-y-3">
+                      <div>
+                        <label className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft font-bold mb-1">
+                          Jumlah Pasokan (KG)
+                        </label>
+                        <div className="relative flex items-center">
+                          <input
+                            type="number"
+                            step="any"
+                            min="0.1"
+                            placeholder="Contoh: 50"
+                            value={qtyStr}
+                            onChange={(e) => setCommitQuantities((prev) => ({ ...prev, [demand.id]: e.target.value }))}
+                            className="w-full bg-white border border-gr-line hover:border-gr-ink-soft/35 focus:border-gr-board/50 text-gr-ink pl-3 pr-10 py-2 rounded-xs font-mono text-xs font-bold focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                          />
+                          <span className="absolute right-3 font-mono text-[10px] font-bold text-gr-ink-soft/40">
+                            KG
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="space-y-1">
+                        <div className="flex gap-1.5">
+                          {[
+                            { label: '25%', val: Math.round(remainingQty * 0.25) },
+                            { label: '50%', val: Math.round(remainingQty * 0.5) },
+                            { label: 'Semua', val: remainingQty }
+                          ].map((preset, pIdx) => {
+                            if (preset.val <= 0) return null;
+                            return (
+                              <button
+                                key={pIdx}
+                                type="button"
+                                onClick={() => setCommitQuantities((prev) => ({ ...prev, [demand.id]: preset.val.toString() }))}
+                                className="flex-1 bg-white hover:bg-gr-board/10 hover:text-gr-board hover:border-gr-board/40 border border-gr-line text-gr-ink-soft font-mono text-[9px] font-bold py-1 rounded-xs transition-all cursor-pointer"
+                              >
+                                {preset.label} ({preset.val} kg)
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-gr-line/40">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-2 rounded-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs font-extrabold"
+                        >
+                          {isSubmitting ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <>
+                              <Check size={12} className="stroke-[2.5]" />
+                              Kirim Pasokan
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                );
+              })}
+            </div>
           </div>,
           document.body
         )}
