@@ -42,7 +42,7 @@ const productIcon = typeof window !== 'undefined' ? L.divIcon({
 // Demand marker — circular light orange icon with shopping bag SVG (reverted)
 const demandIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-demand-marker',
-  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#fff3e0" stroke="#fb8c00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
+  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#fff3e0" stroke="#fb8c00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
   popupAnchor: [0, -14],
@@ -347,7 +347,7 @@ export const MapView: React.FC<MapViewProps> = ({
         {activePopup && (
           <Popup 
             position={activePopup.position}
-            offset={[0, -20]}
+            offset={activePopup.type === 'product' ? [0, -18] : [0, 9]}
             eventHandlers={{
               remove: () => setActivePopup(null)
             }}
@@ -598,18 +598,7 @@ export const MapView: React.FC<MapViewProps> = ({
           transform: translate(-50%, -50%) scale(1.15);
           filter: drop-shadow(0 2px 6px rgba(251, 140, 0, 0.5));
         }
-        .demand-marker-pulse {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 28px;
-          height: 28px;
-          background-color: rgba(251, 140, 0, 0.12);
-          border-radius: 50%;
-          animation: pulse-ring 2.4s infinite ease-out;
-          z-index: 1;
-        }
+
 
         /* Province dots appear with a pop-in */
         [class^="prov-dot-"] > div {
@@ -629,8 +618,8 @@ export const MapView: React.FC<MapViewProps> = ({
         }
 
         @keyframes dot-pop {
-          0%   { opacity: 0; transform: scale(0.3); }
-          100% { opacity: 1; transform: scale(1); }
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+          100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
         @keyframes pulse-ring {
