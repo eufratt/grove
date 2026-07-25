@@ -27,12 +27,20 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
   iconAnchor: [12, 12],
 }) : undefined;
 
-// Custom demand request marker icon (pulsing orange/amber)
+// Custom product marker icon (forest green with brand signature Leaf SVG)
+const productIcon = typeof window !== 'undefined' ? L.divIcon({
+  className: 'custom-product-marker',
+  html: '<div class="product-marker-pin"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2Zm0 0v-5"/></svg></div><div class="product-marker-pulse"></div>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+}) : undefined;
+
+// Custom demand request marker icon (deep orange/amber with Shopping Bag SVG)
 const demandIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-demand-marker',
-  html: '<div class="demand-marker-dot"></div><div class="demand-marker-pulse"></div>',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
+  html: '<div class="demand-marker-pin"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
 }) : undefined;
 
 // Component to handle map centering and flyTo transition effects
@@ -278,6 +286,7 @@ export const MapView: React.FC<MapViewProps> = ({
             <Marker 
               key={product.id} 
               position={[product.latitude, product.longitude]}
+              icon={productIcon}
               eventHandlers={{
                 click: () => {
                   setActivePopup({
@@ -527,18 +536,53 @@ export const MapView: React.FC<MapViewProps> = ({
           z-index: 1;
         }
 
-        /* Custom Demand Marker Styling */
-        .demand-marker-dot {
+        /* Custom Product Marker Styling (Forest Green Leaf Pin) */
+        .product-marker-pin {
           position: absolute;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 10px;
-          height: 10px;
-          background-color: #e65100;
-          border-radius: 50%;
+          width: 26px;
+          height: 26px;
+          background-color: var(--gr-board);
           border: 2px solid white;
-          box-shadow: 0 0 6px #e65100;
+          border-radius: 50%;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 0 8px rgba(45, 90, 39, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          z-index: 2;
+        }
+        .product-marker-pulse {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 32px;
+          height: 32px;
+          background-color: rgba(45, 90, 39, 0.25);
+          border-radius: 50%;
+          animation: pulse-ring 2s infinite ease-out;
+          z-index: 1;
+        }
+
+        /* Custom Demand Marker Styling (Deep Orange Shopping Bag Pin) */
+        .demand-marker-pin {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 26px;
+          height: 26px;
+          background-color: #e65100;
+          border: 2px solid white;
+          border-radius: 50%;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 0 8px rgba(230, 81, 0, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
           z-index: 2;
         }
         .demand-marker-pulse {
@@ -546,9 +590,9 @@ export const MapView: React.FC<MapViewProps> = ({
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 24px;
-          height: 24px;
-          background-color: rgba(230, 81, 0, 0.25);
+          width: 32px;
+          height: 32px;
+          background-color: rgba(230, 81, 0, 0.2);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
           z-index: 1;
