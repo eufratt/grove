@@ -701,10 +701,14 @@ export default function HargaPasarPage() {
                     </div>
                   ) : filteredProducts.length > 0 ? (
                     filteredProducts.map((prod) => (
-                      <Link
+                      <div
                         key={prod.id}
-                        href={`/produk/${prod.id}`}
-                        className="p-3.5 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex gap-3 group transition-all cursor-pointer block shadow-sm"
+                        onClick={() => {
+                          if (prod.latitude && prod.longitude) {
+                            setFlyToCoords([prod.latitude, prod.longitude]);
+                          }
+                        }}
+                        className="p-4 bg-white border border-gr-line hover:border-gr-board/30 rounded-sm flex gap-3.5 group transition-all duration-150 cursor-pointer shadow-sm relative"
                       >
                         <div className="h-16 w-16 bg-gr-paper/30 border border-gr-line rounded-sm overflow-hidden shrink-0">
                           <img
@@ -715,25 +719,35 @@ export default function HargaPasarPage() {
                         </div>
                         <div className="min-w-0 flex-1 flex flex-col justify-between">
                           <div>
-                            <h3 className="font-display text-sm font-semibold text-gr-ink group-hover:text-gr-board transition-colors truncate">
-                              {prod.name}
-                            </h3>
-                            <p className="font-sans text-[10px] text-gr-ink-soft mt-0.5">
-                              Stok: {prod.quantity_kg} KG
+                            <div className="flex justify-between items-start gap-2">
+                              <h3 className="font-display text-sm font-bold text-gr-ink capitalize truncate flex-1 group-hover:text-gr-board transition-colors">
+                                {prod.name}
+                              </h3>
+                              {prod.distance_km !== undefined && prod.distance_km !== null && (
+                                <span className="font-mono text-[9px] text-gr-down font-bold shrink-0">
+                                  {prod.distance_km.toFixed(1)} km
+                                </span>
+                              )}
+                            </div>
+                            <p className="font-sans text-[10px] text-gr-ink-soft mt-1">
+                              Stok: <span className="font-bold text-gr-ink">{prod.quantity_kg} KG</span>
                             </p>
                           </div>
-                          <div className="flex justify-between items-center mt-1">
-                            <span className="font-mono text-sm font-bold text-gr-ink">
-                              Rp {prod.price_per_kg.toLocaleString('id-ID')}/KG
+                          
+                          <div className="flex justify-between items-end gap-2 mt-2">
+                            <span className="font-mono text-xs font-extrabold text-gr-ink">
+                              Rp {prod.price_per_kg.toLocaleString('id-ID')} <span className="text-[9px] font-normal text-gr-ink-soft">/ kg</span>
                             </span>
-                            {prod.distance_km !== undefined && prod.distance_km !== null && (
-                              <span className="font-sans text-[9px] text-gr-down font-semibold">
-                                {prod.distance_km.toFixed(1)} km
-                              </span>
-                            )}
+                            <Link
+                              href={`/produk/${prod.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[8px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-all duration-150 cursor-pointer text-center"
+                            >
+                              Lihat Detail
+                            </Link>
                           </div>
                         </div>
-                      </Link>
+                      </div>
                     ))
                   ) : (
                     <div className="py-20 text-center">
