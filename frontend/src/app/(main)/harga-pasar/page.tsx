@@ -49,6 +49,11 @@ let cachedPricesData: { items: any[]; distinct_commodities: string[] } | null = 
 export default function HargaPasarPage() {
   // Mode selection state
   const [activeTab, setActiveTab] = useState<'pricing' | 'products' | 'demands'>('pricing');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Explicit flyTo coordinates (to target from list card click)
   const [flyToCoords, setFlyToCoords] = useState<[number, number] | null>(null);
@@ -898,7 +903,7 @@ export default function HargaPasarPage() {
         </div>
 
         {/* ── Commit Modal Overlay — portaled to document.body */}
-        {commitRequest && typeof window !== 'undefined' && createPortal(
+        {mounted && commitRequest && createPortal(
           <div
             onClick={(e) => { if (e.target === e.currentTarget) setCommitRequest(null); }}
             className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 cursor-pointer"
