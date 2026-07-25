@@ -15,6 +15,7 @@ import { FilmGrain } from '@/components/effects/film-grain';
 import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -997,15 +998,18 @@ function FarmerProductCard({
 }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm(`Apakah Anda yakin ingin menarik komoditas "${product.name}" dari pasar?`)) {
-      return;
-    }
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
     setIsDeleting(true);
     try {
       await productsApi.deleteProduct(product.id);
+      setIsConfirmOpen(false);
       onUpdate();
     } catch (err) {
       console.error('Failed to withdraw product:', err);
@@ -1022,81 +1026,111 @@ function FarmerProductCard({
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={() => router.push(`/produk/${product.id}`)}
-      className="group relative flex flex-col w-full max-w-[260px] mx-auto p-3 pb-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 hover:shadow-md transition-all cursor-pointer select-none"
-    >
-      {/* Polaroid Product Photo */}
-      <div className="relative aspect-square w-full overflow-hidden bg-black/5 border border-gr-line rounded-sm">
-        {product.photo_url ? (
-          <img
-            src={product.photo_url}
-            alt={product.name}
-            className="h-full w-full object-cover grayscale-[0.15] group-hover:grayscale-0 transition-all duration-300"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
-            <Package size={32} />
-          </div>
-        )}
-        
-        {/* Status Stamp overlay inside the photo */}
-        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-sm border border-gr-board/20 bg-white/80 backdrop-blur-xs text-gr-board font-mono text-[8px] font-bold uppercase tracking-wider shadow-xs">
-          {product.status}
-        </div>
-      </div>
-
-      {/* Product Details Info */}
-      <div className="mt-3 flex-1 flex flex-col justify-between min-w-0">
-        <div>
-          <span className="font-mono text-[9px] uppercase font-bold tracking-widest text-gr-ink-soft/70 block">
-            {product.category}
-          </span>
-          <h3 className="font-display text-base font-bold text-gr-ink leading-tight mt-0.5 truncate" title={product.name}>
-            {product.name}
-          </h3>
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        onClick={() => router.push(`/produk/${product.id}`)}
+        className="group relative flex flex-col w-full max-w-[260px] mx-auto p-3 pb-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 hover:shadow-md transition-all cursor-pointer select-none"
+      >
+        {/* Polaroid Product Photo */}
+        <div className="relative aspect-square w-full overflow-hidden bg-black/5 border border-gr-line rounded-sm">
+          {product.photo_url ? (
+            <img
+              src={product.photo_url}
+              alt={product.name}
+              className="h-full w-full object-cover grayscale-[0.15] group-hover:grayscale-0 transition-all duration-300"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-gr-ink-soft/40">
+              <Package size={32} />
+            </div>
+          )}
           
-          <div className="mt-3.5 space-y-1.5 font-sans text-xs">
-            <div className="flex justify-between text-gr-ink-soft/80 border-b border-dashed border-gr-line/30 pb-1">
-              <span>Jual:</span>
-              <span className="font-mono font-bold text-gr-ink">Rp {product.price_per_kg.toLocaleString('id-ID')}</span>
-            </div>
-            <div className="flex justify-between text-gr-ink-soft/80 border-b border-dashed border-gr-line/30 pb-1">
-              <span>Stok:</span>
-              <span className="font-mono font-bold text-gr-ink">{product.quantity_kg} KG</span>
-            </div>
-            {product.reference_price_per_kg && (
-              <div className="flex justify-between text-gr-ink-soft/80 pb-0.5">
-                <span>Acuan:</span>
-                <span className="font-mono font-bold text-gr-board">Rp {product.reference_price_per_kg.toLocaleString('id-ID')}</span>
+          {/* Status Stamp overlay inside the photo */}
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-sm border border-gr-board/20 bg-white/80 backdrop-blur-xs text-gr-board font-mono text-[8px] font-bold uppercase tracking-wider shadow-xs">
+            {product.status}
+          </div>
+        </div>
+
+        {/* Product Details Info */}
+        <div className="mt-3 flex-1 flex flex-col justify-between min-w-0">
+          <div>
+            <span className="font-mono text-[9px] uppercase font-bold tracking-widest text-gr-ink-soft/70 block">
+              {product.category}
+            </span>
+            <h3 className="font-display text-base font-bold text-gr-ink leading-tight mt-0.5 truncate" title={product.name}>
+              {product.name}
+            </h3>
+            
+            <div className="mt-3.5 space-y-1.5 font-sans text-xs">
+              <div className="flex justify-between text-gr-ink-soft/80 border-b border-dashed border-gr-line/30 pb-1">
+                <span>Jual:</span>
+                <span className="font-mono font-bold text-gr-ink">Rp {product.price_per_kg.toLocaleString('id-ID')}</span>
               </div>
-            )}
+              <div className="flex justify-between text-gr-ink-soft/80 border-b border-dashed border-gr-line/30 pb-1">
+                <span>Stok:</span>
+                <span className="font-mono font-bold text-gr-ink">{product.quantity_kg} KG</span>
+              </div>
+              {product.reference_price_per_kg && (
+                <div className="flex justify-between text-gr-ink-soft/80 pb-0.5">
+                  <span>Acuan:</span>
+                  <span className="font-mono font-bold text-gr-board">Rp {product.reference_price_per_kg.toLocaleString('id-ID')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer: Date & Tarik Action */}
+          <div className="mt-4 pt-3 border-t border-gr-line/45 flex flex-col gap-2">
+            <div className="flex justify-between items-center text-[9px] text-gr-ink-soft/50 font-sans italic">
+              <span>Listing:</span>
+              <span>{formattedDate}</span>
+            </div>
+
+            <button
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              className="w-full flex items-center justify-center gap-1.5 py-2 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
+            >
+              {isDeleting ? (
+                <Loader2 size={10} className="animate-spin" />
+              ) : (
+                <Trash2 size={10} />
+              )}
+              Tarik Produk
+            </button>
           </div>
         </div>
+      </motion.div>
 
-        {/* Footer: Date & Tarik Action */}
-        <div className="mt-4 pt-3 border-t border-gr-line/45 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[9px] text-gr-ink-soft/50 font-sans italic">
-            <span>Listing:</span>
-            <span>{formattedDate}</span>
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Tarik Produk dari Pasar"
+        description={
+          <div className="space-y-3 font-sans">
+            <p className="text-gr-ink-soft leading-relaxed">
+              Komoditas yang ditarik tidak akan terlihat oleh pembeli dan penawaran aktif di pasar akan dihapus secara permanen.
+            </p>
+            <div className="border border-dashed border-gr-ink/20 bg-white/35 p-3 rounded-none flex items-center justify-between font-mono text-[9px] text-gr-ink-soft">
+              <div>
+                <span className="block text-[8px] text-gr-ink-soft/60 uppercase tracking-widest mb-0.5">Komoditas</span>
+                <span className="text-gr-ink font-bold uppercase tracking-wider">{product.name}</span>
+              </div>
+              <div className="text-right">
+                <span className="block text-[8px] text-gr-ink-soft/60 uppercase tracking-widest mb-0.5">Stok Listing</span>
+                <span className="text-gr-ink font-bold">{product.quantity_kg} KG</span>
+              </div>
+            </div>
           </div>
-
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="w-full flex items-center justify-center gap-1.5 py-2 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
-          >
-            {isDeleting ? (
-              <Loader2 size={10} className="animate-spin" />
-            ) : (
-              <Trash2 size={10} />
-            )}
-            Tarik Produk
-          </button>
-        </div>
-      </div>
-    </motion.div>
+        }
+        confirmText="Ya, Tarik"
+        cancelText="Batal"
+        variant="danger"
+        isLoading={isDeleting}
+      />
+    </>
   );
 }
