@@ -19,7 +19,9 @@ import {
   Tag,
   Info,
   Star,
-  User
+  User,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -170,6 +172,23 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(products.length / productsPerPage);
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxDisplayed = 5;
+    
+    let startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, startPage + maxDisplayed - 1);
+    
+    if (endPage - startPage < maxDisplayed - 1) {
+      startPage = Math.max(1, endPage - maxDisplayed + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     // Smooth scroll to top of products list
@@ -290,23 +309,40 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
                 {/* Clear & Highly Readable Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex justify-between items-center pt-5 border-t border-gr-line/30 font-sans text-xs font-semibold text-gr-ink">
+                  <div className="flex flex-wrap justify-center items-center gap-3 pt-5 border-t border-gr-line/30 font-sans text-xs font-semibold text-gr-ink">
                     <button
                       onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+                      className="flex items-center gap-1 px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all duration-300 hover:border-gr-ink hover:translate-x-[-2px] disabled:translate-x-0 disabled:opacity-20 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer shadow-2xs"
                     >
+                      <ChevronLeft className="h-3.5 w-3.5" />
                       Sebelumnya
                     </button>
-                    <span className="font-mono text-xs text-gr-ink-soft">
-                      Halaman {currentPage} dari {totalPages}
-                    </span>
+                    
+                    {/* Page Numbers */}
+                    <div className="flex items-center gap-1.5">
+                      {getPageNumbers().map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => p !== currentPage && handlePageChange(p)}
+                          className={`flex items-center justify-center min-w-8 h-8 rounded-sm border text-[10px] font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer shadow-2xs ${
+                            p === currentPage
+                              ? 'border-gr-board bg-gr-board text-gr-chalk'
+                              : 'border-gr-line/60 bg-white/20 text-gr-ink hover:bg-white/65 hover:border-gr-ink'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                    
                     <button
                       onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+                      className="flex items-center gap-1 px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all duration-300 hover:border-gr-ink hover:translate-x-[2px] disabled:translate-x-0 disabled:opacity-20 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer shadow-2xs"
                     >
                       Selanjutnya
+                      <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}
