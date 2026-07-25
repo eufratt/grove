@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Tooltip, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 
 // Fix for leaflet default icons in Next.js
 const DefaultIcon = L.icon({
@@ -124,6 +125,49 @@ export const MapView: React.FC<MapViewProps> = ({
   className,
   flyToCoords: propFlyToCoords = null
 }) => {
+  const [activePopup, setActivePopup] = useState<{
+    id: string | number;
+    type: 'product' | 'demand';
+    position: [number, number];
+    data: any;
+  } | null>(null);
+
+  // Synchronize activePopup with propFlyToCoords
+  useEffect(() => {
+    if (propFlyToCoords) {
+      const [lat, lng] = propFlyToCoords;
+      const matchedProd = products.find(
+        (p) => p.latitude === lat && p.longitude === lng
+      );
+      if (matchedProd) {
+        setActivePopup({
+          id: matchedProd.id,
+          type: 'product',
+          position: [matchedProd.latitude, matchedProd.longitude],
+          data: matchedProd,
+        });
+        return;
+      }
+
+      const matchedDemand = demands.find(
+        (d) => d.latitude === lat && d.longitude === lng
+      );
+      if (matchedDemand) {
+        setActivePopup({
+          id: matchedDemand.id,
+          type: 'demand',
+          position: [matchedDemand.latitude, matchedDemand.longitude],
+          data: matchedDemand,
+        });
+        return;
+      }
+    }
+  }, [propFlyToCoords, products, demands]);
+
+  // Reset active popup when switching modes
+  useEffect(() => {
+    setActivePopup(null);
+  }, [mode]);
 
   // Determine initial center and zoom based on mode and available data
   let initialCenter: [number, number];
@@ -234,39 +278,17 @@ export const MapView: React.FC<MapViewProps> = ({
             <Marker 
               key={product.id} 
               position={[product.latitude, product.longitude]}
-            >
-              <Popup className="custom-popup">
-                <div className="p-1 min-w-[160px] text-gr-ink">
-                  {product.photo_url && (
-                    <img 
-                      src={product.photo_url} 
-                      alt={product.name} 
-                      className="w-full h-24 object-cover rounded-md mb-2" 
-                    />
-                  )}
-                  <h3 className="font-display text-base font-semibold m-0 text-gr-ink">
-                    {product.name}
-                  </h3>
-                  <p className="font-mono text-xs text-gr-up font-bold mt-0.5">
-                    Rp {product.price_per_kg.toLocaleString('id-ID')}/KG
-                  </p>
-                  <p className="font-sans text-[10px] text-gr-ink-soft mt-1">
-                    Stok: {product.quantity_kg} KG
-                  </p>
-                  {product.distance_km !== undefined && product.distance_km !== null && (
-                    <p className="font-sans text-[10px] text-gr-down font-bold mt-1">
-                      {product.distance_km.toFixed(1)} km dari Anda
-                    </p>
-                  )}
-                  <Link 
-                    href={`/produk/${product.id}`}
-                    className="w-full mt-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer block text-center"
-                  >
-                    Detail Produk
-                  </Link>
-                </div>
-              </Popup>
-            </Marker>
+              eventHandlers={{
+                click: () => {
+                  setActivePopup({
+                    id: product.id,
+                    type: 'product',
+                    position: [product.latitude, product.longitude],
+                    data: product
+                  });
+                }
+              }}
+            />
           )
         ))}
 
@@ -277,39 +299,135 @@ export const MapView: React.FC<MapViewProps> = ({
               key={demand.id} 
               position={[demand.latitude, demand.longitude]}
               icon={demandIcon}
-            >
-              <Popup className="custom-popup">
-                <div className="p-1.5 min-w-[170px] text-gr-ink">
-                  <span className="font-mono text-[8px] uppercase tracking-widest text-[#e65100] font-bold block mb-1">
-                    Permintaan Aktif
-                  </span>
-                  <h3 className="font-display text-sm font-bold m-0 text-gr-ink capitalize">
-                    {demand.commodity_name}
-                  </h3>
-                  <p className="font-mono text-xs text-[#e65100] font-bold mt-0.5">
-                    Penawaran: Rp {demand.price_per_kg.toLocaleString('id-ID')}/KG
-                  </p>
-                  <p className="font-sans text-[10px] text-gr-ink-soft mt-1">
-                    Dibutuhkan: {demand.quantity_kg_needed} KG
-                  </p>
-                  {demand.distance_km !== undefined && demand.distance_km !== null && (
-                    <p className="font-sans text-[10px] text-gr-ink-soft font-bold mt-1">
-                      📍 {demand.distance_km.toFixed(1)} km dari Anda
-                    </p>
-                  )}
-                  {onCommitDemand && (
-                    <button 
-                      onClick={() => onCommitDemand(demand)}
-                      className="w-full mt-3 bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-sm transition-all cursor-pointer block text-center shadow-xs"
-                    >
-                      Penuhi Permintaan
-                    </button>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
+              eventHandlers={{
+                click: () => {
+                  setActivePopup({
+                    id: demand.id,
+                    type: 'demand',
+                    position: [demand.latitude, demand.longitude],
+                    data: demand
+                  });
+                }
+              }}
+            />
           )
         ))}
+
+        {/* Global Popup for Products and Demands */}
+        {activePopup && (
+          <Popup 
+            position={activePopup.position}
+            eventHandlers={{
+              remove: () => setActivePopup(null)
+            }}
+            className="custom-popup"
+          >
+            {activePopup.type === 'product' ? (
+              <div className="p-2.5 min-w-[200px] font-sans text-xs text-gr-ink space-y-3">
+                {activePopup.data.photo_url && (
+                  <div className="w-full h-28 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/20">
+                    <img 
+                      src={activePopup.data.photo_url} 
+                      alt={activePopup.data.name} 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                )}
+                <div className="space-y-1">
+                  <h3 className="font-display text-sm font-bold text-gr-ink capitalize m-0 leading-tight">
+                    {activePopup.data.name}
+                  </h3>
+                  <span className="inline-block font-mono text-[8px] uppercase tracking-wider text-gr-board bg-gr-board/5 px-2 py-0.5 rounded-sm border border-gr-board/15 font-bold mt-1">
+                    {activePopup.data.category || 'Hasil Panen'}
+                  </span>
+                </div>
+                
+                <div className="h-px bg-gr-line/50" />
+                
+                <div className="grid grid-cols-2 gap-2 py-1 text-[10px]">
+                  <div>
+                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Harga</span>
+                    <span className="font-mono font-bold text-gr-ink">
+                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[8px] font-normal text-gr-ink-soft">/kg</span>
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Stok</span>
+                    <span className="font-mono font-bold text-gr-ink">
+                      {activePopup.data.quantity_kg.toLocaleString('id-ID')} KG
+                    </span>
+                  </div>
+                </div>
+
+                {activePopup.data.distance_km !== undefined && activePopup.data.distance_km !== null && (
+                  <div className="flex items-center gap-1 font-mono text-[10px] text-gr-down bg-[#FAF9F5] border border-gr-line px-2 py-1 rounded-xs">
+                    <MapPin size={11} className="text-gr-down shrink-0" />
+                    <span>{activePopup.data.distance_km.toFixed(1)} km dari Anda</span>
+                  </div>
+                )}
+
+                <Link 
+                  href={`/produk/${activePopup.data.id}`}
+                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-widest py-2 rounded-sm transition-all text-center block shadow-2xs font-extrabold"
+                >
+                  Detail Produk
+                </Link>
+              </div>
+            ) : (
+              <div className="p-2.5 min-w-[200px] font-sans text-xs text-gr-ink space-y-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-start gap-2">
+                    <h3 className="font-display text-sm font-bold text-gr-ink capitalize m-0 leading-tight">
+                      {activePopup.data.commodity_name}
+                    </h3>
+                    <span className="font-mono text-[8px] uppercase tracking-wider text-[#e65100] bg-[#e65100]/5 border border-[#e65100]/15 px-1.5 py-0.5 rounded-sm font-bold shrink-0">
+                      {activePopup.data.category}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="h-px bg-gr-line/50" />
+
+                <div className="grid grid-cols-2 gap-2 py-1 text-[10px]">
+                  <div>
+                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Penawaran</span>
+                    <span className="font-mono font-bold text-gr-ink">
+                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[8px] font-normal text-gr-ink-soft">/kg</span>
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Sisa Kebutuhan</span>
+                    <span className="font-mono font-bold text-[#e65100]">
+                      {Math.max(0, activePopup.data.quantity_kg_needed - activePopup.data.quantity_kg_committed).toLocaleString('id-ID')} KG
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1 text-[10px] text-gr-ink-soft">
+                  <p>Pemohon: <span className="font-semibold text-gr-ink">{activePopup.data.buyer_name || 'Pembeli'}</span></p>
+                  <p>Tenggat: <span className="font-semibold text-gr-ink">{new Date(activePopup.data.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span></p>
+                </div>
+
+                {activePopup.data.distance_km !== undefined && activePopup.data.distance_km !== null && (
+                  <div className="flex items-center gap-1 font-mono text-[10px] text-gr-down bg-[#FAF9F5] border border-gr-line px-2 py-1 rounded-xs">
+                    <MapPin size={11} className="text-gr-down shrink-0" />
+                    <span>{activePopup.data.distance_km.toFixed(1)} km dari Anda</span>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    setActivePopup(null);
+                    onCommitDemand?.(activePopup.data);
+                  }}
+                  className="w-full bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[9px] font-bold uppercase tracking-widest py-2 rounded-sm transition-all text-center block cursor-pointer shadow-2xs font-extrabold"
+                >
+                  Penuhi Pasokan
+                </button>
+              </div>
+            )}
+          </Popup>
+        )}
 
         {/* 2. Pricing Mode Markers (Indonesian Provinces) */}
         {mode === 'pricing' && Object.entries(pricesByProvince).map(([provName, list]) => {
