@@ -539,28 +539,32 @@ export const MapView: React.FC<MapViewProps> = ({
         /* Custom Product Marker Styling (Forest Green Leaf Pin) */
         .product-marker-pin {
           position: absolute;
-          top: 50%;
+          top: 35%;
           left: 50%;
-          transform: translate(-50%, -50%);
-          width: 26px;
-          height: 26px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50% 50% 50% 0;
           background-color: var(--gr-board);
           border: 2px solid white;
-          border-radius: 50%;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 0 8px rgba(45, 90, 39, 0.4);
+          transform: translate(-50%, -50%) rotate(45deg);
+          box-shadow: -2px 3px 8px rgba(0, 0, 0, 0.2), 0 0 6px rgba(45, 90, 39, 0.25);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
           z-index: 2;
+        }
+        .product-marker-pin svg {
+          transform: rotate(-45deg);
+          color: white;
+          display: block;
         }
         .product-marker-pulse {
           position: absolute;
-          top: 50%;
+          top: 35%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
           background-color: rgba(45, 90, 39, 0.25);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
@@ -570,28 +574,32 @@ export const MapView: React.FC<MapViewProps> = ({
         /* Custom Demand Marker Styling (Deep Orange Shopping Bag Pin) */
         .demand-marker-pin {
           position: absolute;
-          top: 50%;
+          top: 35%;
           left: 50%;
-          transform: translate(-50%, -50%);
-          width: 26px;
-          height: 26px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50% 50% 50% 0;
           background-color: #e65100;
           border: 2px solid white;
-          border-radius: 50%;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 0 8px rgba(230, 81, 0, 0.4);
+          transform: translate(-50%, -50%) rotate(45deg);
+          box-shadow: -2px 3px 8px rgba(0, 0, 0, 0.2), 0 0 6px rgba(230, 81, 0, 0.25);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
           z-index: 2;
+        }
+        .demand-marker-pin svg {
+          transform: rotate(-45deg);
+          color: white;
+          display: block;
         }
         .demand-marker-pulse {
           position: absolute;
-          top: 50%;
+          top: 35%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
           background-color: rgba(230, 81, 0, 0.2);
           border-radius: 50%;
           animation: pulse-ring 2s infinite ease-out;
