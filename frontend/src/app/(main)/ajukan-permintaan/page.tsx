@@ -8,8 +8,9 @@ import { referencePricesApi } from '@/lib/api/reference-prices';
 import { Button } from '@/components/ui/button';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { ArrowLeft, Calendar, Loader2, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, Info, AlertTriangle, CheckCircle, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import { reverseGeocode as fetchAddress } from '@/lib/utils/geocode';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 
 const getCategoryForCommodity = (name: string): string => {
@@ -40,6 +41,7 @@ export default function AjukanPermintaanPage() {
   const [quantity, setQuantity] = useState('');
   const [pricePerKg, setPricePerKg] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [addressName, setAddressName] = useState('');
 
   // Autocomplete state
   const [allCommodities, setAllCommodities] = useState<string[]>([]);
@@ -70,6 +72,16 @@ export default function AjukanPermintaanPage() {
       }
     });
     return closestProv;
+  };
+
+  const reverseGeocode = async (latitude: number, longitude: number) => {
+    const fallbackProv = getClosestProvince(latitude, longitude);
+    setAddressName(fallbackProv);
+
+    const result = await fetchAddress(latitude, longitude);
+    if (result) {
+      setAddressName(result.full || result.short);
+    }
   };
 
   const fetchReferencePrice = async (commodity: string, latitude: number | null, longitude: number | null) => {
@@ -119,9 +131,12 @@ export default function AjukanPermintaanPage() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLat(position.coords.latitude);
-        setLng(position.coords.longitude);
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        setLat(latitude);
+        setLng(longitude);
         setGettingLocation(false);
+        reverseGeocode(latitude, longitude);
       },
       (error) => {
         console.error('Error getting geolocation:', error);
@@ -515,14 +530,15 @@ export default function AjukanPermintaanPage() {
                   </button>
                 </div>
               ) : lat !== null && lng !== null ? (
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2 text-gr-board">
-                    <div className="h-2 w-2 rounded-full bg-gr-board animate-pulse" />
-                    <span>Koordinat berhasil didapatkan</span>
+                    <div className="h-2 w-2 rounded-full bg-gr-board animate-pulse shrink-0" />
+                    <span className="font-sans text-xs font-semibold">Lokasi Terdeteksi</span>
                   </div>
-                  <span className="font-mono text-[10px] text-gr-ink-soft bg-white/40 border border-gr-line px-2 py-1 rounded-sm">
-                    {lat.toFixed(6)}, {lng.toFixed(6)}
-                  </span>
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 py-1.5 rounded-sm shadow-3xs max-w-xs truncate">
+                    <MapPin size={11} className="stroke-[2.2] shrink-0" />
+                    <span className="truncate">{addressName || `${lat.toFixed(4)}, ${lng.toFixed(4)}`}</span>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-start gap-2 text-gr-down">

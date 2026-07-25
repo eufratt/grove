@@ -11,6 +11,7 @@ import { FilmGrain } from '@/components/effects/film-grain';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import { cn } from '@/lib/utils';
 import { Camera, Plus, X, Loader2, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { reverseGeocode as fetchAddress } from '@/lib/utils/geocode';
 
 const getCategoryForCommodity = (name: string): string => {
   const n = name.toLowerCase();
@@ -44,7 +45,7 @@ export default function JualPage() {
           if (userData.latitude !== undefined && userData.latitude !== null && userData.longitude !== undefined && userData.longitude !== null) {
             setLat(userData.latitude);
             setLng(userData.longitude);
-            setLocationStatus(`Lokasi terisi dari profil: ${userData.latitude.toFixed(4)}, ${userData.longitude.toFixed(4)}`);
+            reverseGeocode(userData.latitude, userData.longitude, 'Lokasi terisi dari profil: ');
           } else {
             // Auto-fetch device location on load if profile location is empty
             if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -53,7 +54,7 @@ export default function JualPage() {
                 (position) => {
                   setLat(position.coords.latitude);
                   setLng(position.coords.longitude);
-                  setLocationStatus(`Lokasi terisi otomatis: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+                  reverseGeocode(position.coords.latitude, position.coords.longitude, 'Lokasi terisi otomatis: ');
                 },
                 (error) => {
                   setLocationStatus(`Gagal memuat lokasi otomatis: ${error.message}`);
@@ -105,6 +106,16 @@ export default function JualPage() {
       }
     });
     return closestProv;
+  };
+
+  const reverseGeocode = async (latitude: number, longitude: number, prefix: string = 'Lokasi terisi: ') => {
+    const fallbackProv = getClosestProvince(latitude, longitude);
+    setLocationStatus(`${prefix}${fallbackProv}`);
+
+    const result = await fetchAddress(latitude, longitude);
+    if (result) {
+      setLocationStatus(`${prefix}${result.full || result.short}`);
+    }
   };
 
   // Close dropdown on click outside
@@ -180,7 +191,7 @@ export default function JualPage() {
         setLat(position.coords.latitude);
         setLng(position.coords.longitude);
         setLocating(false);
-        setLocationStatus(`Lokasi terisi: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+        reverseGeocode(position.coords.latitude, position.coords.longitude, 'Lokasi terisi: ');
       },
       (error) => {
         setLocating(false);

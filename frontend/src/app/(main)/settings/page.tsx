@@ -10,6 +10,7 @@ import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import { cn } from '@/lib/utils';
+import { reverseGeocode as fetchAddress } from '@/lib/utils/geocode';
 import { 
   User, 
   Store, 
@@ -49,6 +50,7 @@ export default function SettingsPage() {
   const [lng, setLng] = useState<number | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationSuccess, setLocationSuccess] = useState('');
+  const [locationAddressName, setLocationAddressName] = useState('');
 
   // Avatar Upload States
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -77,6 +79,16 @@ export default function SettingsPage() {
     return closestProv;
   };
 
+  const reverseGeocodeSettings = async (latitude: number, longitude: number) => {
+    const fallback = getClosestProvince(latitude, longitude);
+    setLocationAddressName(fallback);
+
+    const result = await fetchAddress(latitude, longitude);
+    if (result) {
+      setLocationAddressName(result.full || result.short);
+    }
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -92,6 +104,9 @@ export default function SettingsPage() {
         setSelectedRole(userData.role || 'PEMBELI');
         setLat(userData.latitude || null);
         setLng(userData.longitude || null);
+        if (userData.latitude && userData.longitude) {
+          reverseGeocodeSettings(userData.latitude, userData.longitude);
+        }
         
         try {
           const sellerData = await ratingsApi.getUserRatingsAsSeller(userData.id);
@@ -134,6 +149,7 @@ export default function SettingsPage() {
             setLng(currentLng);
             setLocationSuccess('Lokasi GPS berhasil disinkronkan!');
             setTimeout(() => setLocationSuccess(''), 3000);
+            reverseGeocodeSettings(currentLat, currentLng);
           } catch (err: any) {
             setError(err.message || 'Gagal menyimpan koordinat lokasi');
           } finally {
@@ -645,34 +661,34 @@ export default function SettingsPage() {
                 )}
 
                 <div className="bg-white border border-gr-line p-5 rounded-sm shadow-2xs space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {lat !== null && lng !== null ? (
                     <div>
-                      <span className="block font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/60 mb-1">
-                        Garis Lintang (Latitude)
+                      <span className="block font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/60 mb-2">
+                        Lokasi Tersimpan
                       </span>
-                      <div className="bg-gr-paper/30 border border-gr-line rounded-sm px-3 py-2.5 font-mono text-xs text-gr-ink font-semibold">
-                        {lat !== null ? lat.toFixed(6) : 'Belum disinkronkan'}
+                      <div className="flex items-center gap-2.5 bg-gr-board/5 border border-gr-board/20 rounded-sm px-4 py-3">
+                        <MapPin size={16} className="text-gr-board shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-sans text-sm font-semibold text-gr-ink">
+                            {locationAddressName || getClosestProvince(lat, lng)}
+                          </span>
+                          <span className="font-mono text-[10px] text-gr-ink-soft">
+                            {lat.toFixed(5)}, {lng.toFixed(5)}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  ) : (
                     <div>
-                      <span className="block font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/60 mb-1">
-                        Garis Bujur (Longitude)
+                      <span className="block font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/60 mb-2">
+                        Lokasi Tersimpan
                       </span>
-                      <div className="bg-gr-paper/30 border border-gr-line rounded-sm px-3 py-2.5 font-mono text-xs text-gr-ink font-semibold">
-                        {lng !== null ? lng.toFixed(6) : 'Belum disinkronkan'}
+                      <div className="flex items-center gap-2.5 bg-gr-paper/40 border border-gr-line rounded-sm px-4 py-3 text-gr-ink-soft">
+                        <Compass size={15} className="shrink-0" />
+                        <span className="font-sans text-sm">Lokasi belum disinkronkan</span>
                       </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <span className="block font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/60 mb-1">
-                      Estimasi Daerah Layanan
-                    </span>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm border border-gr-line bg-gr-paper font-sans text-[11px] font-bold text-gr-board uppercase">
-                      <Compass size={11} />
-                      {lat !== null && lng !== null ? getClosestProvince(lat, lng) : 'Nasional'}
-                    </div>
-                  </div>
+                  )}
 
                   <div className="border-t border-gr-line/40 pt-4 mt-2 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                     <button

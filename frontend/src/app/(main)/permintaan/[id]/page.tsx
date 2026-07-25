@@ -8,6 +8,7 @@ import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, CheckCircle, Info } from 'lucide-react';
+import { reverseGeocode as fetchAddress } from '@/lib/utils/geocode';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { provinceCentroids } from '@/lib/data/province-centroids';
@@ -60,6 +61,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [lng, setLng] = useState<number | null>(null);
   const [refPrice, setRefPrice] = useState<number | null>(null);
   const [refPriceRegion, setRefPriceRegion] = useState<string>('');
+  const [addressName, setAddressName] = useState<string>('');
 
   const requestLocation = () => {
     if (typeof window !== 'undefined' && 'geolocation' in navigator) {
@@ -132,6 +134,18 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     };
     fetchData();
   }, [id]);
+
+  // Reverse geocode request coordinates when request detail is loaded
+  useEffect(() => {
+    if (request && request.latitude && request.longitude) {
+      const fallbackProv = getClosestProvince(request.latitude, request.longitude);
+      setAddressName(fallbackProv);
+
+      fetchAddress(request.latitude, request.longitude).then((result) => {
+        if (result) setAddressName(result.full || result.short);
+      });
+    }
+  }, [request]);
 
   // 2. Connect to WebSocket for real-time updates
   useEffect(() => {
@@ -394,12 +408,9 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   <span className="text-gr-ink-soft text-xs">Lokasi Penerimaan</span>
                   <p className="text-gr-ink font-semibold flex items-center gap-2">
                     <MapPin size={14} className="text-gr-board" />
-                    {request.latitude && request.longitude 
-                      ? getClosestProvince(request.latitude, request.longitude)
-                      : 'Lokasi tidak diketahui'}{' '}
-                    <span className="text-xs text-gr-ink-soft font-normal">
-                      ({request.latitude ? `${request.latitude.toFixed(4)}, ${request.longitude.toFixed(4)}` : 'Koordinat tidak tersedia'})
-                    </span>
+                    {request.latitude && request.longitude
+                      ? (addressName || getClosestProvince(request.latitude, request.longitude))
+                      : 'Lokasi tidak diketahui'}
                   </p>
                 </div>
 

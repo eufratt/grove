@@ -27,32 +27,38 @@ const userIcon = typeof window !== 'undefined' ? L.divIcon({
   iconAnchor: [12, 12],
 }) : undefined;
 
-// Custom product marker icon (forest green with brand signature Store SVG)
+// Product marker — brand light green teardrop pin with simple center dot
 const productIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-product-marker',
-  html: '<div class="product-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#388e3c" stroke="#0f271d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12V22h16V12"/><path d="M9 12v5h6v-5"/><path d="M2 7h20"/><path d="M12 2v5"/></svg></div><div class="product-marker-pulse"></div>',
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  html: `<div class="pin-animate"><svg width="28" height="38" viewBox="0 0 28 38" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 2px 5px rgba(27,58,41,0.25))">
+    <path d="M14 1C7.9 1 3 5.9 3 12C3 20 14 37 14 37S25 20 25 12C25 5.9 20.1 1 14 1Z" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+    <circle cx="14" cy="12" r="4.5" fill="#2e7d32"/>
+  </svg></div>`,
+  iconSize: [28, 38],
+  iconAnchor: [14, 38],
+  popupAnchor: [0, -38],
 }) : undefined;
 
-// Custom demand request marker icon (deep orange/amber with Shopping Bag SVG)
+// Demand marker — circular light orange icon with shopping bag SVG (reverted)
 const demandIcon = typeof window !== 'undefined' ? L.divIcon({
   className: 'custom-demand-marker',
-  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#e65100" stroke="#4a1500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
+  html: '<div class="demand-logo-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#fff3e0" stroke="#fb8c00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="demand-marker-pulse"></div>',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
+  popupAnchor: [0, -14],
 }) : undefined;
 
 // Component to handle map centering and flyTo transition effects
-// Only acts on explicit flyTo requests — does NOT auto-reset the view on every render
 function MapController({ 
   flyToCoords,
+  snapToCoords,
   initialCenter,
   initialZoom,
   mode,
   userLocation,
 }: { 
   flyToCoords?: [number, number] | null;
+  snapToCoords?: [number, number] | null;
   initialCenter: [number, number];
   initialZoom: number;
   mode: 'products' | 'pricing' | 'demands';
@@ -71,15 +77,15 @@ function MapController({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When switching to products or demands mode, fly to user location
+  // When switching TO products mode from any other mode, fly to user location
   useEffect(() => {
-    if ((mode === 'products' || mode === 'demands') && prevMode.current === 'pricing' && userLocation) {
+    if (mode === 'products' && prevMode.current !== null && prevMode.current !== 'products' && userLocation) {
       map.flyTo(userLocation, 12, { animate: true, duration: 1.0 });
     }
     prevMode.current = mode;
   }, [mode, userLocation, map]);
 
-  // Fly to explicit destination when requested (e.g. province selected)
+  // Fly to explicit destination (province selection in pricing mode)
   const flyToKey = flyToCoords ? `${flyToCoords[0]},${flyToCoords[1]}` : null;
   useEffect(() => {
     if (flyToCoords) {
@@ -88,6 +94,18 @@ function MapController({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flyToKey, map, mode]);
+
+  // Smoothly fly to selected coordinates (cinematic zoom sweep)
+  const snapKey = snapToCoords ? `${snapToCoords[0]},${snapToCoords[1]}` : null;
+  useEffect(() => {
+    if (snapToCoords) {
+      map.flyTo(snapToCoords, 15, {
+        animate: true,
+        duration: 1.2
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapKey, map]);
 
   return null;
 }
@@ -180,15 +198,18 @@ export const MapView: React.FC<MapViewProps> = ({
   // Determine initial center and zoom based on mode and available data
   let initialCenter: [number, number];
   let initialZoom: number;
-  let flyToCoords: [number, number] | null = propFlyToCoords;
+  // flyToCoords: used for slow sweep (pricing province)
+  // snapToCoords: used for instant snap to a product/demand pin (no lag)
+  let flyToCoords: [number, number] | null = null;
+  let snapToCoords: [number, number] | null = null;
 
   if (mode === 'products' || mode === 'demands') {
-    // In products or demands mode: center on user location if available, else Indonesia overview
     initialCenter = userLocation ?? [-2.5489, 118.0149];
     initialZoom = userLocation ? 12 : 5;
+    // Sidebar product/demand click → snap (instant, no drift)
+    if (propFlyToCoords) snapToCoords = propFlyToCoords;
   } else {
-    // In pricing mode: start with Indonesia overview to allow beautiful flyTo transition
-    initialCenter = [-2.5489, 118.0149]; // Center of Indonesia
+    initialCenter = [-2.5489, 118.0149];
     initialZoom = 5;
     if (selectedProvince && provinceCentroids[selectedProvince]) {
       const centroid = provinceCentroids[selectedProvince];
@@ -242,6 +263,7 @@ export const MapView: React.FC<MapViewProps> = ({
           initialCenter={initialCenter}
           initialZoom={initialZoom}
           flyToCoords={flyToCoords}
+          snapToCoords={snapToCoords}
           mode={mode}
           userLocation={userLocation}
         />
@@ -536,36 +558,29 @@ export const MapView: React.FC<MapViewProps> = ({
           z-index: 1;
         }
 
-        /* Custom Product Marker Styling (Solid Leaf Logo) */
-        .product-logo-wrapper {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
-          z-index: 2;
-          transition: all 0.15s ease;
-        }
-        .product-logo-wrapper:hover {
-          transform: translate(-50%, -50%) scale(1.15);
-        }
-        .product-marker-pulse {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 28px;
-          height: 28px;
-          background-color: rgba(56, 142, 60, 0.35);
-          border-radius: 50%;
-          animation: pulse-ring 2s infinite ease-out;
-          z-index: 1;
+        /* ── SVG Teardrop Pin Markers ───────────────────────────── */
+        /* NOTE: Never animate/transform .custom-product-marker or
+           .custom-demand-marker directly — Leaflet uses transform on
+           those elements to position markers. Animate their inner elements. */
+        .custom-product-marker,
+        .custom-demand-marker {
+          cursor: pointer;
+          overflow: visible;
         }
 
-        /* Custom Demand Marker Styling (Solid Shopping Bag Logo) */
+        .custom-product-marker:hover .pin-animate {
+          transform: translateY(-3px) scale(1.08);
+        }
+
+        /* Inner pinpoint wrapper gets the drop & scale bounce animation */
+        .pin-animate {
+          display: block;
+          transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: pin-drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          transform-origin: bottom center;
+        }
+
+        /* 🔴 Demand Logo/Pulse Marker */
         .demand-logo-wrapper {
           position: absolute;
           top: 50%;
@@ -574,12 +589,14 @@ export const MapView: React.FC<MapViewProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+          filter: drop-shadow(0 1px 3px rgba(251, 140, 0, 0.3));
           z-index: 2;
           transition: all 0.15s ease;
+          animation: dot-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
-        .demand-logo-wrapper:hover {
+        .custom-demand-marker:hover .demand-logo-wrapper {
           transform: translate(-50%, -50%) scale(1.15);
+          filter: drop-shadow(0 2px 6px rgba(251, 140, 0, 0.5));
         }
         .demand-marker-pulse {
           position: absolute;
@@ -588,10 +605,32 @@ export const MapView: React.FC<MapViewProps> = ({
           transform: translate(-50%, -50%);
           width: 28px;
           height: 28px;
-          background-color: rgba(230, 81, 0, 0.25);
+          background-color: rgba(251, 140, 0, 0.12);
           border-radius: 50%;
-          animation: pulse-ring 2s infinite ease-out;
+          animation: pulse-ring 2.4s infinite ease-out;
           z-index: 1;
+        }
+
+        /* Province dots appear with a pop-in */
+        [class^="prov-dot-"] > div {
+          animation: dot-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes pin-drop {
+          0% {
+            opacity: 0;
+            transform: translateY(-14px) scale(0.75);
+          }
+          60% { opacity: 1; }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes dot-pop {
+          0%   { opacity: 0; transform: scale(0.3); }
+          100% { opacity: 1; transform: scale(1); }
         }
 
         @keyframes pulse-ring {
