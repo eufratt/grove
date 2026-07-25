@@ -12,7 +12,7 @@ import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
@@ -23,12 +23,12 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [activeTab, setActiveTab] = useState<'incoming' | 'purchases' | 'demands' | 'products'>('incoming');
+  const [activeTab, setActiveTab] = useState<'incoming' | 'purchases' | 'history' | 'demands' | 'products'>('incoming');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const LIMIT = 10;
 
-  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'demands' | 'products', pageNum: number, append = false) => {
+  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products', pageNum: number, append = false) => {
     if (pageNum === 1) {
       setIsLoading(true);
     } else {
@@ -43,6 +43,12 @@ export default function OrdersPage() {
         data = await productsApi.getMyProducts();
       } else if (tab === 'demands') {
         data = await demandRequestsApi.getCommittedDemandRequests();
+      } else if (tab === 'history') {
+        if (userRole === 'PETANI') {
+          data = await ordersApi.getIncomingOrders(0, 100);
+        } else {
+          data = await ordersApi.getMyPurchases(0, 100);
+        }
       } else if (userRole === 'PETANI') {
         if (tab === 'incoming') {
           data = await ordersApi.getIncomingOrders(skip, LIMIT);
@@ -58,7 +64,7 @@ export default function OrdersPage() {
       } else {
         setOrders(data);
       }
-      setHasMore(tab === 'demands' || tab === 'products' ? false : data.length === LIMIT);
+      setHasMore(tab === 'demands' || tab === 'products' || tab === 'history' ? false : data.length === LIMIT);
       setPage(pageNum);
     } catch (err) {
       console.error('Failed to load orders/products:', err);
@@ -88,7 +94,7 @@ export default function OrdersPage() {
     fetchUserAndOrders();
   }, []);
 
-  const handleTabChange = (tab: 'incoming' | 'purchases' | 'demands' | 'products') => {
+  const handleTabChange = (tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products') => {
     if (!user) return;
     setActiveTab(tab);
     loadOrders(user.role, tab, 1, false);
@@ -177,8 +183,7 @@ export default function OrdersPage() {
                     <span className="text-[10px] opacity-60">→</span>
                   </button>
                 )}
-                
-                <button
+                                <button
                   onClick={() => handleTabChange('purchases')}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
@@ -190,6 +195,22 @@ export default function OrdersPage() {
                   <span className="flex items-center gap-2">
                     <ShoppingBag size={14} />
                     Pesanan Saya
+                  </span>
+                  <span className="text-[10px] opacity-60">→</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('history')}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
+                    activeTab === 'history'
+                      ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                      : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <History size={14} />
+                    Riwayat & Ulasan
                   </span>
                   <span className="text-[10px] opacity-60">→</span>
                 </button>
@@ -262,17 +283,68 @@ export default function OrdersPage() {
                         />
                       ))}
                     </div>
+                  ) : activeTab === 'incoming' ? (
+                    <div className="space-y-6">
+                      {orders
+                        .filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN')
+                        .map((order, index) => (
+                          <OrderCard 
+                            key={order.id} 
+                            order={order} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            isIncoming={true}
+                          />
+                        ))}
+                      {orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN').length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
+                          <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
+                          <span className="font-display text-2xl font-semibold text-gr-ink">Tidak Ada Pesanan Masuk Aktif</span>
+                          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">Belum ada pesanan baru masuk dari pembeli.</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : activeTab === 'purchases' ? (
+                    <div className="space-y-6">
+                      {orders
+                        .filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN')
+                        .map((order, index) => (
+                          <OrderCard 
+                            key={order.id} 
+                            order={order} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            isIncoming={false}
+                          />
+                        ))}
+                      {orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN').length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
+                          <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
+                          <span className="font-display text-2xl font-semibold text-gr-ink">Tidak Ada Pesanan Aktif</span>
+                          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">Semua transaksi Anda telah selesai atau dibatalkan. Kunjungi Riwayat & Ulasan untuk menilai pesanan.</p>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <div className="space-y-6">
-                      {orders.map((order, index) => (
-                        <OrderCard 
-                          key={order.id} 
-                          order={order} 
-                          index={index} 
-                          onUpdate={handleUpdate} 
-                          isIncoming={user?.role === 'PETANI' && activeTab === 'incoming'}
-                        />
-                      ))}
+                      {orders
+                        .filter(o => o.status === 'SELESAI' || o.status === 'DIBATALKAN')
+                        .map((order, index) => (
+                          <OrderCard 
+                            key={order.id} 
+                            order={order} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            isIncoming={user?.role === 'PETANI'}
+                          />
+                        ))}
+                      {orders.filter(o => o.status === 'SELESAI' || o.status === 'DIBATALKAN').length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
+                          <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
+                          <span className="font-display text-2xl font-semibold text-gr-ink">Belum Ada Riwayat Pesanan</span>
+                          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">Pesanan yang telah selesai atau dibatalkan akan muncul di sini.</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </AnimatePresence>
@@ -454,7 +526,6 @@ function OrderCard({
   const contactPhone = isIncoming ? order.buyer_phone : order.seller_phone;
   const contactName = isIncoming ? order.buyer_name : order.seller_name;
   const contactRoleLabel = isIncoming ? 'Pembeli' : 'Penjual/Petani';
-
   const waMessage = isIncoming
     ? `Halo ${contactName}, saya adalah penjual dari pesanan Anda (Order ID: ${order.id.slice(0, 8)}) untuk ${order.quantity_kg} KG ${order.product_name || 'Hasil Panen'}.`
     : `Halo ${contactName}, saya adalah pembeli dari pesanan Anda (Order ID: ${order.id.slice(0, 8)}) untuk ${order.quantity_kg} KG ${order.product_name || 'Hasil Panen'}.`;
@@ -466,55 +537,97 @@ function OrderCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="group relative rounded-sm bg-white/80 p-6 border border-gr-line backdrop-blur-md hover:border-gr-ink/30 transition-all shadow-md overflow-hidden"
+      className="group relative rounded-sm bg-white border border-gr-line shadow-xs hover:shadow-md hover:border-gr-board/30 transition-all duration-200 overflow-hidden"
     >
-      <div className="flex flex-col sm:flex-row justify-between gap-6">
-        <div className="flex items-start gap-4">
-          <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-gr-line bg-gr-paper text-gr-ink shadow-xs">
-            <StatusIcon size={20} />
-          </div>
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-gr-ink-soft/70">
-                Order ID: {order.id.slice(0, 8)}
-              </span>
-              {liveStatus && (
-                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-up animate-pulse font-bold">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gr-up" />
-                  Live
-                </span>
-              )}
-            </div>
-            <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight text-gr-ink">
-              {order.product_name || 'Hasil Panen'}
-            </h3>
-            <p className="font-sans text-sm font-medium text-gr-ink-soft mt-0.5">
-              {order.quantity_kg} KG
-            </p>
-            <p className="font-sans text-xs text-gr-ink-soft/70 mt-1">
-              Dipesan pada {formattedDate}
-            </p>
-          </div>
+      {/* 1. ELEGANT TOP HEADER BAR */}
+      <div className="bg-[#FAF9F5] px-5 py-3 border-b border-gr-line flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <span className="font-sans font-bold text-gr-ink text-xs">
+            No. Pesanan <span className="font-mono text-gr-board">#{order.id.slice(0, 8)}</span>
+          </span>
+          <span className="text-gr-line">|</span>
+          <span className="font-sans text-gr-ink-soft text-xs">
+            {formattedDate}
+          </span>
+          {liveStatus && (
+            <span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-up animate-pulse font-bold bg-gr-up/10 px-2 py-0.5 rounded-xs border border-gr-up/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-gr-up" />
+              Live
+            </span>
+          )}
         </div>
 
-        <div className="flex flex-col items-start sm:items-end justify-between gap-4">
-          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-sm border", config.pillStyle)}>
-            <span className="font-mono text-[10px] uppercase tracking-wider font-bold">
-              {config.label}
-            </span>
-          </div>
-          
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="font-mono text-xs font-bold uppercase tracking-wider text-gr-board hover:underline p-0 h-auto cursor-pointer"
-          >
-            {isExpanded ? 'Sembunyikan' : 'Detail Pesanan'}
-          </Button>
+        <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-sm border font-mono text-[10px] uppercase font-bold tracking-wider shadow-2xs", config.pillStyle)}>
+          <StatusIcon size={12} />
+          <span>{config.label}</span>
         </div>
       </div>
 
-      {/* Expanded details */}
+      {/* 2. CARD CONTENT BODY: Product Photo, Info, Total, and Toggle Button */}
+      <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
+          {/* Product Thumbnail */}
+          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80 shadow-2xs">
+            {order.product_photo_url ? (
+              <img
+                src={order.product_photo_url}
+                alt={order.product_name || 'Hasil Panen'}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.classList.remove('hidden');
+                }}
+              />
+            ) : null}
+            <div className={cn(
+              "flex h-full w-full flex-col items-center justify-center text-gr-ink-soft/40 bg-gr-paper p-2 text-center",
+              order.product_photo_url ? "hidden" : ""
+            )}>
+              <Package size={28} className="text-gr-board/50" />
+            </div>
+          </div>
+
+          {/* Product Title & Details */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display text-2xl font-bold tracking-tight text-gr-ink capitalize truncate" title={order.product_name || 'Hasil Panen'}>
+              {order.product_name || 'Hasil Panen'}
+            </h3>
+            
+            <div className="mt-1.5 flex items-center gap-3 text-xs font-sans text-gr-ink-soft flex-wrap">
+              <span className="font-semibold text-gr-ink bg-gr-paper px-2.5 py-0.5 rounded-xs border border-gr-line/50">
+                {order.quantity_kg} KG
+              </span>
+              {order.price_per_kg && (
+                <span className="font-mono text-xs text-gr-ink-soft">
+                  @ Rp {order.price_per_kg.toLocaleString('id-ID')} / KG
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Total Price & Toggle Detail Action */}
+        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gr-line/40 shrink-0">
+          <div className="text-left sm:text-right">
+            <span className="block font-sans text-[11px] text-gr-ink-soft">Total Tagihan</span>
+            <span className="font-mono text-xl font-bold text-gr-board">
+              {order.price_per_kg ? `Rp ${(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-2xs cursor-pointer"
+          >
+            <span>{isExpanded ? 'Sembunyikan' : 'Detail Pesanan'}</span>
+            <span className="text-[10px]">{isExpanded ? '▲' : '▼'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. EXPANDED DETAILS SECTION */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -522,13 +635,14 @@ function OrderCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-6 pt-6 border-t border-gr-line space-y-4"
+            className="border-t border-gr-line bg-[#FAF9F5] p-6 space-y-6"
           >
+            {/* Cancellation Banner if canceled */}
             {currentStatus === 'DIBATALKAN' && order.cancellation_reason && (
-              <div className="p-3.5 bg-gr-down/5 text-gr-down border border-gr-down/20 rounded-sm text-xs flex items-start gap-2.5">
-                <AlertTriangle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+              <div className="p-3 bg-gr-down/10 text-gr-down border border-gr-down/20 rounded-sm text-xs flex items-start gap-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                 <div className="font-sans leading-relaxed">
-                  <p className="font-bold">Informasi Pembatalan:</p>
+                  <p className="font-bold">Pesanan Dibatalkan:</p>
                   <p className="mt-0.5 opacity-90">
                     {order.cancellation_reason === 'PETANI_MENOLAK' && 'Pesanan ditolak oleh penjual/petani.'}
                     {order.cancellation_reason === 'PEMBELI_BATAL' && 'Pesanan dibatalkan oleh pembeli.'}
@@ -539,100 +653,111 @@ function OrderCard({
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
-                  Rincian Transaksi
+            {/* SECTION A: STATUS PEMBAYARAN & INFORMASI KONTAK */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+              {/* Payment Status Details */}
+              <div className="space-y-3.5">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-board flex items-center gap-2 border-b border-gr-line pb-2">
+                  <ShieldCheck size={13} />
+                  Status Transaksi
                 </h4>
-                <div className="space-y-1.5 font-sans text-sm">
-                  <div className="flex justify-between max-w-xs">
-                    <span className="text-gr-ink-soft">Harga per KG:</span>
-                    <span className="text-gr-ink font-medium">
-                      {order.price_per_kg ? `Rp ${order.price_per_kg.toLocaleString('id-ID')}` : '-'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between max-w-xs">
-                    <span className="text-gr-ink-soft">Jumlah Pesanan:</span>
-                    <span className="text-gr-ink font-medium">{order.quantity_kg} KG</span>
-                  </div>
-                  <div className="flex justify-between max-w-xs border-t border-gr-line pt-1.5 mt-1.5 font-bold">
-                    <span className="text-gr-ink-soft">Total Pembayaran:</span>
-                    <span className="text-gr-up font-mono">
-                      {order.price_per_kg ? `Rp ${(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
-                    </span>
-                  </div>
-                  {currentPaymentStatus && (
-                    <div className="flex justify-between max-w-xs pt-1.5 border-t border-gr-line/40">
-                      <span className="text-gr-ink-soft">Status Pembayaran:</span>
-                      <span className={cn(
-                        "font-mono text-xs uppercase font-bold px-2 py-0.5 rounded-xs",
-                        currentPaymentStatus === 'paid' ? "bg-gr-up/10 text-gr-up border border-gr-up/20" : "bg-gr-board/10 text-gr-board border border-gr-board/20"
-                      )}>
-                        {currentPaymentStatus === 'paid' ? 'LUNAS' : currentPaymentStatus.toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  {currentEscrowStatus && currentEscrowStatus !== 'not_started' && (
-                    <div className="flex justify-between max-w-xs">
-                      <span className="text-gr-ink-soft">Status Escrow:</span>
-                      <span className={cn(
-                        "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs",
-                        currentEscrowStatus === 'held' && "bg-amber-500/10 text-amber-600 border border-amber-500/20",
-                        currentEscrowStatus === 'released' && "bg-gr-up/10 text-gr-up border border-gr-up/20",
-                        currentEscrowStatus === 'disputed' && "bg-gr-down/10 text-gr-down border border-gr-down/20",
-                        currentEscrowStatus === 'refunded' && "bg-blue-500/10 text-blue-600 border border-blue-500/20"
-                      )}>
-                        {currentEscrowStatus === 'held' && 'DANA DITAHAN'}
-                        {currentEscrowStatus === 'released' && 'DANA DICAIRKAN'}
-                        {currentEscrowStatus === 'disputed' && 'SENGKETA'}
-                        {currentEscrowStatus === 'refunded' && 'PENGEMBALIAN'}
-                      </span>
-                    </div>
-                  )}
+                <div className="flex items-center justify-between font-sans text-xs pt-1">
+                  <span className="text-gr-ink-soft">Status Pembayaran</span>
+                  <span className={cn(
+                    "text-[10px] font-bold uppercase px-2 py-0.5 rounded-xs border font-mono",
+                    currentPaymentStatus === 'paid' ? "bg-gr-up/10 text-gr-up border-gr-up/20" : "bg-amber-500/10 text-amber-700 border-amber-500/20"
+                  )}>
+                    {currentPaymentStatus === 'paid' ? 'Lunas' : 'Belum Dibayar'}
+                  </span>
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
-                  Informasi Kontak ({contactRoleLabel})
+              {/* Farmer Contact Info */}
+              <div className="space-y-3.5">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-board flex items-center gap-2 border-b border-gr-line pb-2">
+                  <User size={13} />
+                  Kontak {contactRoleLabel}
                 </h4>
-                {contactName ? (
-                  <div className="space-y-3">
-                    <div className="font-sans text-sm">
-                      <p className="text-gr-ink font-semibold text-base">{contactName}</p>
-                      <p className="text-gr-ink-soft/70 text-xs mt-0.5">{contactPhone || 'Tidak ada nomor telepon'}</p>
-                    </div>
-                    {waUrl && (
-                      <a
-                        href={waUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer"
-                      >
-                        <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
-                        </svg>
-                        Hubungi via WhatsApp
-                      </a>
-                    )}
+                <div className="flex items-center justify-between gap-4 pt-1">
+                  <div className="font-sans">
+                    <p className="text-gr-ink font-bold text-sm">{contactName || 'Petani'}</p>
+                    <p className="text-gr-ink-soft text-xs mt-0.5">{contactPhone || 'Tidak ada nomor telepon'}</p>
                   </div>
-                ) : (
-                  <p className="font-sans text-xs text-gr-ink-soft/50 italic">
-                    Informasi kontak tidak tersedia
-                  </p>
-                )}
+
+                  {waUrl && (
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#25D366] hover:bg-[#20ba5a] text-white font-sans text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0"
+                    >
+                      <svg className="h-4 w-4 fill-white shrink-0" viewBox="0 0 24 24">
+                        <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
+                      </svg>
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Buyer actions */}
+            {/* SECTION B: PAYMENT OPTIONS LIST */}
+            {currentStatus !== 'DIBATALKAN' && (
+              <div className="space-y-3 pt-2">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-board flex items-center gap-2 border-b border-gr-line pb-2">
+                  <CreditCard size={13} />
+                  Pilihan Pembayaran
+                </h4>
+
+                <div className="space-y-3 text-xs font-sans">
+                  {/* Option 1: Payment Gateway Rekber */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-sm bg-gr-board/10 text-gr-board shrink-0 mt-0.5">
+                      <CreditCard size={16} />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekber Grove)</span>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-gr-up bg-gr-up/10 border border-gr-up/20 px-1.5 py-0.5 rounded-xs font-bold">
+                          Otomatis
+                        </span>
+                      </div>
+                      <p className="text-gr-ink-soft text-xs leading-relaxed">
+                        Pembayaran ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi barang telah diterima.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Option 2: Cash / COD */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-sm bg-amber-500/10 text-amber-700 shrink-0 mt-0.5">
+                      <Banknote size={16} />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gr-ink">Pembayaran Tunai (Cash / COD)</span>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-amber-700 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-xs font-bold">
+                          Di Tempat
+                        </span>
+                      </div>
+                      <p className="text-gr-ink-soft text-xs leading-relaxed">
+                        Dapat dibayar tunai langsung saat serah terima barang. Koordinasikan titik temu & penimbangan melalui WhatsApp.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SECTION C: ACTION FOOTER */}
             {!isIncoming && (
-              <div className="pt-4 border-t border-gr-line space-y-4">
+              <div className="pt-2 border-t border-gr-line flex flex-wrap items-center justify-end gap-3">
                 {currentPaymentStatus !== 'paid' && (currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && (
                   <Button
                     disabled={isUpdating}
                     variant="ghost"
                     onClick={() => handleStatusChange('DIBATALKAN')}
-                    className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer transition-all"
+                    className="border border-gr-down/40 text-gr-down hover:bg-gr-down/10 bg-white font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer transition-all shadow-2xs"
                   >
                     {isUpdating ? 'Memproses...' : 'Batalkan Pesanan'}
                   </Button>
@@ -642,7 +767,7 @@ function OrderCard({
                   <Button
                     disabled={isCheckingOut}
                     onClick={handleCheckout}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all flex items-center justify-center gap-2"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk border border-gr-board font-mono text-xs font-bold uppercase tracking-wider px-5 py-2 rounded-sm cursor-pointer shadow-sm transition-all flex items-center justify-center gap-2"
                   >
                     {isCheckingOut ? (
                       <>
@@ -650,7 +775,7 @@ function OrderCard({
                         Memproses Pembayaran...
                       </>
                     ) : (
-                      'Bayar Sekarang (Xendit Escrow)'
+                      'Bayar Online (QRIS / VA)'
                     )}
                   </Button>
                 )}
@@ -660,7 +785,7 @@ function OrderCard({
                     <Button
                       disabled={isConfirming}
                       onClick={handleEscrowConfirmReceived}
-                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
+                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer shadow-sm transition-all"
                     >
                       {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
                     </Button>
@@ -668,23 +793,35 @@ function OrderCard({
                       disabled={isUpdating}
                       variant="ghost"
                       onClick={handleEscrowDispute}
-                      className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer transition-all"
+                      className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 bg-white font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer transition-all"
                     >
                       {isUpdating ? 'Memproses...' : 'Laporkan Sengketa'}
                     </Button>
                   </div>
                 )}
 
+                {currentPaymentStatus !== 'paid' && (currentStatus === 'SIAP_DIAMBIL' || currentStatus === 'DIKIRIM') && !buyerConfirmedAt && (
+                  <Button
+                    disabled={isConfirming}
+                    onClick={handleConfirmSuccess}
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer shadow-sm transition-all"
+                  >
+                    {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                  </Button>
+                )}
+
                 {buyerConfirmedAt && !hasBuyerRated && (
-                  <RatingForm
-                    transactionType="PRODUCT_PURCHASE"
-                    referenceId={order.id}
-                    onSuccess={() => {
-                      setHasBuyerRated(true);
-                      onUpdate();
-                    }}
-                    label="Nilai Penjual/Petani"
-                  />
+                  <div className="w-full pt-2">
+                    <RatingForm
+                      transactionType="PRODUCT_PURCHASE"
+                      referenceId={order.id}
+                      onSuccess={() => {
+                        setHasBuyerRated(true);
+                        onUpdate();
+                      }}
+                      label="Nilai Penjual/Petani"
+                    />
+                  </div>
                 )}
 
                 {hasBuyerRated && (
@@ -698,7 +835,7 @@ function OrderCard({
 
             {/* Farmer actions */}
             {isIncoming && currentStatus !== 'SELESAI' && currentStatus !== 'BATAL' && currentStatus !== 'DIBATALKAN' && (
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-gr-line">
+              <div className="flex flex-wrap gap-3 pt-3 border-t border-gr-line">
                 {(currentStatus === 'DIPESAN' || currentStatus === 'MENUNGGU_KONFIRMASI') && (
                   <>
                     <Button
@@ -795,51 +932,67 @@ function DemandCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="group relative rounded-sm bg-white/80 p-6 border border-gr-line backdrop-blur-md hover:border-gr-ink/30 transition-all shadow-md overflow-hidden"
+      className="group relative rounded-sm bg-white border border-gr-line shadow-xs hover:shadow-md hover:border-gr-board/30 transition-all duration-200 overflow-hidden"
     >
-      <div className="flex flex-col sm:flex-row justify-between gap-6">
-        <div className="flex items-start gap-4">
-          <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-gr-line bg-gr-paper text-gr-ink shadow-xs">
-            <StatusIcon size={20} />
+      {/* 1. TOP HEADER BAR: Request Meta & Status */}
+      <div className="bg-[#FAF9F5] px-5 py-3 border-b border-gr-line flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[11px] font-bold text-gr-ink uppercase tracking-wider bg-white px-2.5 py-1 rounded-sm border border-gr-line shadow-2xs">
+            REQUEST ID: {demand.id.slice(0, 8)}
+          </span>
+          <span className="font-sans text-gr-ink-soft text-[11px]">
+            Diajukan pada <strong className="text-gr-ink font-medium">{formattedDate}</strong>
+          </span>
+          {liveData && (
+            <span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-up animate-pulse font-bold bg-gr-up/10 px-2 py-0.5 rounded-xs border border-gr-up/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-gr-up" />
+              Live
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-sm border font-mono text-[10px] uppercase font-bold tracking-wider shadow-2xs", config.pillStyle)}>
+            <StatusIcon size={12} />
+            <span>{config.label}</span>
           </div>
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-gr-ink-soft/70">
-                Request ID: {demand.id.slice(0, 8)}
-              </span>
-              {liveData && (
-                <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest text-gr-up animate-pulse font-bold">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gr-up" />
-                  Live
-                </span>
-              )}
-            </div>
-            <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight text-gr-ink">
+        </div>
+      </div>
+
+      {/* 2. CARD CONTENT BODY: Commodity Icon, Info, Progress, and Toggle Button */}
+      <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
+          {/* Commodity Visual Icon Box */}
+          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80 shadow-2xs flex flex-col items-center justify-center text-gr-board p-2 text-center">
+            <ClipboardList size={28} className="text-gr-board/60" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display text-2xl font-bold tracking-tight text-gr-ink capitalize truncate" title={demand.commodity_name}>
               {demand.commodity_name}
             </h3>
-            <p className="font-sans text-sm font-medium text-gr-ink-soft mt-0.5">
-              {currentCommitted} / {demand.quantity_kg_needed} KG terpenuhi
-            </p>
-            <p className="font-sans text-xs text-gr-ink-soft/70 mt-1">
-              Diajukan pada {formattedDate}
-            </p>
+
+            <div className="mt-1 flex items-center gap-2 text-xs text-gr-ink-soft font-sans flex-wrap">
+              <span className="font-semibold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-xs border border-gr-board/20">
+                Target: {demand.quantity_kg_needed} KG
+              </span>
+              <span className="font-bold text-gr-up bg-gr-up/10 px-2.5 py-0.5 rounded-xs border border-gr-up/20">
+                Terkomit: {currentCommitted} KG
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-start sm:items-end justify-between gap-4">
-          <div className={cn("flex items-center gap-2 px-3 py-1 rounded-sm border", config.pillStyle)}>
-            <span className="font-mono text-[10px] uppercase tracking-wider font-bold">
-              {config.label}
-            </span>
-          </div>
-          
-          <Button 
-            variant="ghost" 
+        {/* Toggle Detail Action */}
+        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-4 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gr-line/40 shrink-0">
+          <button
+            type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="font-mono text-xs font-bold uppercase tracking-wider text-gr-board hover:underline p-0 h-auto cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-2xs cursor-pointer ml-auto"
           >
-            {isExpanded ? 'Sembunyikan' : 'Detail Permintaan'}
-          </Button>
+            <span>{isExpanded ? 'Sembunyikan' : 'Detail Permintaan'}</span>
+            <span className="text-[10px]">{isExpanded ? '▲' : '▼'}</span>
+          </button>
         </div>
       </div>
 
@@ -905,10 +1058,10 @@ function DemandCard({
                                   href={farmerWaUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer shadow-xs"
+                                  className="p-2 rounded-sm bg-[#25D366] hover:bg-[#20ba5a] text-white transition-all cursor-pointer shadow-xs"
                                   title="Hubungi via WhatsApp"
                                 >
-                                  <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                                  <svg className="h-4 w-4 fill-white shrink-0" viewBox="0 0 24 24">
                                     <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
                                   </svg>
                                 </a>
@@ -947,12 +1100,12 @@ function DemandCard({
                           href={buyerWaUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-[#25D366] text-white hover:bg-[#20ba5a] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer"
                         >
-                          <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                          <svg className="h-4 w-4 fill-white shrink-0" viewBox="0 0 24 24">
                             <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
                           </svg>
-                          Hubungi via WhatsApp
+                          <span>Hubungi via WhatsApp</span>
                         </a>
                       )}
                     </div>
