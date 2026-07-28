@@ -14,6 +14,7 @@ import { PersonalGreeting } from '@/components/personal-greeting';
 import { SellerRatingBadge } from '@/components/ratings/seller-rating-badge';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import Link from 'next/link';
+import Image from 'next/image';
 
 function BerandaContent() {
   const [products, setProducts] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -249,7 +250,13 @@ function BerandaContent() {
                           >
                             <div className="h-full w-full rounded-full bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase">
                               {farmer.avatar_url ? (
-                                <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
+                                <Image 
+                                  src={farmer.avatar_url} 
+                                  alt={farmer.full_name} 
+                                  width={48} 
+                                  height={48} 
+                                  className="h-full w-full object-cover rounded-full" 
+                                />
                               ) : (
                                 <span className="font-display font-bold text-gr-ink opacity-40">
                                   {farmer.full_name.charAt(0)}

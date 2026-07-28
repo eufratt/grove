@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 // Dynamically import the consolidated MapView component (disabling SSR)
@@ -740,9 +741,11 @@ export default function HargaPasarPage() {
                         className="p-4 bg-white border border-gr-line hover:border-gr-board/30 rounded-sm flex gap-3.5 group transition-all duration-150 cursor-pointer shadow-sm relative"
                       >
                         <div className="h-16 w-16 bg-gr-paper/30 border border-gr-line rounded-sm overflow-hidden shrink-0">
-                          <img
+                          <Image
                             src={prod.photo_url || '/placeholder.png'}
                             alt={prod.name}
+                            width={64}
+                            height={64}
                             className="h-full w-full object-cover group-hover:scale-105 transition-all duration-300"
                           />
                         </div>

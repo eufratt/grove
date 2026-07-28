@@ -12,6 +12,7 @@ import { SellerRatingBadge } from '@/components/ratings/seller-rating-badge';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plus, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { PhoneModal } from '@/components/auth/phone-modal';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
@@ -198,9 +199,11 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
           <div className="lg:col-span-5 flex flex-col items-center justify-center lg:min-h-0">
             <div className="bg-[#FAF9F5] p-4 pb-5 shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[280px] sm:max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
               <div className="aspect-square w-full overflow-hidden bg-black/5 rounded-xs border border-gr-line/5">
-                <img 
+                <Image 
                   src={product.photo_url || '/placeholder-crop.jpg'} 
                   alt={product.name} 
+                  width={320}
+                  height={320}
                   className="h-full w-full object-cover grayscale-[0.1] contrast-[1.05]"
                 />
               </div>

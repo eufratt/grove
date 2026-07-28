@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import { authApi } from '@/lib/api/auth';
 import { productsApi } from '@/lib/api/products';
 import { ratingsApi } from '@/lib/api/ratings';
+import Image from 'next/image';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
@@ -237,7 +238,13 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
               >
                 <div className="relative h-full w-full rounded-full bg-gr-paper/50 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase">
                   {farmer.avatar_url ? (
-                    <img src={farmer.avatar_url} alt={farmer.full_name} className="h-full w-full object-cover" />
+                    <Image 
+                      src={farmer.avatar_url} 
+                      alt={farmer.full_name} 
+                      width={56} 
+                      height={56} 
+                      className="h-full w-full object-cover rounded-full" 
+                    />
                   ) : (
                     <span className="font-display font-bold text-gr-ink opacity-40">
                       {farmer.full_name.charAt(0)}
