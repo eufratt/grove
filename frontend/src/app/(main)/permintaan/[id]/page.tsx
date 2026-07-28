@@ -174,7 +174,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     };
 
     ws.onerror = (err) => {
-      console.error('WebSocket connection error:', err);
+      console.error(`WebSocket connection error to URL (${wsUrl}):`, err);
     };
 
     return () => {
@@ -295,10 +295,10 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           <h2 className="font-display text-2xl font-semibold text-gr-ink mb-3">Error</h2>
           <p className="font-sans text-sm text-gr-ink-soft mb-6">{error}</p>
           <Link
-            href="/beranda"
+            href={user?.role === 'PEMBELI' ? "/permintaan-saya" : "/beranda"}
             className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all"
           >
-            Kembali ke Beranda
+            {user?.role === 'PEMBELI' ? "Kembali ke Ajukan Permintaan" : "Kembali ke Beranda"}
           </Link>
         </div>
       </main>
@@ -324,11 +324,11 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
         {/* Back navigation */}
         <div className="mb-6">
           <Link
-            href="/beranda"
+            href={user?.role === 'PEMBELI' ? "/permintaan-saya" : "/beranda"}
             className="inline-flex items-center gap-2 font-mono text-xs uppercase font-bold tracking-wider text-gr-ink-soft hover:text-gr-ink transition-colors"
           >
             <ArrowLeft size={12} />
-            Kembali ke Beranda
+            {user?.role === 'PEMBELI' ? "Kembali ke Ajukan Permintaan" : "Kembali ke Beranda"}
           </Link>
         </div>
 
