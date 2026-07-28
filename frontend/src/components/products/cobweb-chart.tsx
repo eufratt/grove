@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
+import { select, min, max, scaleLinear, axisLeft, axisBottom, line, curveLinear, pointer } from 'd3';
 
 interface CobwebChartProps {
   prices: number[];
@@ -21,14 +21,14 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
     if (!svgRef.current || !containerRef.current || prices.length === 0) return;
 
     // Clear previous elements
-    d3.select(svgRef.current).selectAll("*").remove();
+    select(svgRef.current).selectAll("*").remove();
 
     const width = containerRef.current.clientWidth || 600;
     const margin = { top: 20, right: 30, bottom: 40, left: 65 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const svg = d3.select(svgRef.current)
+    const svg = select(svgRef.current)
       .attr("width", width)
       .attr("height", height)
       .append("g")
@@ -45,14 +45,14 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
     
     // Adjust yMin and yMax to make sure equilibrium line and prices fit
     const allPrices = [...prices, equilibriumPrice];
-    const yMin = d3.min(allPrices)! * 0.92;
-    const yMax = d3.max(allPrices)! * 1.08;
+    const yMin = min(allPrices)! * 0.92;
+    const yMax = max(allPrices)! * 1.08;
 
-    const xScale = d3.scaleLinear()
+    const xScale = scaleLinear()
       .domain(xDomain)
       .range([0, innerWidth]);
 
-    const yScale = d3.scaleLinear()
+    const yScale = scaleLinear()
       .domain([yMin, yMax])
       .range([innerHeight, 0]);
 
@@ -68,7 +68,7 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
     svg.append("g")
       .attr("class", "grid-lines")
       .attr("opacity", 0.15)
-      .call(d3.axisLeft(yScale)
+      .call(axisLeft(yScale)
         .tickSize(-innerWidth)
         .tickFormat(() => "")
       )
@@ -98,10 +98,10 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
       .text(`Ekuilibrium: Rp ${Math.round(equilibriumPrice).toLocaleString('id-ID')}`);
 
     // Draw Price Path Line
-    const lineGenerator = d3.line<any>()
+    const lineGenerator = line<any>()
       .x(d => xScale(d.period))
       .y(d => yScale(d.price))
-      .curve(d3.curveLinear);
+      .curve(curveLinear);
 
     svg.append("path")
       .datum(data)
@@ -128,7 +128,7 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
     const xAxis = svg.append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .attr("opacity", 0.8)
-      .call(d3.axisBottom(xScale)
+      .call(axisBottom(xScale)
         .ticks(Math.min(10, prices.length))
         .tickFormat(d => `Musim ${d}`)
       );
@@ -147,7 +147,7 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
     // Y Axis
     const yAxis = svg.append("g")
       .attr("opacity", 0.8)
-      .call(d3.axisLeft(yScale)
+      .call(axisLeft(yScale)
         .ticks(5)
         .tickFormat(d => `Rp ${d.toLocaleString('id-ID')}`)
       );
@@ -219,7 +219,7 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
       .on("mouseover", () => focus.style("display", null))
       .on("mouseout", () => focus.style("display", "none"))
       .on("mousemove", function(event) {
-        const coords = d3.pointer(event);
+        const coords = pointer(event);
         const xVal = xScale.invert(coords[0]);
         const periodIdx = Math.max(0, Math.min(prices.length - 1, Math.round(xVal)));
         const d = data[periodIdx];

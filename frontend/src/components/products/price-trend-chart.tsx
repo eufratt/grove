@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
+import { select, extent, min, max, scaleTime, scaleLinear, axisLeft, axisBottom, area, curveMonotoneX, line, timeDay, timeFormat, pointer, bisector } from 'd3';
 
 interface PriceTrendChartProps {
   data: Array<{ scraped_at: string; price_per_kg: number }>;
@@ -19,7 +19,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     if (!svgRef.current || !containerRef.current || data.length < 2) return;
 
     // Clear previous elements
-    d3.select(svgRef.current).selectAll("*").remove();
+    select(svgRef.current).selectAll("*").remove();
 
     // Get width dynamically from container
     const width = containerRef.current.clientWidth || 600;
@@ -27,7 +27,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const svg = d3.select(svgRef.current)
+    const svg = select(svgRef.current)
       .attr("width", width)
       .attr("height", height)
       .append("g")
@@ -45,15 +45,15 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     const trendShadow = isUptrend ? 'rgba(47, 107, 63, 0.2)' : 'rgba(166, 64, 42, 0.2)';
 
     // Scale domains
-    const xDomain = d3.extent(parsedData, d => d.date) as [Date, Date];
-    const yMin = d3.min(parsedData, d => d.price)! * 0.95;
-    const yMax = d3.max(parsedData, d => d.price)! * 1.05;
+    const xDomain = extent(parsedData, d => d.date) as [Date, Date];
+    const yMin = min(parsedData, d => d.price)! * 0.95;
+    const yMax = max(parsedData, d => d.price)! * 1.05;
 
-    const xScale = d3.scaleTime()
+    const xScale = scaleTime()
       .domain(xDomain)
       .range([0, innerWidth]);
 
-    const yScale = d3.scaleLinear()
+    const yScale = scaleLinear()
       .domain([yMin, yMax])
       .range([innerHeight, 0]);
 
@@ -80,7 +80,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     svg.append("g")
       .attr("class", "grid-lines")
       .attr("opacity", 0.2)
-      .call(d3.axisLeft(yScale)
+      .call(axisLeft(yScale)
         .tickSize(-innerWidth)
         .tickFormat(() => "")
       )
@@ -88,11 +88,11 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("stroke", "var(--gr-line)");
 
     // Draw Area under the line
-    const areaGenerator = d3.area<any>()
+    const areaGenerator = area<any>()
       .x(d => xScale(d.date))
       .y0(innerHeight)
       .y1(d => yScale(d.price))
-      .curve(d3.curveMonotoneX);
+      .curve(curveMonotoneX);
 
     svg.append("path")
       .datum(parsedData)
@@ -100,10 +100,10 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("d", areaGenerator);
 
     // Draw Line
-    const lineGenerator = d3.line<any>()
+    const lineGenerator = line<any>()
       .x(d => xScale(d.date))
       .y(d => yScale(d.price))
-      .curve(d3.curveMonotoneX);
+      .curve(curveMonotoneX);
 
     svg.append("path")
       .datum(parsedData)
@@ -121,9 +121,9 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     const xAxis = svg.append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .attr("opacity", 0.8)
-      .call(d3.axisBottom(xScale)
-        .ticks(d3.timeDay.every(tickInterval))
-        .tickFormat(d3.timeFormat("%d %b") as any)
+      .call(axisBottom(xScale)
+        .ticks(timeDay.every(tickInterval))
+        .tickFormat(timeFormat("%d %b") as any)
       );
 
     xAxis.selectAll("text")
@@ -140,7 +140,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     // Y Axis
     const yAxis = svg.append("g")
       .attr("opacity", 0.8)
-      .call(d3.axisLeft(yScale)
+      .call(axisLeft(yScale)
         .ticks(5)
         .tickFormat(d => `Rp ${d.toLocaleString('id-ID')}`)
       );
@@ -212,8 +212,8 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .on("mouseover", () => focus.style("display", null))
       .on("mouseout", () => focus.style("display", "none"))
       .on("mousemove", function(event) {
-        const x0 = xScale.invert(d3.pointer(event)[0]);
-        const bisect = d3.bisector<any, Date>(d => d.date).left;
+        const x0 = xScale.invert(pointer(event)[0]);
+        const bisect = bisector<any, Date>(d => d.date).left;
         const i = bisect(parsedData, x0, 1);
         const d0 = parsedData[i - 1];
         const d1 = parsedData[i];
@@ -229,7 +229,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
           .attr("x2", xScale(d.date));
 
         // Format dates beautifully
-        const fmtDate = d3.timeFormat("%d %B %Y")(d.date);
+        const fmtDate = timeFormat("%d %B %Y")(d.date);
         tooltipDate.text(fmtDate);
         tooltipPrice.text(`Rp ${d.price.toLocaleString('id-ID')}`);
 
