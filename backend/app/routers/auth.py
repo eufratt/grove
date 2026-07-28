@@ -25,8 +25,10 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
         picture = None
     else:
         try:
-            # Verify the ID token from Google
-            id_info = id_token.verify_oauth2_token(
+            # Verify the ID token from Google in a thread pool to avoid blocking the event loop
+            import asyncio
+            id_info = await asyncio.to_thread(
+                id_token.verify_oauth2_token,
                 login_data.id_token,
                 requests.Request(),
                 settings.GOOGLE_CLIENT_ID,

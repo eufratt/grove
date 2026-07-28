@@ -5,6 +5,28 @@ from PIL import Image
 from fastapi import UploadFile
 from app.config import settings
 
+def _optimize_image_data(file_content: bytes) -> bytes:
+    img = Image.open(io.BytesIO(file_content))
+    
+    # Convert transparent / RGBA to RGB for JPEG compatibility
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+        
+    max_size = 1600
+    width, height = img.size
+    if width > max_size or height > max_size:
+        if width > height:
+            new_width = max_size
+            new_height = int(height * (max_size / width))
+        else:
+            new_height = max_size
+            new_width = int(width * (max_size / height))
+        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        
+    output_buffer = io.BytesIO()
+    img.save(output_buffer, format="JPEG", quality=80)
+    return output_buffer.getvalue()
+
 async def upload_product_photo(file: UploadFile) -> str:
     """
     Uploads a photo to Supabase Storage and returns the public URL.
@@ -13,28 +35,10 @@ async def upload_product_photo(file: UploadFile) -> str:
     content_type = file.content_type
     file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
     
-    # Try to resize and compress using Pillow
+    # Try to resize and compress using Pillow in a thread pool
     try:
-        img = Image.open(io.BytesIO(file_content))
-        
-        # Convert transparent / RGBA to RGB for JPEG compatibility
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-            
-        max_size = 1600
-        width, height = img.size
-        if width > max_size or height > max_size:
-            if width > height:
-                new_width = max_size
-                new_height = int(height * (max_size / width))
-            else:
-                new_height = max_size
-                new_width = int(width * (max_size / height))
-            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-            
-        output_buffer = io.BytesIO()
-        img.save(output_buffer, format="JPEG", quality=80)
-        file_content = output_buffer.getvalue()
+        import asyncio
+        file_content = await asyncio.to_thread(_optimize_image_data, file_content)
         content_type = "image/jpeg"
         file_extension = "jpg"
     except Exception as e:
