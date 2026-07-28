@@ -158,6 +158,8 @@ async def create_order(
 
 @router.get("", response_model=List[OrderResponse])
 async def list_orders(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
@@ -196,6 +198,8 @@ async def list_orders(
             )
         )
         .order_by(Order.created_at.desc())
+        .offset(skip)
+        .limit(limit)
     )
     
     result = await db.execute(stmt)

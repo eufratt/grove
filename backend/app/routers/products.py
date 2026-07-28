@@ -208,6 +208,7 @@ async def get_nearby_products(
     lat: float = Query(...),
     lng: float = Query(...),
     radius_km: float = Query(10, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -224,12 +225,14 @@ async def get_nearby_products(
         WHERE p.status = 'TERSEDIA' 
           AND ST_DWithin(p.location, ST_MakePoint(:lng, :lat)::geography, :radius_meters)
         ORDER BY distance_km ASC
+        LIMIT :limit
     """)
     
     result = await db.execute(sql, {
         "lng": lng, 
         "lat": lat, 
-        "radius_meters": radius_km * 1000
+        "radius_meters": radius_km * 1000,
+        "limit": limit
     })
     
     products = []

@@ -97,6 +97,8 @@ async def create_demand_request(
 
 @router.get("", response_model=List[DemandRequestResponse])
 async def list_open_demand_requests(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
     # Retrieve only TERBUKA requests sorted by shortest deadline,
@@ -113,7 +115,7 @@ async def list_open_demand_requests(
     ).order_by(
         DemandRequest.deadline.asc(),
         (DemandRequest.quantity_kg_committed / DemandRequest.quantity_kg_needed).asc()
-    )
+    ).offset(skip).limit(limit)
 
     res = await db.execute(stmt)
     records = res.all()
@@ -141,6 +143,8 @@ async def list_open_demand_requests(
 
 @router.get("/mine", response_model=List[DemandRequestResponse])
 async def list_my_demand_requests(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
@@ -155,7 +159,7 @@ async def list_my_demand_requests(
         DemandRequest.buyer_id == current_user.id
     ).order_by(
         DemandRequest.created_at.desc()
-    )
+    ).offset(skip).limit(limit)
 
     res = await db.execute(stmt)
     records = res.all()
