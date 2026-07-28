@@ -216,7 +216,7 @@ async def get_price_divergence(
 ):
     region = standardize_region(region)
     # Check cache first
-    cached = await divergence_cache.get(commodity, region, days)
+    cached = await divergence_cache.get(db, commodity, region, days)
     if cached:
         return cached
 
@@ -309,7 +309,7 @@ async def get_price_divergence(
     }
 
     # Store in daily cache
-    await divergence_cache.set(commodity, region, days, result)
+    await divergence_cache.set(db, commodity, region, days, result)
     return result
 
 
@@ -323,7 +323,7 @@ async def get_price_divergence_stream(
     region = standardize_region(region)
     async def event_generator():
         # Check cache first
-        cached = await divergence_cache.get(commodity, region, days)
+        cached = await divergence_cache.get(db, commodity, region, days)
         if cached:
             # Yield stats type message
             stats_msg = {
@@ -465,7 +465,7 @@ async def get_price_divergence_stream(
             "explanation": full_explanation,
             "historical_data_points": len(filled_prices)
         }
-        await divergence_cache.set(commodity, region, days, cache_payload)
+        await divergence_cache.set(db, commodity, region, days, cache_payload)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 

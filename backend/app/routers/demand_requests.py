@@ -222,6 +222,16 @@ async def list_committed_demand_requests(
     res = await db.execute(stmt)
     records = res.scalars().all()
 
+    # Pre-fetch all ratings submitted by this user for DEMAND_FULFILLMENT to avoid N+1 query
+    rated_demand_ids = set()
+    if current_user.role == UserRole.PETANI:
+        stmt_ratings = select(Rating.reference_id).where(
+            Rating.transaction_type == TransactionType.DEMAND_FULFILLMENT,
+            Rating.rater_id == current_user.id
+        )
+        res_ratings = await db.execute(stmt_ratings)
+        rated_demand_ids = set(res_ratings.scalars().all())
+
     items = []
     for req in records:
         commits = []
@@ -239,13 +249,7 @@ async def list_committed_demand_requests(
 
         has_petani_rated = False
         if current_user.role == UserRole.PETANI:
-            stmt_r = select(Rating).where(
-                Rating.reference_id == req.id,
-                Rating.transaction_type == TransactionType.DEMAND_FULFILLMENT,
-                Rating.rater_id == current_user.id
-            )
-            res_r = await db.execute(stmt_r)
-            has_petani_rated = res_r.scalar_one_or_none() is not None
+            has_petani_rated = req.id in rated_demand_ids
 
         items.append({
             "id": req.id,
