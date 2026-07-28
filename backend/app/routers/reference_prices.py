@@ -14,6 +14,21 @@ from app.services.groq_service import groq_service
 from app.services.divergence_cache import divergence_cache
 import json
 import asyncio
+import time
+import logging
+
+logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# In-memory TTL caches
+# ---------------------------------------------------------------------------
+# distinct_commodities: changes only when scrapers run (at most daily)
+_commodities_cache: dict = {"data": None, "expires_at": 0.0}
+_COMMODITIES_TTL = 3600  # 1 hour
+
+# /history: scraped data is updated at most daily — safe to cache 6 hours
+_history_cache: dict = {}
+_HISTORY_TTL = 21600  # 6 hours
 
 router = APIRouter(prefix="/reference-prices", tags=["reference-prices"])
 
@@ -37,10 +52,15 @@ async def get_reference_prices(
     db: AsyncSession = Depends(get_db)
 ):
     region = standardize_region(region)
-    # Distinct commodities
-    stmt_distinct = select(ReferencePrice.commodity_name).distinct().order_by(ReferencePrice.commodity_name)
-    res_distinct = await db.execute(stmt_distinct)
-    distinct_commodities = list(res_distinct.scalars().all())
+    # Distinct commodities — cached for 1 hour (only changes when scrapers run)
+    now = time.monotonic()
+    if _commodities_cache["data"] is None or now > _commodities_cache["expires_at"]:
+        stmt_distinct = select(ReferencePrice.commodity_name).distinct().order_by(ReferencePrice.commodity_name)
+        res_distinct = await db.execute(stmt_distinct)
+        _commodities_cache["data"] = list(res_distinct.scalars().all())
+        _commodities_cache["expires_at"] = now + _COMMODITIES_TTL
+        logger.debug("distinct_commodities cache refreshed")
+    distinct_commodities = _commodities_cache["data"]
 
     # Build query
     query = select(ReferencePrice)
@@ -124,6 +144,15 @@ async def get_reference_prices_history(
     db: AsyncSession = Depends(get_db)
 ):
     region = standardize_region(region)
+
+    # In-memory cache: scraped data changes at most daily, safe to cache 6 hours
+    cache_key = (commodity, region, days)
+    now = time.monotonic()
+    cached_entry = _history_cache.get(cache_key)
+    if cached_entry and now < cached_entry["expires_at"]:
+        logger.debug("history cache hit: %s", cache_key)
+        return cached_entry["data"]
+
     query = select(ReferencePrice)
     if commodity:
         query = query.where(ReferencePrice.commodity_name == commodity)
@@ -133,12 +162,12 @@ async def get_reference_prices_history(
         # Fetch slightly more history to help with initial forward fill
         cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days + 15)
         query = query.where(ReferencePrice.scraped_at >= cutoff)
-        
+
     query = query.order_by(ReferencePrice.scraped_at.asc())
-    
+
     res = await db.execute(query)
     items = res.scalars().all()
-    
+
     if not items:
         return []
 
@@ -178,7 +207,7 @@ async def get_reference_prices_history(
             item = date_to_item[current_date]
             last_price = item.price_per_kg
             last_source = item.source
-            
+
             history.append({
                 "id": str(item.id),
                 "commodity_name": item.commodity_name,
@@ -190,10 +219,10 @@ async def get_reference_prices_history(
         else:
             price = last_price if last_price is not None else fallback_price
             source = last_source if last_source is not None else fallback_source
-            
+
             # Use 08:00:00 as the standardized timestamp for interpolated entries
             dt = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=8)
-            
+
             history.append({
                 "id": None,
                 "commodity_name": commodity or "Unknown",
@@ -204,6 +233,9 @@ async def get_reference_prices_history(
             })
         current_date += timedelta(days=1)
 
+    # Store in cache
+    _history_cache[cache_key] = {"data": history, "expires_at": now + _HISTORY_TTL}
+    logger.debug("history cache miss, stored: %s", cache_key)
     return history
 
 
@@ -280,8 +312,8 @@ async def get_price_divergence(
             filled_prices.append(price)
         current_date += timedelta(days=1)
 
-    # Calculate statistics
-    stats = divergence_service.calculate_divergence(filled_prices)
+    # Calculate statistics — CPU-bound sync work, offload to thread pool
+    stats = await asyncio.to_thread(divergence_service.calculate_divergence, filled_prices)
 
     # Generate natural language explanation via Groq
     explanation = await groq_service.generate_explanation(
@@ -414,8 +446,8 @@ async def get_price_divergence_stream(
                 filled_prices.append(price)
             current_date += timedelta(days=1)
 
-        # Calculate statistics
-        stats = divergence_service.calculate_divergence(filled_prices)
+        # Calculate statistics — CPU-bound sync work, offload to thread pool
+        stats = await asyncio.to_thread(divergence_service.calculate_divergence, filled_prices)
 
         # Yield stats to client immediately
         stats_payload = {
