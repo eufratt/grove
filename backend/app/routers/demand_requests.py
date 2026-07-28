@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from app.db import get_db
 from app.models.user import User, UserRole
 from app.models.demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
@@ -17,7 +17,7 @@ from app.services.connection_manager import demand_manager
 from app.models.payment_transaction import DemandTransaction, PaymentStatus, EscrowStatus
 from app.models.product import Product, ProductStatus
 from app.services.escrow_service import escrow_service
-import difflib
+import logging
 from typing import List, Optional
 import uuid
 from geoalchemy2 import WKTElement
@@ -333,57 +333,66 @@ async def get_regional_demand_gap(
     db: AsyncSession = Depends(get_db)
 ):
     farmer_province = get_closest_province(latitude, longitude)
-    
-    from sqlalchemy.orm import joinedload
-    stmt = select(
-        DemandRequest,
-        func.ST_Y(DemandRequest.location).label("latitude"),
-        func.ST_X(DemandRequest.location).label("longitude")
-    ).options(
-        joinedload(DemandRequest.buyer)
-    ).where(
-        DemandRequest.status == DemandRequestStatus.TERBUKA,
-        func.lower(DemandRequest.commodity_name).like(f"%{commodity_name.lower()}%")
-    )
-    
-    res = await db.execute(stmt)
-    rows = res.all()
-    
+
+    # Filter geographically in the DB using PostGIS ST_Distance (≤300 km)
+    # instead of fetching ALL demand requests and comparing in Python.
+    # 300 km radius covers a typical Indonesian province span.
+    gap_sql = text("""
+        SELECT
+            r.id, r.buyer_id, r.commodity_name, r.category,
+            r.quantity_kg_needed, r.quantity_kg_committed,
+            r.price_per_kg, r.deadline, r.status, r.created_at,
+            ST_Y(r.location::geometry) AS latitude,
+            ST_X(r.location::geometry) AS longitude,
+            u.full_name AS buyer_name,
+            u.buyer_rating_avg, u.buyer_rating_count
+        FROM demand_requests r
+        JOIN users u ON r.buyer_id = u.id
+        WHERE r.status = 'TERBUKA'
+          AND LOWER(r.commodity_name) LIKE :commodity_pattern
+          AND r.location IS NOT NULL
+          AND ST_Distance(
+                r.location,
+                ST_MakePoint(:lng, :lat)::geography
+              ) <= 300000
+        ORDER BY r.deadline ASC
+    """)
+
+    res = await db.execute(gap_sql, {
+        "commodity_pattern": f"%{commodity_name.lower()}%",
+        "lng": longitude,
+        "lat": latitude
+    })
+    rows = res.fetchall()
+
     regional_requests = []
     total_needed = 0.0
     total_committed = 0.0
-    
+
     for row in rows:
-        dr = row[0]
-        lat = row[1]
-        lng = row[2]
-        
-        if lat is not None and lng is not None:
-            prov = get_closest_province(lat, lng)
-            if prov == farmer_province:
-                total_needed += dr.quantity_kg_needed
-                total_committed += dr.quantity_kg_committed
-                
-                regional_requests.append({
-                    "id": dr.id,
-                    "buyer_id": dr.buyer_id,
-                    "commodity_name": dr.commodity_name,
-                    "category": dr.category,
-                    "quantity_kg_needed": dr.quantity_kg_needed,
-                    "quantity_kg_committed": dr.quantity_kg_committed,
-                    "price_per_kg": dr.price_per_kg,
-                    "deadline": dr.deadline,
-                    "status": dr.status,
-                    "created_at": dr.created_at,
-                    "latitude": lat,
-                    "longitude": lng,
-                    "buyer_name": dr.buyer.full_name if dr.buyer else None,
-                    "buyer_rating_avg": dr.buyer.buyer_rating_avg if dr.buyer else 0.0,
-                    "buyer_rating_count": dr.buyer.buyer_rating_count if dr.buyer else 0
-                })
-                
+        total_needed += row.quantity_kg_needed
+        total_committed += row.quantity_kg_committed
+
+        regional_requests.append({
+            "id": row.id,
+            "buyer_id": row.buyer_id,
+            "commodity_name": row.commodity_name,
+            "category": row.category,
+            "quantity_kg_needed": row.quantity_kg_needed,
+            "quantity_kg_committed": row.quantity_kg_committed,
+            "price_per_kg": row.price_per_kg,
+            "deadline": row.deadline,
+            "status": row.status,
+            "created_at": row.created_at,
+            "latitude": row.latitude,
+            "longitude": row.longitude,
+            "buyer_name": row.buyer_name,
+            "buyer_rating_avg": row.buyer_rating_avg or 0.0,
+            "buyer_rating_count": row.buyer_rating_count or 0
+        })
+
     ratio = (total_committed / total_needed * 100) if total_needed > 0 else 0.0
-    
+
     if total_needed == 0:
         gap_status = "PELUANG_TINGGI"
     elif ratio < 50.0:
@@ -392,7 +401,7 @@ async def get_regional_demand_gap(
         gap_status = "SEIMBANG"
     else:
         gap_status = "JENUH"
-        
+
     return {
         "commodity_name": commodity_name,
         "province": farmer_province,
@@ -617,32 +626,44 @@ async def match_demand_request_with_seller(
     if res_tx.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Permintaan ini sudah dicocokkan dengan penjual")
 
-    # Fetch available products from other sellers
-    stmt_products = select(Product).where(
-        Product.status == ProductStatus.TERSEDIA,
-        Product.seller_id != current_user.id
-    )
-    res_products = await db.execute(stmt_products)
-    products = res_products.scalars().all()
+    # Match using pgvector cosine similarity on pre-computed embeddings.
+    # Finds top-5 semantically closest TERSEDIA products in a single DB query
+    # instead of loading all products into Python memory.
+    if req.embedding is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Permintaan tidak memiliki embedding. Silakan buat ulang permintaan."
+        )
 
-    # Match using commodity name similarity
-    best_product = None
-    best_ratio = 0.0
+    match_sql = text("""
+        SELECT p.id, p.name, p.category, p.quantity_kg, p.price_per_kg,
+               p.seller_id, p.status,
+               (p.embedding <=> :query_embedding) AS distance
+        FROM products p
+        WHERE p.status = 'TERSEDIA'
+          AND p.seller_id != :buyer_id
+          AND p.embedding IS NOT NULL
+          AND (p.embedding <=> :query_embedding) < 0.5
+        ORDER BY distance ASC
+        LIMIT 5
+    """)
 
-    for p in products:
-        ratio = difflib.SequenceMatcher(None, p.name.lower(), req.commodity_name.lower()).ratio()
-        if p.category.lower() == req.category.lower() and ratio < 0.4:
-            ratio = 0.4
-        
-        if ratio >= 0.5 and ratio > best_ratio:
-            best_ratio = ratio
-            best_product = p
+    res_match = await db.execute(match_sql, {
+        "query_embedding": str(req.embedding),
+        "buyer_id": str(current_user.id)
+    })
+    candidates = res_match.fetchall()
 
-    if not best_product:
+    if not candidates:
         raise HTTPException(
             status_code=404,
             detail="Tidak ada produk petani yang cocok dengan komoditas penawaran Anda saat ini."
         )
+
+    # Pick best candidate (lowest distance = most similar)
+    best_row = candidates[0]
+    res_p = await db.execute(select(Product).where(Product.id == best_row.id))
+    best_product = res_p.scalar_one()
 
     # Create DemandTransaction
     quantity_kg = min(best_product.quantity_kg, req.quantity_kg_needed)

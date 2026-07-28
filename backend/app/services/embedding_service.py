@@ -1,8 +1,11 @@
 import asyncio
+import logging
 from typing import List
 from google import genai
 from google.genai import types
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 _client = None
 
@@ -13,6 +16,9 @@ def get_genai_client():
     return _client
 
 class EmbeddingService:
+    # Hard timeout per attempt: prevents indefinite hang on slow API
+    _TIMEOUT_SECONDS = 10.0
+
     async def generate_embedding(self, text: str) -> List[float]:
         # Sanitize/clean input text
         cleaned_text = text.replace("\n", " ")
@@ -33,9 +39,22 @@ class EmbeddingService:
                     )
                     return response.embeddings[0].values
                 
-                embedding_values = await loop.run_in_executor(None, _call_api)
+                # Enforce per-attempt timeout so a slow API call fails fast
+                async with asyncio.timeout(self._TIMEOUT_SECONDS):
+                    embedding_values = await loop.run_in_executor(None, _call_api)
                 return embedding_values
                 
+            except TimeoutError:
+                logger.warning(
+                    "Embedding API call timed out (attempt %d/3, timeout=%ss)",
+                    attempt + 1, self._TIMEOUT_SECONDS
+                )
+                if attempt == 2:
+                    raise RuntimeError(
+                        f"Embedding API timed out after {int(self._TIMEOUT_SECONDS)}s "
+                        "on all 3 attempts"
+                    )
+                await asyncio.sleep(2 ** attempt)
             except Exception as e:
                 # If it's the last attempt, raise the error
                 if attempt == 2:
@@ -45,3 +64,4 @@ class EmbeddingService:
 
 # Export the instance to match imports in products.py and search.py
 embedding_service = EmbeddingService()
+
