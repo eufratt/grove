@@ -206,6 +206,7 @@ async def list_committed_demand_requests(
             .order_by(DemandRequest.created_at.desc())
         )
     elif current_user.role == UserRole.PETANI:
+        from sqlalchemy import or_
         stmt = (
             select(DemandRequest)
             .options(
@@ -213,7 +214,13 @@ async def list_committed_demand_requests(
                 selectinload(DemandRequest.commitments).selectinload(SupplyCommitment.petani)
             )
             .where(
-                DemandRequest.commitments.any(SupplyCommitment.petani_id == current_user.id)
+                or_(
+                    DemandRequest.commitments.any(SupplyCommitment.petani_id == current_user.id),
+                    select(DemandTransaction.id).where(
+                        DemandTransaction.demand_request_id == DemandRequest.id,
+                        DemandTransaction.seller_id == current_user.id
+                    ).exists()
+                )
             )
             .order_by(DemandRequest.created_at.desc())
         )
@@ -225,6 +232,15 @@ async def list_committed_demand_requests(
 
     res = await db.execute(stmt)
     records = res.scalars().all()
+
+    # Fetch matched transactions for all returned records to avoid N+1 queries
+    record_ids = [req.id for req in records]
+    dt_map = {}
+    if record_ids:
+        stmt_txs = select(DemandTransaction).options(joinedload(DemandTransaction.seller)).where(DemandTransaction.demand_request_id.in_(record_ids))
+        res_txs = await db.execute(stmt_txs)
+        for dt in res_txs.scalars().all():
+            dt_map[dt.demand_request_id] = dt
 
     # Pre-fetch all ratings submitted by this user for DEMAND_FULFILLMENT to avoid N+1 query
     rated_demand_ids = set()
@@ -255,6 +271,27 @@ async def list_committed_demand_requests(
         if current_user.role == UserRole.PETANI:
             has_petani_rated = req.id in rated_demand_ids
 
+        dt = dt_map.get(req.id)
+        match_dict = None
+        if dt:
+            match_dict = {
+                "id": str(dt.id),
+                "seller_id": str(dt.seller_id),
+                "seller_name": dt.seller.full_name if dt.seller else None,
+                "seller_phone": dt.seller.phone_whatsapp if dt.seller else None,
+                "quantity_kg": dt.quantity_kg,
+                "price_per_kg": dt.price_per_kg,
+                "amount": dt.amount,
+                "payment_status": dt.payment_status.value if dt.payment_status else None,
+                "escrow_status": dt.escrow_status.value if dt.escrow_status else None,
+                "xendit_invoice_id": dt.xendit_invoice_id,
+                "xendit_invoice_url": dt.xendit_invoice_url,
+                "xendit_external_id": dt.xendit_external_id,
+                "paid_at": dt.paid_at.isoformat() if dt.paid_at else None,
+                "confirmed_received_at": dt.confirmed_received_at.isoformat() if dt.confirmed_received_at else None,
+                "released_at": dt.released_at.isoformat() if dt.released_at else None
+            }
+
         items.append({
             "id": req.id,
             "buyer_id": req.buyer_id,
@@ -272,7 +309,8 @@ async def list_committed_demand_requests(
             "created_at": req.created_at,
             "commitments": commits,
             "num_petani_committed": num_petani,
-            "has_petani_rated": has_petani_rated
+            "has_petani_rated": has_petani_rated,
+            "match_transaction": match_dict
         })
     return items
 
@@ -698,12 +736,17 @@ async def match_demand_request_with_seller(
     await db.refresh(dt)
 
     # Broadcast updated stats to active WebSocket subscribers
+    from datetime import timezone
     await demand_manager.broadcast(
         str(id),
         {
+            "demand_request_id": str(id),
             "quantity_kg_committed": req.quantity_kg_committed,
             "status": req.status.value,
-            "message": f"Permintaan dicocokkan dengan petani {best_product.seller_id.hex[:6]}."
+            "payment_status": dt.payment_status.value,
+            "escrow_status": dt.escrow_status.value,
+            "message": f"Permintaan dicocokkan dengan petani {best_product.seller_id.hex[:6]}.",
+            "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         }
     )
 
