@@ -7,9 +7,12 @@ from app.services.scheduler import start_scheduler, shutdown_scheduler
 
 app = FastAPI(title="Grove API")
 
+import sys
+
 @app.on_event("startup")
 async def startup_event():
-    start_scheduler()
+    if "pytest" not in sys.modules:
+        start_scheduler()
 
 @app.on_event("shutdown")
 async def shutdown_event():
