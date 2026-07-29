@@ -53,9 +53,17 @@ export const demandRequestsApi = {
     return response.json();
   },
 
-  matchDemandRequest: async (id: string) => {
+  getDemandMatchingCandidates: async (id: string) => {
+    const response = await apiClient(`/demand-requests/${id}/candidates`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  matchDemandRequest: async (id: string, productId: string) => {
     const response = await apiClient(`/demand-requests/${id}/match`, {
       method: 'POST',
+      body: JSON.stringify({ product_id: productId }),
     });
     return response.json();
   },

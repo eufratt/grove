@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { cn } from '@/lib/utils';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export default function DemandRequestDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -54,10 +55,15 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [commitSuccess, setCommitSuccess] = useState(false);
 
   // Escrow & Matching states
-  const [matching, setMatching] = useState(false);
+  const [matching, setMatching] = useState<string | null>(null);
+  const [candidates, setCandidates] = useState<any[]>([]);
+  const [loadingCandidates, setLoadingCandidates] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [checkingOut, setCheckingOut] = useState(false);
   const [confirmingReceived, setConfirmingReceived] = useState(false);
   const [disputing, setDisputing] = useState(false);
+  const [confirmMatchOpen, setConfirmMatchOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
 
   // User location & Reference price states
   const [lat, setLat] = useState<number | null>(null);
@@ -150,6 +156,25 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     }
   }, [request]);
 
+  // Fetch candidates for matching
+  useEffect(() => {
+    if (id && isRequestBuyer && request && request.status === 'TERBUKA') {
+      const fetchCandidates = async () => {
+        try {
+          setLoadingCandidates(true);
+          const res = await demandRequestsApi.getDemandMatchingCandidates(id);
+          setCandidates(res);
+          setCurrentPage(1);
+        } catch (err) {
+          console.error("Failed to fetch matching candidates:", err);
+        } finally {
+          setLoadingCandidates(false);
+        }
+      };
+      fetchCandidates();
+    }
+  }, [id, isRequestBuyer, request?.status]);
+
   // 2. Connect to WebSocket for real-time updates
   useEffect(() => {
     if (!id || loading || error) return;
@@ -232,19 +257,31 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     }
   };
 
-  const handleMatch = async () => {
+  const handleMatch = async (productId: string) => {
     try {
-      setMatching(true);
+      setMatching(productId);
       setError('');
-      await demandRequestsApi.matchDemandRequest(id);
+      await demandRequestsApi.matchDemandRequest(id, productId);
       const updatedData = await demandRequestsApi.getDemandRequestById(id);
       setRequest(updatedData);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Gagal mencari pencocokan petani yang sesuai');
+      setError(err.message || 'Gagal mencocokkan permintaan dengan produk petani terpilih');
     } finally {
-      setMatching(false);
+      setMatching(null);
     }
+  };
+
+  const handlePilihClick = (cand: any) => {
+    setSelectedCandidate(cand);
+    setConfirmMatchOpen(true);
+  };
+
+  const handleConfirmMatch = async () => {
+    if (!selectedCandidate) return;
+    const productId = selectedCandidate.product_id;
+    setConfirmMatchOpen(false);
+    await handleMatch(productId);
   };
 
   const handleCheckout = async () => {
@@ -659,30 +696,152 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 ) : (
                   /* Case 2: Not matched yet */
                   request.status === 'TERBUKA' && (
-                    <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
-                      <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
-                        <Users size={18} className="text-gr-board" />
-                        Cari Pencocokan
-                      </h3>
-                      <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
-                        Sistem kami dapat mencocokkan kebutuhan panen Anda secara otomatis dengan produk petani yang terdaftar di marketplace.
-                      </p>
+                    loadingCandidates ? (
+                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                        <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
+                          <Users size={18} className="text-gr-board" />
+                          Kandidat Produk Petani
+                        </h3>
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="h-6 w-6 animate-spin text-gr-board" />
+                          <span className="text-xs text-gr-ink-soft ml-2">Mencari kandidat terbaik...</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                        <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
+                          <Users size={18} className="text-gr-board" />
+                          Kandidat Produk Petani
+                        </h3>
+                        <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
+                          Berikut adalah daftar hasil panen petani yang cocok secara harga dan kemiripan komoditas dengan permintaan Anda. Silakan pilih salah satu untuk bertransaksi via Escrow.
+                        </p>
 
-                      <Button
-                        disabled={matching}
-                        onClick={handleMatch}
-                        className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-2"
-                      >
-                        {matching ? (
-                          <>
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            Mencari Kecocokan...
-                          </>
-                        ) : (
-                          'Cocokkan dengan Petani'
-                        )}
-                      </Button>
-                    </div>
+                        {candidates.length === 0 ? (
+                          <div className="text-center py-6 px-4 border border-dashed border-gr-line rounded-sm bg-gr-paper/30">
+                            <p className="text-xs font-sans text-gr-ink-soft">
+                              Tidak ada produk petani yang cocok (harga ≤ Rp {request.price_per_kg.toLocaleString('id-ID')}/KG & cocok secara embedding) saat ini.
+                            </p>
+                          </div>
+                        ) : (() => {
+                          const candidatesPerPage = 2;
+                          const totalPages = Math.ceil(candidates.length / candidatesPerPage);
+                          const currentCandidates = candidates.slice(
+                            (currentPage - 1) * candidatesPerPage,
+                            currentPage * candidatesPerPage
+                          );
+                          return (
+                            <div className="space-y-3">
+                              <div className="space-y-2.5">
+                                {currentCandidates.map((cand) => {
+                                  const similarityPercentage = Math.round((1 - cand.distance_score) * 100);
+                                  return (
+                                    <div key={cand.product_id} className="p-4 rounded-sm border border-gr-line bg-white hover:border-gr-board/40 transition-all flex flex-col gap-3.5 relative overflow-hidden">
+                                      {/* Product Title & Match Badge */}
+                                      <div className="flex justify-between items-start gap-2">
+                                        <div className="min-w-0 flex-1">
+                                          <h4 className="font-display font-semibold text-xs text-gr-ink line-clamp-2" title={cand.product_name}>{cand.product_name}</h4>
+                                          <p className="text-[10px] text-gr-ink-soft font-sans mt-0.5">Petani: {cand.seller_name}</p>
+                                        </div>
+                                        <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xs bg-gr-up/10 text-gr-up border border-gr-up/20 shrink-0">
+                                          {similarityPercentage}% Match
+                                        </span>
+                                      </div>
+
+                                      {/* Stock & Price info */}
+                                      <div className="grid grid-cols-2 gap-4 text-xs font-sans border-t border-b border-gr-line/40 py-2">
+                                        <div>
+                                          <span className="text-[10px] text-gr-ink-soft block">Stok Tersedia:</span>
+                                          <span className="font-semibold text-gr-ink font-mono">{cand.quantity_kg} KG</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-[10px] text-gr-ink-soft block">Harga per KG:</span>
+                                          <span className="font-semibold text-gr-ink font-mono">Rp {cand.price_per_kg.toLocaleString('id-ID')}</span>
+                                        </div>
+                                      </div>
+
+                                      {/* Action Buttons */}
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <a
+                                          href={`/produk/${cand.product_id}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="h-8 rounded-xs border border-gr-line text-gr-ink hover:bg-gr-paper font-mono text-[9px] font-bold uppercase tracking-wider flex items-center justify-center transition-all cursor-pointer"
+                                        >
+                                          Detail
+                                        </a>
+                                        <Button
+                                          disabled={matching !== null}
+                                          onClick={() => handlePilihClick(cand)}
+                                          size="sm"
+                                          className="h-8 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-wider rounded-xs shadow-sm cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+                                        >
+                                          {matching === cand.product_id ? (
+                                            <>
+                                              <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                                              Proses...
+                                            </>
+                                          ) : (
+                                            'Pilih'
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Pagination Controls */}
+                              {totalPages > 1 && (
+                                <div className="flex items-center justify-between pt-2 border-t border-gr-line/50 text-[10px] font-sans text-gr-ink-soft">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                    className="h-6 px-2 text-[9px] font-bold uppercase tracking-wider text-gr-ink hover:bg-gr-paper border border-gr-line disabled:opacity-45"
+                                  >
+                                    Sebelumnya
+                                  </Button>
+                                  
+                                  {/* Numbered circles indicator */}
+                                  <div className="flex justify-center items-center gap-1 mx-2">
+                                    {Array.from({ length: totalPages }).map((_, idx) => {
+                                      const pageNum = idx + 1;
+                                      return (
+                                        <button
+                                          key={pageNum}
+                                          onClick={() => setCurrentPage(pageNum)}
+                                          className={cn(
+                                            "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-mono font-bold transition-all duration-200 cursor-pointer border",
+                                            currentPage === pageNum
+                                              ? "bg-gr-board text-gr-chalk border-gr-board"
+                                              : "bg-white text-gr-ink-soft border-gr-line hover:border-gr-ink hover:text-gr-ink"
+                                          )}
+                                          aria-label={`Halaman ${pageNum}`}
+                                        >
+                                          {pageNum}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                    className="h-6 px-2 text-[9px] font-bold uppercase tracking-wider text-gr-ink hover:bg-gr-paper border border-gr-line disabled:opacity-45"
+                                  >
+                                    Selanjutnya
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )
                   )
                 )}
               </>
@@ -810,6 +969,56 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           </div>
         </div>
       </div>
+
+      {selectedCandidate && (
+        <ConfirmModal
+          isOpen={confirmMatchOpen}
+          onClose={() => setConfirmMatchOpen(false)}
+          onConfirm={handleConfirmMatch}
+          title="Konfirmasi Pembelian"
+          confirmText="Konfirmasi"
+          cancelText="Batal"
+          variant="info"
+          isLoading={matching !== null}
+          description={
+            <div className="space-y-3">
+              <p className="font-sans text-xs text-gr-ink-soft">
+                Apakah Anda yakin ingin memilih hasil panen ini untuk memenuhi permintaan Anda?
+              </p>
+              <div className="bg-[#FAF9F5] border border-gr-line p-3 space-y-1.5 font-mono text-[10px] text-gr-text-primary">
+                <div className="flex justify-between gap-4">
+                  <span className="text-gr-text-primary/60">PRODUK:</span>
+                  <span className="font-bold text-gr-text-primary uppercase truncate max-w-[160px]" title={selectedCandidate.product_name}>
+                    {selectedCandidate.product_name}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gr-text-primary/60">HARGA:</span>
+                  <span className="font-bold text-gr-text-primary">
+                    Rp {selectedCandidate.price_per_kg.toLocaleString('id-ID')} / KG
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gr-text-primary/60">QUANTITY:</span>
+                  <span className="font-bold text-gr-text-primary">
+                    {Math.min(selectedCandidate.quantity_kg, request.quantity_kg_needed)} KG
+                  </span>
+                </div>
+                <div className="border-t border-dashed border-gr-line/30 my-1" />
+                <div className="flex justify-between text-xs font-sans">
+                  <span className="text-gr-text-primary font-bold">TOTAL ESTIMASI:</span>
+                  <span className="font-bold text-gr-green">
+                    Rp {(selectedCandidate.price_per_kg * Math.min(selectedCandidate.quantity_kg, request.quantity_kg_needed)).toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+              <p className="font-sans text-[10px] text-gr-orange leading-normal">
+                * Escrow matching akan membuat transaksi pembayaran baru dan memotong stok produk petani.
+              </p>
+            </div>
+          }
+        />
+      )}
     </main>
   );
 
