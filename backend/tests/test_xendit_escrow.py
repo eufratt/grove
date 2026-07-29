@@ -237,3 +237,66 @@ async def test_demand_escrow_lifecycle(mock_create_invoice, mock_create_disburse
     assert dt.disbursement_id == "disb-2222"
     assert dt.disbursement_status == "pending"
     assert dt.disbursed_at is not None
+
+from httpx import AsyncClient
+from main import app
+
+async def test_xendit_webhook_endpoint_casing(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+
+    # Create an order in pending payment state
+    order = Order(
+        id=uuid.uuid4(),
+        product_id=product.id,
+        buyer_id=buyer.id,
+        quantity_kg=5.0,
+        status=OrderStatus.MENUNGGU_KONFIRMASI,
+        xendit_external_id="pesanan_test_webhook_external_id",
+        xendit_invoice_id="inv-webhook-test",
+        payment_status=PaymentStatus.PENDING
+    )
+    db.add(order)
+    
+    # We also need a PaymentTransaction log
+    payment_tx = PaymentTransaction(
+        source_type="pesanan",
+        source_id=order.id,
+        xendit_external_id="pesanan_test_webhook_external_id",
+        amount=200000.0
+    )
+    db.add(payment_tx)
+    await db.commit()
+
+    # 1. Test standard mixed-case header "X-Callback-Token"
+    payload = {
+        "external_id": "pesanan_test_webhook_external_id",
+        "id": "inv-webhook-test",
+        "status": "PAID"
+    }
+
+    import httpx
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            "/webhooks/xendit",
+            json=payload,
+            headers={"X-Callback-Token": settings.XENDIT_WEBHOOK_TOKEN}
+        )
+    
+    assert response.status_code == 200
+    assert response.json() == {"status": "success"}
+
+    # Refresh order and assert paid
+    await db.refresh(order)
+    assert order.payment_status == PaymentStatus.PAID
+    assert order.escrow_status == EscrowStatus.HELD
+
+    # 2. Test invalid webhook token to ensure it still properly rejects unauthorized requests
+    import httpx
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            "/webhooks/xendit",
+            json=payload,
+            headers={"X-Callback-Token": "invalid-token"}
+        )
+    assert response.status_code == 401
+

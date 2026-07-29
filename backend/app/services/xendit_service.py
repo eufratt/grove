@@ -1,6 +1,6 @@
 import base64
 import httpx
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, Mapping
 from app.config import settings
 
 class XenditService:
@@ -57,7 +57,7 @@ class XenditService:
             return data["invoice_url"], data["id"]
 
     @staticmethod
-    def verify_webhook_token(headers: Dict[str, str]) -> bool:
+    def verify_webhook_token(headers: Mapping[str, str]) -> bool:
         """
         Validates the callback token sent in the headers from Xendit.
         """

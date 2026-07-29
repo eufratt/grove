@@ -16,7 +16,7 @@ async def xendit_webhook(
     Verifies x-callback-token and triggers escrow status transitions.
     """
     # 1. Verify webhook callback token
-    headers = dict(request.headers)
+    headers = request.headers
     if not xendit_service.verify_webhook_token(headers):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
