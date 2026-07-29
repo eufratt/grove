@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ordersApi, useOrderSocket } from '@/lib/api/orders';
 import { demandRequestsApi, useDemandSocket } from '@/lib/api/demand-requests';
@@ -16,27 +16,25 @@ import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, Cli
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { Pagination } from '@/components/ui/pagination';
 
-export default function OrdersPage() {
+function OrdersPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
   const [user, setUser] = useState<any | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [activeTab, setActiveTab] = useState<'incoming' | 'purchases' | 'history' | 'demands' | 'products'>('incoming');
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const LIMIT = 10;
+  const [limitGrid, setLimitGrid] = useState(6);
+  const [limitList, setLimitList] = useState(10);
 
-  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products', pageNum: number, append = false) => {
-    if (pageNum === 1) {
-      setIsLoading(true);
-    } else {
-      setIsLoadingMore(true);
-    }
-
+  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products') => {
+    setIsLoading(true);
     try {
-      const skip = (pageNum - 1) * LIMIT;
+      const FETCH_LIMIT = 100; // Large limit to safely fetch all items for client-side pagination (backend max is 100)
       let data: any[] = [];
 
       if (tab === 'products') {
@@ -45,32 +43,25 @@ export default function OrdersPage() {
         data = await demandRequestsApi.getCommittedDemandRequests();
       } else if (tab === 'history') {
         if (userRole === 'PETANI') {
-          data = await ordersApi.getIncomingOrders(0, 100);
+          data = await ordersApi.getIncomingOrders(0, FETCH_LIMIT);
         } else {
-          data = await ordersApi.getMyPurchases(0, 100);
+          data = await ordersApi.getMyPurchases(0, FETCH_LIMIT);
         }
       } else if (userRole === 'PETANI') {
         if (tab === 'incoming') {
-          data = await ordersApi.getIncomingOrders(skip, LIMIT);
+          data = await ordersApi.getIncomingOrders(0, FETCH_LIMIT);
         } else {
-          data = await ordersApi.getMyPurchases(skip, LIMIT);
+          data = await ordersApi.getMyPurchases(0, FETCH_LIMIT);
         }
       } else {
-        data = await ordersApi.getMyPurchases(skip, LIMIT);
+        data = await ordersApi.getMyPurchases(0, FETCH_LIMIT);
       }
 
-      if (append) {
-        setOrders(prev => [...prev, ...data]);
-      } else {
-        setOrders(data);
-      }
-      setHasMore(tab === 'demands' || tab === 'products' || tab === 'history' ? false : data.length === LIMIT);
-      setPage(pageNum);
+      setOrders(data);
     } catch (err) {
       console.error('Failed to load orders/products:', err);
     } finally {
       setIsLoading(false);
-      setIsLoadingMore(false);
     }
   };
 
@@ -79,9 +70,16 @@ export default function OrdersPage() {
       const userData = await authApi.getMe();
       setUser(userData);
       
-      const initialTab = userData.role === 'PETANI' ? 'incoming' : 'purchases';
+      const queryTab = new URLSearchParams(window.location.search).get('tab');
+      const queryPage = new URLSearchParams(window.location.search).get('page');
+      
+      const initialTab = (queryTab as any) || (userData.role === 'PETANI' ? 'incoming' : 'purchases');
+      const initialPage = queryPage ? parseInt(queryPage, 10) : 1;
+      
       setActiveTab(initialTab);
-      await loadOrders(userData.role, initialTab, 1, false);
+      setPage(initialPage);
+      
+      await loadOrders(userData.role, initialTab);
     } catch (err: any) {
       if (err.status !== 401) {
         console.error('Failed to get user/orders:', err);
@@ -94,37 +92,101 @@ export default function OrdersPage() {
     fetchUserAndOrders();
   }, []);
 
+  // Synchronize state from URL params
+  useEffect(() => {
+    if (!user) return;
+    const queryTab = searchParams.get('tab') as any;
+    const queryPage = searchParams.get('page');
+    
+    const targetTab = queryTab || (user.role === 'PETANI' ? 'incoming' : 'purchases');
+    const targetPage = queryPage ? parseInt(queryPage, 10) : 1;
+    
+    if (targetTab !== activeTab) {
+      setActiveTab(targetTab);
+      loadOrders(user.role, targetTab);
+    }
+    setPage(targetPage);
+  }, [searchParams, user]);
+
   const handleTabChange = (tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products') => {
     if (!user) return;
-    setActiveTab(tab);
-    loadOrders(user.role, tab, 1, false);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', tab);
+    params.set('page', '1');
+    router.push(`${window.location.pathname}?${params.toString()}`);
   };
 
-  const handleLoadMore = () => {
-    if (!user || isLoadingMore) return;
-    loadOrders(user.role, activeTab, page + 1, true);
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', activeTab);
+    params.set('page', newPage.toString());
+    router.push(`${window.location.pathname}?${params.toString()}`);
+    
+    // Smooth scroll to top of list container
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    if (activeTab === 'products') {
+      setLimitGrid(newLimit);
+    } else {
+      setLimitList(newLimit);
+    }
+    
+    // Reset to page 1 in state and URL when items per page limit changes
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', activeTab);
+    params.set('page', '1');
+    router.push(`${window.location.pathname}?${params.toString()}`);
   };
 
   const handleUpdate = () => {
     if (!user) return;
-    loadOrders(user.role, activeTab, 1, false);
+    loadOrders(user.role, activeTab);
+  };
+
+  const getFilteredData = () => {
+    if (activeTab === 'products') {
+      return orders;
+    }
+    if (activeTab === 'demands') {
+      return orders;
+    }
+    if (activeTab === 'incoming') {
+      return orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN');
+    }
+    if (activeTab === 'purchases') {
+      return orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN');
+    }
+    if (activeTab === 'history') {
+      return orders.filter(o => o.status === 'SELESAI' || o.status === 'DIBATALKAN');
+    }
+    return [];
   };
 
   const getEmptyState = () => {
     if (activeTab === 'incoming') {
       return {
-        title: 'Belum ada pesanan masuk',
-        desc: 'Hasil panenmu yang dijual belum dipesan oleh pembeli lain.'
+        title: 'Tidak Ada Pesanan Masuk Aktif',
+        desc: 'Belum ada pesanan baru masuk dari pembeli.'
       };
     } else if (activeTab === 'purchases') {
       return {
-        title: 'Kamu belum melakukan pembelian',
-        desc: 'Cari hasil panen segar di beranda untuk mulai berbelanja.'
+        title: 'Tidak Ada Pesanan Aktif',
+        desc: 'Semua transaksi Anda telah selesai atau dibatalkan. Kunjungi Riwayat & Ulasan untuk menilai pesanan.'
       };
     } else if (activeTab === 'products') {
       return {
         title: 'Kamu belum melisting produk',
         desc: 'Mulai tawarkan hasil panenmu di marketplace melalui halaman Jual.'
+      };
+    } else if (activeTab === 'history') {
+      return {
+        title: 'Belum Ada Riwayat Pesanan',
+        desc: 'Pesanan yang telah selesai atau dibatalkan akan muncul di sini.'
       };
     } else {
       return {
@@ -135,6 +197,19 @@ export default function OrdersPage() {
       };
     }
   };
+
+  const filteredData = getFilteredData();
+  const totalItems = filteredData.length;
+  const itemsPerPage = activeTab === 'products' ? limitGrid : limitList;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  // Safe page indexing
+  const currentPage = Math.max(1, Math.min(page, totalPages || 1));
+
+  const displayedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const emptyState = getEmptyState();
 
@@ -183,7 +258,7 @@ export default function OrdersPage() {
                     <span className="text-[10px] opacity-60">→</span>
                   </button>
                 )}
-                                <button
+                <button
                   onClick={() => handleTabChange('purchases')}
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
@@ -253,17 +328,20 @@ export default function OrdersPage() {
           </div>
 
           {/* COLUMN 2: Scrollable Active Content List (Right) */}
-          <div className="flex-1 min-w-0 h-full overflow-y-auto pr-1.5 custom-scrollbar pb-6">
+          <div 
+            ref={scrollContainerRef}
+            className="flex-1 min-w-0 h-full overflow-y-auto pr-1.5 custom-scrollbar pb-6"
+          >
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-32">
                 <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
               </div>
-            ) : orders.length > 0 ? (
+            ) : filteredData.length > 0 ? (
               <div className="w-full space-y-6">
                 <AnimatePresence mode="popLayout">
                   {activeTab === 'products' ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                      {orders.map((product) => (
+                      {displayedData.map((product) => (
                         <FarmerProductCard 
                           key={product.id} 
                           product={product} 
@@ -273,7 +351,7 @@ export default function OrdersPage() {
                     </div>
                   ) : activeTab === 'demands' ? (
                     <div className="space-y-6">
-                      {orders.map((demand, index) => (
+                      {displayedData.map((demand, index) => (
                         <DemandCard 
                           key={demand.id} 
                           demand={demand} 
@@ -285,88 +363,52 @@ export default function OrdersPage() {
                     </div>
                   ) : activeTab === 'incoming' ? (
                     <div className="space-y-6">
-                      {orders
-                        .filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN')
-                        .map((order, index) => (
-                          <OrderCard 
-                            key={order.id} 
-                            order={order} 
-                            index={index} 
-                            onUpdate={handleUpdate} 
-                            isIncoming={true}
-                          />
-                        ))}
-                      {orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN').length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
-                          <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
-                          <span className="font-display text-2xl font-semibold text-gr-ink">Tidak Ada Pesanan Masuk Aktif</span>
-                          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">Belum ada pesanan baru masuk dari pembeli.</p>
-                        </div>
-                      )}
+                      {displayedData.map((order, index) => (
+                        <OrderCard 
+                          key={order.id} 
+                          order={order} 
+                          index={index} 
+                          onUpdate={handleUpdate} 
+                          isIncoming={true}
+                        />
+                      ))}
                     </div>
                   ) : activeTab === 'purchases' ? (
                     <div className="space-y-6">
-                      {orders
-                        .filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN')
-                        .map((order, index) => (
-                          <OrderCard 
-                            key={order.id} 
-                            order={order} 
-                            index={index} 
-                            onUpdate={handleUpdate} 
-                            isIncoming={false}
-                          />
-                        ))}
-                      {orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN').length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
-                          <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
-                          <span className="font-display text-2xl font-semibold text-gr-ink">Tidak Ada Pesanan Aktif</span>
-                          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">Semua transaksi Anda telah selesai atau dibatalkan. Kunjungi Riwayat & Ulasan untuk menilai pesanan.</p>
-                        </div>
-                      )}
+                      {displayedData.map((order, index) => (
+                        <OrderCard 
+                          key={order.id} 
+                          order={order} 
+                          index={index} 
+                          onUpdate={handleUpdate} 
+                          isIncoming={false}
+                        />
+                      ))}
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {orders
-                        .filter(o => o.status === 'SELESAI' || o.status === 'DIBATALKAN')
-                        .map((order, index) => (
-                          <OrderCard 
-                            key={order.id} 
-                            order={order} 
-                            index={index} 
-                            onUpdate={handleUpdate} 
-                            isIncoming={user?.role === 'PETANI'}
-                          />
-                        ))}
-                      {orders.filter(o => o.status === 'SELESAI' || o.status === 'DIBATALKAN').length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
-                          <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
-                          <span className="font-display text-2xl font-semibold text-gr-ink">Belum Ada Riwayat Pesanan</span>
-                          <p className="mt-2 font-sans text-sm text-gr-ink-soft max-w-xs">Pesanan yang telah selesai atau dibatalkan akan muncul di sini.</p>
-                        </div>
-                      )}
+                      {displayedData.map((order, index) => (
+                        <OrderCard 
+                          key={order.id} 
+                          order={order} 
+                          index={index} 
+                          onUpdate={handleUpdate} 
+                          isIncoming={user?.role === 'PETANI'}
+                        />
+                      ))}
                     </div>
                   )}
                 </AnimatePresence>
 
-                {hasMore && (
-                  <div className="flex justify-center mt-8">
-                    <Button
-                      disabled={isLoadingMore}
-                      onClick={handleLoadMore}
-                      className="bg-white/80 border border-gr-line hover:border-gr-ink/40 text-gr-ink px-6 py-2.5 rounded-sm font-mono text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer disabled:opacity-50 shadow-xs"
-                    >
-                      {isLoadingMore ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin mr-2" />
-                          Memuat...
-                        </>
-                      ) : (
-                        'Muat Lebih Banyak'
-                      )}
-                    </Button>
-                  </div>
-                )}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={handlePageChange}
+                  onLimitChange={handleLimitChange}
+                  limitOptions={activeTab === 'products' ? [6, 12, 24] : [10, 20, 50]}
+                />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
@@ -384,6 +426,18 @@ export default function OrdersPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={
+      <main className="relative flex-1 bg-gr-paper lg:h-[calc(100vh-76px)] lg:max-h-[calc(100vh-76px)] lg:overflow-hidden flex flex-col justify-center items-center">
+        <Loader2 className="h-10 w-10 text-gr-board animate-spin opacity-60" />
+      </main>
+    }>
+      <OrdersPageContent />
+    </Suspense>
   );
 }
 
