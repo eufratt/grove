@@ -244,6 +244,10 @@ from main import app
 async def test_xendit_webhook_endpoint_casing(test_escrow_context):
     db, buyer, seller, product, demand = test_escrow_context
 
+    unique_suffix = uuid.uuid4().hex[:6]
+    webhook_external_id = f"pesanan_test_webhook_external_id_{unique_suffix}"
+    webhook_invoice_id = f"inv-webhook-test-{unique_suffix}"
+
     # Create an order in pending payment state
     order = Order(
         id=uuid.uuid4(),
@@ -251,8 +255,8 @@ async def test_xendit_webhook_endpoint_casing(test_escrow_context):
         buyer_id=buyer.id,
         quantity_kg=5.0,
         status=OrderStatus.MENUNGGU_KONFIRMASI,
-        xendit_external_id="pesanan_test_webhook_external_id",
-        xendit_invoice_id="inv-webhook-test",
+        xendit_external_id=webhook_external_id,
+        xendit_invoice_id=webhook_invoice_id,
         payment_status=PaymentStatus.PENDING
     )
     db.add(order)
@@ -261,7 +265,7 @@ async def test_xendit_webhook_endpoint_casing(test_escrow_context):
     payment_tx = PaymentTransaction(
         source_type="pesanan",
         source_id=order.id,
-        xendit_external_id="pesanan_test_webhook_external_id",
+        xendit_external_id=webhook_external_id,
         amount=200000.0
     )
     db.add(payment_tx)
@@ -269,8 +273,8 @@ async def test_xendit_webhook_endpoint_casing(test_escrow_context):
 
     # 1. Test standard mixed-case header "X-Callback-Token"
     payload = {
-        "external_id": "pesanan_test_webhook_external_id",
-        "id": "inv-webhook-test",
+        "external_id": webhook_external_id,
+        "id": webhook_invoice_id,
         "status": "PAID"
     }
 
@@ -299,4 +303,64 @@ async def test_xendit_webhook_endpoint_casing(test_escrow_context):
             headers={"X-Callback-Token": "invalid-token"}
         )
     assert response.status_code == 401
+
+
+async def test_get_committed_demand_requests_matching(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+
+    # 1. Create a matched DemandTransaction
+    dt = DemandTransaction(
+        id=uuid.uuid4(),
+        demand_request_id=demand.id,
+        seller_id=seller.id,
+        quantity_kg=10.0,
+        price_per_kg=40000.0,
+        amount=400000.0,
+        payment_status=PaymentStatus.PENDING,
+        escrow_status=EscrowStatus.NOT_STARTED,
+        xendit_external_id=f"permintaan_{demand.id.hex}_matching_test"
+    )
+    db.add(dt)
+    
+    # Update demand request status to matched
+    demand.quantity_kg_committed = 10.0
+    demand.status = DemandRequestStatus.TERPENUHI
+    db.add(demand)
+    await db.commit()
+
+    # Import app and auth_service to override get_current_user dependency
+    from app.services import auth_service
+    from main import app
+    import httpx
+
+    # Test as Farmer (Petani/Seller) - should return the matched request
+    app.dependency_overrides[auth_service.get_current_user] = lambda: seller
+    
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/demand-requests/committed")
+    
+    assert response.status_code == 200
+    res_data = response.json()
+    assert len(res_data) == 1
+    assert res_data[0]["id"] == str(demand.id)
+    assert res_data[0]["match_transaction"] is not None
+    assert res_data[0]["match_transaction"]["seller_id"] == str(seller.id)
+    assert res_data[0]["match_transaction"]["payment_status"] == "pending"
+
+    # Test as Buyer (Pembeli) - should also return the matched request
+    app.dependency_overrides[auth_service.get_current_user] = lambda: buyer
+
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/demand-requests/committed")
+    
+    assert response.status_code == 200
+    res_data = response.json()
+    assert len(res_data) == 1
+    assert res_data[0]["id"] == str(demand.id)
+    assert res_data[0]["match_transaction"] is not None
+    assert res_data[0]["match_transaction"]["seller_id"] == str(seller.id)
+
+    # Clean up overrides
+    app.dependency_overrides.clear()
+
 
