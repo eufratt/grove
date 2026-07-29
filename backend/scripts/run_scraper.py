@@ -126,7 +126,7 @@ async def scrape_from_url(page, url: str) -> list[dict]:
                             if date_pattern.match(clean_date):
                                 try:
                                     scraped_date = datetime.strptime(clean_date, "%d/%m/%Y")
-                                    scraped_date = datetime(scraped_date.year, scraped_date.month, scraped_date.day, 8, 0, 0)
+                                    scraped_date = datetime(scraped_date.year, scraped_date.month, scraped_date.day, end_dt.hour, end_dt.minute, end_dt.second)
                                     
                                     price_str = (await cells[col_idx].text_content()).strip()
                                     price_cleaned = price_str.replace("Rp", "").replace(".", "").replace(",", "").strip()
