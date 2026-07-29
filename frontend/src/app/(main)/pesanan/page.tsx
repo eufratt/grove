@@ -1021,7 +1021,7 @@ function DemandCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-6 pt-6 border-t border-gr-line space-y-4"
+            className="border-t border-gr-line bg-[#FAF9F5] p-5 md:p-6 space-y-6"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -1126,32 +1126,32 @@ function DemandCard({
                         </a>
                       )}
                     </div>
-                    
-                    {/* Petani Rating action */}
-                    {role === 'PETANI' && currentStatus === 'TERPENUHI' && (
-                      <div className="mt-4 pt-4 border-t border-gr-line space-y-3">
-                        {!hasPetaniRated ? (
-                          <RatingForm
-                            transactionType="DEMAND_FULFILLMENT"
-                            referenceId={demand.id}
-                            onSuccess={() => {
-                              setHasPetaniRated(true);
-                              onUpdate();
-                            }}
-                            label="Nilai Pembeli"
-                          />
-                        ) : (
-                          <div className="flex items-center gap-2 text-gr-up text-xs font-mono font-bold uppercase tracking-wider">
-                            <CheckCircle2 size={16} />
-                            <span>Rating Telah Dikirim</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Petani Rating action */}
+            {role === 'PETANI' && currentStatus === 'TERPENUHI' && (
+              <div className="pt-4 border-t border-gr-line">
+                {!hasPetaniRated ? (
+                  <RatingForm
+                    transactionType="DEMAND_FULFILLMENT"
+                    referenceId={demand.id}
+                    onSuccess={() => {
+                      setHasPetaniRated(true);
+                      onUpdate();
+                    }}
+                    label="Nilai Pembeli"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 text-gr-up text-xs font-mono font-bold uppercase tracking-wider">
+                    <CheckCircle2 size={16} />
+                    <span>Rating Telah Dikirim</span>
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
