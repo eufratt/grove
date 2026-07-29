@@ -93,6 +93,8 @@ export function useDemandSocket(id: string | null) {
     quantity_kg_committed?: number;
     status?: string;
     num_petani_committed?: number;
+    payment_status?: string;
+    escrow_status?: string;
   } | null>(null);
 
   useEffect(() => {
