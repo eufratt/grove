@@ -26,10 +26,12 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [successToast, setSuccessToast] = useState('');
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [qtyInput, setQtyInput] = useState('1');
 
@@ -142,6 +144,24 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
       setConfirmModalOpen(false);
     } finally {
       setCheckingOut(false);
+    }
+  };
+
+  const proceedToDelete = async () => {
+    setDeleting(true);
+    setError('');
+    try {
+      await productsApi.deleteProduct(id);
+      setSuccessToast('Produk berhasil dihapus!');
+      setDeleteConfirmModalOpen(false);
+      setTimeout(() => {
+        router.push('/beranda');
+      }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'Gagal menghapus produk. Silakan coba lagi.');
+      setDeleteConfirmModalOpen(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -347,7 +367,25 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             )}
 
             {/* Purchase Control Panel */}
-            {isAvailable && !isOwnProduct ? (
+            {isOwnProduct ? (
+              <div className="space-y-3 bg-gr-chalk/40 p-4 border border-gr-line backdrop-blur-md">
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => router.push(`/produk/${product.id}/edit`)}
+                    className="flex-1 bg-gr-green text-gr-bg hover:bg-gr-green/90 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                  >
+                    Edit Produk
+                  </Button>
+                  <Button 
+                    onClick={() => setDeleteConfirmModalOpen(true)}
+                    variant="outline"
+                    className="flex-1 border-gr-down text-gr-down hover:bg-gr-down/5 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                  >
+                    Hapus Produk
+                  </Button>
+                </div>
+              </div>
+            ) : isAvailable ? (
               <div className="space-y-3 bg-gr-chalk/40 p-4 border border-gr-line backdrop-blur-md">
                 <div className="flex items-center justify-between">
                   <div>
@@ -428,21 +466,12 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               </div>
             ) : (
               <div className="flex gap-3">
-                {isOwnProduct ? (
-                  <Button 
-                    disabled
-                    className="w-full bg-gr-chalk/40 border border-gr-line text-gr-text-primary/50 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
-                  >
-                    Ini Produk Anda
-                  </Button>
-                ) : (
-                  <Button 
-                    disabled
-                    className="w-full bg-gr-chalk/40 border border-gr-line text-gr-text-primary/50 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
-                  >
-                    Sudah Terjual
-                  </Button>
-                )}
+                <Button 
+                  disabled
+                  className="w-full bg-gr-chalk/40 border border-gr-line text-gr-text-primary/50 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px]"
+                >
+                  {product.status === 'DITUTUP' ? 'Sudah Ditutup' : 'Sudah Terjual'}
+                </Button>
               </div>
             )}
 
@@ -453,7 +482,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                 <ShieldAlert className="text-gr-orange shrink-0" size={14} />
                 <div className="font-sans text-[10px] text-gr-text-primary/70">
                   <strong className="text-gr-orange uppercase tracking-wider text-[9px] mr-1">Ini Produk Anda:</strong>
-                  Anda tidak dapat membeli produk milik Anda sendiri.
+                  Anda dapat mengedit informasi produk atau menutup penawaran ini.
                 </div>
               </div>
             )}
@@ -507,6 +536,26 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
             </div>
             <p className="font-sans text-[10px] text-gr-orange leading-normal">
               * Pesanan akan diteruskan ke petani.
+            </p>
+          </div>
+        }
+      />
+      <ConfirmModal
+        isOpen={deleteConfirmModalOpen}
+        onClose={() => setDeleteConfirmModalOpen(false)}
+        onConfirm={proceedToDelete}
+        title="Konfirmasi Hapus Produk"
+        confirmText="Hapus"
+        cancelText="Batal"
+        variant="danger"
+        isLoading={deleting}
+        description={
+          <div className="space-y-3">
+            <p className="font-sans text-xs text-gr-ink-soft">
+              Apakah Anda yakin ingin menghapus produk <strong>{product.name}</strong>?
+            </p>
+            <p className="font-sans text-[10px] text-gr-orange leading-normal">
+              * Status produk akan diubah menjadi DITUTUP dan penawaran tidak akan dapat diakses oleh pembeli.
             </p>
           </div>
         }
