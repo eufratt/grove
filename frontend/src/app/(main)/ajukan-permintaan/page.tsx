@@ -6,6 +6,7 @@ import { authApi } from '@/lib/api/auth';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { referencePricesApi } from '@/lib/api/reference-prices';
 import { Button } from '@/components/ui/button';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { ArrowLeft, Calendar, Loader2, Info, AlertTriangle, CheckCircle, MapPin } from 'lucide-react';
@@ -434,12 +435,10 @@ export default function AjukanPermintaanPage() {
                 <span className="absolute left-3 top-2.5 font-mono text-sm text-gr-ink-soft/50 font-bold">
                   Rp
                 </span>
-                <input
-                  type="number"
-                  min="1"
+                <CurrencyInput
                   placeholder="Contoh: 35000"
                   value={pricePerKg}
-                  onChange={(e) => setPricePerKg(e.target.value)}
+                  onValueChange={(val) => setPricePerKg(val)}
                   className="block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 pl-9 pr-3 py-2 text-sm text-gr-ink font-mono font-bold focus:outline-none focus:border-gr-board/50 rounded-sm transition-all placeholder:text-gr-ink-soft/40"
                 />
               </div>

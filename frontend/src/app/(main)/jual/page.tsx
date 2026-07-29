@@ -6,6 +6,7 @@ import { productsApi } from '@/lib/api/products';
 import { authApi } from '@/lib/api/auth';
 import { referencePricesApi } from '@/lib/api/reference-prices';
 import { Button } from '@/components/ui/button';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { provinceCentroids } from '@/lib/data/province-centroids';
@@ -459,14 +460,13 @@ export default function JualPage() {
                 </label>
                 <div className="relative mt-2">
                   <span className="absolute left-3 top-2.5 font-mono text-sm text-gr-ink-soft/50 font-bold">Rp</span>
-                  <input
+                  <CurrencyInput
                     name="price_per_kg"
-                    type="number"
                     required
                     placeholder="0"
                     className="block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 pl-9 pr-3 py-2 text-sm text-gr-ink font-mono font-bold focus:outline-none focus:border-gr-board/50 rounded-sm transition-all"
                     value={formData.price_per_kg}
-                    onChange={handleInputChange}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, price_per_kg: val }))}
                   />
                 </div>
               </div>
