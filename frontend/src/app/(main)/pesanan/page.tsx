@@ -961,7 +961,17 @@ function DemandCard({
   const currentStatus = liveData?.status || demand.status;
   const currentCommitted = liveData?.quantity_kg_committed !== undefined ? liveData.quantity_kg_committed : demand.quantity_kg_committed;
 
-  const getStatusConfig = (status: string) => {
+  // Dynamic matched transaction info
+  const matchedTx = demand.match_transaction ? {
+    ...demand.match_transaction,
+    payment_status: liveData?.payment_status || demand.match_transaction.payment_status,
+    escrow_status: liveData?.escrow_status || demand.match_transaction.escrow_status,
+  } : null;
+
+  const getStatusConfig = (status: string, hasMatch: boolean) => {
+    if (hasMatch) {
+      return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Telah Dicocokkan' };
+    }
     switch (status.toUpperCase()) {
       case 'TERBUKA': 
         return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Dikomit Petani' };
@@ -974,7 +984,7 @@ function DemandCard({
     }
   };
 
-  const config = getStatusConfig(currentStatus);
+  const config = getStatusConfig(currentStatus, !!matchedTx);
   const StatusIcon = config.icon;
 
   const formattedDate = new Date(demand.created_at).toLocaleDateString('id-ID', { 
@@ -1043,14 +1053,48 @@ function DemandCard({
               {demand.commodity_name}
             </h3>
 
-            <div className="mt-1 flex items-center gap-2 text-xs text-gr-ink-soft font-sans flex-wrap">
-              <span className="font-semibold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-xs border border-gr-board/20">
-                Target: {demand.quantity_kg_needed} KG
-              </span>
-              <span className="font-bold text-gr-up bg-gr-up/10 px-2.5 py-0.5 rounded-xs border border-gr-up/20">
-                Terkomit: {currentCommitted} KG
-              </span>
-            </div>
+            {matchedTx ? (
+              <div className="mt-2 flex flex-col gap-1 text-xs border-t border-gr-line/45 pt-2 font-sans w-full">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-bold text-gr-board bg-gr-board/10 px-2 py-0.5 rounded-xs border border-gr-board/20">
+                    Harga: Rp {matchedTx.price_per_kg.toLocaleString('id-ID')}/KG
+                  </span>
+                  <span className="font-bold text-gr-up bg-gr-up/10 px-2 py-0.5 rounded-xs border border-gr-up/20">
+                    Total: Rp {matchedTx.amount.toLocaleString('id-ID')} ({matchedTx.quantity_kg} KG)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-gr-ink-soft">Status:</span>
+                  <span className={cn(
+                    "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
+                    matchedTx.payment_status === 'paid' ? "bg-gr-up/10 text-gr-up border-gr-up/20" : "bg-gr-board/10 text-gr-board border-gr-board/20"
+                  )}>
+                    {matchedTx.payment_status === 'paid' ? 'LUNAS' : 'MENUNGGU PEMBAYARAN'}
+                  </span>
+                  {matchedTx.escrow_status && matchedTx.escrow_status !== 'not_started' && (
+                    <span className={cn(
+                      "font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded-xs border",
+                      matchedTx.escrow_status === 'held' && "bg-amber-500/10 text-amber-600 border-amber-500/20",
+                      matchedTx.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border-gr-up/20",
+                      matchedTx.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border-gr-down/20"
+                    )}>
+                      {matchedTx.escrow_status === 'held' && 'DANA DITAHAN'}
+                      {matchedTx.escrow_status === 'released' && 'DANA DICAIRKAN'}
+                      {matchedTx.escrow_status === 'disputed' && 'SENGKETA'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-1 flex items-center gap-2 text-xs text-gr-ink-soft font-sans flex-wrap">
+                <span className="font-semibold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-xs border border-gr-board/20">
+                  Target: {demand.quantity_kg_needed} KG
+                </span>
+                <span className="font-bold text-gr-up bg-gr-up/10 px-2.5 py-0.5 rounded-xs border border-gr-up/20">
+                  Terkomit: {currentCommitted} KG
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
