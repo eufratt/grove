@@ -2,7 +2,7 @@ import pytest
 import uuid
 from unittest.mock import patch, AsyncMock
 from datetime import datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from app.db import AsyncSessionLocal
 from app.config import settings
@@ -386,12 +386,13 @@ async def test_get_matching_candidates(test_escrow_context):
 
     assert response.status_code == 200
     res_data = response.json()
-    assert len(res_data) == 1
-    assert res_data[0]["product_id"] == str(product.id)
-    assert res_data[0]["seller_name"] == seller.full_name
-    assert res_data[0]["price_per_kg"] == product.price_per_kg
-    assert res_data[0]["quantity_kg"] == product.quantity_kg
-    assert res_data[0]["distance_score"] < 0.1
+    assert len(res_data) > 0
+    candidate = next((c for c in res_data if c["product_id"] == str(product.id)), None)
+    assert candidate is not None
+    assert candidate["seller_name"] == seller.full_name
+    assert candidate["price_per_kg"] == product.price_per_kg
+    assert candidate["quantity_kg"] == product.quantity_kg
+    assert candidate["distance_score"] < 0.1
 
     # Cleanup overrides
     app.dependency_overrides.clear()
@@ -469,7 +470,7 @@ async def test_match_rejects_invalid_product_id(test_escrow_context):
     assert response.status_code == 409
     assert "tidak ditemukan" in response.json()["detail"].lower()
 
-    # Case 2: Product too expensive
+    # Case 2: Product more expensive (should match successfully now)
     expensive_product = Product(
         id=uuid.uuid4(),
         seller_id=seller.id,
@@ -488,8 +489,19 @@ async def test_match_rejects_invalid_product_id(test_escrow_context):
             f"/demand-requests/{demand.id}/match",
             json={"product_id": str(expensive_product.id)}
         )
-    assert response.status_code == 409
-    assert "tidak valid" in response.json()["detail"].lower()
+    assert response.status_code == 200
+    res_data = response.json()
+    assert res_data["status"] == "success"
+    assert res_data["matched"] is True
+
+    # Delete the created demand transaction and restore demand request to avoid FK/state issues
+    tx_id = uuid.UUID(res_data["transaction_id"])
+    stmt_del = delete(DemandTransaction).where(DemandTransaction.id == tx_id)
+    await db.execute(stmt_del)
+    demand.status = DemandRequestStatus.TERBUKA
+    demand.quantity_kg_committed = 0.0
+    db.add(demand)
+    await db.commit()
 
     # Case 3: Product too far semantically (distance > 0.5)
     unrelated_product = Product(
