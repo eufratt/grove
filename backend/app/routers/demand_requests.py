@@ -10,7 +10,9 @@ from app.schemas.demand_request import (
     DemandCommitmentCreate, 
     DemandRequestResponse, 
     DemandRequestDetailResponse,
-    SupplyCommitmentSummary
+    SupplyCommitmentSummary,
+    DemandMatchCandidate,
+    DemandMatchRequest
 )
 from app.services import auth_service
 from app.services.connection_manager import demand_manager
@@ -639,9 +641,80 @@ async def commit_supply_to_demand(
     }
 
 
+@router.get("/{id}/candidates", response_model=List[DemandMatchCandidate])
+async def get_demand_matching_candidates(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Get matching product candidates for a demand request.
+    """
+    # Fetch demand request
+    stmt = select(DemandRequest).where(DemandRequest.id == id)
+    res = await db.execute(stmt)
+    req = res.scalar_one_or_none()
+    if not req:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Permintaan tidak ditemukan")
+
+    if req.buyer_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya pembeli yang membuat permintaan yang dapat melihat kandidat"
+        )
+
+    if req.status != DemandRequestStatus.TERBUKA:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Permintaan sudah tidak terbuka untuk pencocokan"
+        )
+
+    if req.embedding is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Permintaan tidak memiliki embedding. Silakan buat ulang permintaan."
+        )
+
+    match_sql = text("""
+        SELECT p.id AS product_id, p.seller_id, u.full_name AS seller_name, p.name AS product_name,
+               p.price_per_kg, p.quantity_kg,
+               (p.embedding <=> :query_embedding) AS distance_score
+        FROM products p
+        JOIN users u ON p.seller_id = u.id
+        WHERE p.status = 'TERSEDIA'
+          AND p.seller_id != :buyer_id
+          AND p.embedding IS NOT NULL
+          AND (p.embedding <=> :query_embedding) < 0.5
+          AND p.price_per_kg <= :price_limit
+        ORDER BY distance_score ASC
+        LIMIT 5
+    """)
+
+    res_match = await db.execute(match_sql, {
+        "query_embedding": str(req.embedding),
+        "buyer_id": str(current_user.id),
+        "price_limit": float(req.price_per_kg)
+    })
+    candidates = res_match.fetchall()
+
+    return [
+        {
+            "product_id": row.product_id,
+            "seller_id": row.seller_id,
+            "seller_name": row.seller_name,
+            "product_name": row.product_name,
+            "price_per_kg": row.price_per_kg,
+            "quantity_kg": row.quantity_kg,
+            "distance_score": row.distance_score
+        }
+        for row in candidates
+    ]
+
+
 @router.post("/{id}/match")
 async def match_demand_request_with_seller(
     id: uuid.UUID,
+    body: DemandMatchRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
@@ -664,62 +737,65 @@ async def match_demand_request_with_seller(
     if res_tx.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Permintaan ini sudah dicocokkan dengan penjual")
 
-    # Match using pgvector cosine similarity on pre-computed embeddings.
-    # Finds top-5 semantically closest TERSEDIA products in a single DB query
-    # instead of loading all products into Python memory.
     if req.embedding is None:
         raise HTTPException(
             status_code=400,
             detail="Permintaan tidak memiliki embedding. Silakan buat ulang permintaan."
         )
 
-    match_sql = text("""
-        SELECT p.id, p.name, p.category, p.quantity_kg, p.price_per_kg,
-               p.seller_id, p.status,
-               (p.embedding <=> :query_embedding) AS distance
+    # Lock the selected product row to handle race conditions
+    stmt_p = select(Product).where(Product.id == body.product_id).with_for_update()
+    res_p = await db.execute(stmt_p)
+    product = res_p.scalar_one_or_none()
+
+    if not product:
+        raise HTTPException(
+            status_code=409,
+            detail="Produk tidak ditemukan atau tidak tersedia lagi. Silakan panggil kembali GET /candidates untuk daftar terbaru."
+        )
+
+    # Validate that product is a valid candidate (similarity check and price limit check)
+    valid_sql = text("""
+        SELECT (p.embedding <=> :query_embedding) AS distance
         FROM products p
-        WHERE p.status = 'TERSEDIA'
+        WHERE p.id = :product_id
+          AND p.status = 'TERSEDIA'
+          AND p.quantity_kg > 0
           AND p.seller_id != :buyer_id
           AND p.embedding IS NOT NULL
           AND (p.embedding <=> :query_embedding) < 0.5
-        ORDER BY distance ASC
-        LIMIT 5
+          AND p.price_per_kg <= :price_limit
     """)
-
-    res_match = await db.execute(match_sql, {
+    res_valid = await db.execute(valid_sql, {
+        "product_id": str(product.id),
         "query_embedding": str(req.embedding),
-        "buyer_id": str(current_user.id)
+        "buyer_id": str(current_user.id),
+        "price_limit": float(req.price_per_kg)
     })
-    candidates = res_match.fetchall()
-
-    if not candidates:
+    valid_row = res_valid.fetchone()
+    if not valid_row:
         raise HTTPException(
-            status_code=404,
-            detail="Tidak ada produk petani yang cocok dengan komoditas penawaran Anda saat ini."
+            status_code=409,
+            detail="Produk tidak valid untuk permintaan ini, atau telah habis terjual. Silakan panggil kembali GET /candidates untuk daftar terbaru."
         )
 
-    # Pick best candidate (lowest distance = most similar)
-    best_row = candidates[0]
-    res_p = await db.execute(select(Product).where(Product.id == best_row.id))
-    best_product = res_p.scalar_one()
-
     # Create DemandTransaction
-    quantity_kg = min(best_product.quantity_kg, req.quantity_kg_needed)
-    amount = quantity_kg * best_product.price_per_kg
+    quantity_kg = min(product.quantity_kg, req.quantity_kg_needed)
+    amount = quantity_kg * product.price_per_kg
     
     # Deduct product stock
-    best_product.quantity_kg -= quantity_kg
-    if best_product.quantity_kg <= 0:
-        best_product.quantity_kg = 0.0
-        best_product.status = ProductStatus.TERJUAL
-    db.add(best_product)
+    product.quantity_kg -= quantity_kg
+    if product.quantity_kg <= 0:
+        product.quantity_kg = 0.0
+        product.status = ProductStatus.TERJUAL
+    db.add(product)
 
     dt = DemandTransaction(
         id=uuid.uuid4(),
         demand_request_id=id,
-        seller_id=best_product.seller_id,
+        seller_id=product.seller_id,
         quantity_kg=quantity_kg,
-        price_per_kg=best_product.price_per_kg,
+        price_per_kg=product.price_per_kg,
         amount=amount,
         payment_status=PaymentStatus.PENDING,
         escrow_status=EscrowStatus.NOT_STARTED,
@@ -736,7 +812,7 @@ async def match_demand_request_with_seller(
     await db.refresh(dt)
 
     # Broadcast updated stats to active WebSocket subscribers
-    from datetime import timezone
+    from datetime import datetime, timezone
     await demand_manager.broadcast(
         str(id),
         {
@@ -745,7 +821,7 @@ async def match_demand_request_with_seller(
             "status": req.status.value,
             "payment_status": dt.payment_status.value,
             "escrow_status": dt.escrow_status.value,
-            "message": f"Permintaan dicocokkan dengan petani {best_product.seller_id.hex[:6]}.",
+            "message": f"Permintaan dicocokkan dengan petani {product.seller_id.hex[:6]}.",
             "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         }
     )
@@ -754,7 +830,7 @@ async def match_demand_request_with_seller(
         "status": "success",
         "matched": True,
         "transaction_id": str(dt.id),
-        "seller_name": best_product.name,
+        "seller_name": product.name,
         "amount": amount
     }
 

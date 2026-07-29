@@ -65,3 +65,18 @@ class DemandRegionalAnalyticsResponse(BaseModel):
     fulfillment_ratio: float
     status: str
     open_requests: List[DemandRequestResponse] = []
+
+
+class DemandMatchCandidate(BaseModel):
+    product_id: UUID
+    seller_id: UUID
+    seller_name: str
+    product_name: str
+    price_per_kg: float
+    quantity_kg: float
+    distance_score: float
+
+
+class DemandMatchRequest(BaseModel):
+    product_id: UUID
+

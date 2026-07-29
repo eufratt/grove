@@ -364,3 +364,231 @@ async def test_get_committed_demand_requests_matching(test_escrow_context):
     app.dependency_overrides.clear()
 
 
+async def test_get_matching_candidates(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+
+    # Set up embeddings to be semantically identical (distance = 0.0)
+    product.embedding = [0.1] * 768
+    demand.embedding = [0.1] * 768
+    db.add(product)
+    db.add(demand)
+    await db.commit()
+
+    from app.services import auth_service
+    from main import app
+    import httpx
+
+    # Set buyer as current user
+    app.dependency_overrides[auth_service.get_current_user] = lambda: buyer
+
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get(f"/demand-requests/{demand.id}/candidates")
+
+    assert response.status_code == 200
+    res_data = response.json()
+    assert len(res_data) == 1
+    assert res_data[0]["product_id"] == str(product.id)
+    assert res_data[0]["seller_name"] == seller.full_name
+    assert res_data[0]["price_per_kg"] == product.price_per_kg
+    assert res_data[0]["quantity_kg"] == product.quantity_kg
+    assert res_data[0]["distance_score"] < 0.1
+
+    # Cleanup overrides
+    app.dependency_overrides.clear()
+
+
+async def test_match_with_selected_product(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+
+    # Set up embeddings
+    product.embedding = [0.1] * 768
+    demand.embedding = [0.1] * 768
+    db.add(product)
+    db.add(demand)
+    await db.commit()
+
+    from app.services import auth_service
+    from main import app
+    import httpx
+
+    app.dependency_overrides[auth_service.get_current_user] = lambda: buyer
+
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            f"/demand-requests/{demand.id}/match",
+            json={"product_id": str(product.id)}
+        )
+
+    assert response.status_code == 200
+    res_data = response.json()
+    assert res_data["status"] == "success"
+    assert res_data["matched"] is True
+    assert res_data["seller_name"] == product.name
+
+    # Check that transaction was created
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == demand.id)
+    res_tx = await db.execute(stmt)
+    dt = res_tx.scalar_one_or_none()
+    assert dt is not None
+    assert dt.seller_id == seller.id
+    assert dt.quantity_kg == min(product.quantity_kg, demand.quantity_kg_needed)
+
+    # Check demand request status and progress
+    await db.refresh(demand)
+    assert demand.status == DemandRequestStatus.TERPENUHI
+    assert demand.quantity_kg_committed == dt.quantity_kg
+
+    # Clean up transaction to avoid FK issues during fixture teardown
+    await db.delete(dt)
+    await db.commit()
+
+    app.dependency_overrides.clear()
+
+
+async def test_match_rejects_invalid_product_id(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+
+    product.embedding = [0.1] * 768
+    demand.embedding = [0.1] * 768
+    db.add(product)
+    db.add(demand)
+    await db.commit()
+
+    from app.services import auth_service
+    from main import app
+    import httpx
+
+    app.dependency_overrides[auth_service.get_current_user] = lambda: buyer
+
+    # Case 1: Random product ID that does not exist
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            f"/demand-requests/{demand.id}/match",
+            json={"product_id": str(uuid.uuid4())}
+        )
+    assert response.status_code == 409
+    assert "tidak ditemukan" in response.json()["detail"].lower()
+
+    # Case 2: Product too expensive
+    expensive_product = Product(
+        id=uuid.uuid4(),
+        seller_id=seller.id,
+        name="Cabe Rawit Mahal",
+        category="Sayuran",
+        quantity_kg=50.0,
+        price_per_kg=80000.0,  # demand is 40000.0
+        status=ProductStatus.TERSEDIA,
+        embedding=[0.1] * 768
+    )
+    db.add(expensive_product)
+    await db.commit()
+
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            f"/demand-requests/{demand.id}/match",
+            json={"product_id": str(expensive_product.id)}
+        )
+    assert response.status_code == 409
+    assert "tidak valid" in response.json()["detail"].lower()
+
+    # Case 3: Product too far semantically (distance > 0.5)
+    unrelated_product = Product(
+        id=uuid.uuid4(),
+        seller_id=seller.id,
+        name="Apel Malang",
+        category="Buah",
+        quantity_kg=50.0,
+        price_per_kg=30000.0,
+        status=ProductStatus.TERSEDIA,
+        embedding=[-0.1] * 768  # Distance will be 2.0
+    )
+    db.add(unrelated_product)
+    await db.commit()
+
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            f"/demand-requests/{demand.id}/match",
+            json={"product_id": str(unrelated_product.id)}
+        )
+    assert response.status_code == 409
+    assert "tidak valid" in response.json()["detail"].lower()
+
+    # Teardown custom products
+    await db.delete(expensive_product)
+    await db.delete(unrelated_product)
+    await db.commit()
+
+    app.dependency_overrides.clear()
+
+
+async def test_match_race_condition(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+
+    # Update both demands to require 50.0 kg (matching the product's total stock of 50.0 kg)
+    product.embedding = [0.1] * 768
+    demand.embedding = [0.1] * 768
+    demand.quantity_kg_needed = 50.0
+    db.add(product)
+    db.add(demand)
+
+    # Create a second demand request for the same buyer
+    demand_b = DemandRequest(
+        id=uuid.uuid4(),
+        buyer_id=buyer.id,
+        commodity_name="Cabe Rawit Hijau",
+        category="Sayuran",
+        quantity_kg_needed=50.0,
+        price_per_kg=40000.0,
+        deadline=datetime.now(timezone.utc).replace(tzinfo=None),
+        status=DemandRequestStatus.TERBUKA,
+        embedding=[0.1] * 768
+    )
+    db.add(demand_b)
+    await db.commit()
+
+    from app.services import auth_service
+    from main import app
+    import httpx
+    import asyncio
+
+    app.dependency_overrides[auth_service.get_current_user] = lambda: buyer
+
+    # We send both match requests concurrently
+    async def make_request(demand_id):
+        async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+            return await ac.post(
+                f"/demand-requests/{demand_id}/match",
+                json={"product_id": str(product.id)}
+            )
+
+    results = []
+    try:
+        # Run concurrently
+        results = await asyncio.gather(
+            make_request(demand.id),
+            make_request(demand_b.id),
+            return_exceptions=True
+        )
+
+        # One request must succeed (200), and the other must fail with 409 Conflict
+        status_codes = [r.status_code for r in results if not isinstance(r, Exception)]
+        assert 200 in status_codes
+        assert 409 in status_codes
+    finally:
+        # Clean up transactions created during the test
+        for r in results:
+            if not isinstance(r, Exception) and r.status_code == 200:
+                res_data = r.json()
+                tx_id = uuid.UUID(res_data["transaction_id"])
+                stmt_del = select(DemandTransaction).where(DemandTransaction.id == tx_id)
+                res_tx = await db.execute(stmt_del)
+                tx_obj = res_tx.scalar_one_or_none()
+                if tx_obj:
+                    await db.delete(tx_obj)
+
+        await db.delete(demand_b)
+        await db.commit()
+        app.dependency_overrides.clear()
+
+
+
