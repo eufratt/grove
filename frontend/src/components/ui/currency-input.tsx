@@ -92,6 +92,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     return (
       <input
+        autoComplete="off"
         {...props}
         ref={inputRef}
         type="text"

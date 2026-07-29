@@ -322,7 +322,7 @@ export default function JualPage() {
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+        <form onSubmit={handleSubmit} autoComplete="off" className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Polaroid Photo Preview Section */}
           <div className="flex flex-col items-center justify-start space-y-6">
             <div 
@@ -445,6 +445,7 @@ export default function JualPage() {
                     type="number"
                     step="0.1"
                     required
+                    autoComplete="off"
                     placeholder="0.0"
                     className="mt-2 block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 px-3 py-2 text-sm text-gr-ink font-mono focus:outline-none focus:border-gr-board/50 rounded-sm transition-all"
                     value={formData.quantity_kg}

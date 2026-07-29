@@ -245,7 +245,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+        <form onSubmit={handleSubmit} autoComplete="off" className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Polaroid Image View Section (ReadOnly) */}
           <div className="flex flex-col items-center justify-start space-y-6">
             <div className="bg-[#FAF9F5] p-4 pb-14 shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
@@ -342,6 +342,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
                     type="number"
                     step="0.1"
                     required
+                    autoComplete="off"
                     placeholder="0.0"
                     className="mt-2 block w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 px-3 py-2 text-sm text-gr-ink font-mono focus:outline-none focus:border-gr-board/50 rounded-sm transition-all"
                     value={formData.quantity_kg}
