@@ -12,7 +12,7 @@ import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
@@ -1170,6 +1170,11 @@ function FarmerProductCard({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/produk/${product.id}/edit`);
+  };
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsConfirmOpen(true);
@@ -1251,25 +1256,34 @@ function FarmerProductCard({
             </div>
           </div>
 
-          {/* Footer: Date & Tarik Action */}
+          {/* Footer: Date & Actions */}
           <div className="mt-4 pt-3 border-t border-gr-line/45 flex flex-col gap-2">
             <div className="flex justify-between items-center text-[9px] text-gr-ink-soft/50 font-sans italic">
               <span>Listing:</span>
               <span>{formattedDate}</span>
             </div>
 
-            <button
-              onClick={handleDeleteClick}
-              disabled={isDeleting}
-              className="w-full flex items-center justify-center gap-1.5 py-2 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
-            >
-              {isDeleting ? (
-                <Loader2 size={10} className="animate-spin" />
-              ) : (
-                <Trash2 size={10} />
-              )}
-              Tarik Produk
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleEditClick}
+                className="flex-1 flex items-center justify-center gap-1 py-2 bg-white/20 border border-gr-line hover:border-gr-green text-gr-ink-soft hover:text-gr-bg hover:bg-gr-green font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer shadow-xs"
+              >
+                <Edit size={10} />
+                Edit
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                disabled={isDeleting}
+                className="flex-1 flex items-center justify-center gap-1 py-2 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
+              >
+                {isDeleting ? (
+                  <Loader2 size={10} className="animate-spin" />
+                ) : (
+                  <Trash2 size={10} />
+                )}
+                Hapus
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -1278,11 +1292,11 @@ function FarmerProductCard({
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Tarik Produk dari Pasar"
+        title="Hapus Produk"
         description={
           <div className="space-y-3 font-sans">
             <p className="text-gr-ink-soft leading-relaxed">
-              Komoditas yang ditarik tidak akan terlihat oleh pembeli dan penawaran aktif di pasar akan dihapus secara permanen.
+              Apakah Anda yakin ingin menghapus produk ini? Produk tidak akan terlihat oleh pembeli dan penawaran di pasar akan ditutup.
             </p>
             <div className="border border-dashed border-gr-ink/20 bg-white/35 p-3 rounded-none flex items-center justify-between font-mono text-[9px] text-gr-ink-soft">
               <div>
@@ -1296,7 +1310,7 @@ function FarmerProductCard({
             </div>
           </div>
         }
-        confirmText="Ya, Tarik"
+        confirmText="Ya, Hapus"
         cancelText="Batal"
         variant="danger"
         isLoading={isDeleting}
