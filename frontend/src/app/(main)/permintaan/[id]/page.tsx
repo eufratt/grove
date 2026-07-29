@@ -44,6 +44,9 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [request, setRequest] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const isRequestBuyer = user && user.role === 'PEMBELI' && request && request.buyer_id === user.id;
+  const isMatchedSeller = user && user.role === 'PETANI' && request && request.match_transaction && request.match_transaction.seller_id === user.id;
   
   // Commitment Form State (for Farmers)
   const [commitQty, setCommitQty] = useState('');
@@ -157,15 +160,30 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.quantity_kg_committed !== undefined) {
+        if (
+          data.quantity_kg_committed !== undefined ||
+          data.payment_status !== undefined ||
+          data.escrow_status !== undefined
+        ) {
           setRequest((prev: any) => {
             if (!prev) return null;
-            return {
+            const updated = {
               ...prev,
-              quantity_kg_committed: data.quantity_kg_committed,
-              status: data.status,
-              num_petani_committed: data.num_petani_committed !== undefined ? data.num_petani_committed : prev.num_petani_committed
+              status: data.status !== undefined ? data.status : prev.status,
             };
+            if (data.quantity_kg_committed !== undefined) {
+              updated.quantity_kg_committed = data.quantity_kg_committed;
+            }
+            if (data.num_petani_committed !== undefined) {
+              updated.num_petani_committed = data.num_petani_committed !== undefined ? data.num_petani_committed : prev.num_petani_committed;
+            }
+            // Trigger background reload if payment or escrow status changed to fetch matching details
+            if (data.payment_status !== undefined || data.escrow_status !== undefined) {
+              demandRequestsApi.getDemandRequestById(id)
+                .then((freshData) => setRequest(freshData))
+                .catch((err) => console.error("Failed to reload demand details on WS update:", err));
+            }
+            return updated;
           });
         }
       } catch (err) {
@@ -560,43 +578,70 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
                     <div className="pt-2 space-y-3">
                       {request.match_transaction.payment_status !== 'paid' && (
-                        <Button
-                          disabled={checkingOut}
-                          onClick={handleCheckout}
-                          className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-2"
-                        >
-                          {checkingOut ? (
-                            <>
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                              Memproses...
-                            </>
-                          ) : (
-                            'Bayar Sekarang (Xendit)'
-                          )}
-                        </Button>
+                        isRequestBuyer ? (
+                          <Button
+                            disabled={checkingOut}
+                            onClick={handleCheckout}
+                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-2"
+                          >
+                            {checkingOut ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                Memproses...
+                              </>
+                            ) : (
+                              'Bayar Sekarang (Xendit)'
+                            )}
+                          </Button>
+                        ) : (
+                          <div className="text-center py-3 bg-gr-paper border border-gr-line rounded-sm text-xs font-mono font-bold text-gr-board uppercase tracking-wider animate-pulse">
+                            Menunggu Pembayaran dari Pembeli
+                          </div>
+                        )
                       )}
 
                       {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'held' && (
-                        <div className="space-y-2">
-                          <Button
-                            disabled={confirmingReceived}
-                            onClick={handleConfirmReceived}
-                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md"
-                          >
-                            {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
-                          </Button>
-                          <Button
-                            disabled={disputing}
-                            variant="ghost"
-                            onClick={handleDispute}
-                            className="w-full border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all cursor-pointer"
-                          >
-                            {disputing ? 'Memproses...' : 'Laporkan Masalah (Dispute)'}
-                          </Button>
+                        isRequestBuyer ? (
+                          <div className="space-y-2">
+                            <Button
+                              disabled={confirmingReceived}
+                              onClick={handleConfirmReceived}
+                              className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md"
+                            >
+                              {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                            </Button>
+                            <Button
+                              disabled={disputing}
+                              variant="ghost"
+                              onClick={handleDispute}
+                              className="w-full border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all cursor-pointer"
+                            >
+                              {disputing ? 'Memproses...' : 'Laporkan Masalah (Dispute)'}
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
+                            <span className="font-bold uppercase tracking-wider font-mono block mb-1">Dana Ditahan (Escrow)</span>
+                            Pembayaran telah diverifikasi. Silakan kirim komoditas Anda ke Pembeli.
+                          </div>
+                        )
+                      )}
+
+                      {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'released' && (
+                        <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
+                          <span className="font-bold uppercase tracking-wider font-mono block mb-1">Transaksi Selesai</span>
+                          {isMatchedSeller ? 'Dana telah dicairkan ke rekening bank Anda.' : 'Dana telah dicairkan ke rekening bank Petani.'}
                         </div>
                       )}
 
-                      {request.match_transaction.seller_phone && (
+                      {request.match_transaction.escrow_status === 'disputed' && (
+                        <div className="text-center py-3 px-4 bg-gr-down/10 border border-gr-down/20 rounded-sm text-xs font-sans text-gr-down font-semibold leading-relaxed">
+                          <span className="font-bold uppercase tracking-wider font-mono block mb-1">Status Sengketa (Dispute)</span>
+                          Transaksi ditangguhkan. Layanan Pelanggan kami akan menghubungi kedua belah pihak.
+                        </div>
+                      )}
+
+                      {isRequestBuyer && request.match_transaction.seller_phone && (
                         <a
                           href={getWhatsAppUrl(
                             request.match_transaction.seller_phone,
