@@ -61,7 +61,6 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [currentPage, setCurrentPage] = useState(1);
   const [checkingOut, setCheckingOut] = useState(false);
   const [confirmingReceived, setConfirmingReceived] = useState(false);
-  const [disputing, setDisputing] = useState(false);
   const [confirmMatchOpen, setConfirmMatchOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
 
@@ -316,21 +315,6 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       setError(err.message || 'Gagal mengonfirmasi penerimaan barang');
     } finally {
       setConfirmingReceived(false);
-    }
-  };
-
-  const handleDispute = async () => {
-    try {
-      setDisputing(true);
-      setError('');
-      await demandRequestsApi.disputeDemand(id);
-      const updatedData = await demandRequestsApi.getDemandRequestById(id);
-      setRequest(updatedData);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Gagal melaporkan sengketa');
-    } finally {
-      setDisputing(false);
     }
   };
 
@@ -639,23 +623,13 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
                       {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'held' && (
                         isRequestBuyer ? (
-                          <div className="space-y-2">
-                            <Button
-                              disabled={confirmingReceived}
-                              onClick={handleConfirmReceived}
-                              className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md"
-                            >
-                              {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
-                            </Button>
-                            <Button
-                              disabled={disputing}
-                              variant="ghost"
-                              onClick={handleDispute}
-                              className="w-full border border-gr-down/30 text-gr-down hover:bg-gr-down/10 font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all cursor-pointer"
-                            >
-                              {disputing ? 'Memproses...' : 'Laporkan Masalah (Dispute)'}
-                            </Button>
-                          </div>
+                          <Button
+                            disabled={confirmingReceived}
+                            onClick={handleConfirmReceived}
+                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md"
+                          >
+                            {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                          </Button>
                         ) : (
                           <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
                             <span className="font-bold uppercase tracking-wider font-mono block mb-1">Dana Ditahan (Escrow)</span>
