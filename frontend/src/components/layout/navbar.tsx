@@ -14,8 +14,9 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const isLanding = pathname === '/';
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<any | null>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [showBanner, setShowBanner] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -32,9 +33,11 @@ export function Navbar() {
         } else {
           setShowBanner(false);
         }
-      } catch (err) {
+      } catch {
         setUser(null);
         setShowBanner(false);
+      } finally {
+        setIsLoading(false);
       }
     };
     checkAuth();
@@ -45,8 +48,8 @@ export function Navbar() {
       await authApi.logout();
       setUser(null);
       router.push('/login');
-    } catch (err) {
-      console.error('Logout failed:', err);
+    } catch {
+      console.error('Logout failed');
     }
   };
 
@@ -132,8 +135,10 @@ export function Navbar() {
           <div className="h-4 w-px bg-gr-line hidden md:block" />
 
           {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {user ? (
+          <div className="flex items-center gap-2 flex-shrink-0 min-h-[30px]">
+            {isLoading ? (
+              <div className="h-7 w-16 bg-gr-ink/10 animate-pulse rounded-sm" />
+            ) : user ? (
               <div className="flex items-center gap-2">
                 <Link
                   href={user.role === 'PETANI' ? `/petani/${user.id}` : '/settings'}
@@ -214,8 +219,10 @@ export function Navbar() {
             </AnimatePresence>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {user ? (
+            <div className="flex items-center gap-3 flex-shrink-0 min-h-[34px]">
+              {isLoading ? (
+                <div className="h-8 w-16 bg-gr-ink/10 animate-pulse rounded-sm" />
+              ) : user ? (
                 <div className="flex items-center gap-3">
                   {user.role === 'PETANI' && (
                     <span className="hidden xl:inline font-mono text-[9px] font-bold uppercase tracking-widest text-gr-board border border-gr-board/30 px-2 py-1">
