@@ -682,18 +682,17 @@ async def get_demand_matching_candidates(
         FROM products p
         JOIN users u ON p.seller_id = u.id
         WHERE p.status = 'TERSEDIA'
+          AND p.quantity_kg > 0
           AND p.seller_id != :buyer_id
           AND p.embedding IS NOT NULL
           AND (p.embedding <=> :query_embedding) < 0.5
-          AND p.price_per_kg <= :price_limit
         ORDER BY distance_score ASC
         LIMIT 5
     """)
 
     res_match = await db.execute(match_sql, {
         "query_embedding": str(req.embedding),
-        "buyer_id": str(current_user.id),
-        "price_limit": float(req.price_per_kg)
+        "buyer_id": str(current_user.id)
     })
     candidates = res_match.fetchall()
 
@@ -754,7 +753,7 @@ async def match_demand_request_with_seller(
             detail="Produk tidak ditemukan atau tidak tersedia lagi. Silakan panggil kembali GET /candidates untuk daftar terbaru."
         )
 
-    # Validate that product is a valid candidate (similarity check and price limit check)
+    # Validate that product is a valid candidate (similarity check)
     valid_sql = text("""
         SELECT (p.embedding <=> :query_embedding) AS distance
         FROM products p
@@ -764,13 +763,11 @@ async def match_demand_request_with_seller(
           AND p.seller_id != :buyer_id
           AND p.embedding IS NOT NULL
           AND (p.embedding <=> :query_embedding) < 0.5
-          AND p.price_per_kg <= :price_limit
     """)
     res_valid = await db.execute(valid_sql, {
         "product_id": str(product.id),
         "query_embedding": str(req.embedding),
-        "buyer_id": str(current_user.id),
-        "price_limit": float(req.price_per_kg)
+        "buyer_id": str(current_user.id)
     })
     valid_row = res_valid.fetchone()
     if not valid_row:
