@@ -1,6 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { authApi } from '@/lib/api/auth';
+import { LogOut } from 'lucide-react';
 
 interface TickerProps {
   pricesData?: {
@@ -96,19 +100,76 @@ export function KickerBar() {
 import { GroveLogo } from '@/components/ui/grove-logo';
 
 export function MastheadNav() {
+  const [user, setUser] = useState<any | null>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userData = await authApi.getMe();
+        setUser(userData);
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      setUser(null);
+      router.refresh();
+    } catch {
+      console.error('Logout failed');
+    }
+  };
+
+  const getFirstName = (name?: string | null) => {
+    if (!name) return '';
+    const firstWord = name.trim().split(/\s+/)[0];
+    if (firstWord.includes('@')) {
+      return firstWord.split('@')[0];
+    }
+    return firstWord;
+  };
+
   return (
     <header className="w-full max-w-[1100px] mx-auto px-8 pt-5 pb-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
       {/* Logo Wordmark */}
       <GroveLogo href="/" size="md" />
 
       {/* Action / Login button */}
-      <div className="flex items-center gap-3">
-        <a 
-          href="/login"
-          className="font-mono text-xs uppercase tracking-wider border-1.5 border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
-        >
-          Masuk
-        </a>
+      <div className="flex items-center gap-3 min-h-[42px]">
+        {isLoading ? (
+          <div className="h-9 w-20 bg-gr-ink/10 animate-pulse rounded-sm" />
+        ) : user ? (
+          <div className="flex items-center gap-3.5">
+            <Link
+              href={user.role === 'PETANI' ? `/petani/${user.id}` : '/settings'}
+              className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft hover:text-gr-board hover:underline cursor-pointer"
+            >
+              {getFirstName(user.full_name || user.email) || 'Pengguna'}
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center h-8 w-8 border border-gr-line hover:border-gr-down/40 text-gr-ink-soft hover:text-gr-down transition-all duration-200 cursor-pointer"
+              title="Keluar"
+            >
+              <LogOut size={14} />
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="font-mono text-xs uppercase tracking-wider border-1.5 border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
+          >
+            Masuk
+          </Link>
+        )}
       </div>
     </header>
   );
