@@ -44,14 +44,16 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 p-5 rounded-2xl border border-gr-line bg-gr-bg-elevated space-y-4">
-      <div>
+    <form 
+      onSubmit={handleSubmit} 
+      className="mt-4 p-4 rounded-xl border border-gr-line bg-gr-bg-elevated flex flex-col sm:flex-row sm:items-end gap-4"
+    >
+      {/* Star Rating Select */}
+      <div className="flex-none">
         <p className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/60 mb-2">
           {label || 'Berikan Rating Anda'}
         </p>
-        
-        {/* Star Rating Select */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -62,7 +64,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
               className="p-1 focus:outline-none transition-transform hover:scale-110 cursor-pointer"
             >
               <Star
-                size={24}
+                size={22}
                 className={
                   (hoverScore || score) >= star
                     ? 'fill-gr-green text-gr-green drop-shadow-[0_0_8px_rgba(92,255,158,0.3)]'
@@ -74,34 +76,42 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
         </div>
       </div>
 
-      <div>
+      {/* Comment Field */}
+      <div className="flex-1 min-w-0">
         <label className="block font-sans text-xs text-gr-text-primary/50 mb-1">
           Komentar (Opsional)
         </label>
         <textarea
           value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Bagaimana kualitas produk dan koordinasi transaksinya?"
-          rows={3}
-          className="w-full rounded-xl border border-gr-line bg-gr-bg-elevated p-3 text-sm font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none"
+          onChange={(e) => {
+            setComment(e.target.value);
+            e.target.style.height = '36px';
+            e.target.style.height = `${e.target.scrollHeight}px`;
+          }}
+          placeholder="Tulis ulasan Anda di sini..."
+          rows={1}
+          style={{ height: '36px', minHeight: '36px' }}
+          className="w-full rounded-lg border border-gr-line bg-gr-bg-elevated px-3 py-2 text-xs font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none overflow-hidden"
         />
       </div>
 
-      {error && (
-        <p className="text-xs text-gr-price-unfair">{error}</p>
-      )}
-
-      <Button
-        type="submit"
-        disabled={isSubmitting || score === 0}
-        className="w-full bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300 shadow-md shadow-gr-green/10"
-      >
-        {isSubmitting ? (
-          <Loader2 size={16} className="animate-spin mx-auto text-gr-bg" />
-        ) : (
-          'Kirim Rating'
+      {/* Submit Button */}
+      <div className="flex-none flex flex-col justify-end">
+        {error && (
+          <p className="text-[10px] text-gr-price-unfair mb-1">{error}</p>
         )}
-      </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting || score === 0}
+          className="w-full sm:w-auto bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest px-4 h-[36px] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300 shadow-md shadow-gr-green/10 flex items-center justify-center"
+        >
+          {isSubmitting ? (
+            <Loader2 size={14} className="animate-spin text-gr-bg" />
+          ) : (
+            'Kirim'
+          )}
+        </Button>
+      </div>
     </form>
   );
 }
