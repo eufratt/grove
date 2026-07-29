@@ -108,6 +108,13 @@ export const authApi = {
     return response.json();
   },
 
+  getSupabaseToken: async () => {
+    const response = await apiClient('/auth/supabase-token', {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
   logout: async () => {
     const response = await apiClient('/auth/logout', {
       method: 'POST',
