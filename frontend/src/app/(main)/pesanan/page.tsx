@@ -511,19 +511,6 @@ function OrderCard({
     }
   };
 
-  const handleEscrowDispute = async () => {
-    try {
-      setIsUpdating(true);
-      await ordersApi.disputeOrder(order.id);
-      onUpdate();
-    } catch (err: any) {
-      console.error(err);
-      alert(`Gagal melaporkan sengketa: ${err.message || err}`);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
   const getStatusConfig = (status: string) => {
     switch (status.toUpperCase()) {
       case 'DIPESAN': 
@@ -852,23 +839,13 @@ function OrderCard({
                 )}
 
                 {currentPaymentStatus === 'paid' && currentEscrowStatus === 'held' && !buyerConfirmedAt && (
-                  <div className="flex flex-wrap gap-3">
-                    <Button
-                      disabled={isConfirming}
-                      onClick={handleEscrowConfirmReceived}
-                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer shadow-sm transition-all"
-                    >
-                      {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
-                    </Button>
-                    <Button
-                      disabled={isUpdating}
-                      variant="ghost"
-                      onClick={handleEscrowDispute}
-                      className="border border-gr-down/30 text-gr-down hover:bg-gr-down/10 bg-white font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer transition-all"
-                    >
-                      {isUpdating ? 'Memproses...' : 'Laporkan Sengketa'}
-                    </Button>
-                  </div>
+                  <Button
+                    disabled={isConfirming}
+                    onClick={handleEscrowConfirmReceived}
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer shadow-sm transition-all"
+                  >
+                    {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                  </Button>
                 )}
 
                 {currentPaymentStatus !== 'paid' && (currentStatus === 'SIAP_DIAMBIL' || currentStatus === 'DIKIRIM') && !buyerConfirmedAt && (
