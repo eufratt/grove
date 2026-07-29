@@ -28,6 +28,8 @@ app.add_middleware(
 
 @app.middleware("http")
 async def add_security_headers(request, call_next):
+    if request.scope.get("type") != "http":
+        return await call_next(request)
     response = await call_next(request)
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
