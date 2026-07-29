@@ -117,6 +117,18 @@ async def login_google(response: Response, login_data: GoogleLoginRequest, db: A
 async def get_me(current_user: User = Depends(auth_service.get_current_user)):
     return current_user
 
+@router.get("/supabase-token")
+async def get_supabase_token(current_user: User = Depends(auth_service.get_current_user)):
+    payload = {
+        "sub": str(current_user.id),
+        "role": "authenticated",
+        "aud": "authenticated",
+        "iss": "supabase"
+    }
+    token = auth_service.create_access_token(data=payload)
+    return {"token": token}
+
+
 @router.post("/complete-profile", response_model=UserResponse)
 async def complete_profile(
     profile_data: CompleteProfileRequest,
