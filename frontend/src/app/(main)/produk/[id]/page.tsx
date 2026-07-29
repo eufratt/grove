@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { productsApi } from '@/lib/api/products';
 import { ordersApi } from '@/lib/api/orders';
 import { authApi } from '@/lib/api/auth';
+import { conversationsApi } from '@/lib/api/conversations';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
@@ -101,17 +102,41 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     }
   };
 
-  const handleContactFarmer = () => {
-    if (!product || !product.seller_phone) {
-      setError('Nomor WhatsApp petani tidak tersedia.');
+  // Feature flag to choose between old WhatsApp chat and new in-app chat
+  const USE_IN_APP_CHAT = true;
+
+  const handleContactFarmer = async () => {
+    if (!currentUser) {
+      router.push('/login');
       return;
     }
-    const msg = `Halo ${product.seller_name || 'Petani Grove'}, saya ingin bertanya tentang produk "${product.name}" yang dijual di Grove. Apakah stoknya masih tersedia?`;
-    let cleaned = product.seller_phone.replace(/[^0-9]/g, '');
-    if (cleaned.startsWith('0')) {
-      cleaned = '62' + cleaned.slice(1);
+
+    if (!product) return;
+
+    if (USE_IN_APP_CHAT) {
+      try {
+        const res = await conversationsApi.createConversation(product.id);
+        if (res && res.conversation_id) {
+          router.push(`/chat/${res.conversation_id}`);
+        } else {
+          throw new Error('Gagal memulai percakapan');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Gagal memulai chat dengan penjual');
+      }
+    } else {
+      // Legacy WhatsApp chat flow
+      if (!product.seller_phone) {
+        setError('Nomor WhatsApp petani tidak tersedia.');
+        return;
+      }
+      const msg = `Halo ${product.seller_name || 'Petani Grove'}, saya ingin bertanya tentang produk "${product.name}" yang dijual di Grove. Apakah stoknya masih tersedia?`;
+      let cleaned = product.seller_phone.replace(/[^0-9]/g, '');
+      if (cleaned.startsWith('0')) {
+        cleaned = '62' + cleaned.slice(1);
+      }
+      window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`, '_blank');
     }
-    window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const handleBuyNow = async () => {
@@ -224,6 +249,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                   alt={product.name} 
                   width={320}
                   height={320}
+                  priority
                   className="h-full w-full object-cover grayscale-[0.1] contrast-[1.05]"
                 />
               </div>
@@ -460,7 +486,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                     className="flex-1 border-gr-line hover:bg-gr-chalk/60 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary"
                   >
                     <MessageCircle className="mr-2 h-4 w-4" />
-                    Hubungi Petani
+                    Chat Penjual
                   </Button>
                 </div>
               </div>

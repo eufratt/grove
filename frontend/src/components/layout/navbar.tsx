@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, LogIn, Leaf, Compass, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart } from 'lucide-react';
+import { LogOut, LogIn, Leaf, Compass, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { GroveLogo } from '@/components/ui/grove-logo';
+import { supabase, setSupabaseCustomToken } from '@/lib/supabase';
+import { conversationsApi } from '@/lib/api/conversations';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -17,6 +19,69 @@ export function Navbar() {
   const [user, setUser] = useState<any | null>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [showBanner, setShowBanner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const data = await conversationsApi.getConversations();
+      const total = data.reduce((sum: number, c: any) => sum + c.unread_count, 0);
+      setUnreadCount(total);
+    } catch (err) {
+      console.error('Failed to fetch unread count:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    let channel: any;
+    const initRealtime = async () => {
+      try {
+        const { token } = await authApi.getSupabaseToken();
+        if (!token) return;
+        setSupabaseCustomToken(token);
+
+        // Fetch initial unread count
+        await fetchUnreadCount();
+
+        // Subscribe to messages table realtime inserts and updates
+        const channelName = `navbar_messages_${user.id}_${Math.random().toString(36).substring(2, 9)}`;
+        channel = supabase
+          .channel(channelName)
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'messages' },
+            (payload) => {
+              const newMsg = payload.new;
+              if (newMsg.sender_id !== user.id) {
+                setUnreadCount((prev) => prev + 1);
+              }
+            }
+          )
+          .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'messages' },
+            () => {
+              fetchUnreadCount();
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.error('Realtime subscription initialization failed:', err);
+      }
+    };
+
+    initRealtime();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [user, pathname, fetchUnreadCount]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -69,6 +134,7 @@ export function Navbar() {
     ...(user && user.role === 'PETANI' ? [{ name: 'Jual', href: '/jual', icon: PlusCircle }] : []),
     ...(user && user.role === 'PEMBELI' ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
     ...(user ? [{ name: 'Pesanan', href: '/pesanan', icon: ClipboardList }] : []),
+    ...(user ? [{ name: 'Chat', href: '/chat', icon: MessageCircle }] : []),
   ];
 
   return (
@@ -124,8 +190,15 @@ export function Navbar() {
                       : 'text-gr-ink-soft hover:text-gr-ink hover:bg-gr-ink/5'
                   )}
                 >
-                  <Icon size={11} />
-                  <span>{item.name}</span>
+                  <span className="relative flex items-center gap-1.5">
+                    <Icon size={11} />
+                    <span>{item.name}</span>
+                    {item.name === 'Chat' && unreadCount > 0 && (
+                      <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text-[8px] font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </span>
                 </Link>
               );
             })}
@@ -209,8 +282,15 @@ export function Navbar() {
                             : 'text-gr-ink-soft border-transparent hover:text-gr-ink hover:border-gr-line'
                         )}
                       >
-                        <Icon size={11} />
-                        <span>{item.name}</span>
+                        <span className="relative flex items-center gap-2">
+                          <Icon size={11} />
+                          <span>{item.name}</span>
+                          {item.name === 'Chat' && unreadCount > 0 && (
+                            <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text-[8px] font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </span>
                       </Link>
                     );
                   })}
