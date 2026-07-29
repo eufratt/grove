@@ -96,7 +96,6 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         ref={inputRef}
         type="text"
         inputMode="numeric"
-        pattern="[0-9]*"
         className={className}
         value={displayValue}
         onChange={handleChange}
