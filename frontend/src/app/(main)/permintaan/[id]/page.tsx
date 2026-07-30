@@ -436,9 +436,10 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           {/* Main Info Columns (2/3 width) */}
           <div className="lg:col-span-2 space-y-6">
             <header className="mb-6">
-              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-gr-board inline-block mb-2">
-                {request.category}
-              </span>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FAF9F5] border border-gr-board/20 text-gr-board font-mono text-[9px] uppercase font-bold tracking-widest rounded-xs mb-3 select-none">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gr-board animate-pulse" />
+                {request.category || 'Hasil Bumi'}
+              </div>
               <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
                 {request.commodity_name}
               </h1>
@@ -446,51 +447,99 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 Request ID: {request.id.slice(0, 8)}
               </p>
             </header>
-
+ 
             {/* Consolidated Request Detail Container */}
             <div className="rounded-sm border border-gr-line bg-white/80 backdrop-blur-md  overflow-hidden">
-              {/* Progress Bar Section */}
-              <div className="p-6 sm:p-8 border-b border-gr-line space-y-4">
-                <div className="flex justify-between items-baseline mb-2">
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">Fulfillment Progress</span>
-                  <div className="flex items-baseline font-display text-3xl font-bold text-gr-board">
-                    <span>{progressPercent}</span>
-                    <span className="font-mono text-[10px] uppercase tracking-widest font-bold ml-0.5">%</span>
-                  </div>
-                </div>
+              {/* Progress Bar Section (Redesigned as a Rich Stat Dashboard Block) */}
+              <div className="p-6 sm:p-8 border-b border-gr-line bg-gradient-to-r from-gr-paper/10 to-[#FAF9F5]/45 flex flex-col md:flex-row items-center justify-between gap-6">
                 
-                {/* Actual Progress Bar */}
-                <div className="w-full bg-gr-line/20 h-2.5 rounded-sm overflow-hidden border border-gr-line">
-                  <div 
-                    className="bg-gr-board h-full rounded-xs transition-all duration-500 ease-out"
-                    style={{ width: `${progressPercent}%` }}
-                  />
+                {/* Left side: Radial Gauge & Progress text */}
+                <div className="flex items-center gap-4 shrink-0 w-full md:w-auto">
+                  <div className="relative flex items-center justify-center shrink-0">
+                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r={32}
+                        className="stroke-gr-line/25 fill-none"
+                        strokeWidth={6}
+                      />
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r={32}
+                        className="stroke-gr-board fill-none transition-all duration-1000 ease-out"
+                        strokeWidth={6}
+                        strokeDasharray={2 * Math.PI * 32}
+                        strokeDashoffset={2 * Math.PI * 32 - (Math.min(100, progressPercent) / 100) * (2 * Math.PI * 32)}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute flex flex-col items-center justify-center">
+                      <span className="font-display text-xl font-bold text-gr-board leading-none">{progressPercent}%</span>
+                      <span className="font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft font-bold mt-0.5">Kuota</span>
+                    </div>
+                  </div>
+ 
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-0.5">Status Pemenuhan</span>
+                    <div className="flex items-baseline font-display text-2xl font-bold text-gr-ink">
+                      <span>{Math.round(committed).toLocaleString('id-ID')}</span>
+                      <span className="font-sans text-xs text-gr-ink-soft mx-1.5 font-normal">dari</span>
+                      <span>{Math.round(needed).toLocaleString('id-ID')}</span>
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">KG</span>
+                    </div>
+                  </div>
                 </div>
  
-                {/* Progress Description Text */}
-                <div className="flex flex-col sm:flex-row justify-between items-baseline gap-4 font-sans text-sm pt-2">
-                  <div className="flex items-baseline font-display text-3xl font-bold text-gr-ink">
-                    <span>{Math.round(committed).toLocaleString('id-ID')}</span>
-                    <span className="font-sans text-xs text-gr-ink-soft mx-1.5 font-normal">dari</span>
-                    <span>{Math.round(needed).toLocaleString('id-ID')}</span>
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">KG</span>
+                {/* Right side: Petani committed & Avatar initial stack */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto md:justify-end">
+                  {/* Avatar stack */}
+                  <div className="flex flex-col items-center sm:items-end gap-1.5 order-2 sm:order-1 shrink-0">
+                    {request.commitments && request.commitments.length > 0 ? (
+                      <div className="flex -space-x-2 overflow-hidden">
+                        {request.commitments.slice(0, 4).map((commit: any, idx: number) => {
+                          const initials = (commit.petani_name || 'P').slice(0, 2).toUpperCase();
+                          return (
+                            <div 
+                              key={commit.id || idx}
+                              className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-[#EDE6D1] border border-gr-board/20 flex items-center justify-center font-mono text-[9px] font-bold text-gr-board"
+                              title={commit.petani_name}
+                            >
+                              {initials}
+                            </div>
+                          );
+                        })}
+                        {request.commitments.length > 4 && (
+                          <div className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-gr-board flex items-center justify-center font-mono text-[9px] font-bold text-gr-chalk">
+                            +{request.commitments.length - 4}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex -space-x-1.5 overflow-hidden select-none">
+                        <div className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-[#FAF9F5] border border-dashed border-gr-ink-soft/40 flex items-center justify-center text-gr-ink-soft/40 font-mono text-[10px]" title="Slot Komitmen Kosong">?</div>
+                        <div className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-[#FAF9F5] border border-dashed border-gr-ink-soft/40 flex items-center justify-center text-gr-ink-soft/40 font-mono text-[10px]" title="Slot Komitmen Kosong">?</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1.5 text-gr-ink-soft font-mono text-[10px] font-bold uppercase tracking-wider">
-                    <Users size={14} strokeWidth={2} className="text-gr-board" />
-                    <span>
-                      {request.num_petani_committed || 0} petani berkomitmen
-                    </span>
+ 
+                  <div className="order-1 sm:order-2 text-center sm:text-left md:text-right">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-0.5">Mitra Tani Berkomitmen</span>
+                    <div className="flex items-center gap-1.5 justify-center sm:justify-start md:justify-end text-sm text-gr-ink font-semibold">
+                      <Users size={14} strokeWidth={2} className="text-gr-board" />
+                      <span>{request.num_petani_committed || 0} Petani Berkomitmen</span>
+                    </div>
                   </div>
                 </div>
  
                 {remainingKg > 0 && request.status === 'TERBUKA' && (
-                  <div className="mt-4 text-xs font-sans text-gr-board font-medium flex items-center gap-2">
-                    <ClipboardCheck size={14} strokeWidth={2} className="shrink-0" />
-                    <span>Membutuhkan {Math.round(remainingKg).toLocaleString('id-ID')} KG lagi untuk dipenuhi.</span>
+                  <div className="hidden">
+                    {/* Kept internally to preserve code functionality but layout is driven by stat block */}
                   </div>
                 )}
               </div>
-
+ 
               {/* Request Detail Section */}
               <div className="p-6 sm:p-8 space-y-5">
                 <div className="border-b border-gr-line/45 pb-3">
@@ -499,7 +548,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 
                 <div className="font-sans text-sm">
                   {/* Row 1: Deadline & Lokasi */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pl-4 border-l-2 border-gr-board/15">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Deadline Pemenuhan</span>
                       <p className="text-gr-ink font-semibold flex items-center gap-2">
@@ -510,19 +559,32 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
  
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Lokasi Penerimaan</span>
-                      <p className="text-gr-ink font-semibold flex items-center gap-2">
-                        <MapPin size={14} strokeWidth={2} className="text-gr-board/60 pointer-events-none shrink-0" />
-                        <span className="leading-snug">
-                          {request.latitude && request.longitude
-                            ? (addressName || getClosestProvince(request.latitude, request.longitude))
-                            : 'Lokasi tidak diketahui'}
-                        </span>
-                      </p>
+                      <div className="space-y-1.5">
+                        <p className="text-gr-ink font-semibold flex items-start gap-2">
+                          <MapPin size={14} strokeWidth={2} className="text-gr-board/60 mt-0.5 shrink-0" />
+                          <span className="leading-snug">
+                            {request.latitude && request.longitude
+                              ? (addressName || getClosestProvince(request.latitude, request.longitude))
+                              : 'Lokasi tidak diketahui'}
+                          </span>
+                        </p>
+                        {request.latitude && request.longitude && (
+                          <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${request.latitude},${request.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-gr-board ink-link ml-6"
+                          >
+                            <span>Lihat di Peta</span>
+                            <span className="text-[8px]">↗</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
  
                   {/* Row 2: Harga Penawaran & Harga Acuan */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
                       <div className="flex items-center flex-wrap gap-2">
@@ -558,7 +620,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </div>
  
                   {/* Row 3: Status Permintaan */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Status Permintaan</span>
                       <div className="pt-0.5">
@@ -572,6 +634,18 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           {request.status}
                         </span>
                       </div>
+                    </div>
+                  </div>
+ 
+                  {/* Row 4: Footer Notice & System Metadata */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-gr-ink-soft/60">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gr-up animate-pulse" />
+                      <span>Terakhir diperbarui: {new Date(request.updated_at || request.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} WIB</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-gr-ink-soft/50 sm:justify-end">
+                      <span className="text-gr-board/60 select-none">🛡️</span>
+                      <span>Sistem Escrow Aktif & Terlindungi</span>
                     </div>
                   </div>
                 </div>
