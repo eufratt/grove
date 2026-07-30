@@ -114,7 +114,18 @@ export function useMessages(conversationId: string | null) {
           };
 
           setMessages((prev) => {
-            // Replace optimistic sending message if IDs match or append if new
+            // If the message is from the current user, try to replace the matching optimistic message
+            if (newMessage.sender_id === currentUser?.id) {
+              const optIndex = prev.findIndex(
+                (m) => m.status === 'sending' && m.content === newMessage.content
+              );
+              if (optIndex !== -1) {
+                const nextMessages = [...prev];
+                nextMessages[optIndex] = messageWithProduct;
+                return nextMessages;
+              }
+            }
+
             const exists = prev.some((m) => m.id === newMessage.id);
             if (exists) return prev;
             return [...prev, messageWithProduct];
@@ -173,9 +184,13 @@ export function useMessages(conversationId: string | null) {
       }
 
       // Replace the optimistic message with the final sent message
-      setMessages((prev) =>
-        prev.map((msg) => (msg.id === tempId ? { ...insertedMessage, status: 'sent' } : msg))
-      );
+      setMessages((prev) => {
+        const alreadyAppended = prev.some((msg) => msg.id === insertedMessage.id);
+        if (alreadyAppended) {
+          return prev.filter((msg) => msg.id !== tempId);
+        }
+        return prev.map((msg) => (msg.id === tempId ? { ...insertedMessage, status: 'sent' } : msg));
+      });
     } catch (err: any) {
       console.error('Failed to send message:', err);
       // Mark optimistic message as error
