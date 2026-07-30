@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { conversationsApi } from '@/lib/api/conversations';
 import { useMessages } from '@/hooks/useMessages';
@@ -26,6 +26,8 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
   const resolvedParams = React.use(params);
   const conversationId = resolvedParams.id;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const targetProductId = searchParams?.get('product_id');
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [conversation, setConversation] = useState<any>(null);
@@ -72,6 +74,33 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Auto-send product context message if product_id is in query params
+  useEffect(() => {
+    if (!conversationId || !targetProductId || loading || !currentUser || !conversation) return;
+
+    // Only the buyer sends the initial context message
+    if (currentUser.id !== conversation.buyer_id) return;
+
+    const autoSend = async () => {
+      // Check if last message is already about this product to avoid duplicates on refresh
+      const lastMsg = messages[messages.length - 1];
+      const isAlreadySent = lastMsg && lastMsg.product_id === targetProductId;
+
+      if (!isAlreadySent) {
+        try {
+          await sendMessage("Halo, saya tertarik dengan produk ini dan ingin bertanya lebih lanjut.", targetProductId);
+        } catch (err) {
+          console.error("Failed to auto-send context message:", err);
+        }
+      }
+      
+      // Clean up the URL to prevent triggering again on refresh/navigation
+      router.replace(`/chat/${conversationId}`);
+    };
+
+    autoSend();
+  }, [conversationId, targetProductId, loading, currentUser, conversation, messages, sendMessage, router]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,51 +239,6 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
 
       {/* Chat Area */}
       <div className="flex-grow overflow-y-auto p-4 space-y-4 min-h-0 custom-scrollbar bg-white/20 dark:bg-black/5">
-        
-        {/* Permanent Product Context Card directly in the chat feed */}
-        {product && (
-          <div className="w-full flex flex-col items-center my-2 shrink-0">
-            <div className="w-full flex items-center gap-2 mb-3">
-              <div className="flex-grow h-[1px] bg-gr-line/45" />
-              <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft bg-[#FAF9F5] dark:bg-black/20 px-2 py-0.5 rounded-md border border-gr-line/45 select-none">
-                Komoditas yang Dibahas
-              </span>
-              <div className="flex-grow h-[1px] bg-gr-line/45" />
-            </div>
-            
-            <Link
-              href={`/produk/${product.id}`}
-              className="flex items-center gap-3.5 p-3.5 bg-[#EDE6D1]/80 dark:bg-white/5 border border-dashed border-gr-board/35 rounded-xl max-w-sm w-full text-left transition-all hover:bg-[#EDE6D1] shadow-3xs group relative overflow-hidden"
-            >
-              <div className="absolute inset-0 opacity-[0.02] bg-radial from-gr-board" />
-              <div className="p-2.5 rounded-xl bg-gr-board/10 text-gr-board flex-shrink-0">
-                <ShoppingBag size={16} className="group-hover:-rotate-12 transition-transform" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft block mb-0.5">KOMODITAS</span>
-                <h6 className="font-sans text-[12px] font-bold text-gr-ink truncate leading-tight group-hover:text-gr-board transition-colors">
-                  {product.name}
-                </h6>
-                <div className="mt-2.5 flex items-baseline gap-2">
-                  <span className="font-mono text-xs font-bold text-gr-ink">
-                    Rp {product.price_per_kg?.toLocaleString('id-ID') || 0}
-                    <span className="font-sans font-medium text-[9px] text-gr-ink-soft ml-0.5">/kg</span>
-                  </span>
-                  {deltaText && (
-                    <span className={cn(
-                      "font-sans text-[8px] px-1.5 py-0.5 rounded-md font-semibold border shrink-0",
-                      isUnderPrice 
-                        ? "bg-gr-up/10 text-gr-up border-gr-up/20" 
-                        : "bg-gr-price-warn/10 text-[#B8860B] border-[#B8860B]/20"
-                    )}>
-                      {deltaText}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          </div>
-        )}
 
         {/* Empty state: Chat baru dimulai */}
         {messages.length === 0 && !loading && (

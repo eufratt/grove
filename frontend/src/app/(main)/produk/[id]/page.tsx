@@ -117,7 +117,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
       try {
         const res = await conversationsApi.createConversation(product.id);
         if (res && res.conversation_id) {
-          router.push(`/chat/${res.conversation_id}`);
+          router.push(`/chat/${res.conversation_id}?product_id=${product.id}`);
         } else {
           throw new Error('Gagal memulai percakapan');
         }
