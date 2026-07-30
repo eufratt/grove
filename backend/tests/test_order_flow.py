@@ -261,3 +261,108 @@ async def test_buyer_rating_after_received(test_context):
     )
     assert rating.id is not None
     assert rating.score == 5
+
+async def test_timeout_pickup_with_refund(test_context):
+    db, buyer, seller, product = test_context
+    from app.models.payment_transaction import EscrowStatus
+    from app.services import scheduler
+    
+    order = await create_test_order(db, product, buyer, quantity_kg=10.0)
+    order = await order_status_service.accept_order(db, order, seller)
+    order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.SIAP_DIAMBIL)
+    
+    # Simulate payment success (escrow status HELD)
+    order.escrow_status = EscrowStatus.HELD
+    order.marked_ready_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=settings.TIMEOUT_PENGAMBILAN + 10)
+    db.add(order)
+    await db.commit()
+    await db.refresh(order)
+    
+    # Run the scheduler job
+    await scheduler.check_pickup_and_auto_confirm()
+    
+    await db.refresh(order)
+    assert order.status == OrderStatus.DIBATALKAN
+    assert order.cancellation_reason == CancellationReason.TIMEOUT_PENGAMBILAN
+    assert order.escrow_status == EscrowStatus.REFUNDED
+
+async def test_timeout_auto_confirm_with_escrow_release(test_context):
+    db, buyer, seller, product = test_context
+    from app.models.payment_transaction import EscrowStatus
+    from app.services import scheduler
+    
+    order = await create_test_order(db, product, buyer, quantity_kg=10.0)
+    order = await order_status_service.accept_order(db, order, seller)
+    order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
+    
+    # Simulate payment success (escrow status HELD)
+    order.escrow_status = EscrowStatus.HELD
+    order.marked_ready_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(seconds=settings.TIMEOUT_AUTO_CONFIRM + 10)
+    db.add(order)
+    await db.commit()
+    await db.refresh(order)
+    
+    # Run the scheduler job
+    await scheduler.check_pickup_and_auto_confirm()
+    
+    await db.refresh(order)
+    assert order.status == OrderStatus.SELESAI
+    assert order.escrow_status == EscrowStatus.RELEASED
+    assert order.disbursement_status == "pending_bank_details"
+
+async def test_confirm_success_with_escrow_release(test_context):
+    db, buyer, seller, product = test_context
+    from app.models.payment_transaction import EscrowStatus
+    
+    order = await create_test_order(db, product, buyer, quantity_kg=10.0)
+    order = await order_status_service.accept_order(db, order, seller)
+    order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
+    
+    # Simulate payment success (escrow status HELD)
+    order.escrow_status = EscrowStatus.HELD
+    db.add(order)
+    await db.commit()
+    await db.refresh(order)
+    
+    # Call order_status_service.confirm_received
+    await order_status_service.confirm_received(db, order, buyer)
+    
+    await db.refresh(order)
+    assert order.status == OrderStatus.SELESAI
+    assert order.escrow_status == EscrowStatus.RELEASED
+    assert order.disbursement_status == "pending_bank_details"
+
+async def test_file_complaint_lifecycle(test_context):
+    db, buyer, seller, product = test_context
+    from app.models.payment_transaction import EscrowStatus
+    from app.models.order import ComplaintReason
+    
+    order = await create_test_order(db, product, buyer, quantity_kg=10.0)
+    order = await order_status_service.accept_order(db, order, seller)
+    order = await order_status_service.mark_order_ready(db, order, seller, OrderStatus.DIKIRIM)
+    
+    # Simulate payment success (escrow status HELD)
+    order.escrow_status = EscrowStatus.HELD
+    db.add(order)
+    await db.commit()
+    await db.refresh(order)
+    
+    # Call order_status_service.file_complaint
+    await order_status_service.file_complaint(
+        db=db,
+        order=order,
+        current_user=buyer,
+        reason=ComplaintReason.BARANG_RUSAK,
+        description="Barang hancur di jalan"
+    )
+    
+    await db.refresh(order)
+    assert order.status == OrderStatus.KOMPLAIN_DIPROSES
+    assert order.escrow_status == EscrowStatus.DISPUTED
+    assert order.complaint_reason == ComplaintReason.BARANG_RUSAK
+    assert order.complaint_description == "Barang hancur di jalan"
+    assert order.complained_at is not None
+
+
+
+

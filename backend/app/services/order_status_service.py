@@ -222,28 +222,41 @@ async def confirm_received(db: AsyncSession, order: Order, current_user: User) -
             detail="Hanya pembeli yang dapat mengonfirmasi pesanan diterima"
         )
         
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    from app.models.payment_transaction import EscrowStatus
     
-    # Transition to DITERIMA transiently
-    order.status = OrderStatus.DITERIMA
-    order.buyer_confirmed_at = now
-    order.received_at = now
-    order.status_updated_at = now
-    db.add(order)
-    
-    # Broadcast DITERIMA
-    await broadcast_status_change(order, "Pesanan dikonfirmasi diterima oleh pembeli.")
-    
-    # Transition automatically to SELESAI
-    order.status = OrderStatus.SELESAI
-    order.completed_at = now
-    order.status_updated_at = now
-    db.add(order)
-    
-    await db.commit()
-    await db.refresh(order)
-    
-    await broadcast_status_change(order, "Pesanan selesai. Status: SELESAI.")
+    if order.escrow_status == EscrowStatus.HELD:
+        from app.services.escrow_service import escrow_service
+        # Delegate to escrow service to release funds to the seller (it will also set status to SELESAI, commit and broadcast)
+        await escrow_service.confirm_received_and_release(
+            db=db,
+            source_type="pesanan",
+            source_id=order.id,
+            user_id=current_user.id
+        )
+        await db.refresh(order)
+    else:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        
+        # Transition to DITERIMA transiently
+        order.status = OrderStatus.DITERIMA
+        order.buyer_confirmed_at = now
+        order.received_at = now
+        order.status_updated_at = now
+        db.add(order)
+        
+        # Broadcast DITERIMA
+        await broadcast_status_change(order, "Pesanan dikonfirmasi diterima oleh pembeli.")
+        
+        # Transition automatically to SELESAI
+        order.status = OrderStatus.SELESAI
+        order.completed_at = now
+        order.status_updated_at = now
+        db.add(order)
+        
+        await db.commit()
+        await db.refresh(order)
+        
+        await broadcast_status_change(order, "Pesanan selesai. Status: SELESAI.")
     return order
 
 
@@ -274,6 +287,11 @@ async def system_timeout_pickup(db: AsyncSession, order: Order) -> Order:
         
     await rollback_stock(db, order)
     
+    from app.models.payment_transaction import EscrowStatus
+    # Process refund if payment was HELD in escrow
+    if order.escrow_status == EscrowStatus.HELD:
+        order.escrow_status = EscrowStatus.REFUNDED
+        
     order.status = OrderStatus.DIBATALKAN
     order.cancellation_reason = CancellationReason.TIMEOUT_PENGAMBILAN
     order.status_updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -282,7 +300,8 @@ async def system_timeout_pickup(db: AsyncSession, order: Order) -> Order:
     await db.commit()
     await db.refresh(order)
     
-    await broadcast_status_change(order, "Pesanan dibatalkan otomatis karena tidak diambil/diterima tepat waktu. Status: DIBATALKAN.")
+    msg = "Pesanan dibatalkan otomatis karena tidak diambil tepat waktu. Status: DIBATALKAN. Dana dikembalikan ke pembeli." if order.escrow_status == EscrowStatus.REFUNDED else "Pesanan dibatalkan otomatis karena tidak diambil tepat waktu. Status: DIBATALKAN."
+    await broadcast_status_change(order, msg)
     return order
 
 # Timeout 3: Auto Confirm Received (enters DITERIMA then MASA_KOMPLAIN)
@@ -290,22 +309,82 @@ async def system_auto_confirm_received(db: AsyncSession, order: Order) -> Order:
     if order.status not in (OrderStatus.SIAP_DIAMBIL, OrderStatus.DIKIRIM):
         return order
         
+    from app.models.payment_transaction import EscrowStatus
+    
+    if order.escrow_status == EscrowStatus.HELD:
+        from app.services.escrow_service import escrow_service
+        # Delegate to escrow service to release funds to the seller (it will also set status to SELESAI, commit and broadcast)
+        await escrow_service.confirm_received_and_release(
+            db=db,
+            source_type="pesanan",
+            source_id=order.id,
+            user_id=order.buyer_id
+        )
+        await db.refresh(order)
+    else:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        
+        order.status = OrderStatus.DITERIMA
+        order.received_at = now
+        order.status_updated_at = now
+        db.add(order)
+        
+        await broadcast_status_change(order, "Pesanan otomatis dikonfirmasi diterima oleh sistem.")
+        
+        order.status = OrderStatus.SELESAI
+        order.completed_at = now
+        order.status_updated_at = now
+        db.add(order)
+        
+        await db.commit()
+        await db.refresh(order)
+        
+        await broadcast_status_change(order, "Pesanan selesai. Status: SELESAI.")
+    return order
+
+
+# Transition 6: File Complaint (Buyer)
+async def file_complaint(
+    db: AsyncSession,
+    order: Order,
+    current_user: User,
+    reason: ComplaintReason,
+    description: str
+) -> Order:
+    # 1. Validate auth
+    if order.buyer_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya pembeli yang dapat mengajukan komplain"
+        )
+        
+    # 2. Validate escrow status
+    from app.models.payment_transaction import EscrowStatus
+    if order.escrow_status != EscrowStatus.HELD:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Komplain hanya dapat diajukan jika dana masih ditahan di escrow (status HELD)"
+        )
+        
+    # 3. Update order fields
     now = datetime.now(timezone.utc).replace(tzinfo=None)
-    
-    order.status = OrderStatus.DITERIMA
-    order.received_at = now
+    order.status = OrderStatus.KOMPLAIN_DIPROSES
+    order.complaint_reason = reason
+    order.complaint_description = description
+    order.complained_at = now
     order.status_updated_at = now
+    
+    # Put escrow in DISPUTED status
+    order.escrow_status = EscrowStatus.DISPUTED
+    
     db.add(order)
-    
-    await broadcast_status_change(order, "Pesanan otomatis dikonfirmasi diterima oleh sistem.")
-    
-    order.status = OrderStatus.SELESAI
-    order.completed_at = now
-    order.status_updated_at = now
-    db.add(order)
-    
     await db.commit()
     await db.refresh(order)
     
-    await broadcast_status_change(order, "Pesanan selesai. Status: SELESAI.")
+    # Broadcast to frontend
+    await broadcast_status_change(
+        order,
+        f"Pembeli mengajukan komplain: {reason.value}. Deskripsi: {description}"
+    )
     return order
+
