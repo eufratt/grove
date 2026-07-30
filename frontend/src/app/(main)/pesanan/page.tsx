@@ -729,13 +729,14 @@ function OrderCard({
               </h3>
             </Link>
             
-            <div className="mt-1.5 flex items-center gap-3 text-xs font-sans text-gr-ink-soft flex-wrap">
-              <span className="font-semibold text-gr-ink bg-gr-paper px-2.5 py-0.5 rounded-xs border border-gr-line/50">
-                {order.quantity_kg} KG
+            <div className="mt-2 flex items-baseline gap-1 flex-wrap">
+              <span className="font-display text-2xl font-bold text-gr-ink">
+                {order.quantity_kg}
               </span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mr-3">KG</span>
               {order.price_per_kg && (
                 <span className="font-mono text-xs text-gr-ink-soft">
-                  @ Rp {order.price_per_kg.toLocaleString('id-ID')} / KG
+                  @ Rp {Math.round(order.price_per_kg).toLocaleString('id-ID')} / KG
                 </span>
               )}
             </div>
@@ -745,9 +746,9 @@ function OrderCard({
         {/* Total Price & Toggle Detail Action */}
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gr-line/40 shrink-0">
           <div className="text-left sm:text-right">
-            <span className="block font-sans text-[11px] text-gr-ink-soft">Total Tagihan</span>
-            <span className="font-mono text-xl font-bold text-gr-board">
-              {order.price_per_kg ? `Rp ${(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
+            <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-0.5">Total Tagihan</span>
+            <span className="font-display text-2xl font-bold text-gr-board">
+              {order.price_per_kg ? `Rp ${Math.round(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
             </span>
           </div>
 
@@ -835,7 +836,7 @@ function OrderCard({
                     ) : (
                       <MessageSquare className="h-3.5 w-3.5" />
                     )}
-                    <span>Chat {isIncoming ? 'Pembeli' : 'Penjual'}</span>
+                    <span>Chat {isIncoming ? 'Pembeli' : 'Petani'}</span>
                   </button>
                 </div>
               </div>
@@ -860,7 +861,7 @@ function OrderCard({
                         <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekening Bersama)</span>
                       </div>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
-                        Dana ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi penerimaan barang. Dikenakan perkiraan biaya admin/gerbang pembayaran sebesar <strong className="font-semibold text-gr-board">Rp {estimatedAdminFee.toLocaleString('id-ID')}</strong> (2% dari total tagihan).
+                        Dana ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi penerimaan barang. Dikenakan perkiraan biaya admin/gerbang pembayaran sebesar <strong className="font-semibold text-gr-board">Rp {Math.round(estimatedAdminFee).toLocaleString('id-ID')}</strong> (2% dari total tagihan).
                       </p>
                     </div>
                   </div>
@@ -1146,10 +1147,10 @@ function DemandCard({
               <div className="mt-2 flex flex-col gap-1 text-xs border-t border-gr-line/45 pt-2 font-sans w-full">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-bold text-gr-board bg-gr-board/10 px-2 py-0.5 rounded-xs border border-gr-board/20">
-                    Harga: Rp {matchedTx.price_per_kg.toLocaleString('id-ID')}/KG
+                    Harga: Rp {Math.round(matchedTx.price_per_kg).toLocaleString('id-ID')}/KG
                   </span>
                   <span className="font-bold text-gr-up bg-gr-up/10 px-2 py-0.5 rounded-xs border border-gr-up/20">
-                    Total: Rp {matchedTx.amount.toLocaleString('id-ID')} ({matchedTx.quantity_kg} KG)
+                    Total: Rp {Math.round(matchedTx.amount).toLocaleString('id-ID')} ({matchedTx.quantity_kg} KG)
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-1.5">
@@ -1175,13 +1176,25 @@ function DemandCard({
                 </div>
               </div>
             ) : (
-              <div className="mt-1 flex items-center gap-2 text-xs text-gr-ink-soft font-sans flex-wrap">
-                <span className="font-semibold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-xs border border-gr-board/20">
-                  Target: {demand.quantity_kg_needed} KG
-                </span>
-                <span className="font-bold text-gr-up bg-gr-up/10 px-2.5 py-0.5 rounded-xs border border-gr-up/20">
-                  Terkomit: {currentCommitted} KG
-                </span>
+              <div className="mt-3 flex items-baseline gap-6 flex-wrap">
+                <div>
+                  <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-0.5">Target Kebutuhan</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-2xl font-bold text-gr-board">
+                      {demand.quantity_kg_needed}
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">KG</span>
+                  </div>
+                </div>
+                <div>
+                  <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-0.5">Telah Terkomit</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-2xl font-bold text-gr-up">
+                      {currentCommitted}
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">KG</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -1216,7 +1229,7 @@ function DemandCard({
                   Progress Pemenuhan
                 </h4>
                 <div className="space-y-2">
-                  <div className="w-full bg-gr-paper h-2 rounded-full overflow-hidden border border-gr-line">
+                  <div className="w-full bg-gr-line/45 h-2 rounded-full overflow-hidden">
                     <div 
                       className="bg-gr-board h-full rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%` }}
@@ -1252,7 +1265,7 @@ function DemandCard({
                           const farmerWaMessage = `Halo ${commit.petani_name || 'Petani'}, saya adalah pembeli yang mengajukan permintaan ${demand.commodity_name}. Terima kasih atas komitmen supply Anda sebesar ${commit.quantity_kg_committed} KG.`;
                           const farmerWaUrl = commit.petani_phone ? getWhatsAppUrl(commit.petani_phone, farmerWaMessage) : null;
                           return (
-                            <div key={commit.id} className="p-3 bg-white/50 rounded-sm border border-gr-line flex justify-between items-center text-sm font-sans shadow-xs">
+                            <div key={commit.id} className="py-3 flex justify-between items-center text-sm font-sans border-b border-gr-line/45 last:border-b-0">
                               <div>
                                 <p className="text-gr-ink font-semibold">{commit.petani_name || 'Petani'}</p>
                                 <p className="text-gr-up text-xs font-mono font-bold mt-0.5">+{commit.quantity_kg_committed} KG</p>
@@ -1262,7 +1275,7 @@ function DemandCard({
                                   onClick={() => handleContactPetani(commit.petani_id)}
                                   disabled={chatLoading}
                                   className="p-2 rounded-sm bg-gr-board hover:opacity-90 text-gr-chalk transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                                  title="Chat Penjual"
+                                  title="Chat Petani"
                                 >
                                   {chatLoading ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1288,7 +1301,7 @@ function DemandCard({
                       <div className="text-sm">
                         <div className="flex items-center gap-2">
                           <p className="text-gr-ink font-semibold text-base">{buyerName}</p>
-                          <div className="bg-gr-paper border border-gr-line rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
+                          <div className="flex items-center justify-center shrink-0">
                             <RatingBadge
                               avgRating={demand.buyer_rating_avg}
                               ratingCount={demand.buyer_rating_count}
