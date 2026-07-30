@@ -771,7 +771,7 @@ function OrderCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-gr-line bg-[#FAF9F5] p-6 space-y-6"
+            className="border-t border-gr-line p-6 space-y-6"
           >
             {/* Cancellation Banner if canceled */}
             {currentStatus === 'DIBATALKAN' && order.cancellation_reason && (
@@ -792,8 +792,8 @@ function OrderCard({
             {/* SECTION A: STATUS PEMBAYARAN & INFORMASI KONTAK */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
               {/* Payment Status Details */}
-              <div className="space-y-3.5">
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-board flex items-center gap-2 border-b border-gr-line pb-2">
+              <div className="space-y-3">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft flex items-center gap-2">
                   <ShieldCheck size={13} />
                   Status Transaksi
                 </h4>
@@ -815,8 +815,8 @@ function OrderCard({
               </div>
 
               {/* Farmer Contact Info */}
-              <div className="space-y-3.5">
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-board flex items-center gap-2 border-b border-gr-line pb-2">
+              <div className="space-y-3">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft flex items-center gap-2">
                   <User size={13} />
                   Kontak {contactRoleLabel}
                 </h4>
@@ -844,8 +844,8 @@ function OrderCard({
 
             {/* SECTION B: PAYMENT OPTIONS LIST */}
             {currentStatus !== 'DIBATALKAN' && (
-              <div className="space-y-3 pt-2">
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-board flex items-center gap-2 border-b border-gr-line pb-2">
+              <div className="space-y-3">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft flex items-center gap-2">
                   <CreditCard size={13} />
                   Pilihan Pembayaran
                 </h4>
@@ -853,9 +853,7 @@ function OrderCard({
                 <div className="space-y-3 text-xs font-sans">
                   {/* Option 1: Payment Gateway Rekber */}
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-sm bg-gr-board/10 text-gr-board shrink-0 mt-0.5">
-                      <CreditCard size={16} />
-                    </div>
+                    <CreditCard size={15} className="text-gr-board shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekening Bersama)</span>
@@ -868,9 +866,7 @@ function OrderCard({
 
                   {/* Option 2: Cash / COD */}
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-sm bg-amber-500/10 text-amber-700 shrink-0 mt-0.5">
-                      <Banknote size={16} />
-                    </div>
+                    <Banknote size={15} className="text-amber-700 shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gr-ink">Pembayaran Tunai (Cash / COD)</span>
@@ -1221,11 +1217,11 @@ function DemandCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-gr-line bg-[#FAF9F5] p-5 md:p-6 space-y-6"
+            className="border-t border-gr-line p-5 md:p-6 space-y-6"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-2">
                   Progress Pemenuhan
                 </h4>
                 <div className="space-y-2">
@@ -1256,7 +1252,7 @@ function DemandCard({
               <div>
                 {isBuyer ? (
                   <div>
-                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
+                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-2">
                       Komitmen Petani ({demand.commitments?.length || 0})
                     </h4>
                     <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
@@ -1294,7 +1290,7 @@ function DemandCard({
                   </div>
                 ) : (
                   <div>
-                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-2">
+                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-2">
                       Informasi Kontak Pembeli
                     </h4>
                     <div className="space-y-3 font-sans">

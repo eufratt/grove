@@ -604,7 +604,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               <>
                 {/* Case 1: Already matched */}
                 {request.match_transaction ? (
-                  <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group space-y-4">
+                  <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-5">
                     <div>
                       <span className="bg-gr-up/10 border border-gr-up/20 px-2 py-0.5 font-mono text-[9px] uppercase font-bold tracking-wider text-gr-up rounded-xs inline-block mb-2">
                         Telah Dicocokkan
@@ -617,7 +617,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       </p>
                     </div>
 
-                    <div className="border-t border-gr-line/60 pt-3 space-y-2 text-xs font-sans">
+                    <div className="border-t border-gr-line pt-4 space-y-2 text-xs font-sans">
                       <div className="flex justify-between">
                         <span className="text-gr-ink-soft">Petani:</span>
                         <span className="text-gr-ink font-semibold">{request.match_transaction.seller_name}</span>
@@ -636,7 +636,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       </div>
                     </div>
 
-                    <div className="border-t border-gr-line/60 pt-3 space-y-2 text-xs font-sans">
+                    <div className="border-t border-gr-line pt-4 space-y-2 text-xs font-sans">
                       <div className="flex justify-between items-center">
                         <span className="text-gr-ink-soft">Status Pembayaran:</span>
                         <span className={cn(
@@ -664,7 +664,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       )}
                     </div>
 
-                    <div className="pt-2 space-y-3">
+                    <div className="pt-4 border-t border-gr-line space-y-3">
                       {request.match_transaction.payment_status !== 'paid' && (
                         isRequestBuyer ? (
                           <Button
@@ -739,7 +739,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   /* Case 2: Not matched yet */
                   request.status === 'TERBUKA' && (
                     loadingCandidates ? (
-                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group space-y-4">
+                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={18} className="text-gr-board" />
                           Kandidat Produk Petani
@@ -750,7 +750,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         </div>
                       </div>
                     ) : (
-                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group space-y-4">
+                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={18} className="text-gr-board" />
                           Kandidat Produk Petani
@@ -891,7 +891,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
             {/* Farmer Commitment Action Panel */}
             {user && user.role === 'PETANI' && request.status === 'TERBUKA' && (
-              <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group">
+              <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden">
                 <h3 className="font-display text-xl font-semibold text-gr-ink mb-2 flex items-center gap-2">
                   <ClipboardCheck size={18} className="text-gr-board" />
                   Bantu Penuhi
@@ -945,8 +945,8 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             )}
 
             {/* Commitment History Log */}
-            <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md max-h-[400px] flex flex-col ">
-              <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-4">
+            <div className="pt-6 border-t border-gr-line max-h-[400px] flex flex-col">
+              <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-4">
                 Riwayat Komitmen ({request.commitments?.length || 0})
               </h3>
               
