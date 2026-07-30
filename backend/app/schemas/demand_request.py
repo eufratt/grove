@@ -81,4 +81,5 @@ class DemandMatchCandidate(BaseModel):
 
 class DemandMatchRequest(BaseModel):
     product_id: UUID
+    quantity_kg: Optional[float] = None
 

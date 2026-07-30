@@ -60,10 +60,10 @@ export const demandRequestsApi = {
     return response.json();
   },
 
-  matchDemandRequest: async (id: string, productId: string) => {
+  matchDemandRequest: async (id: string, productId: string, quantityKg?: number) => {
     const response = await apiClient(`/demand-requests/${id}/match`, {
       method: 'POST',
-      body: JSON.stringify({ product_id: productId }),
+      body: JSON.stringify({ product_id: productId, quantity_kg: quantityKg }),
     });
     return response.json();
   },

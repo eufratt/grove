@@ -784,7 +784,17 @@ async def match_demand_request_with_seller(
 
     # Create DemandTransaction
     remaining_needed = max(0.0, req.quantity_kg_needed - req.quantity_kg_committed)
-    quantity_kg = min(product.quantity_kg, remaining_needed)
+    default_qty = min(product.quantity_kg, remaining_needed)
+    quantity_kg = default_qty
+    if body.quantity_kg is not None:
+        if body.quantity_kg <= 0:
+            raise HTTPException(status_code=400, detail="Jumlah KG harus lebih besar dari 0")
+        if body.quantity_kg > product.quantity_kg:
+            raise HTTPException(status_code=400, detail="Jumlah KG tidak boleh melebihi stok produk yang tersedia")
+        if body.quantity_kg > remaining_needed:
+            raise HTTPException(status_code=400, detail="Jumlah KG tidak boleh melebihi sisa kebutuhan permintaan")
+        quantity_kg = body.quantity_kg
+
     if quantity_kg <= 0:
         raise HTTPException(status_code=400, detail="Permintaan ini sudah terpenuhi atau produk tidak memiliki stok")
         

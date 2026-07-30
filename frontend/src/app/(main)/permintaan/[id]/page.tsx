@@ -132,6 +132,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [confirmingReceived, setConfirmingReceived] = useState(false);
   const [confirmMatchOpen, setConfirmMatchOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
+  const [customMatchQty, setCustomMatchQty] = useState<number>(0);
 
   // User location & Reference price states
   const [lat, setLat] = useState<number | null>(null);
@@ -325,11 +326,11 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     }
   };
 
-  const handleMatch = async (productId: string) => {
+  const handleMatch = async (productId: string, quantityKg?: number) => {
     try {
       setMatching(productId);
       setError('');
-      await demandRequestsApi.matchDemandRequest(id, productId);
+      await demandRequestsApi.matchDemandRequest(id, productId, quantityKg);
       const updatedData = await demandRequestsApi.getDemandRequestById(id);
       setRequest(updatedData);
     } catch (err: any) {
@@ -342,6 +343,8 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
   const handlePilihClick = (cand: any) => {
     setSelectedCandidate(cand);
+    const maxQty = Math.min(cand.quantity_kg, Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed));
+    setCustomMatchQty(maxQty);
     setConfirmMatchOpen(true);
   };
 
@@ -349,7 +352,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     if (!selectedCandidate) return;
     const productId = selectedCandidate.product_id;
     setConfirmMatchOpen(false);
-    await handleMatch(productId);
+    await handleMatch(productId, customMatchQty);
   };
 
   const handleCheckout = async () => {
@@ -1050,33 +1053,76 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           isLoading={matching !== null}
           description={
             <div className="space-y-3">
-              <p className="font-sans text-xs text-gr-ink-soft">
-                Apakah Anda yakin ingin memilih hasil panen ini untuk memenuhi permintaan Anda?
+              <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
+                Apakah Anda yakin ingin memilih hasil panen ini untuk memenuhi permintaan Anda? Tentukan jumlah volume yang ingin Anda penuhi:
               </p>
-              <div className="bg-[#FAF9F5] border border-gr-line p-3 space-y-1.5 font-mono text-[10px] text-gr-text-primary">
-                <div className="flex justify-between gap-4">
-                  <span className="text-gr-text-primary/60">PRODUK:</span>
-                  <span className="font-bold text-gr-text-primary uppercase truncate max-w-[160px]" title={selectedCandidate.product_name}>
-                    {selectedCandidate.product_name}
-                  </span>
+              <div className="bg-[#FAF9F5] border border-gr-line p-3.5 space-y-3 rounded-xs">
+                <div className="font-mono text-[10px] text-gr-text-primary space-y-1.5">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gr-text-primary/60">PRODUK:</span>
+                    <span className="font-bold text-gr-text-primary uppercase truncate max-w-[160px]" title={selectedCandidate.product_name}>
+                      {selectedCandidate.product_name}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gr-text-primary/60">HARGA:</span>
+                    <span className="font-bold text-gr-text-primary">
+                      Rp {Math.round(selectedCandidate.price_per_kg).toLocaleString('id-ID')} / KG
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gr-text-primary/60">HARGA:</span>
-                  <span className="font-bold text-gr-text-primary">
-                    Rp {Math.round(selectedCandidate.price_per_kg).toLocaleString('id-ID')} / KG
-                  </span>
+
+                {/* Volume Slider Section */}
+                <div className="space-y-2 border-t border-dashed border-gr-line/30 pt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono text-[9px] text-gr-text-primary/60 uppercase font-bold tracking-wider">VOLUME PEMENUHAN:</span>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        step={0.1}
+                        value={customMatchQty || ''}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          const maxVal = Math.min(selectedCandidate.quantity_kg, Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed));
+                          if (!isNaN(val)) {
+                            setCustomMatchQty(Math.max(0.1, Math.min(val, maxVal)));
+                          } else {
+                            setCustomMatchQty(0);
+                          }
+                        }}
+                        className="w-16 px-1.5 py-0.5 border border-gr-line bg-white text-right font-mono font-bold text-xs text-gr-ink rounded-sm focus:outline-none focus:border-gr-board"
+                        min={0.1}
+                        max={Math.min(selectedCandidate.quantity_kg, Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed))}
+                      />
+                      <span className="font-mono font-bold text-xs text-gr-ink">KG</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[9px] text-gr-ink-soft select-none">0.1</span>
+                    <input
+                      type="range"
+                      min={0.1}
+                      max={Math.min(selectedCandidate.quantity_kg, Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed))}
+                      step={0.1}
+                      value={customMatchQty || 0.1}
+                      onChange={(e) => setCustomMatchQty(parseFloat(e.target.value) || 0.1)}
+                      className="flex-1 h-1 bg-gr-line rounded-lg appearance-none cursor-pointer accent-gr-board"
+                    />
+                    <span className="font-mono text-[9px] text-gr-ink-soft select-none">
+                      {Math.round(Math.min(selectedCandidate.quantity_kg, Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed)))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-[9px] font-sans text-gr-ink-soft/75 leading-normal">
+                    <span>Stok Tersedia: {selectedCandidate.quantity_kg} KG</span>
+                    <span>Sisa Kebutuhan: {Math.max(0, request.quantity_kg_needed - request.quantity_kg_committed)} KG</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gr-text-primary/60">QUANTITY:</span>
-                  <span className="font-bold text-gr-text-primary">
-                    {Math.min(selectedCandidate.quantity_kg, request.quantity_kg_needed)} KG
-                  </span>
-                </div>
-                <div className="border-t border-dashed border-gr-line/30 my-1" />
-                <div className="flex justify-between text-xs font-sans">
+
+                <div className="border-t border-dashed border-gr-line/30 pt-2.5 flex justify-between text-xs font-sans">
                   <span className="text-gr-text-primary font-bold">TOTAL ESTIMASI:</span>
-                  <span className="font-bold text-gr-green">
-                    Rp {Math.round(selectedCandidate.price_per_kg * Math.min(selectedCandidate.quantity_kg, request.quantity_kg_needed)).toLocaleString('id-ID')}
+                  <span className="font-bold text-gr-green font-mono">
+                    Rp {Math.round(selectedCandidate.price_per_kg * (customMatchQty || 0)).toLocaleString('id-ID')}
                   </span>
                 </div>
               </div>
@@ -1087,6 +1133,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           }
         />
       )}
+
     </main>
   );
 
