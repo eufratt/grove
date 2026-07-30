@@ -249,8 +249,10 @@ export function Navbar() {
         </nav>
       ) : (
         <nav className="sticky top-0 z-50 w-full bg-gr-paper/95 backdrop-blur-md border-b border-gr-line">
-          <div className="mx-auto max-w-[1100px] px-8 py-3.5 flex items-center justify-between gap-8">
-
+          <div className={cn(
+            "mx-auto py-3.5 flex items-center justify-between gap-8 px-8",
+            pathname.startsWith('/chat') ? "max-w-[1150px]" : "max-w-[1100px]"
+          )}>
             {/* Logo */}
             <GroveLogo href="/" size="md" />
 
