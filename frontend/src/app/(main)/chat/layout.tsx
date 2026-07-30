@@ -50,7 +50,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* Left Pane: Inbox / Conversation List */}
         <div 
           className={cn(
-            "w-full md:w-64 border-r border-gr-line flex flex-col h-full bg-white/20 dark:bg-black/10",
+            "w-full md:w-64 border-r border-gr-line flex flex-col h-full bg-white/20 dark:bg-black/10 min-h-0",
             isChatRoomPage && "hidden md:flex"
           )}
         >
@@ -179,7 +179,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* Right Pane: Chat Window / Content */}
         <div 
           className={cn(
-            "flex-1 flex flex-col h-full bg-white/10 dark:bg-black/5",
+            "flex-1 flex flex-col h-full bg-white/10 dark:bg-black/5 min-h-0",
             !isChatRoomPage && "hidden md:flex"
           )}
         >
