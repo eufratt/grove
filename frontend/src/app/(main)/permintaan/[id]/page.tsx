@@ -427,7 +427,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8">
       <BgPattern />
 
-      <div className="relative z-10 mx-auto max-w-4xl">
+      <div className="relative z-10 mx-auto max-w-5xl">
         {/* Back navigation */}
         <div className="mb-6">
           <Link
@@ -644,7 +644,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           </div>
 
           {/* Right Column: Commit actions for Farmers & Commitments log (1/3 width) */}
-          <div className="space-y-6">
+          <div className="space-y-4 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
             {/* Buyer Match & Escrow Panel */}
             {user && user.role === 'PEMBELI' && request.buyer_id === user.id && (
               <>
