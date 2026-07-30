@@ -190,10 +190,10 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               {otherName}
               {otherUser.role && (
                 <span className={cn(
-                  "font-mono text uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
+                  "font-mono text-[9px] uppercase tracking-widest font-bold",
                   otherUser.role === 'PETANI' 
-                    ? "bg-gr-board/10 text-gr-board border-gr-board/20" 
-                    : "bg-gr-down/10 text-gr-down border-gr-down/20"
+                    ? "text-gr-board" 
+                    : "text-gr-down"
                 )}>
                   {otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli'}
                 </span>

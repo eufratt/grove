@@ -31,8 +31,20 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
     return `${d.getDate()} ${months[d.getMonth()]}`;
   };
+  // Lock page scrolling while chat is active to avoid buggy bouncing / double scrollbars
+  useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, []);
+
   return (
-    <div className="max-w-[1150px] w-full mx-auto px-4 md:px-8 py-4 md:py-6 h-[calc(100vh-100px)] md:h-[calc(100vh-120px)] min-h-[500px]">
+    <div className="max-w-[1150px] w-full mx-auto px-4 md:px-8 py-4 md:py-6 h-[calc(100vh-180px)] md:h-[calc(100vh-120px)] min-h-[500px]">
       <div className="w-full flex bg-white/70 dark:bg-[#1E1812]/50 backdrop-blur-md border border-gr-line/80 h-full rounded-sm overflow-hidden  transition-all">
         
         {/* Left Pane: Inbox / Conversation List */}
@@ -140,10 +152,10 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                         {/* Badges footer */}
                         <div className="mt-2 flex items-center justify-between gap-2">
                           <span className={cn(
-                            "font-mono text uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
+                            "font-mono text-[9px] uppercase tracking-widest font-bold",
                             otherUser.role === 'PETANI' 
-                              ? "bg-gr-board/10 text-gr-board border-gr-board/20" 
-                              : "bg-gr-down/10 text-gr-down border-gr-down/20"
+                              ? "text-gr-board" 
+                              : "text-gr-down"
                           )}>
                             {otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli'}
                           </span>
