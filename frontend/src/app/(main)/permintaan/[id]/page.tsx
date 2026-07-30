@@ -436,7 +436,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           {/* Main Info Columns (2/3 width) */}
           <div className="lg:col-span-2 space-y-6">
             <header className="mb-6">
-              <span className="bg-gr-board/10 border border-gr-board/20 px-3 py-1 font-mono text-[10px] uppercase font-bold tracking-wider text-gr-board rounded-sm inline-block mb-3">
+              <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-gr-board inline-block mb-2">
                 {request.category}
               </span>
               <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
@@ -447,145 +447,153 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               </p>
             </header>
 
-            {/* Progress Bar Panel */}
-            <div className="rounded-sm border border-gr-line bg-white/80 p-6 sm:p-8 backdrop-blur-md shadow-md">
-              <div className="flex justify-between items-center mb-3">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80">Fulfillment Progress</span>
-                <span className="font-mono text-xs font-bold text-gr-board bg-gr-board/10 px-2 py-0.5 rounded-sm">
-                  {progressPercent}%
-                </span>
-              </div>
-              
-              {/* Actual Progress Bar */}
-              <div className="w-full bg-gr-paper h-3 rounded-full overflow-hidden mb-6 border border-gr-line">
-                <div 
-                  className="bg-gr-board h-full rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-
-              {/* Progress Description Text */}
-              <div className="flex flex-col sm:flex-row justify-between gap-4 font-sans text-sm">
-                <div>
-                  <span className="text-gr-ink font-bold text-xl font-mono">
-                    {committed.toLocaleString('id-ID')}
-                  </span>
-                  <span className="text-gr-ink-soft"> dari </span>
-                  <span className="text-gr-ink font-bold text-xl font-mono">
-                    {needed.toLocaleString('id-ID')} KG
+            {/* Consolidated Request Detail Container */}
+            <div className="rounded-sm border border-gr-line bg-white/80 backdrop-blur-md shadow-md overflow-hidden">
+              {/* Progress Bar Section */}
+              <div className="p-6 sm:p-8 border-b border-gr-line space-y-4">
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">Fulfillment Progress</span>
+                  <span className="font-display text-3xl font-bold text-gr-board">
+                    {progressPercent}%
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-gr-ink-soft font-mono text-xs sm:text-sm">
-                  <Users size={16} className="text-gr-board" />
-                  <span>
-                    {request.num_petani_committed || 0} petani telah berkomitmen
-                  </span>
-                </div>
-              </div>
-
-              {remainingKg > 0 && request.status === 'TERBUKA' && (
-                <p className="mt-4 font-sans text-xs text-gr-board bg-gr-board/5 border border-gr-board/20 p-3 rounded-sm flex items-center gap-2 font-medium">
-                  <ClipboardCheck size={14} />
-                  Membutuhkan {remainingKg.toLocaleString('id-ID')} KG lagi untuk dipenuhi.
-                </p>
-              )}
-            </div>
-
-            {/* Request Detail Panel */}
-            <div className="rounded-sm border border-gr-line bg-white/80 p-6 sm:p-8 backdrop-blur-md space-y-6 shadow-md">
-              <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80">Rincian Permintaan</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-sans text-sm">
-                <div className="space-y-1">
-                  <span className="text-gr-ink-soft text-xs">Deadline Pemenuhan</span>
-                  <p className="text-gr-ink font-semibold flex items-center gap-2">
-                    <Calendar size={14} className="text-gr-board" />
-                    {formattedDeadline}
-                  </p>
+                
+                {/* Actual Progress Bar */}
+                <div className="w-full bg-gr-line/45 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-gr-board h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
                 </div>
 
-                <div className="space-y-1">
-                  <span className="text-gr-ink-soft text-xs">Lokasi Penerimaan</span>
-                  <p className="text-gr-ink font-semibold flex items-center gap-2">
-                    <MapPin size={14} className="text-gr-board" />
-                    {request.latitude && request.longitude
-                      ? (addressName || getClosestProvince(request.latitude, request.longitude))
-                      : 'Lokasi tidak diketahui'}
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-gr-ink-soft text-xs">Harga Penawaran</span>
-                  <p className="text-gr-ink font-semibold flex items-center gap-2">
-                    <Tag size={14} className="text-gr-board" />
-                    Rp {request.price_per_kg ? request.price_per_kg.toLocaleString('id-ID') : '-'}/KG
-                  </p>
-                </div>
-
-                {refPrice !== null && (
-                  <div className="space-y-1 animate-fade-in">
-                    <span className="text-gr-ink-soft text-xs">Harga Acuan ({refPriceRegion})</span>
-                    <p className="text-gr-ink font-semibold flex items-center gap-2">
-                      <Info size={14} className="text-gr-board" />
-                      Rp {refPrice.toLocaleString('id-ID')}/KG
-                    </p>
+                {/* Progress Description Text */}
+                <div className="flex flex-col sm:flex-row justify-between items-baseline gap-4 font-sans text-sm pt-2">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-display text-3xl font-bold text-gr-ink">
+                      {Math.round(committed).toLocaleString('id-ID')}
+                    </span>
+                    <span className="text-gr-ink-soft text-xs"> dari </span>
+                    <span className="font-display text-3xl font-bold text-gr-ink">
+                      {Math.round(needed).toLocaleString('id-ID')}
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">KG</span>
                   </div>
-                )}
-
-                <div className="space-y-1">
-                  <span className="text-gr-ink-soft text-xs">Status Permintaan</span>
-                  <div>
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs font-bold uppercase tracking-wider border font-mono ${
-                      request.status === 'TERBUKA' 
-                        ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
-                        : request.status === 'TERPENUHI'
-                        ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
-                        : 'bg-gr-paper text-gr-ink-soft border-gr-line'
-                    }`}>
-                      {request.status}
+                  <div className="flex items-center gap-1.5 text-gr-ink-soft font-mono text-[10px] font-bold uppercase tracking-wider">
+                    <Users size={14} className="text-gr-board" />
+                    <span>
+                      {request.num_petani_committed || 0} petani berkomitmen
                     </span>
                   </div>
                 </div>
+
+                {remainingKg > 0 && request.status === 'TERBUKA' && (
+                  <div className="mt-4 text-xs font-sans text-gr-board font-medium flex items-center gap-2">
+                    <ClipboardCheck size={14} className="shrink-0" />
+                    <span>Membutuhkan {Math.round(remainingKg).toLocaleString('id-ID')} KG lagi untuk dipenuhi.</span>
+                  </div>
+                )}
               </div>
 
-              {user && user.role === 'PETANI' && request.buyer_name && (
-                <div className="pt-6 border-t border-gr-line space-y-4">
-                  <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80">
-                    Informasi Kontak Pembeli
-                  </h4>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gr-paper/60 p-4 rounded-sm border border-gr-line">
-                    <div className="font-sans text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gr-ink font-semibold text-base">{request.buyer_name}</span>
-                        <div className="bg-white/80 border border-gr-line rounded-full px-2.5 py-0.5 flex items-center justify-center shrink-0">
-                          <RatingBadge
-                            avgRating={request.buyer_rating_avg}
-                            ratingCount={request.buyer_rating_count}
-                            size="sm"
-                            newLabel="Pembeli Baru"
-                            countSuffix="permintaan"
-                          />
-                        </div>
-                      </div>
-                      <p className="text-gr-ink-soft/70 text-xs mt-0.5">{request.buyer_phone || 'Tidak ada nomor telepon'}</p>
+              {/* Request Detail Section */}
+              <div className="p-6 sm:p-8 space-y-6">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-1">Rincian Permintaan</span>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-sans text-sm">
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Deadline Pemenuhan</span>
+                    <p className="text-gr-ink font-semibold flex items-center gap-2">
+                      <Calendar size={14} className="text-gr-board/60" />
+                      {formattedDeadline}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Lokasi Penerimaan</span>
+                    <p className="text-gr-ink font-semibold flex items-center gap-2">
+                      <MapPin size={14} className="text-gr-board/60" />
+                      {request.latitude && request.longitude
+                        ? (addressName || getClosestProvince(request.latitude, request.longitude))
+                        : 'Lokasi tidak diketahui'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="font-display text-2xl font-bold text-gr-ink">
+                        Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
+                      </span>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">/ KG</span>
                     </div>
-                    {request.buyer_id && (
-                      <button
-                        onClick={handleContactBuyer}
-                        disabled={chatLoading}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-50"
-                      >
-                        {chatLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <MessageSquare className="h-4 w-4" />
-                        )}
-                        Hubungi Pembeli
-                      </button>
-                    )}
+                  </div>
+
+                  {refPrice !== null && (
+                    <div className="space-y-1 animate-fade-in">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Acuan ({refPriceRegion})</span>
+                      <div className="flex items-baseline gap-0.5">
+                        <span className="font-display text-2xl font-bold text-gr-board">
+                          Rp {Math.round(refPrice).toLocaleString('id-ID')}
+                        </span>
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">/ KG</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Status Permintaan</span>
+                    <div className="pt-0.5">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider border font-mono ${
+                        request.status === 'TERBUKA' 
+                          ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
+                          : request.status === 'TERPENUHI'
+                          ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
+                          : 'bg-gr-paper text-gr-ink-soft border-gr-line'
+                      }`}>
+                        {request.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              )}
+
+                {user && user.role === 'PETANI' && request.buyer_name && (
+                  <div className="pt-6 border-t border-gr-line">
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-3">
+                      Informasi Kontak Pembeli
+                    </span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-2">
+                      <div className="font-sans text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gr-ink font-semibold text-base">{request.buyer_name}</span>
+                          <div className="flex items-center justify-center shrink-0">
+                            <RatingBadge
+                              avgRating={request.buyer_rating_avg}
+                              ratingCount={request.buyer_rating_count}
+                              size="sm"
+                              newLabel="Pembeli Baru"
+                              countSuffix="permintaan"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-gr-ink-soft/70 text-xs mt-0.5">{request.buyer_phone || 'Tidak ada nomor telepon'}</p>
+                      </div>
+                      {request.buyer_id && (
+                        <button
+                          onClick={handleContactBuyer}
+                          disabled={chatLoading}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                        >
+                          {chatLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <MessageSquare className="h-4 w-4" />
+                          )}
+                          <span>Chat Pembeli</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -620,11 +628,11 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gr-ink-soft">Harga per KG:</span>
-                        <span className="text-gr-ink font-mono">Rp {request.match_transaction.price_per_kg.toLocaleString('id-ID')}</span>
+                        <span className="text-gr-ink font-mono">Rp {Math.round(request.match_transaction.price_per_kg).toLocaleString('id-ID')}</span>
                       </div>
                       <div className="flex justify-between border-t border-gr-line pt-2 font-bold text-sm">
                         <span className="text-gr-ink-soft">Total Pembayaran:</span>
-                        <span className="text-gr-up font-mono">Rp {request.match_transaction.amount.toLocaleString('id-ID')}</span>
+                        <span className="text-gr-up font-mono">Rp {Math.round(request.match_transaction.amount).toLocaleString('id-ID')}</span>
                       </div>
                     </div>
 
@@ -722,7 +730,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           ) : (
                             <MessageSquare className="h-4 w-4" />
                           )}
-                          Hubungi Penjual
+                          <span>Chat Petani</span>
                         </button>
                       )}
                     </div>
@@ -754,7 +762,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         {candidates.length === 0 ? (
                           <div className="text-center py-6 px-4 border border-dashed border-gr-line rounded-sm bg-gr-paper/30">
                             <p className="text-xs font-sans text-gr-ink-soft">
-                              Tidak ada produk petani yang cocok (harga ≤ Rp {request.price_per_kg.toLocaleString('id-ID')}/KG & cocok secara embedding) saat ini.
+                              Tidak ada produk petani yang cocok (harga ≤ Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}/KG & cocok secara embedding) saat ini.
                             </p>
                           </div>
                         ) : (() => {
@@ -770,7 +778,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                                 {currentCandidates.map((cand) => {
                                   const similarityPercentage = Math.round((1 - cand.distance_score) * 100);
                                   return (
-                                    <div key={cand.product_id} className="p-4 rounded-sm border border-gr-line bg-white hover:border-gr-board/40 transition-all flex flex-col gap-3.5 relative overflow-hidden">
+                                    <div key={cand.product_id} className="py-4 border-b border-gr-line/45 last:border-b-0 flex flex-col gap-3.5 relative overflow-hidden">
                                       {/* Product Title & Match Badge */}
                                       <div className="flex justify-between items-start gap-2">
                                         <div className="min-w-0 flex-1">
@@ -783,14 +791,14 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                                       </div>
 
                                       {/* Stock & Price info */}
-                                      <div className="grid grid-cols-2 gap-4 text-xs font-sans border-t border-b border-gr-line/40 py-2">
+                                      <div className="grid grid-cols-2 gap-4 text-xs font-sans border-t border-b border-gr-line/45 py-2">
                                         <div>
                                           <span className="text-[10px] text-gr-ink-soft block">Stok Tersedia:</span>
                                           <span className="font-semibold text-gr-ink font-mono">{cand.quantity_kg} KG</span>
                                         </div>
                                         <div>
                                           <span className="text-[10px] text-gr-ink-soft block">Harga per KG:</span>
-                                          <span className="font-semibold text-gr-ink font-mono">Rp {cand.price_per_kg.toLocaleString('id-ID')}</span>
+                                          <span className="font-semibold text-gr-ink font-mono">Rp {Math.round(cand.price_per_kg).toLocaleString('id-ID')}</span>
                                         </div>
                                       </div>
 
@@ -955,7 +963,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     return (
                       <div 
                         key={commit.id}
-                        className="p-3 bg-gr-paper/60 rounded-sm border border-gr-line flex justify-between items-center shadow-xs"
+                        className="py-3 border-b border-gr-line/45 last:border-b-0 flex justify-between items-center bg-transparent"
                       >
                         <div>
                           {isBuyer && commit.petani_name && (
@@ -975,7 +983,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                             onClick={() => handleContactPetani(commit.petani_id)}
                             disabled={chatLoading}
                             className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                            title="Chat Penjual"
+                            title="Chat Petani"
                           >
                             {chatLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -1028,7 +1036,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 <div className="flex justify-between">
                   <span className="text-gr-text-primary/60">HARGA:</span>
                   <span className="font-bold text-gr-text-primary">
-                    Rp {selectedCandidate.price_per_kg.toLocaleString('id-ID')} / KG
+                    Rp {Math.round(selectedCandidate.price_per_kg).toLocaleString('id-ID')} / KG
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -1041,7 +1049,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 <div className="flex justify-between text-xs font-sans">
                   <span className="text-gr-text-primary font-bold">TOTAL ESTIMASI:</span>
                   <span className="font-bold text-gr-green">
-                    Rp {(selectedCandidate.price_per_kg * Math.min(selectedCandidate.quantity_kg, request.quantity_kg_needed)).toLocaleString('id-ID')}
+                    Rp {Math.round(selectedCandidate.price_per_kg * Math.min(selectedCandidate.quantity_kg, request.quantity_kg_needed)).toLocaleString('id-ID')}
                   </span>
                 </div>
               </div>
