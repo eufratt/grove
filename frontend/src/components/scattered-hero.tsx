@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { LogOut } from 'lucide-react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 interface TickerProps {
   pricesData?: {
@@ -28,7 +29,7 @@ export function Ticker({ pricesData }: TickerProps) {
   const repeatedItems = [...items, ...items, ...items, ...items];
 
   return (
-    <div className="w-full bg-gr-board text-gr-chalk overflow-hidden border-b border-gr-chalk/10 relative z-50">
+    <div className="ticker-wrapper w-full bg-gr-board text-gr-chalk overflow-hidden border-b border-gr-chalk/10 relative z-50">
       <div className="animate-ticker flex whitespace-nowrap items-center">
         {repeatedItems.map((item, idx) => {
           const isUp = item.delta > 0;
@@ -150,7 +151,8 @@ export function MastheadNav() {
           <div className="flex items-center gap-3.5">
             <Link
               href={user.role === 'PETANI' ? `/petani/${user.id}` : '/settings'}
-              className="hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft hover:text-gr-board hover:underline cursor-pointer"
+              className="ink-link hidden lg:inline font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft cursor-pointer"
+              style={{ transition: 'color 300ms cubic-bezier(0.4,0,0.2,1)' }}
             >
               {getFirstName(user.full_name || user.email) || 'Pengguna'}
             </Link>
@@ -165,7 +167,10 @@ export function MastheadNav() {
         ) : (
           <Link
             href="/login"
-            className="font-mono text-xs uppercase tracking-wider border-1.5 border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
+            className="font-mono text-xs uppercase tracking-wider border-[1.5px] border-gr-ink bg-transparent px-5 py-2.5 rounded-sm cursor-pointer"
+            style={{ transition: 'background-color 380ms cubic-bezier(0.4,0,0.2,1), color 380ms cubic-bezier(0.4,0,0.2,1)' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'var(--gr-ink)'; el.style.color = 'var(--gr-paper)'; }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'transparent'; el.style.color = 'var(--gr-ink)'; }}
           >
             Masuk
           </Link>
@@ -186,14 +191,27 @@ export function HeroHeadline() {
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   };
 
+  // Trigger ink-develop on headline after mount (first paint)
+  const [headlineVisible, setHeadlineVisible] = useState(false);
+  useEffect(() => {
+    // Small RAF delay so the animation is perceptible even on fast connections
+    const raf = requestAnimationFrame(() => {
+      setTimeout(() => setHeadlineVisible(true), 80);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
     <section className="w-full max-w-[1100px] mx-auto px-8 py-12 md:py-16 text-center select-none">
       <span className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-gr-down block mb-5">
         Rantai pasok pangan pedesaan
       </span>
       
-      <h1 className="font-display text-[clamp(2.8rem,9vw,5.5rem)] font-semibold tracking-tight text-gr-ink max-w-[850px] mx-auto leading-[0.95] mb-6">
-        Panen tanpa <em className="font-light italic text-gr-ink tracking-wide">tebakan</em>.
+      {/* Headline: "develops" from muted to full ink color on mount */}
+      <h1
+        className={`font-display text-[clamp(2.8rem,9vw,5.5rem)] font-semibold tracking-tight max-w-[850px] mx-auto leading-[0.95] mb-6 gr-headline-develop${headlineVisible ? ' gr-headline-develop--visible' : ''}`}
+      >
+        Panen tanpa <em className="font-light italic tracking-wide">tebakan</em>.
       </h1>
       
       <p className="font-display italic font-normal text-[clamp(1.05rem,2.2vw,1.35rem)] text-gr-ink-soft max-w-[600px] mx-auto leading-relaxed mb-6">
@@ -202,20 +220,27 @@ export function HeroHeadline() {
       
       <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-8 flex items-center justify-center gap-2">
         <span>Papan harga Grove</span>
-        <span className="inline-block w-1 h-1 bg-gr-ink-soft rounded-full" />
+        <span className="inline-block w-1 h-1 bg-gr-ink-soft" />
         <span>Diperbarui {formatDateIndonesian(today)}</span>
       </div>
       
+      {/* CTA buttons: slow fill-shift, no scale, no shadow — editorial flat */}
       <div className="flex flex-wrap justify-center gap-3.5">
         <a
           href="/beranda"
-          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-1.5 border-gr-board hover:bg-gr-board/90 hover:border-gr-board/90  px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer "
+          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-[1.5px] border-gr-board px-6 py-3 rounded-sm cursor-pointer"
+          style={{ transition: 'background-color 380ms cubic-bezier(0.4,0,0.2,1), border-color 380ms cubic-bezier(0.4,0,0.2,1)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'color-mix(in srgb, var(--gr-board) 88%, transparent)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--gr-board)'; }}
         >
           Jelajahi marketplace
         </a>
         <a
           href="/ajukan-permintaan"
-          className="font-mono text-xs uppercase tracking-wider border-1.5 border-gr-ink bg-transparent hover:bg-gr-ink hover:text-gr-paper px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer"
+          className="ink-link font-mono text-xs uppercase tracking-wider border-[1.5px] border-gr-ink bg-transparent px-6 py-3 rounded-sm cursor-pointer"
+          style={{ transition: 'background-color 380ms cubic-bezier(0.4,0,0.2,1), color 380ms cubic-bezier(0.4,0,0.2,1)' }}
+          onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'var(--gr-ink)'; el.style.color = 'var(--gr-paper)'; }}
+          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'transparent'; el.style.color = 'var(--gr-ink)'; }}
         >
           Pasang sinyal demand
         </a>
@@ -225,6 +250,9 @@ export function HeroHeadline() {
 }
 
 export function LedeSection() {
+  const { ref: ledePRef, isVisible: ledeVisible } = useScrollReveal<HTMLParagraphElement>({ rootMargin: '0px 0px -32px 0px' });
+  const { ref: listRef, isVisible: listVisible } = useScrollReveal<HTMLUListElement>({ rootMargin: '0px 0px -16px 0px' });
+
   return (
     <section className="w-full max-w-[1100px] mx-auto px-8 py-8 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 relative z-40 select-none">
       <style dangerouslySetInnerHTML={{__html: `
@@ -240,7 +268,11 @@ export function LedeSection() {
         }
       `}} />
       
-      <p className="lede-dropcap font-sans text-sm md:text-[15.5px] leading-relaxed text-gr-ink-soft text-justify md:text-left m-0">
+      {/* Drop-cap paragraph: fade up when it enters view */}
+      <p
+        ref={ledePRef}
+        className={`lede-dropcap font-sans text-sm md:text-[15.5px] leading-relaxed text-gr-ink-soft text-justify md:text-left m-0 gr-reveal${ledeVisible ? ' gr-reveal--visible' : ''}`}
+      >
         Setiap musim, pola yang sama berulang: petani menanam berdasarkan harga yang mereka lihat saat itu, bukan harga yang berlaku saat panen tiba berbulan-bulan kemudian. Karena hampir semua petani membaca sinyal yang sama, mereka menanam komoditas yang sama pula — dan saat panen tiba serentak, pasokan membanjir, harga jatuh, dan siklus dimulai lagi musim berikutnya. Ekonom menyebut ini Cobweb Theorem: bukan kegagalan siapapun secara individual, tapi jebakan struktural akibat keputusan yang selalu satu langkah di belakang informasi.
       </p>
       
@@ -248,7 +280,11 @@ export function LedeSection() {
         <h2 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-4">
           Cara baca papan harga
         </h2>
-        <ul className="list-none p-0 m-0 flex flex-col gap-3">
+        {/* List items stagger in one-by-one like reading down a printed list */}
+        <ul
+          ref={listRef}
+          className={`list-none p-0 m-0 flex flex-col gap-3 gr-stagger${listVisible ? ' gr-stagger--visible' : ''}`}
+        >
           <li className="flex gap-2.5 font-sans text-[13px] leading-relaxed text-gr-ink-soft">
             <span className="font-display italic font-semibold text-gr-ink flex-shrink-0">i.</span>
             <span>Setiap panel adalah satu komoditas. Warnanya menandai arah — hijau naik, terracotta turun, abu stabil.</span>
@@ -268,6 +304,8 @@ export function LedeSection() {
 }
 
 export function QuoteSection() {
+  const { ref: quoteRef, isVisible: quoteVisible } = useScrollReveal<HTMLQuoteElement>();
+
   return (
     <section className="w-full max-w-[900px] mx-auto px-8 py-10 relative z-40 select-none">
       {/* Quote Eyebrow */}
@@ -279,9 +317,12 @@ export function QuoteSection() {
         <span className="flex-1 h-px bg-gr-line" />
       </div>
 
-      {/* Quote Content */}
-      <blockquote className="font-display font-light italic text-[clamp(1.5rem,4vw,2.125rem)] text-gr-ink text-center leading-relaxed max-w-[780px] mx-auto mb-8">
-        “Petani menanam berdasarkan harga musim lalu. Panen tiba serentak, dan harga jatuh sebelum siapapun sempat <span className="font-display font-light italic text-gr-down tracking-wide">bertanya</span>.”
+      {/* Quote Content: slow fade-up reveal */}
+      <blockquote
+        ref={quoteRef}
+        className={`font-display font-light italic text-[clamp(1.5rem,4vw,2.125rem)] text-gr-ink text-center leading-relaxed max-w-[780px] mx-auto mb-8 gr-reveal${quoteVisible ? ' gr-reveal--visible' : ''}`}
+      >
+        "Petani menanam berdasarkan harga musim lalu. Panen tiba serentak, dan harga jatuh sebelum siapapun sempat <span className="font-display font-light italic text-gr-down tracking-wide">bertanya</span>."
       </blockquote>
 
       {/* Diamond Divider */}
@@ -427,6 +468,7 @@ const defaultFigPanelsData: FigPanelsProps['pricesData'] = [
 
 export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps) {
   const panelsData: FigPanelsProps['pricesData'] = (pricesData?.length ? pricesData : defaultFigPanelsData);
+  const { ref: gridRef, isVisible: gridVisible } = useScrollReveal<HTMLDivElement>({ rootMargin: '0px 0px -60px 0px' });
 
   return (
     <section className="w-full max-w-[1100px] mx-auto px-8 pb-16 relative z-40 select-none">
@@ -441,8 +483,11 @@ export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps)
         </div>
       </div>
 
-      {/* Grid Panels */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+      {/* Grid Panels — stagger in when entering viewport */}
+      <div
+        ref={gridRef}
+        className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 gr-stagger${gridVisible ? ' gr-stagger--visible' : ''}`}
+      >
         {panelsData!.map((panel, idx) => {
           // Dynamic calculation of color and delta display
           const isUp = panel.delta > 0;
@@ -514,63 +559,81 @@ export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps)
       </div>
 
       {/* Entries Section: Bagaimana Grove memutus siklus harga */}
-      <div className="border-t-2 border-gr-ink pt-4">
-        <div className="font-mono text-[11px] tracking-widest uppercase text-gr-ink-soft mb-6">
-          Bagaimana Grove memutus siklus harga
-        </div>
-        
-        <div className="flex flex-col gap-6">
-          {[
-            {
-              mark: 'A',
-              title: 'Sinyal permintaan, sebelum tanam',
-              desc: 'Pembeli memasang kebutuhan sebelum musim tanam dimulai. Petani merespons permintaan nyata lewat kartu geser sederhana, bukan menebak dari harga musim lalu.',
-              theory: 'Teori Cobweb · memutus lag informasi'
-            },
-            {
-              mark: 'B',
-              title: 'Transparansi sesama petani',
-              desc: 'Setiap sinyal demand menunjukkan progres langsung — berapa persen sudah terpenuhi, berapa petani sudah berkomitmen — agar keputusan tanam tidak lagi buta terhadap keputusan petani lain.',
-              theory: 'Teori Cobweb · mencegah pasokan berlebih serentak'
-            },
-            {
-              mark: 'C',
-              title: 'Harga sebagai pola, bukan snapshot',
-              desc: 'Grafik tren historis dari data PIHPS Bank Indonesia membaca harga sebagai siklus musiman, bukan angka sesaat yang mudah menyesatkan keputusan.',
-              theory: 'Teori Cobweb · konteks siklus harga'
-            },
-            {
-              mark: 'D',
-              title: 'Harga wajar saat transaksi',
-              desc: 'PriceGauge membandingkan harga tiap produk terhadap acuan secara langsung, menutup celah informasi antara petani dan pembeli saat transaksi berlangsung.',
-              theory: 'Asimetri informasi · Akerlof'
-            }
-          ].map((entry, idx) => (
-            <div key={idx} className="grid grid-cols gap-5 py-6 border-b border-gr-line last:border-0">
-              <span className="font-display font-bold text-[26px] text-gr-down">{entry.mark}</span>
-              <div>
-                <h3 className="font-display font-semibold text-lg text-gr-ink m-0 mb-2">{entry.title}</h3>
-                <p className="font-sans text-[14.5px] leading-relaxed text-gr-ink-soft max-w-[580px] m-0 mb-2.5">{entry.desc}</p>
-                <span className="font-mono text-[10px] tracking-wider uppercase text-gr-down">{entry.theory}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <EntriesSection />
     </section>
   );
 }
 
+function EntriesSection() {
+  const { ref: entriesRef, isVisible: entriesVisible } = useScrollReveal<HTMLDivElement>({ rootMargin: '0px 0px -40px 0px' });
+
+  const entries = [
+    {
+      mark: 'A',
+      title: 'Sinyal permintaan, sebelum tanam',
+      desc: 'Pembeli memasang kebutuhan sebelum musim tanam dimulai. Petani merespons permintaan nyata lewat kartu geser sederhana, bukan menebak dari harga musim lalu.',
+      theory: 'Teori Cobweb · memutus lag informasi'
+    },
+    {
+      mark: 'B',
+      title: 'Transparansi sesama petani',
+      desc: 'Setiap sinyal demand menunjukkan progres langsung — berapa persen sudah terpenuhi, berapa petani sudah berkomitmen — agar keputusan tanam tidak lagi buta terhadap keputusan petani lain.',
+      theory: 'Teori Cobweb · mencegah pasokan berlebih serentak'
+    },
+    {
+      mark: 'C',
+      title: 'Harga sebagai pola, bukan snapshot',
+      desc: 'Grafik tren historis dari data PIHPS Bank Indonesia membaca harga sebagai siklus musiman, bukan angka sesaat yang mudah menyesatkan keputusan.',
+      theory: 'Teori Cobweb · konteks siklus harga'
+    },
+    {
+      mark: 'D',
+      title: 'Harga wajar saat transaksi',
+      desc: 'PriceGauge membandingkan harga tiap produk terhadap acuan secara langsung, menutup celah informasi antara petani dan pembeli saat transaksi berlangsung.',
+      theory: 'Asimetri informasi · Akerlof'
+    }
+  ];
+
+  return (
+    <div className="border-t-2 border-gr-ink pt-4">
+      <div className="font-mono text-[11px] tracking-widest uppercase text-gr-ink-soft mb-6">
+        Bagaimana Grove memutus siklus harga
+      </div>
+      
+      <div
+        ref={entriesRef}
+        className={`flex flex-col gap-6 gr-stagger${entriesVisible ? ' gr-stagger--visible' : ''}`}
+      >
+        {entries.map((entry, idx) => (
+          <div key={idx} className="grid grid-cols gap-5 py-6 border-b border-gr-line last:border-0">
+            <span className="font-display font-bold text-[26px] text-gr-down">{entry.mark}</span>
+            <div>
+              <h3 className="font-display font-semibold text-lg text-gr-ink m-0 mb-2">{entry.title}</h3>
+              <p className="font-sans text-[14.5px] leading-relaxed text-gr-ink-soft max-w-[580px] m-0 mb-2.5">{entry.desc}</p>
+              <span className="font-mono text-[10px] tracking-wider uppercase text-gr-down">{entry.theory}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function LandingFooter() {
+  const { ref: footerRef, isVisible: footerVisible } = useScrollReveal<HTMLDivElement>({ threshold: 0.05 });
+
   return (
     <footer className="w-full border-t-3 border-gr-ink mt-8 relative z-40 select-none bg-transparent">
-      <div className="max-w-[1100px] mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-[5fr_4fr_3fr] gap-8">
+      <div
+        ref={footerRef}
+        className={`max-w-[1100px] mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-[5fr_4fr_3fr] gap-8 gr-stagger${footerVisible ? ' gr-stagger--visible' : ''}`}
+      >
         <div>
           <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-3">
             Sumber
           </h3>
           <p className="font-sans text-[13px] leading-relaxed text-gr-ink-soft m-0">
-            Pusat Informasi Harga Pangan Strategis (PIHPS) Nasional, Bank Indonesia — <a href="https://bi.go.id/hargapangan" target="_blank" rel="noopener noreferrer" className="text-gr-ink underline underline-offset-2 decoration-gr-line hover:text-gr-down transition-colors">bi.go.id/hargapangan</a>. Data diambil otomatis setiap hari lewat proses terjadwal, disimpan sebagai acuan harga per komoditas per wilayah.
+            Pusat Informasi Harga Pangan Strategis (PIHPS) Nasional, Bank Indonesia — <a href="https://bi.go.id/hargapangan" target="_blank" rel="noopener noreferrer" className="ink-link text-gr-ink" style={{ transition: 'color 300ms cubic-bezier(0.4,0,0.2,1)' }}>bi.go.id/hargapangan</a>. Data diambil otomatis setiap hari lewat proses terjadwal, disimpan sebagai acuan harga per komoditas per wilayah.
           </p>
         </div>
         <div>
@@ -593,3 +656,4 @@ export function LandingFooter() {
     </footer>
   );
 }
+

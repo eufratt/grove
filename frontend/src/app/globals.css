@@ -257,16 +257,114 @@
 }
 
 
-/* Ticker marquee animation */
+/* ── Ticker marquee animation ──────────────────────────────────────────────── */
+/* Speed is intentionally slow and strictly linear — mechanical stock-ticker feel */
 @keyframes ticker-scroll {
-  0% { transform: translate3d(0, 0, 0); }
+  0%   { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-50%, 0, 0); }
 }
 
 .animate-ticker {
   display: inline-block;
   padding: 9px 0;
-  animation: ticker-scroll 26s linear infinite;
+  /* 40 s at strictly linear — no ease-in or ease-out  */
+  animation: ticker-scroll 40s linear infinite;
+  /* Pause on hover so the user can read a specific price */
+  will-change: transform;
+}
+
+.ticker-wrapper:hover .animate-ticker,
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+/* ── Editorial scroll-reveal primitives ─────────────────────────────────────── */
+/* Ink settling: slow fade + minimal vertical drift, no bounce */
+@keyframes grove-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Headline "type-developing": color transitions from muted → full ink */
+@keyframes grove-ink-develop {
+  from { color: var(--gr-ink-soft); }
+  to   { color: var(--gr-ink); }
+}
+
+/* Utility classes driven by JS (useScrollReveal hook) */
+.gr-reveal {
+  opacity: 0;
+  transform: translateY(6px);
+  /* no transition here — JS toggles .gr-reveal--visible */
+}
+
+.gr-reveal--visible {
+  animation: grove-fade-up 500ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Stagger helpers: siblings get progressively longer delay via CSS custom prop */
+.gr-stagger > * {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.gr-stagger--visible > *:nth-child(1) { animation: grove-fade-up 500ms cubic-bezier(0.4, 0, 0.2, 1) 0ms   forwards; }
+.gr-stagger--visible > *:nth-child(2) { animation: grove-fade-up 500ms cubic-bezier(0.4, 0, 0.2, 1) 160ms  forwards; }
+.gr-stagger--visible > *:nth-child(3) { animation: grove-fade-up 500ms cubic-bezier(0.4, 0, 0.2, 1) 320ms  forwards; }
+.gr-stagger--visible > *:nth-child(4) { animation: grove-fade-up 500ms cubic-bezier(0.4, 0, 0.2, 1) 480ms  forwards; }
+.gr-stagger--visible > *:nth-child(n+5) { animation: grove-fade-up 500ms cubic-bezier(0.4, 0, 0.2, 1) 620ms forwards; }
+
+/* Headline ink-develop */
+.gr-headline-develop {
+  color: var(--gr-ink-soft);
+}
+
+.gr-headline-develop--visible {
+  animation: grove-ink-develop 550ms cubic-bezier(0.4, 0, 0.2, 1) 100ms both;
+}
+
+/* ── Ink underline draw: left→right on hover ────────────────────────────────── */
+/* Apply .ink-link to any text link for the editorial underline-draw effect */
+.ink-link {
+  position: relative;
+  text-decoration: none;
+}
+
+.ink-link::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 280ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ink-link:hover::after {
+  width: 100%;
+}
+
+/* ── Paper noise texture overlay ────────────────────────────────────────────── */
+/* A very subtle grain at 4% opacity — reinforces the print/paper feel          */
+/* Uses an SVG turbulence filter rendered to a data-URI; GPU-composited via     */
+/* position:fixed + pointer-events:none so it never captures interaction.       */
+.paper-grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
 }
 
 /* Custom subtle scrollbar for sidebar lists */

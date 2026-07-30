@@ -33,7 +33,7 @@ function TickerStrip({ items }: { items: TickerItem[] }) {
   const repeatedItems = [...items, ...items, ...items, ...items];
 
   return (
-    <div className="w-full bg-gr-board text-gr-chalk overflow-hidden border-b border-gr-chalk/10">
+    <div className="ticker-wrapper w-full bg-gr-board text-gr-chalk overflow-hidden border-b border-gr-chalk/10">
       <div className="animate-ticker flex whitespace-nowrap items-center">
         {repeatedItems.map((item, idx) => {
           const isUp = item.delta > 0;
