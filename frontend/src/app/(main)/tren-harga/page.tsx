@@ -8,8 +8,58 @@ import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
 import { TrendingUp, TrendingDown, Loader2, Calendar, ChevronDown, HelpCircle, MapPin, AlertTriangle } from 'lucide-react';
-import { PriceTrendChart } from '@/components/products/price-trend-chart';
-import { CobwebChart } from '@/components/products/cobweb-chart';
+import dynamic from 'next/dynamic';
+
+const PriceTrendChartSkeleton = () => (
+  <div className="w-full h-full min-h-[350px] flex flex-col bg-white/20 border border-gr-line rounded-sm p-5 animate-pulse select-none justify-between">
+    <div className="flex justify-between items-center mb-6">
+      <div className="h-3 w-32 bg-gr-ink/10 rounded-sm" />
+      <div className="h-3 w-16 bg-gr-ink/10 rounded-sm" />
+    </div>
+    <div className="flex-1 w-full flex flex-col justify-between py-4 relative">
+      <div className="absolute inset-0 flex items-center justify-center">
+        <svg className="w-full h-[150px] opacity-10" viewBox="0 0 100 30" preserveAspectRatio="none">
+          <path d="M0,25 Q15,5 30,20 T60,10 T90,22 T100,15" fill="none" stroke="var(--gr-ink)" strokeWidth="1" />
+          <path d="M0,25 Q15,5 30,20 T60,10 T90,22 T100,15 L100,30 L0,30 Z" fill="var(--gr-ink)" opacity="0.5" />
+        </svg>
+      </div>
+      <div className="h-px w-full bg-gr-ink/5" />
+      <div className="h-px w-full bg-gr-ink/5" />
+      <div className="h-px w-full bg-gr-ink/5" />
+      <div className="h-px w-full bg-gr-ink/5" />
+      <div className="h-px w-full bg-gr-ink/5" />
+    </div>
+    <div className="flex justify-between items-center mt-4 pt-3 border-t border-gr-line/10">
+      <div className="h-2 w-10 bg-gr-ink/5 rounded-sm" />
+      <div className="h-2 w-10 bg-gr-ink/5 rounded-sm" />
+      <div className="h-2 w-10 bg-gr-ink/5 rounded-sm" />
+      <div className="h-2 w-10 bg-gr-ink/5 rounded-sm" />
+      <div className="h-2 w-10 bg-gr-ink/5 rounded-sm" />
+    </div>
+  </div>
+);
+
+const PriceTrendChart = dynamic(
+  () => import('@/components/products/price-trend-chart').then((mod) => mod.PriceTrendChart),
+  {
+    ssr: false,
+    loading: () => <PriceTrendChartSkeleton />
+  }
+);
+
+const CobwebChart = dynamic(
+  () => import('@/components/products/cobweb-chart').then((mod) => mod.CobwebChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[300px] flex flex-col items-center justify-center bg-white/20 border border-gr-line rounded-sm animate-pulse">
+        <div className="h-6 w-6 border-2 border-gr-board border-t-transparent rounded-full animate-spin opacity-40 mb-2" />
+        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">Memuat Simulasi...</span>
+      </div>
+    )
+  }
+);
+
 import { provinceCentroids } from '@/lib/data/province-centroids';
 
 export default function PriceTrendPage() {
@@ -390,10 +440,7 @@ export default function PriceTrendPage() {
             {/* COLUMN 1: Historical Trend Chart (Left - Main) */}
             <div className="flex flex-col h-full min-h-0 space-y-3">
               {fetchingChart ? (
-                <div className="flex-1 flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm ">
-                  <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50" />
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mt-2">Membuat Grafik...</span>
-                </div>
+                <PriceTrendChartSkeleton />
               ) : historyData.length >= 2 ? (
                 <div className="flex-1 flex flex-col min-h-0 space-y-3">
                   <div className="flex justify-between items-center px-1 gap-2 flex-wrap shrink-0">

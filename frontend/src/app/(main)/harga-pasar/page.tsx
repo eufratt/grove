@@ -17,17 +17,35 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
+const MapViewSkeleton = () => (
+  <div className="h-full w-full min-h-[380px] bg-white/10 border border-gr-line/15 rounded-sm animate-pulse relative overflow-hidden select-none p-4 flex flex-col justify-between">
+    {/* Map controls placeholder */}
+    <div className="flex flex-col gap-1 w-8">
+      <div className="h-8 w-8 bg-gr-ink/10 border border-gr-line/10 rounded-sm" />
+      <div className="h-8 w-8 bg-gr-ink/10 border border-gr-line/10 rounded-sm" />
+    </div>
+    
+    {/* Centered locator circle */}
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="h-40 w-40 rounded-full border border-gr-board/10 flex items-center justify-center">
+        <div className="h-24 w-24 rounded-full border border-gr-board/15 flex items-center justify-center animate-ping">
+          <div className="h-4 w-4 rounded-full bg-gr-board/20" />
+        </div>
+      </div>
+    </div>
+    
+    {/* Map legend placeholder at bottom */}
+    <div className="mt-auto self-end bg-gr-paper/60 backdrop-blur-sm border border-gr-line/15 p-2 rounded-sm w-36 space-y-1.5 z-10">
+      <div className="h-2 w-16 bg-gr-ink/10 rounded-sm" />
+      <div className="h-2.5 w-24 bg-gr-ink/15 rounded-sm" />
+    </div>
+  </div>
+);
+
 // Dynamically import the consolidated MapView component (disabling SSR)
 const MapView = dynamic(() => import('@/components/products/map-view'), {
   ssr: false,
-  loading: () => (
-    <div className="h-full w-full flex items-center justify-center bg-white/5 animate-pulse min-h-[300px]">
-      <div className="flex flex-col items-center gap-2">
-        <Loader2 className="h-8 w-8 text-gr-green animate-spin opacity-30" />
-        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-text-primary/20">Memuat Peta...</span>
-      </div>
-    </div>
-  )
+  loading: () => <MapViewSkeleton />
 });
 
 function getRelativeTime(dateString: string | null) {
