@@ -15,7 +15,7 @@ import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plu
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { PhoneModal } from '@/components/auth/phone-modal';
+
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export default function ProductDetailPage({ params }: { params: React.Usable<{ id: string }> }) {
@@ -143,11 +143,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     if (!product || product.status !== 'TERSEDIA') return;
 
     try {
-      const user = await authApi.getMe();
-      if (!user.phone_whatsapp) {
-        setPhoneModalOpen(true);
-        return;
-      }
+      await authApi.getMe();
       setConfirmModalOpen(true);
     } catch (err: any) {
       setError(err.message || 'Gagal memverifikasi pengguna');
@@ -515,14 +511,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
           </div>
         </div>
       </div>
-      <PhoneModal
-        isOpen={phoneModalOpen}
-        onClose={() => setPhoneModalOpen(false)}
-        onSuccess={async () => {
-          setPhoneModalOpen(false);
-          setConfirmModalOpen(true);
-        }}
-      />
+
       <ConfirmModal
         isOpen={confirmModalOpen}
         onClose={() => setConfirmModalOpen(false)}

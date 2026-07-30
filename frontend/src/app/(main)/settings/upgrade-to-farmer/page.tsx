@@ -11,7 +11,6 @@ import Link from 'next/link';
 
 export default function UpgradeToFarmerPage() {
   const router = useRouter();
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkingUser, setCheckingUser] = useState(true);
   const [user, setUser] = useState<any | null>(null);
@@ -38,28 +37,13 @@ export default function UpgradeToFarmerPage() {
     fetchUser();
   }, [router]);
 
-  const validatePhone = (num: string) => {
-    const cleaned = num.replace(/[\s\-()]/g, '');
-    return /^(\+628|628|08)[0-9]{7,11}$/.test(cleaned);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone) {
-      setError('Nomor WhatsApp wajib diisi');
-      return;
-    }
-
-    if (!validatePhone(phone)) {
-      setError('Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)');
-      return;
-    }
-
     setLoading(true);
     setError('');
 
     try {
-      await authApi.upgradeToFarmer(phone);
+      await authApi.upgradeToFarmer('');
       setSuccess(true);
       setTimeout(() => {
         router.push('/jual');
@@ -126,25 +110,9 @@ export default function UpgradeToFarmerPage() {
               </div>
             )}
 
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="phone" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/70 mb-1.5">
-                  Nomor WhatsApp Farmer
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  placeholder="0812..."
-                  required
-                  className="block w-full rounded-sm border border-gr-line bg-white/70 px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/40 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-                <p className="mt-2 font-sans text-[10px] text-gr-ink-soft/70 leading-relaxed">
-                  Masukkan nomor telepon Indonesia aktif (misal: 08xx atau +628xx). Kontak ini akan digunakan pembeli untuk menghubungi Anda.
-                </p>
-              </div>
-            </div>
+            <p className="font-sans text-xs text-gr-ink-soft/70 leading-relaxed text-center">
+              Tekan tombol di bawah untuk langsung mengaktifkan status Farmer/Penjual pada akun Anda.
+            </p>
 
             <div className="flex flex-col gap-4">
               <Button

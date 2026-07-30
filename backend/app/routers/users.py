@@ -30,14 +30,15 @@ async def upgrade_to_farmer(
     current_user: User = Depends(auth_service.get_current_user)
 ):
     phone = upgrade_data.phone_whatsapp
-    if not phone or not validate_indonesian_phone(phone):
-        raise HTTPException(
-            status_code=400,
-            detail="Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)"
-        )
+    if phone:
+        if not validate_indonesian_phone(phone):
+            raise HTTPException(
+                status_code=400,
+                detail="Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)"
+            )
+        current_user.phone_whatsapp = phone
     
     current_user.role = UserRole.PETANI
-    current_user.phone_whatsapp = phone
     await db.commit()
     await db.refresh(current_user)
     return current_user

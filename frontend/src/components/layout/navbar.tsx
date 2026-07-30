@@ -101,16 +101,7 @@ export function Navbar() {
       try {
         const userData = await authApi.getMe();
         setUser(userData);
-        if (!userData.phone_whatsapp) {
-          const isDismissed = localStorage.getItem('phone_warning_dismissed');
-          if (!isDismissed) {
-            setShowBanner(true);
-          } else {
-            setShowBanner(false);
-          }
-        } else {
-          setShowBanner(false);
-        }
+        setShowBanner(false);
       } catch {
         setUser(null);
         setShowBanner(false);
@@ -152,29 +143,7 @@ export function Navbar() {
 
   return (
     <>
-      {/* Phone warning banner */}
-      {showBanner && (
-        <div className="w-full bg-gradient-to-r from-gr-down/95 to-gr-down/40 border-b border-gr-line px-4 py-2.5 text-center text-xs font-sans text-gr-chalk flex items-center justify-between gap-4 transition-all duration-300 relative z-50">
-          <div className="flex-1 flex items-center justify-center gap-2">
-            <AlertCircle size={14} className="text-gr-chalk animate-pulse" />
-            <span>
-              Lengkapi nomor WA kamu untuk pengalaman belanja lebih lancar.{' '}
-              <Link href="/settings" className="underline font-bold hover:text-white transition-colors">
-                Lengkapi Sekarang
-              </Link>
-            </span>
-          </div>
-          <button
-            onClick={() => {
-              localStorage.setItem('phone_warning_dismissed', 'true');
-              setShowBanner(false);
-            }}
-            className="text-gr-chalk/70 hover:text-white p-1 rounded hover:bg-white/5 transition-colors cursor-pointer"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+
 
       {/* Main navbar — floating pill island on map page, flat editorial bar on regular pages */}
       {pathname === '/harga-pasar' ? (

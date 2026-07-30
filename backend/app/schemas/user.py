@@ -47,7 +47,7 @@ class UpdateProfileRequest(BaseModel):
 
 
 class UpgradeToFarmerRequest(BaseModel):
-    phone_whatsapp: str
+    phone_whatsapp: Optional[str] = None
 
 class UserLocationUpdate(BaseModel):
     lat: float

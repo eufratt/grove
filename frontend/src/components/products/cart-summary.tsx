@@ -7,7 +7,7 @@ import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { PhoneModal } from '../auth/phone-modal';
+
 
 interface CartSummaryProps {
   cart: string[];
@@ -35,16 +35,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price_per_kg, 0);
 
   const handleCheckoutAll = async () => {
-    try {
-      const user = await authApi.getMe();
-      if (!user.phone_whatsapp) {
-        setPhoneModalOpen(true);
-        return;
-      }
-      await proceedToCheckoutAll();
-    } catch (err) {
-      console.error('Failed to check user phone number:', err);
-    }
+    await proceedToCheckoutAll();
   };
 
   const proceedToCheckoutAll = async () => {
@@ -279,14 +270,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
           </div>
         )}
       </div>
-      <PhoneModal 
-        isOpen={phoneModalOpen}
-        onClose={() => setPhoneModalOpen(false)}
-        onSuccess={async () => {
-          setPhoneModalOpen(false);
-          await proceedToCheckoutAll();
-        }}
-      />
+
     </>
   );
 }

@@ -89,12 +89,6 @@ async def create_order(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    if not current_user.phone_whatsapp:
-        raise HTTPException(
-            status_code=400,
-            detail="Nomor telepon wajib diisi sebelum checkout"
-        )
-    
     # 1. Validation: Quantity must be greater than 0
     if order_data.quantity_kg <= 0:
         raise HTTPException(

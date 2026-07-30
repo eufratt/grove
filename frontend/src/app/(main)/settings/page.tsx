@@ -205,11 +205,6 @@ export default function SettingsPage() {
       return;
     }
 
-    if (phone && !validatePhone(phone)) {
-      setError('Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)');
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -477,20 +472,6 @@ export default function SettingsPage() {
                       </div>
                     </div>
 
-                    {/* WhatsApp Phone */}
-                    <div>
-                      <label htmlFor="shopee-phone" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                        Nomor Telepon WhatsApp
-                      </label>
-                      <input
-                        id="shopee-phone"
-                        type="tel"
-                        placeholder="0812..."
-                        className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                      />
-                    </div>
 
                     {/* Bio (Farmers Only) */}
                     {selectedRole === 'PETANI' && (

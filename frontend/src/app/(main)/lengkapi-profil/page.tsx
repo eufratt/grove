@@ -10,7 +10,6 @@ import { UserCheck } from 'lucide-react';
 
 export default function LengkapiProfilPage() {
   const router = useRouter();
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,49 +27,7 @@ export default function LengkapiProfilPage() {
     });
   };
 
-  const validatePhone = (num: string) => {
-    const cleaned = num.replace(/[\s\-()]/g, '');
-    return /^(\+628|628|08)[0-9]{7,11}$/.test(cleaned);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phone) {
-      setError('Nomor WhatsApp wajib diisi');
-      return;
-    }
-
-    if (!validatePhone(phone)) {
-      setError('Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    let lat: number | null = null;
-    let lng: number | null = null;
-
-    try {
-      const position = await getCurrentPosition();
-      if (position) {
-        lat = position.coords.latitude;
-        lng = position.coords.longitude;
-      }
-    } catch (err) {
-      console.warn('Failed to get geolocation:', err);
-    }
-
-    try {
-      await authApi.completeProfile(phone, lat, lng);
-      router.push('/beranda');
-    } catch (err: any) {
-      setError(err.message || 'Gagal melengkapi profil');
-      setLoading(false);
-    }
-  };
-
-  const handleSkip = async () => {
+  const handleContinue = async () => {
     setLoading(true);
     setError('');
 
@@ -89,74 +46,54 @@ export default function LengkapiProfilPage() {
 
     try {
       await authApi.completeProfile(null, lat, lng);
-      localStorage.setItem('profile_prompt_dismissed', 'true');
       router.push('/beranda');
     } catch (err: any) {
-      setError(err.message || 'Gagal melewati langkah ini');
+      setError(err.message || 'Gagal melengkapi profil');
       setLoading(false);
     }
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+    <main className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8 bg-gr-paper">
       <BgPattern />
-      <Glow color="var(--gr-orange)" position="center" className="opacity-15" />
+      <Glow color="var(--gr-board)" position="center" className="opacity-10 pointer-events-none" />
 
-      <div className="z-10 w-full max-w-md space-y-8 rounded-sm border border-white/5 bg-gr-bg-elevated p-10 backdrop-blur-xl ">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-6 ">
-            <UserCheck size={24} />
+      <div className="z-10 w-full max-w-md space-y-8 rounded-sm border border-gr-line bg-white/80 p-8 sm:p-10 backdrop-blur-xl relative overflow-hidden">
+        {/* Editorial Double Rule Top Accent */}
+        <div className="absolute top-0 inset-x-0">
+          <div className="h-[3px] bg-gr-ink w-full" />
+          <div className="h-[1px] bg-gr-ink w-full mt" />
+        </div>
+
+        <div className="flex flex-col items-center text-center pt-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-gr-line bg-gr-paper text-gr-ink mb-4">
+            <UserCheck size={22} />
           </div>
-          <h2 className="font-display text-4xl font-semibold tracking-tight text-gr-text-primary">
-            Lengkapi Profil
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-gr-ink">
+            Selamat Datang!
           </h2>
-          <p className="mt-3 font-sans text-sm text-gr-text-primary/60 max-w-xs leading-relaxed">
-            Lengkapi kontak WhatsApp Anda untuk bertransaksi di Grove.
+          <p className="mt-2.5 font-sans text-xs text-gr-ink-soft max-w-xs leading-relaxed">
+            Izinkan akses lokasi Anda untuk mencocokkan Anda dengan hasil tani terdekat.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           {error && (
-            <div className="rounded bg-gr-price-unfair/10 p-4 text-xs text-gr-price-unfair border border-gr-price-unfair/20 animate-pulse">
+            <div className="rounded-sm bg-gr-down/10 p-3.5 text-xs text-gr-down border border-gr-down/30 font-mono text-[11px]">
               {error}
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="phone" className="block font-sans text-xs font-semibold uppercase tracking-wider text-gr-text-primary/50 mb-2">
-                Nomor WhatsApp
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                placeholder="0812..."
-                className="block w-full rounded-md border border-white/10 bg-white/5 px-3 py-3 font-sans text-gr-text-primary placeholder-white/20 focus:border-gr-orange focus:outline-none focus:ring-1 focus:ring-gr-orange sm:text-sm"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-          </div>
-
           <div className="flex flex-col gap-3">
             <Button
-              type="submit"
+              onClick={handleContinue}
               disabled={loading}
-              className="w-full bg-gr-orange text-gr-bg hover:bg-gr-orange/90 font-sans font-bold uppercase tracking-widest py-6   cursor-pointer"
+              className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm cursor-pointer transition-all"
             >
-              {loading ? 'Menyimpan...' : 'Simpan & Masuk'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={loading}
-              onClick={handleSkip}
-              className="w-full border-gr-line hover:bg-gr-ink/5 hover:text-gr-ink font-sans font-bold uppercase tracking-widest py-6 text-gr-ink-soft cursor-pointer transition-colors"
-            >
-              Nanti Saja
+              {loading ? 'Memproses...' : 'Lanjutkan ke Beranda'}
             </Button>
           </div>
-        </form>
+        </div>
 
       </div>
     </main>
