@@ -436,10 +436,9 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
           {/* Main Info Columns (2/3 width) */}
           <div className="lg:col-span-2 space-y-6">
             <header className="mb-6">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FAF9F5] border border-gr-board/20 text-gr-board font-mono text-[9px] uppercase font-bold tracking-widest rounded-xs mb-3 select-none">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gr-board animate-pulse" />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gr-down font-bold block mb-2 select-none">
                 {request.category || 'Hasil Bumi'}
-              </div>
+              </span>
               <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-gr-ink">
                 {request.commodity_name}
               </h1>
@@ -449,88 +448,44 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             </header>
  
             {/* Consolidated Request Detail Container */}
-            <div className="rounded-sm border border-gr-line bg-white/80 backdrop-blur-md  overflow-hidden">
-              {/* Progress Bar Section (Redesigned as a Rich Stat Dashboard Block) */}
-              <div className="p-6 sm:p-8 border-b border-gr-line bg-gradient-to-r from-gr-paper/10 to-[#FAF9F5]/45 flex flex-col md:flex-row items-center justify-between gap-6">
-                
-                {/* Left side: Radial Gauge & Progress text */}
-                <div className="flex items-center gap-4 shrink-0 w-full md:w-auto">
-                  <div className="relative flex items-center justify-center shrink-0">
-                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r={32}
-                        className="stroke-gr-line/25 fill-none"
-                        strokeWidth={6}
-                      />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r={32}
-                        className="stroke-gr-board fill-none transition-all duration-1000 ease-out"
-                        strokeWidth={6}
-                        strokeDasharray={2 * Math.PI * 32}
-                        strokeDashoffset={2 * Math.PI * 32 - (Math.min(100, progressPercent) / 100) * (2 * Math.PI * 32)}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute flex flex-col items-center justify-center">
-                      <span className="font-display text-xl font-bold text-gr-board leading-none">{progressPercent}%</span>
-                      <span className="font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft font-bold mt-0.5">Kuota</span>
+            <div className="rounded-sm border border-gr-line bg-white/80 backdrop-blur-md overflow-hidden">
+              {/* Progress Bar Section (Editorial Ticker/Data-Panel style) */}
+              <div className="p-6 sm:p-8 border-b border-gr-line bg-[#FAF9F5]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                {/* Left side: Serif Percentage & Volume Progress */}
+                <div className="flex items-center gap-6 shrink-0">
+                  <div className="space-y-1">
+                    <div className="font-display text-4xl sm:text-5xl font-bold text-gr-board leading-none">
+                      {progressPercent}%
                     </div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/70 font-bold block">
+                      Kuota Terpenuhi
+                    </span>
                   </div>
  
+                  <div className="h-8 w-[1px] bg-gr-line/35 shrink-0" />
+ 
                   <div className="space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-0.5">Status Pemenuhan</span>
-                    <div className="flex items-baseline font-display text-2xl font-bold text-gr-ink">
-                      <span>{Math.round(committed).toLocaleString('id-ID')}</span>
-                      <span className="font-sans text-xs text-gr-ink-soft mx-1.5 font-normal">dari</span>
-                      <span>{Math.round(needed).toLocaleString('id-ID')}</span>
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">KG</span>
+                    <div className="font-mono text-xl font-bold text-gr-ink leading-none">
+                      {Math.round(committed).toLocaleString('id-ID')} <span className="text-xs text-gr-ink-soft font-normal">dari</span> {Math.round(needed).toLocaleString('id-ID')} <span className="text-[10px] text-gr-ink-soft font-bold tracking-wider">KG</span>
                     </div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/70 font-bold block">
+                      Volume Pemenuhan
+                    </span>
                   </div>
                 </div>
  
-                {/* Right side: Petani committed & Avatar initial stack */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto md:justify-end">
-                  {/* Avatar stack */}
-                  <div className="flex flex-col items-center sm:items-end gap-1.5 order-2 sm:order-1 shrink-0">
-                    {request.commitments && request.commitments.length > 0 ? (
-                      <div className="flex -space-x-2 overflow-hidden">
-                        {request.commitments.slice(0, 4).map((commit: any, idx: number) => {
-                          const initials = (commit.petani_name || 'P').slice(0, 2).toUpperCase();
-                          return (
-                            <div 
-                              key={commit.id || idx}
-                              className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-[#EDE6D1] border border-gr-board/20 flex items-center justify-center font-mono text-[9px] font-bold text-gr-board"
-                              title={commit.petani_name}
-                            >
-                              {initials}
-                            </div>
-                          );
-                        })}
-                        {request.commitments.length > 4 && (
-                          <div className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-gr-board flex items-center justify-center font-mono text-[9px] font-bold text-gr-chalk">
-                            +{request.commitments.length - 4}
-                          </div>
-                        )}
-                      </div>
+                {/* Right side: Petani committed count */}
+                <div className="space-y-1 sm:text-right shrink-0">
+                  <div className="font-mono text-xl font-bold text-gr-ink leading-none">
+                    {request.num_petani_committed && request.num_petani_committed > 0 ? (
+                      <span>{request.num_petani_committed} Petani</span>
                     ) : (
-                      <div className="flex -space-x-1.5 overflow-hidden select-none">
-                        <div className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-[#FAF9F5] border border-dashed border-gr-ink-soft/40 flex items-center justify-center text-gr-ink-soft/40 font-mono text-[10px]" title="Slot Komitmen Kosong">?</div>
-                        <div className="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-[#FAF9F5] border border-dashed border-gr-ink-soft/40 flex items-center justify-center text-gr-ink-soft/40 font-mono text-[10px]" title="Slot Komitmen Kosong">?</div>
-                      </div>
+                      <span className="text-sm font-sans text-gr-ink-soft italic font-normal">Belum ada komitmen masuk</span>
                     )}
                   </div>
- 
-                  <div className="order-1 sm:order-2 text-center sm:text-left md:text-right">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-0.5">Mitra Tani Berkomitmen</span>
-                    <div className="flex items-center gap-1.5 justify-center sm:justify-start md:justify-end text-sm text-gr-ink font-semibold">
-                      <Users size={14} strokeWidth={2} className="text-gr-board" />
-                      <span>{request.num_petani_committed || 0} Petani Berkomitmen</span>
-                    </div>
-                  </div>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/70 font-bold block">
+                    Mitra Tani Berkomitmen
+                  </span>
                 </div>
  
                 {remainingKg > 0 && request.status === 'TERBUKA' && (
@@ -587,21 +542,25 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
-                      <div className="flex items-center flex-wrap gap-2">
-                        <span className="font-display text-3xl font-bold text-gr-ink">
+                      <div className="flex items-baseline gap-2 font-mono">
+                        <span className="text-2xl font-bold text-gr-ink leading-none">
                           Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
                         </span>
-                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mr-1">/ KG</span>
+                        <span className="text-gr-ink-soft/70 text-[10px] font-bold">/ KG</span>
                         {refPrice !== null && (
-                          <span className={cn(
-                            "font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-xs border shrink-0 align-middle",
-                            Math.round(((request.price_per_kg - refPrice) / refPrice) * 100) > 0 
-                              ? "bg-amber-500/10 text-amber-700 border-amber-500/20" 
-                              : "bg-gr-up/10 text-gr-up border-gr-up/20"
-                          )}>
-                            {Math.round(((request.price_per_kg - refPrice) / refPrice) * 100) > 0 ? '+' : ''}
-                            {Math.round(((request.price_per_kg - refPrice) / refPrice) * 100)}% vs acuan
-                          </span>
+                          (() => {
+                            const priceDevPercent = Math.round(((request.price_per_kg - refPrice) / refPrice) * 100);
+                            if (priceDevPercent === 0) return null;
+                            return (
+                              <span className={cn(
+                                "text-xs font-bold flex items-center gap-0.5 leading-none",
+                                priceDevPercent > 0 ? "text-gr-down" : "text-gr-up"
+                              )}>
+                                <span>{priceDevPercent > 0 ? '▲' : '▼'}</span>
+                                <span>{priceDevPercent > 0 ? '+' : ''}{priceDevPercent}% vs acuan</span>
+                              </span>
+                            );
+                          })()
                         )}
                       </div>
                     </div>
@@ -609,11 +568,11 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     {refPrice !== null && (
                       <div className="space-y-1 animate-fade-in">
                         <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Acuan ({refPriceRegion})</span>
-                        <div className="flex items-baseline">
-                          <span className="font-display text-xl font-bold text-gr-ink-soft">
+                        <div className="flex items-baseline font-mono">
+                          <span className="text-lg font-bold text-gr-ink-soft">
                             Rp {Math.round(refPrice).toLocaleString('id-ID')}
                           </span>
-                          <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/60 font-bold ml-1">/ KG</span>
+                          <span className="text-[10px] text-gr-ink-soft/60 font-bold ml-1">/ KG</span>
                         </div>
                       </div>
                     )}
@@ -644,7 +603,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       <span>Terakhir diperbarui: {new Date(request.updated_at || request.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} WIB</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[10px] font-mono text-gr-ink-soft/50 sm:justify-end">
-                      <span className="text-gr-board/60 select-none">🛡️</span>
+                      <span className="w-1 h-1 rounded-full bg-gr-board/40" />
                       <span>Sistem Escrow Aktif & Terlindungi</span>
                     </div>
                   </div>
@@ -738,18 +697,18 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
                           request.match_transaction.payment_status === 'paid' 
                             ? "bg-gr-up/10 text-gr-up border border-gr-up/20" 
-                            : "bg-amber-500/10 text-amber-700 border border-amber-500/20"
+                            : "bg-gr-down/10 text-gr-down border border-gr-down/20"
                         )}>
                           {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : 'PENDING'}
                         </span>
                       </div>
-
+ 
                       {request.match_transaction.escrow_status && request.match_transaction.escrow_status !== 'not_started' && (
                         <div className="flex justify-between items-center">
                           <span className="text-gr-ink-soft">Status Escrow:</span>
                           <span className={cn(
                             "font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded-xs",
-                            request.match_transaction.escrow_status === 'held' && "bg-amber-500/10 text-amber-600 border border-amber-500/20",
+                            request.match_transaction.escrow_status === 'held' && "bg-gr-down/10 text-gr-down border border-gr-down/20",
                             request.match_transaction.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border border-gr-up/20",
                             request.match_transaction.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border border-gr-down/20"
                           )}>
