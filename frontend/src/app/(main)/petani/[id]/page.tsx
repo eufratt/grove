@@ -277,7 +277,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 bg-gr-board text-gr-chalk font-mono text-[10px] uppercase tracking-widest py-2.5 px-5 rounded-sm shadow-2xs hover:opacity-90 transition-all"
               >
-                <MessageSquare size={12} /> Chat WhatsApp
+                <MessageSquare size={12} /> Chat Penjual
               </a>
             )}
           </div>
