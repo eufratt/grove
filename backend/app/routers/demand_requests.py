@@ -517,14 +517,15 @@ async def get_demand_request_detail(
         res_r = await db.execute(stmt_r)
         has_petani_rated = res_r.scalar_one_or_none() is not None
 
-    # Fetch matched transaction if any (latest)
-    stmt_tx = select(DemandTransaction).options(joinedload(DemandTransaction.seller)).where(DemandTransaction.demand_request_id == id).order_by(DemandTransaction.created_at.desc())
+    # Fetch ALL matched transactions (one per farmer/product selected)
+    stmt_tx = select(DemandTransaction).options(joinedload(DemandTransaction.seller)).where(
+        DemandTransaction.demand_request_id == id
+    ).order_by(DemandTransaction.created_at.desc())
     res_tx = await db.execute(stmt_tx)
-    dt = res_tx.scalars().first()
-    
-    match_dict = None
-    if dt:
-        match_dict = {
+    all_dts = res_tx.scalars().all()
+
+    def build_tx_dict(dt):
+        return {
             "id": str(dt.id),
             "seller_id": str(dt.seller_id),
             "product_id": str(dt.product_id) if dt.product_id else None,
@@ -542,6 +543,9 @@ async def get_demand_request_detail(
             "confirmed_received_at": dt.confirmed_received_at.isoformat() if dt.confirmed_received_at else None,
             "released_at": dt.released_at.isoformat() if dt.released_at else None
         }
+
+    match_transactions_list = [build_tx_dict(dt) for dt in all_dts]
+    match_dict = match_transactions_list[0] if match_transactions_list else None
 
     return {
         "id": request.id,
@@ -563,7 +567,8 @@ async def get_demand_request_detail(
         "commitments": commits_list,
         "num_petani_committed": num_petani,
         "has_petani_rated": has_petani_rated,
-        "match_transaction": match_dict
+        "match_transaction": match_dict,
+        "match_transactions": match_transactions_list
     }
 
 @router.post("/{id}/commit", response_model=SupplyCommitmentSummary)
