@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, BASE_URL } from './client';
 
 export const authApi = {
   loginWithGoogle: async (idToken: string) => {
@@ -94,7 +94,7 @@ export const authApi = {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/avatar`, {
+    const response = await fetch(`${BASE_URL}/users/me/avatar`, {
       method: 'POST',
       body: formData,
       credentials: 'include',

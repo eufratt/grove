@@ -1,8 +1,8 @@
-import { apiClient } from './client';
+import { apiClient, BASE_URL } from './client';
 
 export const productsApi = {
   createProduct: async (formData: FormData) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products`, {
+    const response = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       body: formData,
       // Note: Do not set Content-Type header when sending FormData, 

@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from 'react';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
 import { authApi } from '@/lib/api/auth';
 import { referencePricesApi } from '@/lib/api/reference-prices';
+import { BASE_URL } from '@/lib/api/client';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
@@ -238,7 +239,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   useEffect(() => {
     if (!id || loading || error) return;
 
-    const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws') || 'ws://localhost:8000'}/ws/demand-requests/${id}`;
+    const wsUrl = `${BASE_URL.replace('http', 'ws')}/ws/demand-requests/${id}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
