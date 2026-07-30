@@ -453,30 +453,27 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               <div className="p-6 sm:p-8 border-b border-gr-line space-y-4">
                 <div className="flex justify-between items-baseline mb-2">
                   <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">Fulfillment Progress</span>
-                  <span className="font-display text-3xl font-bold text-gr-board">
-                    {progressPercent}%
-                  </span>
+                  <div className="flex items-baseline font-display text-3xl font-bold text-gr-board">
+                    <span>{progressPercent}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-widest font-bold ml-0.5">%</span>
+                  </div>
                 </div>
                 
                 {/* Actual Progress Bar */}
-                <div className="w-full bg-gr-line/45 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-gr-line/20 h-2.5 rounded-sm overflow-hidden border border-gr-line">
                   <div 
-                    className="bg-gr-board h-full rounded-sm transition-all duration-500 ease-out"
+                    className="bg-gr-board h-full rounded-xs transition-all duration-500 ease-out"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-
+ 
                 {/* Progress Description Text */}
                 <div className="flex flex-col sm:flex-row justify-between items-baseline gap-4 font-sans text-sm pt-2">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-display text-3xl font-bold text-gr-ink">
-                      {Math.round(committed).toLocaleString('id-ID')}
-                    </span>
-                    <span className="text-gr-ink-soft text-xs"> dari </span>
-                    <span className="font-display text-3xl font-bold text-gr-ink">
-                      {Math.round(needed).toLocaleString('id-ID')}
-                    </span>
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">KG</span>
+                  <div className="flex items-baseline font-display text-3xl font-bold text-gr-ink">
+                    <span>{Math.round(committed).toLocaleString('id-ID')}</span>
+                    <span className="font-sans text-xs text-gr-ink-soft mx-1.5 font-normal">dari</span>
+                    <span>{Math.round(needed).toLocaleString('id-ID')}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">KG</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-gr-ink-soft font-mono text-[10px] font-bold uppercase tracking-wider">
                     <Users size={14} className="text-gr-board" />
@@ -498,59 +495,83 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               <div className="p-6 sm:p-8 space-y-6">
                 <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-1">Rincian Permintaan</span>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-sans text-sm">
-                  <div className="space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Deadline Pemenuhan</span>
-                    <p className="text-gr-ink font-semibold flex items-center gap-2">
-                      <Calendar size={14} className="text-gr-board/60" />
-                      {formattedDeadline}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Lokasi Penerimaan</span>
-                    <p className="text-gr-ink font-semibold flex items-center gap-2">
-                      <MapPin size={14} className="text-gr-board/60" />
-                      {request.latitude && request.longitude
-                        ? (addressName || getClosestProvince(request.latitude, request.longitude))
-                        : 'Lokasi tidak diketahui'}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="font-display text-2xl font-bold text-gr-ink">
-                        Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
-                      </span>
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">/ KG</span>
+                <div className="space-y-6 font-sans text-sm">
+                  {/* Row 1: Deadline & Lokasi */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Deadline Pemenuhan</span>
+                      <p className="text-gr-ink font-semibold flex items-center gap-2">
+                        <Calendar size={14} className="text-gr-board/60 pointer-events-none" />
+                        {formattedDeadline}
+                      </p>
+                    </div>
+ 
+                    <div className="space-y-1">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Lokasi Penerimaan</span>
+                      <p className="text-gr-ink font-semibold flex items-center gap-2">
+                        <MapPin size={14} className="text-gr-board/60 pointer-events-none shrink-0" />
+                        <span className="leading-snug">
+                          {request.latitude && request.longitude
+                            ? (addressName || getClosestProvince(request.latitude, request.longitude))
+                            : 'Lokasi tidak diketahui'}
+                        </span>
+                      </p>
                     </div>
                   </div>
-
-                  {refPrice !== null && (
-                    <div className="space-y-1 animate-fade-in">
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Acuan ({refPriceRegion})</span>
-                      <div className="flex items-baseline gap-0.5">
-                        <span className="font-display text-2xl font-bold text-gr-board">
-                          Rp {Math.round(refPrice).toLocaleString('id-ID')}
-                        </span>
-                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">/ KG</span>
+ 
+                  {/* Row 2: Harga Penawaran & Harga Acuan */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gr-line/35">
+                    <div className="space-y-1">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
+                      <div className="flex items-baseline flex-wrap gap-2">
+                        <div className="flex items-baseline">
+                          <span className="font-display text-3xl font-bold text-gr-ink">
+                            Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
+                          </span>
+                          <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">/ KG</span>
+                        </div>
+                        {refPrice !== null && (
+                          <span className={cn(
+                            "font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-xs border",
+                            Math.round(((request.price_per_kg - refPrice) / refPrice) * 100) > 0 
+                              ? "bg-amber-500/10 text-amber-700 border-amber-500/20" 
+                              : "bg-gr-up/10 text-gr-up border-gr-up/20"
+                          )}>
+                            {Math.round(((request.price_per_kg - refPrice) / refPrice) * 100) > 0 ? '+' : ''}
+                            {Math.round(((request.price_per_kg - refPrice) / refPrice) * 100)}% vs acuan
+                          </span>
+                        )}
                       </div>
                     </div>
-                  )}
-
-                  <div className="space-y-1">
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Status Permintaan</span>
-                    <div className="pt-0.5">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider border font-mono ${
-                        request.status === 'TERBUKA' 
-                          ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
-                          : request.status === 'TERPENUHI'
-                          ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
-                          : 'bg-gr-paper text-gr-ink-soft border-gr-line'
-                      }`}>
-                        {request.status}
-                      </span>
+ 
+                    {refPrice !== null && (
+                      <div className="space-y-1 animate-fade-in">
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Acuan ({refPriceRegion})</span>
+                        <div className="flex items-baseline">
+                          <span className="font-display text-xl font-bold text-gr-ink-soft">
+                            Rp {Math.round(refPrice).toLocaleString('id-ID')}
+                          </span>
+                          <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/60 font-bold ml-1">/ KG</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+ 
+                  {/* Row 3: Status Permintaan */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gr-line/35">
+                    <div className="space-y-1">
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Status Permintaan</span>
+                      <div className="pt-0.5">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider border font-mono ${
+                          request.status === 'TERBUKA' 
+                            ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
+                            : request.status === 'TERPENUHI'
+                            ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
+                            : 'bg-gr-paper text-gr-ink-soft border-gr-line'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -612,7 +633,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       <h3 className="font-display text-xl font-semibold text-gr-ink">
                         Pencocokan Escrow
                       </h3>
-                      <p className="font-sans text-[11px] text-gr-ink-soft mt-1 leading-relaxed">
+                      <p className="font-sans text-[11px] text-gr-ink mt-1 leading-relaxed">
                         Permintaan Anda berhasil dicocokkan dengan produk petani.
                       </p>
                     </div>
@@ -640,10 +661,12 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       <div className="flex justify-between items-center">
                         <span className="text-gr-ink-soft">Status Pembayaran:</span>
                         <span className={cn(
-                          "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs",
-                          request.match_transaction.payment_status === 'paid' ? "bg-gr-up/10 text-gr-up border border-gr-up/20" : "bg-gr-board/10 text-gr-board border border-gr-board/20"
+                          "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
+                          request.match_transaction.payment_status === 'paid' 
+                            ? "bg-gr-up/10 text-gr-up border border-gr-up/20" 
+                            : "bg-amber-500/10 text-amber-700 border border-amber-500/20"
                         )}>
-                          {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : request.match_transaction.payment_status?.toUpperCase() || 'PENDING'}
+                          {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : 'PENDING'}
                         </span>
                       </div>
 
@@ -998,9 +1021,9 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     );
                   })
                 ) : (
-                  <div className="py-8 text-center">
-                    <Users className="h-8 w-8 text-gr-ink-soft/30 mx-auto mb-2" />
-                    <p className="font-sans text-xs text-gr-ink-soft/60 italic">
+                  <div className="border border-dashed border-gr-line/60 bg-white/20 p-6 rounded-sm text-center flex flex-col items-center justify-center">
+                    <Users className="h-6 w-6 text-gr-ink-soft/40 mb-2" />
+                    <p className="text-gr-ink-soft text-xs font-sans italic">
                       Belum ada komitmen masuk
                     </p>
                   </div>

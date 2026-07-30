@@ -13,7 +13,7 @@ import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User, Edit, MessageSquare } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User, Users, Edit, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
@@ -1279,12 +1279,10 @@ function DemandCard({
                           );
                         })
                       ) : (
-                        <div className="border border-dashed border-gr-line bg-white/20 p-4 rounded-sm text-center">
-                          <p className="text-gr-ink-soft text-xs leading-relaxed font-sans">
+                        <div className="border border-dashed border-gr-line/60 bg-white/20 p-6 rounded-sm text-center flex flex-col items-center justify-center">
+                          <Users className="h-6 w-6 text-gr-ink-soft/40 mb-2" />
+                          <p className="text-gr-ink-soft text-xs font-sans italic">
                             Belum ada komitmen supply dari petani.
-                          </p>
-                          <p className="text-gr-ink-soft/60 text-[10px] mt-1.5 font-mono uppercase tracking-widest font-bold">
-                            Menunggu Mitra Tani Mengajukan Supply
                           </p>
                         </div>
                       )}
