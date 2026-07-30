@@ -501,40 +501,38 @@ export default function SettingsPage() {
                             Rekening Bank (Penerimaan Dana Rekening Bersama)
                           </h4>
                           
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label htmlFor="bank-name" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                                Nama Bank
-                              </label>
-                              <select
-                                id="bank-name"
-                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
-                                value={bankName}
-                                onChange={(e) => setBankName(e.target.value)}
-                              >
-                                <option value="">Pilih Bank</option>
-                                <option value="MANDIRI">Bank Mandiri</option>
-                                <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
-                                <option value="BCA">Bank Central Asia (BCA)</option>
-                                <option value="BNI">Bank Negara Indonesia (BNI)</option>
-                                <option value="CIMB">CIMB Niaga</option>
-                                <option value="PERMATA">Bank Permata</option>
-                              </select>
-                            </div>
+                          <div>
+                            <label htmlFor="bank-name" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                              Nama Bank
+                            </label>
+                            <select
+                              id="bank-name"
+                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
+                              value={bankName}
+                              onChange={(e) => setBankName(e.target.value)}
+                            >
+                              <option value="">Pilih Bank</option>
+                              <option value="MANDIRI">Bank Mandiri</option>
+                              <option value="BRI">Bank Rakyat Indonesia (BRI)</option>
+                              <option value="BCA">Bank Central Asia (BCA)</option>
+                              <option value="BNI">Bank Negara Indonesia (BNI)</option>
+                              <option value="CIMB">CIMB Niaga</option>
+                              <option value="PERMATA">Bank Permata</option>
+                            </select>
+                          </div>
 
-                            <div>
-                              <label htmlFor="bank-acc-holder" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                                Nama Pemilik Rekening
-                              </label>
-                              <input
-                                id="bank-acc-holder"
-                                type="text"
-                                placeholder="Nama sesuai buku tabungan"
-                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
-                                value={bankAccountHolder}
-                                onChange={(e) => setBankAccountHolder(e.target.value)}
-                              />
-                            </div>
+                          <div>
+                            <label htmlFor="bank-acc-holder" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
+                              Nama Pemilik Rekening
+                            </label>
+                            <input
+                              id="bank-acc-holder"
+                              type="text"
+                              placeholder="Nama sesuai buku tabungan"
+                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
+                              value={bankAccountHolder}
+                              onChange={(e) => setBankAccountHolder(e.target.value)}
+                            />
                           </div>
 
                           <div>
