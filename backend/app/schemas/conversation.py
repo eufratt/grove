@@ -15,6 +15,7 @@ class OtherParticipantInfo(BaseModel):
     id: UUID
     full_name: str
     avatar_url: Optional[str] = None
+    role: Optional[str] = None
 
 class LastProductInfo(BaseModel):
     id: UUID

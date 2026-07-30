@@ -185,11 +185,13 @@ async def list_conversations(
         other_info = OtherParticipantInfo(
             id=other_user.id,
             full_name=other_user.full_name,
-            avatar_url=other_user.avatar_url
+            avatar_url=other_user.avatar_url,
+            role=other_user.role.value if other_user.role else None
         ) if other_user else OtherParticipantInfo(
             id=other_user_id,
             full_name="Pengguna Grove",
-            avatar_url=None
+            avatar_url=None,
+            role=None
         )
         
         # Format product preview info

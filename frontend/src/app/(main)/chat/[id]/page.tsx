@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { conversationsApi } from '@/lib/api/conversations';
 import { useMessages } from '@/hooks/useMessages';
-import { ArrowLeft, Send, AlertCircle, ShoppingBag, Loader2, Check, CheckCheck, Sparkles, Scale } from 'lucide-react';
+import { ArrowLeft, Send, AlertCircle, ShoppingBag, Loader2, Check, CheckCheck, Sparkles, Scale, User } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -223,7 +223,15 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
           </div>
         </div>
 
-        {/* Removed product context banner from header as requested */}
+        {otherUser.role === 'PETANI' && (
+          <Link
+            href={`/petani/${otherUser.id}`}
+            className="inline-flex items-center gap-1.5 bg-white/60 hover:bg-white dark:bg-white/5 dark:hover:bg-white/10 text-gr-board hover:text-gr-board/90 border border-gr-line/60 hover:border-gr-ink/30 font-mono text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-sm transition-all cursor-pointer"
+          >
+            <User size={11} className="shrink-0" />
+            <span>Profil Petani</span>
+          </Link>
+        )}
       </div>
 
       {/* Chat Area */}
