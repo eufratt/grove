@@ -517,7 +517,7 @@ export default function SettingsPage() {
                         {/* Bank Details */}
                         <div className="border-t border-gr-line/40 pt-6 space-y-4">
                           <h4 className="font-display text-sm font-semibold text-gr-ink uppercase tracking-wider">
-                            Rekening Bank (Penerimaan Dana Escrow)
+                            Rekening Bank (Penerimaan Dana Rekening Bersama)
                           </h4>
                           
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -569,7 +569,7 @@ export default function SettingsPage() {
                               onChange={(e) => setBankAccountNumber(e.target.value)}
                             />
                             <span className="block font-mono text text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
-                              Pencairan dana otomatis dari Xendit akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
+                              Pencairan dana otomatis akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
                             </span>
                           </div>
                         </div>
