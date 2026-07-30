@@ -933,7 +933,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         })()}
                       </div>
                     )
-                  ))
+                  )
                 )}
               </>
             )}
