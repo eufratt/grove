@@ -31,39 +31,70 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
     return `${d.getDate()} ${months[d.getMonth()]}`;
   };
-
   return (
-    <div className="max-w-[1100px] mx-auto px-4 py-6">
-      <div className="w-full flex bg-gr-paper border border-gr-line h-[calc(100vh-160px)] min-h-[450px] max-h-[700px] rounded-sm overflow-hidden shadow-sm">
+    <div className="max-w-[1150px] w-full mx-auto px-4 md:px-8 py-4 md:py-6 h-[calc(100vh-100px)] md:h-[calc(100vh-120px)] min-h-[500px]">
+      <div className="w-full flex bg-white/70 dark:bg-[#1E1812]/50 backdrop-blur-md border border-gr-line/80 h-full rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(32,29,22,0.06)] transition-all">
         
         {/* Left Pane: Inbox / Conversation List */}
         <div 
           className={cn(
-            "w-full md:w-80 border-r border-gr-line flex flex-col h-full bg-gr-paper/30",
+            "w-full md:w-64 border-r border-gr-line flex flex-col h-full bg-white/20 dark:bg-black/10",
             isChatRoomPage && "hidden md:flex"
           )}
         >
           {/* Header */}
-          <div className="p-4 border-b border-gr-line flex items-center gap-2 bg-gr-board text-gr-chalk">
-            <MessageCircle size={16} />
-            <span className="font-mono text-xs uppercase tracking-widest font-bold">Kotak Masuk</span>
+          <div className="py-2.5 px-3 border-b border-gr-line/50 flex items-center justify-between bg-white/40 dark:bg-black/20">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-gr-board/10 text-gr-board">
+                <MessageCircle size={16} />
+              </div>
+              <span className="font-sans text-xs uppercase tracking-wider font-bold text-gr-board">Obrolan</span>
+            </div>
+            {conversations.length > 0 && (
+              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full bg-gr-board/10 text-gr-board font-bold">
+                {conversations.length}
+              </span>
+            )}
           </div>
 
           {/* List area */}
-          <div className="flex-1 overflow-y-auto divide-y divide-gr-line/30">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
             {loading && conversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-gr-ink-soft gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="font-mono text-[10px] uppercase tracking-wider">Memuat obrolan...</span>
+              <div className="space-y-2 p-1 animate-pulse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-transparent">
+                    <div className="w-9 h-9 rounded-full bg-gr-ink/10 flex-shrink-0" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="h-3 w-20 bg-gr-ink/15 rounded-md" />
+                        <div className="h-2 w-8 bg-gr-ink/10 rounded-sm" />
+                      </div>
+                      <div className="h-3 w-full bg-gr-ink/10 rounded-md" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : error ? (
-              <div className="p-4 text-center text-xs text-gr-down font-mono">
+              <div className="p-4 text-center text-xs text-gr-down font-mono bg-gr-down/5 rounded-xl border border-gr-down/10 mx-2 mt-2">
                 {error}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center text-gr-ink-soft gap-2 h-48">
-                <MessageCircle size={24} className="opacity-30" />
-                <span className="font-mono text-[10px] uppercase tracking-wider">Belum ada percakapan</span>
+              <div className="flex flex-col items-center justify-center p-6 text-center gap-3 h-full min-h-[300px]">
+                <div className="w-12 h-12 rounded-full bg-gr-board/5 flex items-center justify-center border border-gr-line/60 text-gr-board/40">
+                  <MessageCircle size={22} />
+                </div>
+                <div>
+                  <h5 className="font-sans text-xs font-bold text-gr-ink">Belum Ada Obrolan</h5>
+                  <p className="font-sans text-[11px] text-gr-ink-soft mt-1 max-w-[200px] mx-auto leading-relaxed">
+                    Mulai chat dari halaman produk yang kamu suka untuk mempermudah transaksi pangan.
+                  </p>
+                </div>
+                <Link
+                  href="/"
+                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gr-board text-gr-chalk text-[9px] uppercase tracking-wider font-mono font-bold rounded-lg hover:bg-gr-board/90 shadow-sm transition-all"
+                >
+                  Jelajahi Produk
+                </Link>
               </div>
             ) : (
               conversations.map((c) => {
@@ -71,26 +102,29 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                 const otherUser = c.other_participant || {};
                 const lastMsg = c.last_message;
                 const name = otherUser.full_name || otherUser.email || 'Pengguna';
+                const initials = name.charAt(0).toUpperCase();
                 
                 return (
                   <Link
                     key={c.id}
                     href={`/chat/${c.id}`}
                     className={cn(
-                      "block p-4 transition-all duration-150 relative hover:bg-gr-chalk/40 cursor-pointer",
-                      isActive && "bg-gr-chalk/60 font-medium"
+                      "block p-3 rounded-xl border border-transparent transition-all duration-200 cursor-pointer relative",
+                      isActive 
+                        ? "bg-white/80 dark:bg-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)] border-gr-line/40 font-medium" 
+                        : "hover:bg-white/40 dark:hover:bg-white/5 hover:border-gr-line/20"
                     )}
                   >
                     <div className="flex items-start gap-3">
-                      {/* Avatar placeholder */}
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gr-board/10 flex items-center justify-center border border-gr-board/20 text-gr-board">
-                        <User size={14} />
+                      {/* Avatar initials with style */}
+                      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gr-board/10 border border-gr-board/20 flex items-center justify-center font-sans font-bold text-xs text-gr-board shadow-xs">
+                        {initials}
                       </div>
 
                       {/* Content info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <span className="font-sans text-[11px] font-bold text-gr-ink truncate">
+                          <span className="font-sans text-[12px] font-bold text-gr-ink truncate">
                             {name}
                           </span>
                           <span className="font-mono text-[9px] text-gr-ink-soft whitespace-nowrap">
@@ -99,19 +133,24 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                         </div>
 
                         {/* Last message snippet */}
-                        <p className="font-sans text-[10px] text-gr-ink-soft truncate pr-4">
+                        <p className="font-sans text-[11px] text-gr-ink-soft truncate pr-4">
                           {lastMsg ? lastMsg.content : 'Belum ada pesan'}
                         </p>
 
-                        {/* Badge role */}
-                        <div className="mt-1 flex items-center justify-between">
-                          <span className="font-mono text-[8px] uppercase tracking-wider px-1.5 py-0.5 bg-gr-board/10 border border-gr-board/25 text-gr-board font-bold">
+                        {/* Badges footer */}
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <span className={cn(
+                            "font-mono text-[8px] uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
+                            otherUser.role === 'PETANI' 
+                              ? "bg-gr-board/10 text-gr-board border-gr-board/20" 
+                              : "bg-gr-down/10 text-gr-down border-gr-down/20"
+                          )}>
                             {otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli'}
                           </span>
                           
                           {/* Unread badge */}
                           {c.unread_count > 0 && (
-                            <span className="bg-gr-down text-gr-chalk text-[8px] font-bold h-4 min-w-4 px-1 rounded-full flex items-center justify-center border border-gr-paper">
+                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-full flex items-center justify-center border border-white dark:border-black animate-pulse shadow-xs">
                               {c.unread_count}
                             </span>
                           )}
@@ -128,7 +167,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* Right Pane: Chat Window / Content */}
         <div 
           className={cn(
-            "flex-1 flex flex-col h-full bg-gr-paper/10",
+            "flex-1 flex flex-col h-full bg-white/10 dark:bg-black/5",
             !isChatRoomPage && "hidden md:flex"
           )}
         >
