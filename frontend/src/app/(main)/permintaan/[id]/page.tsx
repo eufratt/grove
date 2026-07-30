@@ -855,7 +855,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                                           key={pageNum}
                                           onClick={() => setCurrentPage(pageNum)}
                                           className={cn(
-                                            "h-4 w-4 rounded-full flex items-center justify-center text-[9px] font-mono font-bold transition-all duration-200 cursor-pointer border",
+                                            "h-4 w-4 rounded-sm flex items-center justify-center text-[9px] font-mono font-bold transition-all duration-200 cursor-pointer border",
                                             currentPage === pageNum
                                               ? "bg-gr-board text-gr-chalk border-gr-board"
                                               : "bg-white text-gr-ink-soft border-gr-line hover:border-gr-ink hover:text-gr-ink"

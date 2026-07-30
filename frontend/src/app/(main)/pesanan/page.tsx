@@ -678,7 +678,7 @@ function OrderCard({
         </div>
 
         <div className={cn(
-          "flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-sans font-bold uppercase tracking-wider ",
+          "flex items-center gap-1.5 px-2.5 py-1 rounded-sm border text-[10px] font-sans font-bold uppercase tracking-wider ",
           (currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && "bg-amber-500/5 text-amber-800 border-amber-500/20",
           (currentStatus === 'DIKONFIRMASI' || currentStatus === 'DIPROSES' || currentStatus === 'DITERIMA') && "bg-emerald-50 text-emerald-800 border-[#C8E6C9]",
           (currentStatus === 'SELESAI') && "bg-gr-board/5 text-gr-board border-gr-line",

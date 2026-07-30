@@ -207,7 +207,7 @@ export function Navbar() {
                     <Icon size={11} />
                     <span>{item.name}</span>
                     {item.name === 'Chat' && unreadCount > 0 && (
-                      <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
+                      <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text font-bold h-4 w-4 rounded-sm flex items-center justify-center scale-90 border border-gr-paper">
                         {unreadCount}
                       </span>
                     )}
@@ -301,7 +301,7 @@ export function Navbar() {
                           <Icon size={11} />
                           <span>{item.name}</span>
                           {item.name === 'Chat' && unreadCount > 0 && (
-                            <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
+                            <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text font-bold h-4 w-4 rounded-sm flex items-center justify-center scale-90 border border-gr-paper">
                               {unreadCount}
                             </span>
                           )}

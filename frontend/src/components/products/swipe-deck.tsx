@@ -290,7 +290,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                   <div className="bg-gr-paper/40 border border-gr-line/60 rounded-2xl p-4 mb-5 space-y-2.5">
                     <div className="flex justify-between items-center">
                       <span className="font-sans text-xs font-semibold text-gr-ink-soft">Komoditas</span>
-                      <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-full">
+                      <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-sm">
                         {commitRequest.commodity_name}
                       </span>
                     </div>
@@ -589,7 +589,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
                 <p className="font-mono text uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
                 <p className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</p>
               </div>
-              <div className="rounded-full px-2 py-0.5 flex items-center" style={{ background: color.border }}>
+              <div className="rounded-sm px-2 py-0.5 flex items-center" style={{ background: color.border }}>
                 <RatingBadge avgRating={request.buyer_rating_avg} ratingCount={request.buyer_rating_count}
                   size="sm" newLabel="Baru" countSuffix="permintaan" />
               </div>
