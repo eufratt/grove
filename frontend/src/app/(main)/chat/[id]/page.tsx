@@ -75,32 +75,18 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Auto-send product context message if product_id is in query params
+  // Pre-fill product context message if product_id is in query params
   useEffect(() => {
-    if (!conversationId || !targetProductId || loading || !currentUser || !conversation) return;
+    if (!conversationId || !targetProductId || !currentUser || !conversation) return;
 
-    // Only the buyer sends the initial context message
+    // Only pre-fill for the buyer
     if (currentUser.id !== conversation.buyer_id) return;
 
-    const autoSend = async () => {
-      // Check if last message is already about this product to avoid duplicates on refresh
-      const lastMsg = messages[messages.length - 1];
-      const isAlreadySent = lastMsg && lastMsg.product_id === targetProductId;
-
-      if (!isAlreadySent) {
-        try {
-          await sendMessage("Halo, saya tertarik dengan produk ini dan ingin bertanya lebih lanjut.", targetProductId);
-        } catch (err) {
-          console.error("Failed to auto-send context message:", err);
-        }
-      }
-      
-      // Clean up the URL to prevent triggering again on refresh/navigation
-      router.replace(`/chat/${conversationId}`);
-    };
-
-    autoSend();
-  }, [conversationId, targetProductId, loading, currentUser, conversation, messages, sendMessage, router]);
+    setInputMessage("Halo, saya tertarik dengan produk ini dan ingin bertanya lebih lanjut.");
+    
+    // Clean up the URL query parameters to prevent pre-filling again on reload
+    router.replace(`/chat/${conversationId}`);
+  }, [conversationId, targetProductId, currentUser, conversation, router]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
