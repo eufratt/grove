@@ -238,7 +238,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
             <div className="space-y-1">
               <h5 className="font-sans text-[12px] font-bold text-gr-ink">Mulai Obrolan Baru</h5>
               <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
-                Tanyakan ketersediaan produk, waktu panen terbaru, atau diskusikan pengiriman komoditas dengan {otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli'}.
+                Tanyakan ketersediaan produk, waktu panen terbaru, atau diskusikan pengiriman komoditas dengan {product ? (currentUser?.id === product.seller_id ? 'Pembeli' : 'Penjual') : (otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli')}.
               </p>
             </div>
 
@@ -247,7 +247,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               <div className="w-full space-y-2">
                 <span className="font-mono text-[8px] uppercase tracking-wider text-gr-ink-soft block">Saran Pesan Pembuka:</span>
                 <div className="flex flex-col gap-1.5 w-full">
-                  {(currentUser?.role === 'PETANI' 
+                  {(currentUser?.id === product.seller_id 
                     ? [
                         `Halo, selamat datang! Ada yang bisa saya bantu terkait produk ${product.name}?`,
                         `Halo, stok untuk ${product.name} ready ${product.quantity_kg || 0} kg. Silakan dipesan.`
