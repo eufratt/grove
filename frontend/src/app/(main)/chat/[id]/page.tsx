@@ -38,7 +38,6 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
     messages,
     loading,
     error,
-    realtimeStatus,
     sendMessage,
     retryMessage,
     markAsRead,
@@ -202,24 +201,6 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
             <h4 className="font-sans text font-bold text-gr-ink flex items-center gap-2">
               {otherName}
             </h4>
-            
-            {/* Realtime Status Indicator */}
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="relative flex h-1.5 w-1.5">
-                {realtimeStatus === 'connected' && (
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gr-up opacity-75"></span>
-                )}
-                <span className={cn(
-                  "relative inline-flex rounded-full h-1.5 w-1.5",
-                  realtimeStatus === 'connected' ? 'bg-gr-up' :
-                  realtimeStatus === 'connecting' ? 'bg-[#D9A74A]' : 'bg-gr-down'
-                )} />
-              </span>
-              <span className="font-mono text text-gr-ink-soft uppercase tracking-wider">
-                {realtimeStatus === 'connected' ? 'Aktif' :
-                 realtimeStatus === 'connecting' ? 'Menghubungkan...' : 'Terputus'}
-              </span>
-            </div>
           </div>
         </div>
 
