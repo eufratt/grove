@@ -517,10 +517,10 @@ async def get_demand_request_detail(
         res_r = await db.execute(stmt_r)
         has_petani_rated = res_r.scalar_one_or_none() is not None
 
-    # Fetch matched transaction if any
-    stmt_tx = select(DemandTransaction).options(joinedload(DemandTransaction.seller)).where(DemandTransaction.demand_request_id == id)
+    # Fetch matched transaction if any (latest)
+    stmt_tx = select(DemandTransaction).options(joinedload(DemandTransaction.seller)).where(DemandTransaction.demand_request_id == id).order_by(DemandTransaction.created_at.desc())
     res_tx = await db.execute(stmt_tx)
-    dt = res_tx.scalar_one_or_none()
+    dt = res_tx.scalars().first()
     
     match_dict = None
     if dt:
@@ -733,11 +733,9 @@ async def match_demand_request_with_seller(
     if req.buyer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Hanya pembeli yang membuat permintaan yang dapat mencocokkan")
 
-    # Check if already matched
-    stmt_tx = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
-    res_tx = await db.execute(stmt_tx)
-    if res_tx.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Permintaan ini sudah dicocokkan dengan penjual")
+    # Check if already fully matched
+    if req.quantity_kg_committed >= req.quantity_kg_needed:
+        raise HTTPException(status_code=400, detail="Permintaan ini sudah terpenuhi")
 
     if req.embedding is None:
         raise HTTPException(
@@ -780,7 +778,11 @@ async def match_demand_request_with_seller(
         )
 
     # Create DemandTransaction
-    quantity_kg = min(product.quantity_kg, req.quantity_kg_needed)
+    remaining_needed = max(0.0, req.quantity_kg_needed - req.quantity_kg_committed)
+    quantity_kg = min(product.quantity_kg, remaining_needed)
+    if quantity_kg <= 0:
+        raise HTTPException(status_code=400, detail="Permintaan ini sudah terpenuhi atau produk tidak memiliki stok")
+        
     amount = quantity_kg * product.price_per_kg
     
     # Deduct product stock
@@ -805,8 +807,11 @@ async def match_demand_request_with_seller(
     db.add(dt)
     
     # Update request progress
-    req.quantity_kg_committed = quantity_kg
-    req.status = DemandRequestStatus.TERPENUHI
+    req.quantity_kg_committed += quantity_kg
+    if req.quantity_kg_committed >= req.quantity_kg_needed:
+        req.status = DemandRequestStatus.TERPENUHI
+    else:
+        req.status = DemandRequestStatus.TERBUKA
     db.add(req)
 
     await db.commit()
@@ -847,10 +852,13 @@ async def checkout_demand(
     """
     Creates a Xendit Invoice for checkout of a matched demand request.
     """
-    # Fetch matched demand transaction
-    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    # Fetch matched demand transaction (latest pending)
+    stmt = select(DemandTransaction).where(
+        DemandTransaction.demand_request_id == id,
+        DemandTransaction.payment_status == PaymentStatus.PENDING
+    ).order_by(DemandTransaction.created_at.desc())
     res = await db.execute(stmt)
-    dt = res.scalar_one_or_none()
+    dt = res.scalars().first()
     if not dt:
         raise HTTPException(status_code=404, detail="Belum ada pencocokan transaksi untuk permintaan ini")
 
@@ -876,9 +884,13 @@ async def confirm_demand_received(
     Confirm arrival of products and release escrow funds.
     """
     # Find transaction
-    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    stmt = select(DemandTransaction).where(
+        DemandTransaction.demand_request_id == id,
+        DemandTransaction.payment_status == PaymentStatus.PAID,
+        DemandTransaction.escrow_status == EscrowStatus.HELD
+    ).order_by(DemandTransaction.created_at.desc())
     res = await db.execute(stmt)
-    dt = res.scalar_one_or_none()
+    dt = res.scalars().first()
     if not dt:
         raise HTTPException(status_code=404, detail="Transaksi tidak ditemukan")
 
@@ -900,9 +912,9 @@ async def dispute_demand(
     """
     File an escrow dispute for the demand match.
     """
-    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id).order_by(DemandTransaction.created_at.desc())
     res = await db.execute(stmt)
-    dt = res.scalar_one_or_none()
+    dt = res.scalars().first()
     if not dt:
         raise HTTPException(status_code=404, detail="Transaksi tidak ditemukan")
 
@@ -924,9 +936,9 @@ async def disburse_demand_escrow(
     """
     Manually triggers/retries the Xendit disbursement payout for the farmer.
     """
-    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id)
+    stmt = select(DemandTransaction).where(DemandTransaction.demand_request_id == id).order_by(DemandTransaction.created_at.desc())
     res = await db.execute(stmt)
-    dt = res.scalar_one_or_none()
+    dt = res.scalars().first()
     if not dt:
         raise HTTPException(status_code=404, detail="Transaksi tidak ditemukan")
 

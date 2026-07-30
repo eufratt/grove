@@ -649,7 +649,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             {user && user.role === 'PEMBELI' && request.buyer_id === user.id && (
               <>
                 {/* Case 1: Already matched */}
-                {request.match_transaction ? (
+                {request.match_transaction && (
                   <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-5">
                     <div>
                       <span className="bg-gr-up/10 border border-gr-up/20 px-2 py-0.5 font-mono text-[9px] uppercase font-bold tracking-wider text-gr-up rounded-xs inline-block mb-2">
@@ -783,8 +783,9 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       )}
                     </div>
                   </div>
-                ) : (
-                  /* Case 2: Not matched yet */
+                )}
+
+                {(!request.match_transaction || (request.status === 'TERBUKA' && request.quantity_kg_committed < request.quantity_kg_needed)) && (
                   request.status === 'TERBUKA' && (
                     loadingCandidates ? (
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
@@ -932,7 +933,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         })()}
                       </div>
                     )
-                  )
+                  ))
                 )}
               </>
             )}
