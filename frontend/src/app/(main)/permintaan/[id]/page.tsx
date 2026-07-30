@@ -7,10 +7,12 @@ import { referencePricesApi } from '@/lib/api/reference-prices';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
 import { Glow } from '@/components/effects/glow';
-import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, CheckCircle, Info } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, ClipboardCheck, Users, MapPin, Tag, CheckCircle, Info, MessageSquare } from 'lucide-react';
 import { reverseGeocode as fetchAddress } from '@/lib/utils/geocode';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { conversationsApi } from '@/lib/api/conversations';
 import { provinceCentroids } from '@/lib/data/province-centroids';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { cn } from '@/lib/utils';
@@ -39,6 +41,71 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       cleaned = '62' + cleaned.slice(1);
     }
     return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
+  };
+
+  const router = useRouter();
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const handleContactBuyer = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (!request || !request.buyer_id) return;
+    setChatLoading(true);
+    try {
+      const res = await conversationsApi.createConversation(undefined, undefined, request.buyer_id);
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Gagal memulai chat dengan pembeli');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleContactSeller = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (!request || !request.match_transaction || !request.match_transaction.seller_id) return;
+    setChatLoading(true);
+    try {
+      const res = await conversationsApi.createConversation(undefined, request.match_transaction.seller_id, undefined);
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Gagal memulai chat dengan penjual');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleContactPetani = async (petaniId: string) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    setChatLoading(true);
+    try {
+      const res = await conversationsApi.createConversation(undefined, petaniId, undefined);
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Gagal memulai chat dengan petani');
+    } finally {
+      setChatLoading(false);
+    }
   };
 
   const [user, setUser] = useState<any | null>(null);
