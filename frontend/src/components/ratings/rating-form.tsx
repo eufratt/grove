@@ -46,7 +46,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
   return (
     <form 
       onSubmit={handleSubmit} 
-      className="mt-4 p-4 rounded-sm border border-gr-line bg-gr-bg-elevated flex flex-col sm:flex-row sm:items-end gap-4"
+      className="mt-4 flex flex-col sm:flex-row sm:items-end gap-4 bg-transparent w-full"
     >
       {/* Star Rating Select */}
       <div className="flex-none">
@@ -91,7 +91,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
           placeholder="Tulis ulasan Anda di sini..."
           rows={1}
           style={{ height: '36px', minHeight: '36px' }}
-          className="w-full rounded-lg border border-gr-line bg-gr-bg-elevated px-3 py-2 text-xs font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none overflow-hidden"
+          className="w-full rounded-sm border border-gr-line bg-gr-bg-elevated px-3 py-2 text-xs font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none overflow-hidden"
         />
       </div>
 
@@ -103,7 +103,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
         <Button
           type="submit"
           disabled={isSubmitting || score === 0}
-          className="w-full sm:w-auto bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest px-4 h-[36px] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300   flex items-center justify-center"
+          className="w-full sm:w-auto bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest px-4 h-[36px] rounded-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300 flex items-center justify-center"
         >
           {isSubmitting ? (
             <Loader2 size={14} className="animate-spin text-gr-bg" />
