@@ -498,6 +498,7 @@ async def test_match_rejects_invalid_product_id(test_escrow_context):
     tx_id = uuid.UUID(res_data["transaction_id"])
     stmt_del = delete(DemandTransaction).where(DemandTransaction.id == tx_id)
     await db.execute(stmt_del)
+    await db.refresh(demand)
     demand.status = DemandRequestStatus.TERBUKA
     demand.quantity_kg_committed = 0.0
     db.add(demand)
