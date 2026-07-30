@@ -1,4 +1,4 @@
-import { apiClient, BASE_URL } from './client';
+import { apiClient, BASE_URL, WS_BASE_URL } from './client';
 
 export const ordersApi = {
   createOrder: async (data: { product_id: string; quantity_kg: number }) => {
@@ -86,7 +86,7 @@ export function useOrderSocket(orderId: string | null) {
   useEffect(() => {
     if (!orderId) return;
 
-    const wsUrl = `${BASE_URL.replace('http', 'ws')}/ws/orders/${orderId}`;
+    const wsUrl = `${WS_BASE_URL}/ws/orders/${orderId}`;
     const socket = new WebSocket(wsUrl);
 
     socket.onmessage = (event) => {

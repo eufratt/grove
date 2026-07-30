@@ -1,4 +1,4 @@
-import { apiClient, BASE_URL } from './client';
+import { apiClient, BASE_URL, WS_BASE_URL } from './client';
 
 export const demandRequestsApi = {
   createDemandRequest: async (data: {
@@ -108,7 +108,7 @@ export function useDemandSocket(id: string | null) {
   useEffect(() => {
     if (!id) return;
 
-    const wsUrl = `${BASE_URL.replace('http', 'ws')}/ws/demand-requests/${id}`;
+    const wsUrl = `${WS_BASE_URL}/ws/demand-requests/${id}`;
     const socket = new WebSocket(wsUrl);
 
     socket.onmessage = (event) => {
