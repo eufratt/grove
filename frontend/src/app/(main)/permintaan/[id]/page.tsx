@@ -133,6 +133,8 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
   const [confirmMatchOpen, setConfirmMatchOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
   const [customMatchQty, setCustomMatchQty] = useState<number>(0);
+  const [cancelling, setCancelling] = useState(false);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   // User location & Reference price states
   const [lat, setLat] = useState<number | null>(null);
@@ -390,6 +392,22 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     }
   };
 
+  const handleCancelRequest = async () => {
+    setConfirmCancelOpen(false);
+    setCancelling(true);
+    setError('');
+    try {
+      await demandRequestsApi.cancelDemandRequest(id);
+      const updatedData = await demandRequestsApi.getDemandRequestById(id);
+      setRequest(updatedData);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal membatalkan permintaan');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gr-paper">
@@ -582,16 +600,37 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Status Permintaan</span>
-                      <div className="pt-0.5">
+                      <div className="pt-0.5 flex flex-wrap items-center gap-3">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider border font-mono ${
                           request.status === 'TERBUKA' 
                             ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
                             : request.status === 'TERPENUHI'
                             ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
+                            : request.status === 'DIBATALKAN'
+                            ? 'bg-gr-down/10 text-gr-down border-gr-down/20'
                             : 'bg-gr-paper text-gr-ink-soft border-gr-line'
                         }`}>
                           {request.status}
                         </span>
+
+                        {isRequestBuyer && request.status === 'TERBUKA' && request.quantity_kg_committed === 0 && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setConfirmCancelOpen(true)}
+                            disabled={cancelling}
+                            className="font-mono text-[9px] font-bold uppercase tracking-wider h-7 px-3 cursor-pointer shrink-0"
+                          >
+                            {cancelling ? (
+                              <>
+                                <Loader2 className="h-2.5 w-2.5 animate-spin mr-1" />
+                                Proses...
+                              </>
+                            ) : (
+                              'Batalkan Permintaan'
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1129,6 +1168,38 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               <p className="font-sans text-[10px] text-gr-orange leading-normal">
                 * Transaksi Rekening Bersama (Rekber) ini akan membuat transaksi pembayaran baru dan memotong stok produk petani secara otomatis.
               </p>
+            </div>
+          }
+        />
+      )}
+
+      {confirmCancelOpen && (
+        <ConfirmModal
+          isOpen={confirmCancelOpen}
+          onClose={() => setConfirmCancelOpen(false)}
+          onConfirm={handleCancelRequest}
+          title="Batalkan Permintaan"
+          confirmText="Ya, Batalkan"
+          cancelText="Kembali"
+          variant="danger"
+          isLoading={cancelling}
+          description={
+            <div className="space-y-2">
+              <p className="font-sans text-xs text-gr-ink-soft leading-relaxed">
+                Apakah Anda yakin ingin membatalkan permintaan ini? Tindakan ini bersifat permanen dan status permintaan akan diubah menjadi <span className="font-mono font-bold text-gr-down">DIBATALKAN</span>.
+              </p>
+              <div className="bg-[#FAF9F5] border border-gr-line p-3 rounded-xs font-mono text-[10px] space-y-1">
+                <div className="flex justify-between flex-wrap gap-x-4">
+                  <span className="text-gr-text-primary/60">KOMODITAS:</span>
+                  <span className="font-bold text-gr-text-primary uppercase truncate max-w-[180px]" title={request.commodity_name}>
+                    {request.commodity_name}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gr-text-primary/60">VOL KEBUTUHAN:</span>
+                  <span className="font-bold text-gr-text-primary">{request.quantity_kg_needed} KG</span>
+                </div>
+              </div>
             </div>
           }
         />

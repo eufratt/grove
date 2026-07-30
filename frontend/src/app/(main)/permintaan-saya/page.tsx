@@ -141,6 +141,8 @@ export default function PermintaanSayaPage() {
                           ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
                           : req.status === 'TERPENUHI'
                           ? 'bg-gr-up/10 text-gr-up border-gr-up/20'
+                          : req.status === 'DIBATALKAN'
+                          ? 'bg-gr-down/10 text-gr-down border-gr-down/20'
                           : 'bg-gr-paper text-gr-ink-soft border-gr-line'
                       }`}>
                         {req.status}
