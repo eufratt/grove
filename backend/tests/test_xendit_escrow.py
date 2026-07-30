@@ -367,9 +367,10 @@ async def test_get_committed_demand_requests_matching(test_escrow_context):
 async def test_get_matching_candidates(test_escrow_context):
     db, buyer, seller, product, demand = test_escrow_context
 
-    # Set up embeddings to be semantically identical (distance = 0.0)
-    product.embedding = [0.1] * 768
-    demand.embedding = [0.1] * 768
+    # Set up embeddings to be semantically identical (distance = 0.0) and unique
+    # to avoid collisions with constant vectors like [0.1]*768 in dev database
+    product.embedding = [0.9] + [0.0] * 767
+    demand.embedding = [0.9] + [0.0] * 767
     db.add(product)
     db.add(demand)
     await db.commit()
@@ -602,6 +603,195 @@ async def test_match_race_condition(test_escrow_context):
         await db.delete(demand_b)
         await db.commit()
         app.dependency_overrides.clear()
+
+async def test_demand_transaction_timeout(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+    from app.services import auth_service
+    from main import app
+    import httpx
+    from datetime import timedelta
+    from app.services.scheduler import check_demand_match_timeouts
+    from app.models.payment_transaction import PaymentStatus
+    from app.models.product import ProductStatus
+    
+    product.embedding = [0.9] + [0.0] * 767
+    demand.embedding = [0.9] + [0.0] * 767
+    db.add(product)
+    db.add(demand)
+    await db.commit()
+    
+    # Save initial stock to compare later
+    initial_stock = product.quantity_kg
+    
+    app.dependency_overrides[auth_service.get_current_user] = lambda: buyer
+    
+    # 1. Match the demand request with the product
+    async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.post(
+            f"/demand-requests/{demand.id}/match",
+            json={"product_id": str(product.id), "quantity_kg": 20.0}
+        )
+    assert response.status_code == 200
+    res_data = response.json()
+    tx_id = uuid.UUID(res_data["transaction_id"])
+    
+    # Re-verify that stock was deducted
+    await db.refresh(product)
+    await db.refresh(demand)
+    assert product.quantity_kg == initial_stock - 20.0
+    assert demand.quantity_kg_committed == 20.0
+    
+    # 2. Modify the transaction to look like it timed out
+    stmt_tx = select(DemandTransaction).where(DemandTransaction.id == tx_id)
+    res_tx = await db.execute(stmt_tx)
+    tx = res_tx.scalar_one()
+    tx.created_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=25)
+    db.add(tx)
+    await db.commit()
+    
+    # 3. Run scheduler timeout check
+    await check_demand_match_timeouts()
+    
+    # 4. Verify everything is reverted and expired
+    await db.refresh(tx)
+    await db.refresh(product)
+    await db.refresh(demand)
+    
+    assert tx.payment_status == PaymentStatus.EXPIRED
+    assert product.quantity_kg == initial_stock
+    assert product.status == ProductStatus.TERSEDIA
+    assert demand.quantity_kg_committed == 0.0
+    assert demand.status == DemandRequestStatus.TERBUKA
+    
+    # Clean up the transaction manually since it's not handled by fixture cleanup
+    await db.delete(tx)
+    await db.commit()
+    app.dependency_overrides.clear()
+
+async def test_webhook_payment_success_on_cancelled_order(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+    from app.services import auth_service
+    from app.models.order import Order, OrderStatus
+    from app.models.payment_transaction import PaymentTransaction, EscrowStatus, PaymentStatus
+    from main import app
+    import httpx
+    
+    # 1. Create a cancelled order
+    order = Order(
+        id=uuid.uuid4(),
+        product_id=product.id,
+        buyer_id=buyer.id,
+        quantity_kg=5.0,
+        status=OrderStatus.DIBATALKAN,
+        payment_status=PaymentStatus.PENDING,
+        escrow_status=EscrowStatus.NOT_STARTED,
+        xendit_external_id=f"pesanan_{uuid.uuid4().hex[:6]}_race_test"
+    )
+    db.add(order)
+    
+    # Create the mapping payment transaction log
+    pt = PaymentTransaction(
+        id=uuid.uuid4(),
+        source_type="pesanan",
+        source_id=order.id,
+        xendit_external_id=order.xendit_external_id,
+        amount=product.price_per_kg * 5.0
+    )
+    db.add(pt)
+    await db.commit()
+    
+    # Mock Xendit webhook callback token verification to bypass auth check
+    with patch("app.services.xendit_service.xendit_service.verify_webhook_token", return_value=True):
+        async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+            response = await ac.post(
+                "/webhooks/xendit",
+                headers={"x-callback-token": "dummy_token"},
+                json={
+                    "external_id": order.xendit_external_id,
+                    "id": "invoice_dummy_id_123",
+                    "status": "PAID"
+                }
+            )
+            
+    assert response.status_code == 200
+    await db.refresh(order)
+    
+    # The order status remains DIBATALKAN, but the payment is PAID and escrow status is REFUNDED
+    assert order.status == OrderStatus.DIBATALKAN
+    assert order.payment_status == PaymentStatus.PAID
+    assert order.escrow_status == EscrowStatus.REFUNDED
+    
+    # Teardown order & transaction
+    await db.delete(pt)
+    await db.delete(order)
+    await db.commit()
+
+async def test_webhook_payment_expired_cancels_order(test_escrow_context):
+    db, buyer, seller, product, demand = test_escrow_context
+    from app.services import auth_service
+    from app.models.order import Order, OrderStatus, CancellationReason
+    from app.models.payment_transaction import PaymentTransaction, EscrowStatus, PaymentStatus
+    from main import app
+    import httpx
+    
+    initial_stock = product.quantity_kg
+    
+    # 1. Create a waiting confirmation order and deduct stock
+    product.quantity_kg -= 5.0
+    db.add(product)
+    
+    order = Order(
+        id=uuid.uuid4(),
+        product_id=product.id,
+        buyer_id=buyer.id,
+        quantity_kg=5.0,
+        status=OrderStatus.MENUNGGU_KONFIRMASI,
+        payment_status=PaymentStatus.PENDING,
+        escrow_status=EscrowStatus.NOT_STARTED,
+        xendit_external_id=f"pesanan_{uuid.uuid4().hex[:6]}_expired_test"
+    )
+    db.add(order)
+    
+    # Create the mapping payment transaction log
+    pt = PaymentTransaction(
+        id=uuid.uuid4(),
+        source_type="pesanan",
+        source_id=order.id,
+        xendit_external_id=order.xendit_external_id,
+        amount=product.price_per_kg * 5.0
+    )
+    db.add(pt)
+    await db.commit()
+    
+    # Mock Xendit webhook callback token verification to bypass auth check
+    with patch("app.services.xendit_service.xendit_service.verify_webhook_token", return_value=True):
+        async with AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as ac:
+            response = await ac.post(
+                "/webhooks/xendit",
+                headers={"x-callback-token": "dummy_token"},
+                json={
+                    "external_id": order.xendit_external_id,
+                    "id": "invoice_dummy_id_123",
+                    "status": "EXPIRED"
+                }
+            )
+            
+    assert response.status_code == 200
+    await db.refresh(order)
+    await db.refresh(product)
+    
+    # The order status should now be DIBATALKAN due to TIMEOUT_KONFIRMASI, payment is EXPIRED, and stock restored
+    assert order.status == OrderStatus.DIBATALKAN
+    assert order.cancellation_reason == CancellationReason.TIMEOUT_KONFIRMASI
+    assert order.payment_status == PaymentStatus.EXPIRED
+    assert product.quantity_kg == initial_stock
+    
+    # Teardown
+    await db.delete(pt)
+    await db.delete(order)
+    await db.commit()
+
+
 
 
 

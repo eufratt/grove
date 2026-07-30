@@ -42,8 +42,10 @@ async def xendit_webhook(
             detail="Informasi callback tidak lengkap"
         )
 
-    # 3. Handle success payment event
+    # 3. Handle payment events
     if payment_status.upper() == "PAID":
         await escrow_service.handle_payment_success(db, external_id, invoice_id)
+    elif payment_status.upper() in ("EXPIRED", "FAILED"):
+        await escrow_service.handle_payment_failure(db, external_id, invoice_id, payment_status.upper())
 
     return {"status": "success"}

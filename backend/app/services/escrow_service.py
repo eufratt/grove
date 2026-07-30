@@ -135,6 +135,27 @@ class EscrowService:
             res_order = await db.execute(stmt_order)
             order = res_order.scalar_one_or_none()
             if order:
+                # Handle race condition: If order was already cancelled, auto-refund
+                if order.status == OrderStatus.DIBATALKAN:
+                    order.payment_status = PaymentStatus.PAID
+                    order.escrow_status = EscrowStatus.REFUNDED
+                    order.paid_at = now
+                    db.add(order)
+                    await db.commit()
+                    await db.refresh(order)
+                    await manager.broadcast_to_order(
+                        str(order.id),
+                        {
+                            "order_id": str(order.id),
+                            "status": order.status.value,
+                            "payment_status": order.payment_status.value,
+                            "escrow_status": order.escrow_status.value,
+                            "message": "Pembayaran diterima setelah pesanan dibatalkan. Dana otomatis di-refund.",
+                            "timestamp": now.isoformat()
+                        }
+                    )
+                    return
+
                 order.payment_status = PaymentStatus.PAID
                 order.escrow_status = EscrowStatus.HELD
                 order.paid_at = now
@@ -163,6 +184,26 @@ class EscrowService:
             res_dt = await db.execute(stmt_dt)
             dt = res_dt.scalar_one_or_none()
             if dt:
+                # Handle race condition: If demand match expired, auto-refund
+                if dt.payment_status == PaymentStatus.EXPIRED:
+                    dt.payment_status = PaymentStatus.PAID
+                    dt.escrow_status = EscrowStatus.REFUNDED
+                    dt.paid_at = now
+                    db.add(dt)
+                    await db.commit()
+                    await db.refresh(dt)
+                    await demand_manager.broadcast(
+                        str(dt.demand_request_id),
+                        {
+                            "demand_request_id": str(dt.demand_request_id),
+                            "payment_status": dt.payment_status.value,
+                            "escrow_status": dt.escrow_status.value,
+                            "message": "Pembayaran diterima setelah pencocokan kedaluwarsa. Dana otomatis di-refund.",
+                            "timestamp": now.isoformat()
+                        }
+                    )
+                    return
+
                 dt.payment_status = PaymentStatus.PAID
                 dt.escrow_status = EscrowStatus.HELD
                 dt.paid_at = now
@@ -521,5 +562,94 @@ class EscrowService:
             )
         else:
             raise HTTPException(status_code=400, detail="Tipe source tidak valid")
+
+    @staticmethod
+    async def handle_payment_failure(db: AsyncSession, external_id: str, xendit_invoice_id: str, status_str: str):
+        """
+        Handles invoice expiration or failure callback from Xendit.
+        """
+        stmt_tx = select(PaymentTransaction).where(PaymentTransaction.xendit_external_id == external_id)
+        res_tx = await db.execute(stmt_tx)
+        payment_tx = res_tx.scalar_one_or_none()
+        if not payment_tx:
+            return
+
+        new_status = PaymentStatus.EXPIRED if status_str == "EXPIRED" else PaymentStatus.FAILED
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+
+        if payment_tx.source_type == "pesanan":
+            stmt_order = select(Order).where(Order.id == payment_tx.source_id)
+            res_order = await db.execute(stmt_order)
+            order = res_order.scalar_one_or_none()
+            if order:
+                order.payment_status = new_status
+                # If order is still waiting confirmation, cancel it and rollback stock
+                if order.status == OrderStatus.MENUNGGU_KONFIRMASI:
+                    order.status = OrderStatus.DIBATALKAN
+                    from app.models.order import CancellationReason
+                    order.cancellation_reason = CancellationReason.TIMEOUT_KONFIRMASI
+                    order.status_updated_at = now
+                    
+                    # Rollback stock
+                    from app.services.order_status_service import rollback_stock, broadcast_status_change
+                    await rollback_stock(db, order)
+                    db.add(order)
+                    await db.commit()
+                    await db.refresh(order)
+                    await broadcast_status_change(order, f"Pesanan dibatalkan otomatis karena invoice Xendit {status_str.lower()}.")
+                else:
+                    db.add(order)
+                    await db.commit()
+
+        elif payment_tx.source_type == "permintaan":
+            stmt_dt = select(DemandTransaction).where(DemandTransaction.id == payment_tx.source_id)
+            res_dt = await db.execute(stmt_dt)
+            dt = res_dt.scalar_one_or_none()
+            if dt:
+                # If transaction was still pending, revert product stock and demand request progress
+                if dt.payment_status == PaymentStatus.PENDING:
+                    from app.models.product import Product, ProductStatus
+                    from app.models.demand_request import DemandRequest, DemandRequestStatus
+                    
+                    # 1. Revert product stock
+                    if dt.product_id:
+                        stmt_p = select(Product).where(Product.id == dt.product_id)
+                        res_p = await db.execute(stmt_p)
+                        product = res_p.scalar_one_or_none()
+                        if product:
+                            product.quantity_kg += dt.quantity_kg
+                            if product.status == ProductStatus.TERJUAL and product.quantity_kg > 0:
+                                product.status = ProductStatus.TERSEDIA
+                            db.add(product)
+                    
+                    # 2. Revert demand committed progress
+                    stmt_req = select(DemandRequest).where(DemandRequest.id == dt.demand_request_id)
+                    res_req = await db.execute(stmt_req)
+                    req = res_req.scalar_one_or_none()
+                    if req:
+                        req.quantity_kg_committed = max(0.0, req.quantity_kg_committed - dt.quantity_kg)
+                        if req.status == DemandRequestStatus.TERPENUHI and req.quantity_kg_committed < req.quantity_kg_needed:
+                            req.status = DemandRequestStatus.TERBUKA
+                        db.add(req)
+
+                dt.payment_status = new_status
+                db.add(dt)
+                await db.commit()
+                await db.refresh(dt)
+
+                # Broadcast update
+                from app.routers.demand_requests import demand_manager
+                await demand_manager.broadcast(
+                    str(dt.demand_request_id),
+                    {
+                        "demand_request_id": str(dt.demand_request_id),
+                        "quantity_kg_committed": req.quantity_kg_committed if 'req' in locals() and req else 0.0,
+                        "status": req.status.value if 'req' in locals() and req else "TERBUKA",
+                        "payment_status": dt.payment_status.value,
+                        "escrow_status": dt.escrow_status.value,
+                        "message": f"Transaksi pencocokan dibatalkan karena invoice Xendit {status_str.lower()}.",
+                        "timestamp": now.isoformat()
+                    }
+                )
 
 escrow_service = EscrowService()
