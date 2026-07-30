@@ -9,6 +9,7 @@ export class ApiError extends Error {
     this.status = status;
     this.info = info;
     this.name = 'ApiError';
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
 
@@ -75,7 +76,7 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
           const message = errorData.message || errorData.detail || `API error: ${retryResponse.status}`;
           throw new ApiError(message, retryResponse.status, errorData);
         } catch (refreshErr) {
-          if (refreshErr instanceof ApiError) {
+          if (refreshErr instanceof ApiError || (refreshErr instanceof Error && refreshErr.name === 'ApiError')) {
             throw refreshErr;
           }
           // If refresh failed, fall back to throwing the original 401 error below
@@ -103,7 +104,7 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
 
     return response;
   } catch (err) {
-    if (err instanceof ApiError) {
+    if (err instanceof ApiError || (err instanceof Error && err.name === 'ApiError')) {
       throw err;
     }
     const errMsg = err instanceof Error ? err.message : String(err);
