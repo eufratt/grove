@@ -365,7 +365,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       if (res.invoice_url) {
         window.location.href = res.invoice_url;
       } else {
-        setError('Gagal membuat URL pembayaran Xendit');
+        setError('Gagal membuat tautan pembayaran');
       }
     } catch (err: any) {
       console.error(err);
@@ -662,7 +662,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         Telah Dicocokkan
                       </span>
                       <h3 className="font-display text-base font-semibold text-gr-ink">
-                        Pencocokan Escrow <span className="font-mono text-xs text-gr-ink-soft">({txs.length} petani)</span>
+                        Transaksi Rekening Bersama <span className="font-mono text-xs text-gr-ink-soft">({txs.length} petani)</span>
                       </h3>
                     </div>
                     {isPartial && (
@@ -704,7 +704,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                             tx.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border-gr-up/20",
                             tx.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border-gr-down/20"
                           )}>
-                            {tx.escrow_status === 'held' && 'Dana Ditahan Escrow'}
+                            {tx.escrow_status === 'held' && 'Dana Diamankan (Rekber)'}
                             {tx.escrow_status === 'released' && 'Dana Dicairkan'}
                             {tx.escrow_status === 'disputed' && 'Sengketa — Ditangguhkan'}
                           </div>
@@ -788,7 +788,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           Kandidat Produk Petani
                         </h3>
                         <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
-                          Berikut adalah daftar hasil panen petani yang cocok secara harga dan kemiripan komoditas dengan permintaan Anda. Silakan pilih salah satu untuk bertransaksi via Escrow.
+                          Berikut adalah daftar hasil panen petani yang cocok secara harga dan kemiripan komoditas dengan permintaan Anda. Silakan pilih salah satu untuk bertransaksi via Rekening Bersama (Rekber).
                         </p>
 
                         {candidates.length === 0 ? (
@@ -1127,7 +1127,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 </div>
               </div>
               <p className="font-sans text-[10px] text-gr-orange leading-normal">
-                * Escrow matching akan membuat transaksi pembayaran baru dan memotong stok produk petani.
+                * Transaksi Rekening Bersama (Rekber) ini akan membuat transaksi pembayaran baru dan memotong stok produk petani secara otomatis.
               </p>
             </div>
           }
