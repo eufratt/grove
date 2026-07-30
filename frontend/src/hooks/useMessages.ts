@@ -186,7 +186,7 @@ export function useMessages(conversationId: string | null) {
   }, [conversationId, currentUser]);
 
   // Send a message with Optimistic Update
-  const sendMessage = async (content: string, productId?: string) => {
+  const sendMessage = useCallback(async (content: string, productId?: string) => {
     if (!conversationId || !authenticated) {
       throw new Error('Supabase client is not authenticated or no conversation selected');
     }
@@ -226,10 +226,10 @@ export function useMessages(conversationId: string | null) {
 
     // Perform actual database insert asynchronously
     performSendMessage(tempId, content, productId);
-  };
+  }, [conversationId, authenticated, currentUser, performSendMessage]);
 
   // Retry sending a failed message
-  const retryMessage = async (tempId: string) => {
+  const retryMessage = useCallback(async (tempId: string) => {
     const failedMsg = messages.find((m) => m.id === tempId);
     if (!failedMsg) return;
 
@@ -240,11 +240,17 @@ export function useMessages(conversationId: string | null) {
 
     // Re-request database insert
     performSendMessage(tempId, failedMsg.content, failedMsg.product_id);
-  };
+  }, [messages, performSendMessage]);
 
   // Mark all unread messages from the other user as read
-  const markAsRead = async () => {
+  const markAsRead = useCallback(async () => {
     if (!conversationId || !authenticated || !currentUser) return;
+
+    // Fast check: check if we actually have any unread messages from the other participant
+    const hasUnread = messages.some(
+      (msg) => msg.sender_id !== currentUser.id && msg.read_at === null
+    );
+    if (!hasUnread) return;
 
     try {
       const now = new Date().toISOString();
@@ -258,17 +264,22 @@ export function useMessages(conversationId: string | null) {
       if (updateError) throw updateError;
 
       // Update local state messages to read status
-      setMessages((prev) =>
-        prev.map((msg) =>
+      setMessages((prev) => {
+        const stillHasUnread = prev.some(
+          (msg) => msg.sender_id !== currentUser.id && msg.read_at === null
+        );
+        if (!stillHasUnread) return prev;
+
+        return prev.map((msg) =>
           msg.sender_id !== currentUser.id && msg.read_at === null
             ? { ...msg, read_at: now }
             : msg
-        )
-      );
+        );
+      });
     } catch (err) {
       console.error('Failed to mark messages as read:', err);
     }
-  };
+  }, [conversationId, authenticated, currentUser?.id, messages]);
 
   return {
     messages,

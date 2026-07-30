@@ -32,6 +32,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [conversation, setConversation] = useState<any>(null);
   const [inputMessage, setInputMessage] = useState('');
+  const [productContextToAdd, setProductContextToAdd] = useState<string | null>(null);
 
   const {
     messages,
@@ -44,6 +45,14 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
   } = useMessages(conversationId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessagesLengthRef = useRef(0);
+
+  // Set product context query parameter once on mount
+  useEffect(() => {
+    if (targetProductId) {
+      setProductContextToAdd(targetProductId);
+    }
+  }, [targetProductId]);
 
   // Fetch current user and conversation details
   useEffect(() => {
@@ -70,9 +79,12 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
     }
   }, [messages, markAsRead]);
 
-  // Scroll to bottom when messages list changes
+  // Scroll to bottom only when messages list length changes (prevent scroll locking on state updates)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > 0 && messages.length !== lastMessagesLengthRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    lastMessagesLengthRef.current = messages.length;
   }, [messages]);
 
   // Pre-fill product context message if product_id is in query params
@@ -96,8 +108,9 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
     setInputMessage('');
 
     try {
-      // Send message. If conversation has product context, associate it
-      await sendMessage(text, conversation?.last_product_id);
+      // Send message. Only associate product context for the opening/first message (productContextToAdd)
+      await sendMessage(text, productContextToAdd || undefined);
+      setProductContextToAdd(null); // Clear context immediately after sending
     } catch (err) {
       console.error('Send message failed:', err);
     }
@@ -272,44 +285,51 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
           </div>
         )}
 
-        {messages.map((m) => {
-          const isMe = m.sender_id === currentUser?.id;
-          const isOptimistic = m.id.toString().startsWith('opt-');
-          const isError = m.status === 'error';
-          
-          return (
-            <div 
-              key={m.id}
-              className="w-full flex flex-col"
-            >
-              {/* Product link tag shared in chat stream - Redesigned as a System Notice Divider */}
-              {m.products && (
-                <div className="w-full flex flex-col items-center my-4">
-                  <div className="w-full flex items-center gap-2 mb-2">
-                    <div className="flex-grow h-[1px] bg-gr-line/45" />
-                    <span className="font-mono text uppercase tracking-widest text-gr-ink-soft bg-white/80 dark:bg-black/20 px-2 py-0.5 rounded-md border border-gr-line/45 select-none">
-                      Konteks Komoditas
-                    </span>
-                    <div className="flex-grow h-[1px] bg-gr-line/45" />
-                  </div>
-                  
-                  <Link
-                    href={`/produk/${m.products.id}`}
-                    className="flex items-center gap-3 p-3 bg-[#EDE6D1]/90 dark:bg-white/5 border border-dashed border-gr-board/40 rounded-sm max-w-xs w-full text-left transition-all hover:bg-[#EDE6D1]  group relative overflow-hidden"
-                  >
-                    <div className="absolute inset-0 opacity-[0.02] bg-radial from-gr-board" />
-                    <div className="p-2 rounded-lg bg-gr-board/10 text-gr-board flex-shrink-0">
-                      <ShoppingBag size={14} className="group-hover:-rotate-12 transition-transform" />
+        {(() => {
+          const renderedProductIds = new Set<string>();
+          return messages.map((m) => {
+            const isMe = m.sender_id === currentUser?.id;
+            const isOptimistic = m.id.toString().startsWith('opt-');
+            const isError = m.status === 'error';
+            
+            const shouldRenderProductContext = m.products && !renderedProductIds.has(m.products.id);
+            if (m.products) {
+              renderedProductIds.add(m.products.id);
+            }
+
+            return (
+              <div 
+                key={m.id}
+                className="w-full flex flex-col"
+              >
+                {/* Product link tag shared in chat stream - Redesigned as a System Notice Divider */}
+                {shouldRenderProductContext && (
+                  <div className="w-full flex flex-col items-center my-4">
+                    <div className="w-full flex items-center gap-2 mb-2">
+                      <div className="flex-grow h-[1px] bg-gr-line/45" />
+                      <span className="font-mono text uppercase tracking-widest text-gr-ink-soft bg-white/80 dark:bg-black/20 px-2 py-0.5 rounded-md border border-gr-line/45 select-none">
+                        Konteks Komoditas
+                      </span>
+                      <div className="flex-grow h-[1px] bg-gr-line/45" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h6 className="font-sans text-[11px] font-bold text-gr-ink truncate group-hover:text-gr-board transition-colors">
-                        {m.products.name}
-                      </h6>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <span className="font-mono text-[9px] text-gr-board font-bold">Bahas Transaksi</span>
-                        <span className="w-1 h-1 rounded-full bg-gr-up animate-pulse" />
+                    
+                    <Link
+                      href={`/produk/${m.products!.id}`}
+                      className="flex items-center gap-3 p-3 bg-[#EDE6D1]/90 dark:bg-white/5 border border-dashed border-gr-board/40 rounded-sm max-w-xs w-full text-left transition-all hover:bg-[#EDE6D1]  group relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 opacity-[0.02] bg-radial from-gr-board" />
+                      <div className="p-2 rounded-lg bg-gr-board/10 text-gr-board flex-shrink-0">
+                        <ShoppingBag size={14} className="group-hover:-rotate-12 transition-transform" />
                       </div>
-                    </div>
+                      <div className="min-w-0 flex-1">
+                        <h6 className="font-sans text-[11px] font-bold text-gr-ink truncate group-hover:text-gr-board transition-colors">
+                          {m.products!.name}
+                        </h6>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <span className="font-mono text-[9px] text-gr-board font-bold">Bahas Transaksi</span>
+                          <span className="w-1 h-1 rounded-full bg-gr-up animate-pulse" />
+                        </div>
+                      </div>
                   </Link>
                 </div>
               )}
@@ -363,8 +383,9 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               </div>
             </div>
           );
-        })}
-        <div ref={messagesEndRef} />
+        });
+      })()}
+      <div ref={messagesEndRef} />
       </div>
 
       {/* Input box */}
