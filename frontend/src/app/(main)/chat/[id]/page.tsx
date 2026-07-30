@@ -205,73 +205,61 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
           </div>
         </div>
 
-        {/* Product context banner in header */}
-        {conversation?.last_product && (
-          <Link 
-            href={`/produk/${conversation.last_product.id}`}
-            className="flex items-center gap-2 px-2.5 py-1 bg-gr-board/5 hover:bg-gr-board/10 border border-gr-line rounded-xl transition-all duration-150 max-w-[120px] sm:max-w-[200px] cursor-pointer group shadow-2xs"
-          >
-            <div className="p-0.5 rounded-md bg-gr-board/10 text-gr-board flex-shrink-0">
-              <ShoppingBag size={11} className="group-hover:-rotate-12 transition-transform" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1">
-                <span className="font-mono text-[7px] uppercase tracking-wider text-gr-ink-soft font-bold">Konteks Produk</span>
-              </div>
-              <p className="font-sans text-[9px] font-bold text-gr-ink truncate">{conversation.last_product.name}</p>
-            </div>
-          </Link>
-        )}
+        {/* Removed product context banner from header as requested */}
       </div>
 
       {/* Chat Area */}
       <div className="flex-grow overflow-y-auto p-4 space-y-4 min-h-0 custom-scrollbar bg-white/20 dark:bg-black/5">
         
+        {/* Permanent Product Context Card directly in the chat feed */}
+        {product && (
+          <div className="w-full flex flex-col items-center my-2 shrink-0">
+            <div className="w-full flex items-center gap-2 mb-3">
+              <div className="flex-grow h-[1px] bg-gr-line/45" />
+              <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft bg-[#FAF9F5] dark:bg-black/20 px-2 py-0.5 rounded-md border border-gr-line/45 select-none">
+                Komoditas yang Dibahas
+              </span>
+              <div className="flex-grow h-[1px] bg-gr-line/45" />
+            </div>
+            
+            <Link
+              href={`/produk/${product.id}`}
+              className="flex items-center gap-3.5 p-3.5 bg-[#EDE6D1]/80 dark:bg-white/5 border border-dashed border-gr-board/35 rounded-xl max-w-sm w-full text-left transition-all hover:bg-[#EDE6D1] shadow-3xs group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 opacity-[0.02] bg-radial from-gr-board" />
+              <div className="p-2.5 rounded-xl bg-gr-board/10 text-gr-board flex-shrink-0">
+                <ShoppingBag size={16} className="group-hover:-rotate-12 transition-transform" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft block mb-0.5">KOMODITAS</span>
+                <h6 className="font-sans text-[12px] font-bold text-gr-ink truncate leading-tight group-hover:text-gr-board transition-colors">
+                  {product.name}
+                </h6>
+                <div className="mt-2.5 flex items-baseline gap-2">
+                  <span className="font-mono text-xs font-bold text-gr-ink">
+                    Rp {product.price_per_kg?.toLocaleString('id-ID') || 0}
+                    <span className="font-sans font-medium text-[9px] text-gr-ink-soft ml-0.5">/kg</span>
+                  </span>
+                  {deltaText && (
+                    <span className={cn(
+                      "font-sans text-[8px] px-1.5 py-0.5 rounded-md font-semibold border shrink-0",
+                      isUnderPrice 
+                        ? "bg-gr-up/10 text-gr-up border-gr-up/20" 
+                        : "bg-gr-price-warn/10 text-[#B8860B] border-[#B8860B]/20"
+                    )}>
+                      {deltaText}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Link>
+          </div>
+        )}
+
         {/* Empty state: Chat baru dimulai */}
         {messages.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center py-8 text-center px-4 max-w-sm mx-auto h-full gap-5">
-            {product ? (
-              /* Signature Commodity Ticket */
-              <div className="w-full bg-[#EDE6D1]/80 dark:bg-white/5 border border-dashed border-gr-board/35 rounded-2xl p-4 shadow-sm relative overflow-hidden text-left">
-                {/* Stamp effect */}
-                <div className="absolute top-2 right-2 border border-gr-up/30 text-gr-up/60 font-mono text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-sm rotate-12 select-none">
-                  Grove Ticket
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 rounded-xl bg-gr-board/10 text-gr-board flex-shrink-0">
-                    <ShoppingBag size={18} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft block mb-0.5">Komoditas Dibahas</span>
-                    <h5 className="font-sans text-[13px] font-bold text-gr-ink truncate leading-tight">{product.name}</h5>
-                    
-                    <div className="mt-2 space-y-1">
-                      <div className="font-mono text-[11px] font-bold text-gr-ink">
-                        Rp {product.price_per_kg?.toLocaleString('id-ID') || 0}
-                        <span className="font-sans font-medium text-[9px] text-gr-ink-soft ml-0.5">/kg</span>
-                      </div>
-                      
-                      {deltaText && (
-                        <div className={cn(
-                          "inline-block font-sans text-[9px] px-2 py-0.5 rounded-md font-semibold border",
-                          isUnderPrice 
-                            ? "bg-gr-up/10 text-gr-up border-gr-up/20" 
-                            : "bg-gr-price-warn/10 text-[#B8860B] border-gr-price-warn/30"
-                        )}>
-                          {deltaText}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-dashed border-gr-line/50 mt-3 pt-2 flex items-center justify-between font-mono text-[8px] text-gr-ink-soft">
-                  <span>Petani: {product.seller_name || 'Petani Grove'}</span>
-                  <span>Stok: {product.quantity_kg || 0} kg</span>
-                </div>
-              </div>
-            ) : (
+            {!product && (
               <div className="w-12 h-12 rounded-full bg-gr-board/5 flex items-center justify-center border border-gr-line/40 text-gr-board/40">
                 <Sparkles size={20} />
               </div>
