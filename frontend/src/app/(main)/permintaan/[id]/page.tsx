@@ -75,7 +75,10 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
         undefined
       );
       if (res && res.conversation_id) {
-        router.push(`/chat/${res.conversation_id}`);
+        const url = request.match_transaction.product_id 
+          ? `/chat/${res.conversation_id}?product_id=${request.match_transaction.product_id}`
+          : `/chat/${res.conversation_id}`;
+        router.push(url);
       } else {
         throw new Error('Gagal memulai percakapan');
       }
