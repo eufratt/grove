@@ -37,8 +37,28 @@ async def create_conversation(
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail="Product not found"
             )
-        target_seller_id = product.seller_id
-        target_buyer_id = current_user.id
+        
+        # If the current user is the owner (seller) of the product,
+        # they must specify the buyer they want to chat with.
+        if product.seller_id == current_user.id:
+            if not body.buyer_id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Buyer ID must be provided when seller starts a conversation"
+                )
+            # Verify the buyer exists
+            buyer_result = await db.execute(select(User).where(User.id == body.buyer_id))
+            buyer = buyer_result.scalar_one_or_none()
+            if not buyer:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Buyer not found"
+                )
+            target_buyer_id = buyer.id
+            target_seller_id = current_user.id
+        else:
+            target_seller_id = product.seller_id
+            target_buyer_id = current_user.id
     elif body.seller_id:
         # Check if seller exists and is a farmer
         seller_result = await db.execute(select(User).where(User.id == body.seller_id))
