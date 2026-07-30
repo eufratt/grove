@@ -134,7 +134,8 @@ export default function PermintaanSayaPage() {
                   <Link href={`/permintaan/${req.id}`} className="absolute inset-0 z-10" />
                   
                   <div>
-                    <div className="flex justify-between items-start gap-4 mb-4">
+                    {/* Top Row: Status & Request ID */}
+                    <div className="flex justify-between items-start gap-4 mb-3">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-sm font-mono text-[9px] uppercase tracking-wider font-bold border ${
                         req.status === 'TERBUKA'
                           ? 'bg-gr-board/10 text-gr-board border-gr-board/20'
@@ -149,13 +150,17 @@ export default function PermintaanSayaPage() {
                       </span>
                     </div>
 
+                    {/* Product Title */}
                     <h3 className="font-display text-2xl font-semibold tracking-tight text-gr-ink group-hover:text-gr-board transition-colors">
                       {req.commodity_name}
                     </h3>
 
-                    {/* Attribute Grid */}
-                    <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-gr-line/20">
-                      <div className="space-y-0.5">
+                    {/* Divider */}
+                    <div className="h-px bg-gr-line/20 my-4" />
+
+                    {/* Attributes Grid (Kategori & Harga Penawaran) */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
                         <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
                           Kategori
                         </span>
@@ -163,7 +168,7 @@ export default function PermintaanSayaPage() {
                           {req.category}
                         </span>
                       </div>
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
                           Harga Penawaran
                         </span>
@@ -174,19 +179,8 @@ export default function PermintaanSayaPage() {
                       </div>
                     </div>
 
-                    {/* Progress details */}
-                    <div className="mt-6 space-y-3">
-                      <div className="flex justify-between items-baseline">
-                        <div className="space-y-0.5">
-                          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
-                            Kuota Terpenuhi
-                          </span>
-                          <span className="font-display text-xl font-bold text-gr-up leading-none block">
-                            {percent}%
-                          </span>
-                        </div>
-                      </div>
-                      
+                    {/* Progress Area */}
+                    <div className="mt-5 space-y-3">
                       {/* Bar indicator */}
                       <div className="w-full bg-gr-paper h-2 rounded-full overflow-hidden border border-gr-line">
                         <div 
@@ -195,33 +189,38 @@ export default function PermintaanSayaPage() {
                         />
                       </div>
 
-                      <div className="flex justify-between items-end pt-1">
-                        <div className="space-y-0.5">
-                          <div className="font-mono text-xs font-bold text-gr-ink leading-none">
-                            {committed.toLocaleString('id-ID')} <span className="text-[10px] text-gr-ink-soft/70 font-normal">dari</span> {needed.toLocaleString('id-ID')} <span className="text-[9px] text-gr-ink-soft/70 font-bold tracking-wider">KG</span>
-                          </div>
+                      {/* Info Grid (Volume & Deadline) */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
                           <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
                             Volume Pemenuhan
                           </span>
+                          <div className="font-mono text-xs font-bold text-gr-ink leading-none">
+                            {committed.toLocaleString('id-ID')} <span className="text-[10px] text-gr-ink-soft/70 font-normal">dari</span> {needed.toLocaleString('id-ID')} <span className="text-[9px] text-gr-ink-soft/70 font-bold tracking-wider">KG</span>
+                          </div>
                         </div>
-                        <div className="space-y-0.5 text-right">
+                        <div className="space-y-1 text-right">
+                          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block text-right">
+                            Deadline Pemenuhan
+                          </span>
                           <span className="flex items-center justify-end gap-1 font-mono text-xs font-bold text-gr-ink leading-none">
                             <Calendar size={11} className="text-gr-ink-soft/70 shrink-0" />
                             {deadlineDate}
-                          </span>
-                          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
-                            Deadline Pemenuhan
                           </span>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-gr-line flex justify-end relative z-20">
-                    <span className="inline-flex items-center gap-1 text-gr-board font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
-                      <span className="group-hover:underline">Lihat Detail</span>
-                      <ArrowRight size={12} className="transform group-hover:translate-x-1 transition-transform duration-200" />
-                    </span>
+                  {/* Bottom section with divider and link */}
+                  <div className="mt-5">
+                    <div className="h-px bg-gr-line/20 mb-4" />
+                    <div className="flex justify-end relative z-20">
+                      <span className="inline-flex items-center gap-1 text-gr-board font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+                        <span className="group-hover:underline">Lihat Detail</span>
+                        <ArrowRight size={12} className="transform group-hover:translate-x-1 transition-transform duration-200" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
