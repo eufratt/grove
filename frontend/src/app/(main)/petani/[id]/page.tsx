@@ -295,7 +295,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   </>
                 ) : (
                   <>
-                    <MessageSquare size={12} /> Chat Penjual
+                    <MessageSquare size={12} /> Chat Petani
                   </>
                 )}
               </button>

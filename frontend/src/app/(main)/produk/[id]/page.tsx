@@ -486,7 +486,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                     className="flex-1 border-gr-line hover:bg-gr-chalk/60 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary"
                   >
                     <MessageCircle className="mr-2 h-4 w-4" />
-                    Chat Penjual
+                    Chat Petani
                   </Button>
                 </div>
               </div>
