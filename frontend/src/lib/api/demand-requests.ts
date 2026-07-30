@@ -91,6 +91,13 @@ export const demandRequestsApi = {
     });
     return response.json();
   },
+
+  cancelDemandRequest: async (id: string) => {
+    const response = await apiClient(`/demand-requests/${id}/cancel`, {
+      method: 'POST',
+    });
+    return response.json();
+  },
 };
 
 // WebSocket Hook for real-time status updates
