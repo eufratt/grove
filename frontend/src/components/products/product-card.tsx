@@ -84,14 +84,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         <div className="pt-3 border-t border-gr-line/60 mt-auto">
           {/* Price - Large tabular font-mono */}
           <div className="font-mono text-2xl font-bold text-gr-ink tracking-tight tabular-nums">
-            Rp {price.toLocaleString('id-ID')}
+            Rp {Math.round(price).toLocaleString('id-ID')}
             <span className="font-sans font-medium text-xs text-gr-ink-soft ml-1">/kg</span>
           </div>
 
           {/* Reference price comparison if available */}
           {refPrice && (
             <div className="font-mono text-[10px] text-gr-ink-soft mt-0.5">
-              Acuan PIHPS: Rp {refPrice.toLocaleString('id-ID')}/kg
+              Acuan PIHPS: Rp {Math.round(refPrice).toLocaleString('id-ID')}/kg
             </div>
           )}
 

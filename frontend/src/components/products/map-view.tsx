@@ -379,7 +379,7 @@ export const MapView: React.FC<MapViewProps> = ({
                   <div>
                     <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Harga</span>
                     <span className="font-mono font-bold text-gr-ink">
-                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft">/kg</span>
+                      Rp {Math.round(activePopup.data.price_per_kg).toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft">/kg</span>
                     </span>
                   </div>
                   <div className="text-right">
@@ -424,7 +424,7 @@ export const MapView: React.FC<MapViewProps> = ({
                   <div>
                     <span className="block font-mono text-[7px] uppercase tracking-widest text-gr-ink-soft/60 font-bold mb-0.5">Penawaran</span>
                     <span className="font-mono font-bold text-gr-ink">
-                      Rp {activePopup.data.price_per_kg.toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft">/kg</span>
+                      Rp {Math.round(activePopup.data.price_per_kg).toLocaleString('id-ID')}<span className="text-[7px] font-normal text-gr-ink-soft">/kg</span>
                     </span>
                   </div>
                   <div className="text-right">
@@ -501,7 +501,7 @@ export const MapView: React.FC<MapViewProps> = ({
                           {item.commodity_name}
                         </span>
                         <span className="font-mono font-bold text-gr-up shrink-0">
-                          Rp {item.price_per_kg.toLocaleString('id-ID')}
+                          Rp {Math.round(item.price_per_kg).toLocaleString('id-ID')}
                         </span>
                       </div>
                     ))}

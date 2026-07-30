@@ -51,7 +51,7 @@ function TickerStrip({ items }: { items: TickerItem[] }) {
             >
               <span>{item.commodityName}</span>
               <span className="opacity-40">·</span>
-              <span>Rp {item.priceToday.toLocaleString('id-ID')}/kg</span>
+              <span>Rp {Math.round(item.priceToday).toLocaleString('id-ID')}/kg</span>
               <span
                 className={
                   isUp

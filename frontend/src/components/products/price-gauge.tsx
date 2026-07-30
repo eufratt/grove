@@ -88,14 +88,14 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
           <div 
             className="absolute top-1/2 -translate-y-1/2 w-[1.5px] h-3 bg-gr-ink-soft/40 z-10"
             style={{ left: '50%' }}
-            title={`Referensi: Rp ${hargaReferensi.toLocaleString('id-ID')}`}
+            title={`Referensi: Rp ${Math.round(hargaReferensi).toLocaleString('id-ID')}`}
           />
 
           {/* Product Price Dot */}
           <div
             className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${colorClass} shadow-md z-20 transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1)`}
             style={{ left: `${position}%`, transform: `translate(-50%, -50%) scale(${animate ? 1 : 0.4})` }}
-            title={`Harga: Rp ${hargaProduk.toLocaleString('id-ID')} (${deviationText})`}
+            title={`Harga: Rp ${Math.round(hargaProduk).toLocaleString('id-ID')} (${deviationText})`}
           />
         </div>
       </div>
@@ -165,7 +165,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
             <div 
               className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center z-10"
               style={{ left: `${((hargaRataRataApp / hargaReferensi - minRatio) / (maxRatio - minRatio)) * 100}%` }}
-              title={`Rata-rata App: Rp ${hargaRataRataApp.toLocaleString('id-ID')}`}
+              title={`Rata-rata App: Rp ${Math.round(hargaRataRataApp).toLocaleString('id-ID')}`}
             >
               <div className="w-[1.5px] h-5 bg-gr-live/80" />
             </div>
@@ -187,7 +187,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
               Status Keadilan Harga
             </span>
             <span className={`font-mono text-[9px] font-bold ${textClass}`}>
-              Rp {Math.abs(hargaProduk - hargaReferensi).toLocaleString('id-ID')} {hargaProduk > hargaReferensi ? 'di atas' : 'di bawah'} acuan
+              Rp {Math.round(Math.abs(hargaProduk - hargaReferensi)).toLocaleString('id-ID')} {hargaProduk > hargaReferensi ? 'di atas' : 'di bawah'} acuan
             </span>
           </div>
           <p className="font-sans text-[11px] leading-relaxed text-gr-ink-soft m-0">

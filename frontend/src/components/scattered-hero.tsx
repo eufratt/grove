@@ -46,7 +46,7 @@ export function Ticker({ pricesData }: TickerProps) {
             >
               <span>{item.commodityName}</span>
               <span className="opacity-40">·</span>
-              <span>Rp {item.priceToday.toLocaleString('id-ID')}/kg</span>
+              <span>Rp {Math.round(item.priceToday).toLocaleString('id-ID')}/kg</span>
               <span className={isUp ? "text-gr-up-board" : isDown ? "text-gr-down-board" : "text-gr-chalk/60"}>
                 {deltaText}
               </span>
@@ -495,7 +495,7 @@ export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps)
                 )}
               </div>
               <div className="font-display font-bold text-3xl text-gr-ink mb-0.5">
-                Rp {panel.priceToday.toLocaleString('id-ID')}
+                Rp {Math.round(panel.priceToday).toLocaleString('id-ID')}
                 <span className="font-sans font-medium text-xs text-gr-ink-soft ml-1">/kg</span>
               </div>
               <div className={`font-sans text-xs ${deltaColor} mb-3.5`}>

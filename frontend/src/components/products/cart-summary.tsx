@@ -236,7 +236,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
                   
                   <div className="flex items-center gap-4">
                     <span className="font-mono text-sm text-gr-green">
-                      Rp {item.price_per_kg.toLocaleString('id-ID')}
+                      Rp {Math.round(item.price_per_kg).toLocaleString('id-ID')}
                     </span>
                     <button
                       onClick={() => onRemoveFromCart(item.id)}
@@ -257,7 +257,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
             <div className="flex justify-between items-baseline">
               <span className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/40">Total Estimasi</span>
               <span className="font-mono text-2xl text-gr-green">
-                Rp {totalPrice.toLocaleString('id-ID')}
+                Rp {Math.round(totalPrice).toLocaleString('id-ID')}
               </span>
             </div>
 

@@ -299,7 +299,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                       <div>
                         <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/50 block mb-0.5">Penawaran</span>
                         <span className="font-mono text-xs font-bold text-gr-ink">
-                          Rp {commitRequest.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+                          Rp {Math.round(commitRequest.price_per_kg).toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
                         </span>
                       </div>
                       <div>
@@ -600,13 +600,13 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
               <div>
                 <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
                 <p className="font-mono text-base font-bold text-gr-ink">
-                  Rp {request.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+                  Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
                 </p>
               </div>
               {refPrice !== null && (
                 <div className="text-right">
                   <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">PIHPS</p>
-                  <p className="font-mono text-xs text-gr-ink-soft">Rp {refPrice.toLocaleString('id-ID')}</p>
+                  <p className="font-mono text-xs text-gr-ink-soft">Rp {Math.round(refPrice).toLocaleString('id-ID')}</p>
                   {request.price_per_kg >= refPrice
                     ? <p className="font-mono text-[8px] font-bold text-gr-up uppercase mt-0.5">Harga Adil</p>
                     : <p className="font-mono text-[8px] font-bold text-gr-price-unfair uppercase mt-0.5">Bawah Pasar</p>
@@ -709,7 +709,7 @@ const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => 
         <div className="pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
           <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
           <p className="font-mono text-sm font-bold text-gr-ink">
-            Rp {request.price_per_kg.toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
+            Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
           </p>
         </div>
 
