@@ -755,8 +755,8 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               );
             })()}
 
-                {request.status === 'TERBUKA' && request.quantity_kg_committed < request.quantity_kg_needed && (
-                  request.status === 'TERBUKA' && (
+            {request.status === 'TERBUKA' && request.quantity_kg_committed < request.quantity_kg_needed && (
+              request.status === 'TERBUKA' && (
                     loadingCandidates ? (
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         {(request.match_transactions || []).length > 0 && (
@@ -914,8 +914,6 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       </div>
                     )
                   )
-                )}
-              </>
             )}
 
             {/* Farmer Commitment Action Panel */}
