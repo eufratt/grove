@@ -476,32 +476,34 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     <span className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">KG</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-gr-ink-soft font-mono text-[10px] font-bold uppercase tracking-wider">
-                    <Users size={14} className="text-gr-board" />
+                    <Users size={14} strokeWidth={2} className="text-gr-board" />
                     <span>
                       {request.num_petani_committed || 0} petani berkomitmen
                     </span>
                   </div>
                 </div>
-
+ 
                 {remainingKg > 0 && request.status === 'TERBUKA' && (
                   <div className="mt-4 text-xs font-sans text-gr-board font-medium flex items-center gap-2">
-                    <ClipboardCheck size={14} className="shrink-0" />
+                    <ClipboardCheck size={14} strokeWidth={2} className="shrink-0" />
                     <span>Membutuhkan {Math.round(remainingKg).toLocaleString('id-ID')} KG lagi untuk dipenuhi.</span>
                   </div>
                 )}
               </div>
 
               {/* Request Detail Section */}
-              <div className="p-6 sm:p-8 space-y-6">
-                <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block mb-1">Rincian Permintaan</span>
+              <div className="p-6 sm:p-8 space-y-5">
+                <div className="border-b border-gr-line/45 pb-3">
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold block">Rincian Permintaan</span>
+                </div>
                 
-                <div className="space-y-6 font-sans text-sm">
+                <div className="font-sans text-sm">
                   {/* Row 1: Deadline & Lokasi */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Deadline Pemenuhan</span>
                       <p className="text-gr-ink font-semibold flex items-center gap-2">
-                        <Calendar size={14} className="text-gr-board/60 pointer-events-none" />
+                        <Calendar size={14} strokeWidth={2} className="text-gr-board/60 pointer-events-none" />
                         {formattedDeadline}
                       </p>
                     </div>
@@ -509,7 +511,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Lokasi Penerimaan</span>
                       <p className="text-gr-ink font-semibold flex items-center gap-2">
-                        <MapPin size={14} className="text-gr-board/60 pointer-events-none shrink-0" />
+                        <MapPin size={14} strokeWidth={2} className="text-gr-board/60 pointer-events-none shrink-0" />
                         <span className="leading-snug">
                           {request.latitude && request.longitude
                             ? (addressName || getClosestProvince(request.latitude, request.longitude))
@@ -520,19 +522,17 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </div>
  
                   {/* Row 2: Harga Penawaran & Harga Acuan */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gr-line/35">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
-                      <div className="flex items-baseline flex-wrap gap-2">
-                        <div className="flex items-baseline">
-                          <span className="font-display text-3xl font-bold text-gr-ink">
-                            Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
-                          </span>
-                          <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold ml-1">/ KG</span>
-                        </div>
+                      <div className="flex items-center flex-wrap gap-2">
+                        <span className="font-display text-3xl font-bold text-gr-ink">
+                          Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
+                        </span>
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mr-1">/ KG</span>
                         {refPrice !== null && (
                           <span className={cn(
-                            "font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-xs border",
+                            "font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-xs border shrink-0 align-middle",
                             Math.round(((request.price_per_kg - refPrice) / refPrice) * 100) > 0 
                               ? "bg-amber-500/10 text-amber-700 border-amber-500/20" 
                               : "bg-gr-up/10 text-gr-up border-gr-up/20"
@@ -558,7 +558,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </div>
  
                   {/* Row 3: Status Permintaan */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gr-line/35">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Status Permintaan</span>
                       <div className="pt-0.5">
@@ -764,7 +764,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     loadingCandidates ? (
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
-                          <Users size={18} className="text-gr-board" />
+                          <Users size={16} strokeWidth={2} className="text-gr-board" />
                           Kandidat Produk Petani
                         </h3>
                         <div className="flex items-center justify-center py-6">
@@ -775,7 +775,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                     ) : (
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
-                          <Users size={18} className="text-gr-board" />
+                          <Users size={16} strokeWidth={2} className="text-gr-board" />
                           Kandidat Produk Petani
                         </h3>
                         <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
