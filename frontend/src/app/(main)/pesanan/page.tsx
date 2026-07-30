@@ -7,12 +7,13 @@ import { ordersApi, useOrderSocket } from '@/lib/api/orders';
 import { demandRequestsApi, useDemandSocket } from '@/lib/api/demand-requests';
 import { productsApi } from '@/lib/api/products';
 import { authApi } from '@/lib/api/auth';
+import { conversationsApi } from '@/lib/api/conversations';
 import { Button } from '@/components/ui/button';
 import { RatingForm } from '@/components/ratings/rating-form';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { FilmGrain } from '@/components/effects/film-grain';
-import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User, Edit } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Truck, XCircle, Loader2, ShoppingBag, ClipboardList, Tag, Trash2, AlertTriangle, ShieldCheck, History, CreditCard, Banknote, User, Edit, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
@@ -31,16 +32,34 @@ function OrdersPageContent() {
   const [limitGrid, setLimitGrid] = useState(6);
   const [limitList, setLimitList] = useState(10);
 
-  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products') => {
+  const loadOrders = async (userRole: string, tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products', currentUser?: any) => {
     setIsLoading(true);
     try {
       const FETCH_LIMIT = 100; // Large limit to safely fetch all items for client-side pagination (backend max is 100)
       let data: any[] = [];
 
+      const activeUser = currentUser || user;
+      const userId = activeUser?.id;
+
       if (tab === 'products') {
         data = await productsApi.getMyProducts();
       } else if (tab === 'demands') {
         data = await demandRequestsApi.getCommittedDemandRequests();
+        if (userRole === 'PETANI') {
+          // Hide matched demands from the "demands" tab for farmers
+          data = data.filter((d: any) => !d.match_transaction);
+        }
+      } else if (userRole === 'PETANI' && (tab === 'incoming' || tab === 'history')) {
+        const [incomingOrders, committedDemands] = await Promise.all([
+          ordersApi.getIncomingOrders(0, FETCH_LIMIT),
+          demandRequestsApi.getCommittedDemandRequests()
+        ]);
+
+        const matchedDemands = committedDemands
+          .filter((d: any) => d.match_transaction && d.match_transaction.seller_id === userId)
+          .map((d: any) => ({ ...d, isDemand: true }));
+
+        data = [...incomingOrders, ...matchedDemands];
       } else if (tab === 'history') {
         if (userRole === 'PETANI') {
           data = await ordersApi.getIncomingOrders(0, FETCH_LIMIT);
@@ -79,7 +98,7 @@ function OrdersPageContent() {
       setActiveTab(initialTab);
       setPage(initialPage);
       
-      await loadOrders(userData.role, initialTab);
+      await loadOrders(userData.role, initialTab, userData);
     } catch (err: any) {
       if (err.status !== 401) {
         console.error('Failed to get user/orders:', err);
@@ -103,7 +122,7 @@ function OrdersPageContent() {
     
     if (targetTab !== activeTab) {
       setActiveTab(targetTab);
-      loadOrders(user.role, targetTab);
+      loadOrders(user.role, targetTab, user);
     }
     setPage(targetPage);
   }, [searchParams, user]);
@@ -145,7 +164,7 @@ function OrdersPageContent() {
 
   const handleUpdate = () => {
     if (!user) return;
-    loadOrders(user.role, activeTab);
+    loadOrders(user.role, activeTab, user);
   };
 
   const getFilteredData = () => {
@@ -156,13 +175,25 @@ function OrdersPageContent() {
       return orders;
     }
     if (activeTab === 'incoming') {
-      return orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN');
+      return orders.filter(o => {
+        if (o.isDemand) {
+          const escrowStatus = o.match_transaction?.escrow_status;
+          return escrowStatus !== 'released' && escrowStatus !== 'refunded';
+        }
+        return o.status !== 'SELESAI' && o.status !== 'DIBATALKAN';
+      });
     }
     if (activeTab === 'purchases') {
       return orders.filter(o => o.status !== 'SELESAI' && o.status !== 'DIBATALKAN');
     }
     if (activeTab === 'history') {
-      return orders.filter(o => o.status === 'SELESAI' || o.status === 'DIBATALKAN');
+      return orders.filter(o => {
+        if (o.isDemand) {
+          const escrowStatus = o.match_transaction?.escrow_status;
+          return escrowStatus === 'released' || escrowStatus === 'refunded';
+        }
+        return o.status === 'SELESAI' || o.status === 'DIBATALKAN';
+      });
     }
     return [];
   };
@@ -363,14 +394,24 @@ function OrdersPageContent() {
                     </div>
                   ) : activeTab === 'incoming' ? (
                     <div className="space-y-6">
-                      {displayedData.map((order, index) => (
-                        <OrderCard 
-                          key={order.id} 
-                          order={order} 
-                          index={index} 
-                          onUpdate={handleUpdate} 
-                          isIncoming={true}
-                        />
+                      {displayedData.map((item, index) => (
+                        item.isDemand ? (
+                          <DemandCard 
+                            key={item.id} 
+                            demand={item} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            role={user?.role}
+                          />
+                        ) : (
+                          <OrderCard 
+                            key={item.id} 
+                            order={item} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            isIncoming={true}
+                          />
+                        )
                       ))}
                     </div>
                   ) : activeTab === 'purchases' ? (
@@ -387,14 +428,24 @@ function OrdersPageContent() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {displayedData.map((order, index) => (
-                        <OrderCard 
-                          key={order.id} 
-                          order={order} 
-                          index={index} 
-                          onUpdate={handleUpdate} 
-                          isIncoming={user?.role === 'PETANI'}
-                        />
+                      {displayedData.map((item, index) => (
+                        item.isDemand ? (
+                          <DemandCard 
+                            key={item.id} 
+                            demand={item} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            role={user?.role}
+                          />
+                        ) : (
+                          <OrderCard 
+                            key={item.id} 
+                            order={item} 
+                            index={index} 
+                            onUpdate={handleUpdate} 
+                            isIncoming={user?.role === 'PETANI'}
+                          />
+                        )
                       ))}
                     </div>
                   )}
@@ -457,6 +508,32 @@ function OrderCard({
   const [isConfirming, setIsConfirming] = useState(false);
   const [buyerConfirmedAt, setBuyerConfirmedAt] = useState<string | null>(order.buyer_confirmed_at);
   const [hasBuyerRated, setHasBuyerRated] = useState<boolean>(order.has_buyer_rated);
+  const router = useRouter();
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const handleContact = async () => {
+    try {
+      setChatLoading(true);
+      let res;
+      if (isIncoming) {
+        // Current user is seller, want to chat with buyer
+        res = await conversationsApi.createConversation(order.product_id, undefined, order.buyer_id);
+      } else {
+        // Current user is buyer, want to chat with seller
+        res = await conversationsApi.createConversation(order.product_id, order.seller_id, undefined);
+      }
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err: any) {
+      console.error('Failed to start chat:', err);
+      alert(err.message || 'Gagal memulai chat dengan pengguna');
+    } finally {
+      setChatLoading(false);
+    }
+  };
   
   const liveData = useOrderSocket(order.id);
   const liveStatus = liveData.status;
@@ -748,19 +825,18 @@ function OrderCard({
                     <p className="text-gr-ink-soft text-xs mt-0.5">{contactPhone || 'Tidak ada nomor telepon'}</p>
                   </div>
 
-                  {waUrl && (
-                    <a
-                      href={waUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-[#25D366] text-[#128C7E] hover:bg-[#25D366]/10 font-sans text-xs font-semibold shadow-3xs transition-all cursor-pointer shrink-0"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-[#128C7E] shrink-0" viewBox="0 0 24 24">
-                        <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
-                      </svg>
-                      <span>WhatsApp</span>
-                    </a>
-                  )}
+                  <button
+                    onClick={handleContact}
+                    disabled={chatLoading}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-gr-board text-gr-board hover:bg-gr-board/10 font-sans text-xs font-semibold shadow-3xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                  >
+                    {chatLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <MessageSquare className="h-3.5 w-3.5" />
+                    )}
+                    <span>Chat {isIncoming ? 'Pembeli' : 'Penjual'}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -937,6 +1013,42 @@ function DemandCard({
   const liveData = useDemandSocket(demand.id);
   const currentStatus = liveData?.status || demand.status;
   const currentCommitted = liveData?.quantity_kg_committed !== undefined ? liveData.quantity_kg_committed : demand.quantity_kg_committed;
+  const router = useRouter();
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const handleContactPetani = async (petaniId: string) => {
+    try {
+      setChatLoading(true);
+      const res = await conversationsApi.createConversation(undefined, petaniId, undefined);
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err: any) {
+      console.error('Failed to start chat:', err);
+      alert(err.message || 'Gagal memulai chat dengan petani');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleContactBuyer = async () => {
+    try {
+      setChatLoading(true);
+      const res = await conversationsApi.createConversation(undefined, undefined, demand.buyer_id);
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err: any) {
+      console.error('Failed to start chat:', err);
+      alert(err.message || 'Gagal memulai chat dengan pembeli');
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   // Dynamic matched transaction info
   const matchedTx = demand.match_transaction ? {
@@ -1145,18 +1257,19 @@ function DemandCard({
                                 <p className="text-gr-ink font-semibold">{commit.petani_name || 'Petani'}</p>
                                 <p className="text-gr-up text-xs font-mono font-bold mt-0.5">+{commit.quantity_kg_committed} KG</p>
                               </div>
-                              {farmerWaUrl && (
-                                <a
-                                  href={farmerWaUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-2 rounded-sm bg-[#25D366] hover:bg-[#20ba5a] text-white transition-all cursor-pointer shadow-xs"
-                                  title="Hubungi via WhatsApp"
+                              {commit.petani_id && (
+                                <button
+                                  onClick={() => handleContactPetani(commit.petani_id)}
+                                  disabled={chatLoading}
+                                  className="p-2 rounded-sm bg-gr-board hover:opacity-90 text-gr-chalk transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                                  title="Chat Penjual"
                                 >
-                                  <svg className="h-4 w-4 fill-white shrink-0" viewBox="0 0 24 24">
-                                    <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
-                                  </svg>
-                                </a>
+                                  {chatLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <MessageSquare className="h-4 w-4" />
+                                  )}
+                                </button>
                               )}
                             </div>
                           );
@@ -1187,18 +1300,19 @@ function DemandCard({
                         </div>
                         <p className="text-gr-ink-soft/70 text-xs mt-0.5">{buyerPhone || 'Tidak ada nomor telepon'}</p>
                       </div>
-                      {buyerWaUrl && (
-                        <a
-                          href={buyerWaUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-[#25D366] text-white hover:bg-[#20ba5a] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer"
+                      {demand.buyer_id && (
+                        <button
+                          onClick={handleContactBuyer}
+                          disabled={chatLoading}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer disabled:opacity-50"
                         >
-                          <svg className="h-4 w-4 fill-white shrink-0" viewBox="0 0 24 24">
-                            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.333 4.993L2 22l5.233-1.371a9.936 9.936 0 004.777 1.224h.005c5.505 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.13c-.315.881-1.554 1.616-2.146 1.718-.589.1-1.325.138-3.927-.928-3.329-1.365-5.47-4.753-5.635-4.975-.166-.222-1.326-1.764-1.326-3.364 0-1.6 1.042-2.384 1.305-2.648.263-.264.574-.329.765-.329.19 0 .38 0 .547.008.175.008.41-.033.642.528.24.577.818 1.996.887 2.141.07.145.117.315.02.511-.097.195-.147.314-.294.485-.147.172-.313.383-.446.514-.147.146-.3.307-.129.6.171.293.76 1.25 1.625 2.022 1.114.993 2.052 1.3 2.345 1.447.293.147.465.122.637-.078.172-.2.735-.856.932-1.15.196-.294.392-.246.662-.147.27.098 1.715.808 2.01 1.011.294.202.49.3.564.428.074.128.074.743-.241 1.624z"/>
-                          </svg>
-                          <span>Hubungi via WhatsApp</span>
-                        </a>
+                          {chatLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <MessageSquare className="h-4 w-4" />
+                          )}
+                          <span>Chat Pembeli</span>
+                        </button>
                       )}
                     </div>
                   </div>
