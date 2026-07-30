@@ -633,22 +633,8 @@ function OrderCard({
     year: 'numeric' 
   });
 
-  const getWhatsAppUrl = (phone: string, msg: string) => {
-    let cleaned = phone.replace(/[^0-9]/g, '');
-    if (cleaned.startsWith('0')) {
-      cleaned = '62' + cleaned.slice(1);
-    }
-    return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
-  };
-
-  const contactPhone = isIncoming ? order.buyer_phone : order.seller_phone;
   const contactName = isIncoming ? order.buyer_name : order.seller_name;
   const contactRoleLabel = isIncoming ? 'Pembeli' : 'Penjual/Petani';
-  const waMessage = isIncoming
-    ? `Halo ${contactName}, saya adalah penjual dari pesanan Anda (Order ID: ${order.id.slice(0, 8)}) untuk ${order.quantity_kg} KG ${order.product_name || 'Hasil Panen'}.`
-    : `Halo ${contactName}, saya adalah pembeli dari pesanan Anda (Order ID: ${order.id.slice(0, 8)}) untuk ${order.quantity_kg} KG ${order.product_name || 'Hasil Panen'}.`;
-
-  const waUrl = contactPhone ? getWhatsAppUrl(contactPhone, waMessage) : null;
   const basePrice = (order.price_per_kg || 0) * (order.quantity_kg || 0);
   const estimatedAdminFee = Math.round(basePrice * 0.02);
 
@@ -818,10 +804,6 @@ function OrderCard({
                   <div className="flex items-center justify-between">
                     <span className="text-gr-ink-soft">Nama</span>
                     <span className="font-bold text-gr-ink">{contactName || 'Petani'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gr-ink-soft">WhatsApp / Telepon</span>
-                    <span className="font-bold text-gr-ink font-mono">{contactPhone || '-'}</span>
                   </div>
                   <div className="flex justify-end pt-1">
                     <button
@@ -1084,20 +1066,9 @@ function DemandCard({
     year: 'numeric' 
   });
 
-  const getWhatsAppUrl = (phone: string, msg: string) => {
-    let cleaned = phone.replace(/[^0-9]/g, '');
-    if (cleaned.startsWith('0')) {
-      cleaned = '62' + cleaned.slice(1);
-    }
-    return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
-  };
-
   const isBuyer = role === 'PEMBELI';
 
   const buyerName = demand.buyer_name || 'Pembeli';
-  const buyerPhone = demand.buyer_phone;
-  const buyerWaMessage = `Halo ${buyerName}, saya adalah petani yang berkomitmen untuk memenuhi permintaan Anda (Request ID: ${demand.id.slice(0, 8)}) untuk ${demand.quantity_kg_needed} KG ${demand.commodity_name}.`;
-  const buyerWaUrl = buyerPhone ? getWhatsAppUrl(buyerPhone, buyerWaMessage) : null;
 
   return (
     <motion.div
@@ -1253,8 +1224,6 @@ function DemandCard({
                     <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                       {demand.commitments && demand.commitments.length > 0 ? (
                         demand.commitments.map((commit: any) => {
-                          const farmerWaMessage = `Halo ${commit.petani_name || 'Petani'}, saya adalah pembeli yang mengajukan permintaan ${demand.commodity_name}. Terima kasih atas komitmen supply Anda sebesar ${commit.quantity_kg_committed} KG.`;
-                          const farmerWaUrl = commit.petani_phone ? getWhatsAppUrl(commit.petani_phone, farmerWaMessage) : null;
                           return (
                             <div key={commit.id} className="py-3 flex justify-between items-center text-sm font-sans border-b border-gr-line/45 last:border-b-0">
                               <div>
@@ -1307,7 +1276,6 @@ function DemandCard({
                             />
                           </div>
                         </div>
-                        <p className="text-gr-ink-soft/70 text-xs mt-0.5">{buyerPhone || 'Tidak ada nomor telepon'}</p>
                       </div>
                       {demand.buyer_id && (
                         <button
