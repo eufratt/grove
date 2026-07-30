@@ -526,21 +526,23 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </div>
  
                   {/* Row 2: Harga Penawaran & Harga Acuan */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
+                  <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-10 gap-y-6 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Penawaran</span>
-                      <div className="flex items-baseline gap-2 font-mono">
-                        <span className="text-2xl font-bold text-gr-ink leading-none">
-                          Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
-                        </span>
-                        <span className="text-gr-ink-soft/70 text-[10px] font-bold">/ KG</span>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <div className="flex items-baseline gap-1 font-display whitespace-nowrap">
+                          <span className="text-2xl font-bold text-gr-ink leading-none">
+                            Rp {request.price_per_kg ? Math.round(request.price_per_kg).toLocaleString('id-ID') : '-'}
+                          </span>
+                          <span className="text-gr-ink-soft/70 text-[10px] font-bold">/ KG</span>
+                        </div>
                         {refPrice !== null && (
                           (() => {
                             const priceDevPercent = Math.round(((request.price_per_kg - refPrice) / refPrice) * 100);
                             if (priceDevPercent === 0) return null;
                             return (
                               <span className={cn(
-                                "text-xs font-bold flex items-center gap-0.5 leading-none",
+                                "text-xs font-bold flex items-center gap-0.5 leading-none shrink-0",
                                 priceDevPercent > 0 ? "text-gr-down" : "text-gr-up"
                               )}>
                                 <span>{priceDevPercent > 0 ? '▲' : '▼'}</span>
@@ -551,15 +553,15 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         )}
                       </div>
                     </div>
- 
+
                     {refPrice !== null && (
                       <div className="space-y-1 animate-fade-in">
                         <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Harga Acuan ({refPriceRegion})</span>
-                        <div className="flex items-baseline font-mono">
-                          <span className="text-lg font-bold text-gr-ink-soft">
+                        <div className="flex items-baseline gap-1 font-display whitespace-nowrap">
+                          <span className="text-lg font-bold text-gr-ink-soft leading-none">
                             Rp {Math.round(refPrice).toLocaleString('id-ID')}
                           </span>
-                          <span className="text-[10px] text-gr-ink-soft/60 font-bold ml-1">/ KG</span>
+                          <span className="text-[10px] text-gr-ink-soft/60 font-bold">/ KG</span>
                         </div>
                       </div>
                     )}
