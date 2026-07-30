@@ -279,6 +279,7 @@ async def list_committed_demand_requests(
             match_dict = {
                 "id": str(dt.id),
                 "seller_id": str(dt.seller_id),
+                "product_id": str(dt.product_id) if dt.product_id else None,
                 "seller_name": dt.seller.full_name if dt.seller else None,
                 "seller_phone": dt.seller.phone_whatsapp if dt.seller else None,
                 "quantity_kg": dt.quantity_kg,
@@ -526,6 +527,7 @@ async def get_demand_request_detail(
         match_dict = {
             "id": str(dt.id),
             "seller_id": str(dt.seller_id),
+            "product_id": str(dt.product_id) if dt.product_id else None,
             "seller_name": dt.seller.full_name if dt.seller else None,
             "seller_phone": dt.seller.phone_whatsapp if dt.seller else None,
             "quantity_kg": dt.quantity_kg,
@@ -792,6 +794,7 @@ async def match_demand_request_with_seller(
         id=uuid.uuid4(),
         demand_request_id=id,
         seller_id=product.seller_id,
+        product_id=product.id,
         quantity_kg=quantity_kg,
         price_per_kg=product.price_per_kg,
         amount=amount,

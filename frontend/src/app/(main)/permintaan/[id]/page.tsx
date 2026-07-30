@@ -69,7 +69,11 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     if (!request || !request.match_transaction || !request.match_transaction.seller_id) return;
     setChatLoading(true);
     try {
-      const res = await conversationsApi.createConversation(undefined, request.match_transaction.seller_id, undefined);
+      const res = await conversationsApi.createConversation(
+        request.match_transaction.product_id || undefined,
+        request.match_transaction.seller_id,
+        undefined
+      );
       if (res && res.conversation_id) {
         router.push(`/chat/${res.conversation_id}`);
       } else {

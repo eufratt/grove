@@ -44,6 +44,7 @@ class DemandTransaction(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     demand_request_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("demand_requests.id"), nullable=False)
     seller_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    product_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("products.id"), nullable=True)
     quantity_kg: Mapped[float] = mapped_column(Float, nullable=False)
     price_per_kg: Mapped[float] = mapped_column(Float, nullable=False)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
@@ -66,6 +67,7 @@ class DemandTransaction(Base):
     # Relationships
     demand_request = relationship("DemandRequest")
     seller = relationship("User", foreign_keys=[seller_id])
+    product = relationship("Product", foreign_keys=[product_id])
 
 class PaymentTransaction(Base):
     __tablename__ = "payment_transactions"
