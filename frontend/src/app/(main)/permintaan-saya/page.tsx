@@ -144,52 +144,83 @@ export default function PermintaanSayaPage() {
                       }`}>
                         {req.status}
                       </span>
-                      <span className="font-mono text-[9px] text-gr-ink-soft/60 uppercase tracking-widest font-bold">
-                        ID: {req.id.slice(0, 8)}
+                      <span className="font-mono text-xs font-bold text-gr-ink-soft/70">
+                        Request ID: {req.id.slice(0, 8)}
                       </span>
                     </div>
 
                     <h3 className="font-display text-2xl font-semibold tracking-tight text-gr-ink group-hover:text-gr-board transition-colors">
                       {req.commodity_name}
                     </h3>
-                    <p className="font-sans text-xs text-gr-ink-soft mt-1">
-                      Kategori: {req.category}
-                    </p>
-                    <p className="font-sans text-xs font-semibold text-gr-board mt-1 font-mono">
-                      Harga Penawaran: Rp {req.price_per_kg ? req.price_per_kg.toLocaleString('id-ID') : '-'}/KG
-                    </p>
+
+                    {/* Attribute Grid */}
+                    <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-gr-line/20">
+                      <div className="space-y-0.5">
+                        <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
+                          Kategori
+                        </span>
+                        <span className="font-sans text-xs font-semibold text-gr-ink block uppercase">
+                          {req.category}
+                        </span>
+                      </div>
+                      <div className="space-y-0.5">
+                        <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
+                          Harga Penawaran
+                        </span>
+                        <div className="flex items-baseline gap-0.5 font-display text-xs font-bold text-gr-ink whitespace-nowrap">
+                          <span>Rp {req.price_per_kg ? req.price_per_kg.toLocaleString('id-ID') : '-'}</span>
+                          <span className="text-[8px] text-gr-ink-soft font-bold">/ KG</span>
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Progress details */}
-                    <div className="mt-6 space-y-2">
-                      <div className="flex justify-between items-center text-xs font-mono">
-                        <span className="text-gr-ink-soft/80 font-bold uppercase tracking-wider text-[10px]">Fulfillment Progress</span>
-                        <span className="text-gr-board font-bold">{percent}%</span>
+                    <div className="mt-6 space-y-3">
+                      <div className="flex justify-between items-baseline">
+                        <div className="space-y-0.5">
+                          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
+                            Kuota Terpenuhi
+                          </span>
+                          <span className="font-display text-xl font-bold text-gr-up leading-none block">
+                            {percent}%
+                          </span>
+                        </div>
                       </div>
                       
                       {/* Bar indicator */}
                       <div className="w-full bg-gr-paper h-2 rounded-full overflow-hidden border border-gr-line">
                         <div 
-                          className="bg-gr-board h-full rounded-sm transition-all duration-300"
+                          className="bg-gr-up h-full rounded-sm transition-all duration-300"
                           style={{ width: `${percent}%` }}
                         />
                       </div>
 
-                      <div className="flex justify-between items-center text-xs font-sans text-gr-ink-soft pt-1">
-                        <span>
-                          {committed.toLocaleString('id-ID')} / {needed.toLocaleString('id-ID')} KG
-                        </span>
-                        <span className="flex items-center gap-1 text-[11px] font-mono">
-                          <Calendar size={12} />
-                          {deadlineDate}
-                        </span>
+                      <div className="flex justify-between items-end pt-1">
+                        <div className="space-y-0.5">
+                          <div className="font-mono text-xs font-bold text-gr-ink leading-none">
+                            {committed.toLocaleString('id-ID')} <span className="text-[10px] text-gr-ink-soft/70 font-normal">dari</span> {needed.toLocaleString('id-ID')} <span className="text-[9px] text-gr-ink-soft/70 font-bold tracking-wider">KG</span>
+                          </div>
+                          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
+                            Volume Pemenuhan
+                          </span>
+                        </div>
+                        <div className="space-y-0.5 text-right">
+                          <span className="flex items-center justify-end gap-1 font-mono text-xs font-bold text-gr-ink leading-none">
+                            <Calendar size={11} className="text-gr-ink-soft/70 shrink-0" />
+                            {deadlineDate}
+                          </span>
+                          <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/75 font-bold block">
+                            Deadline Pemenuhan
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-gr-line flex justify-end">
-                    <span className="inline-flex items-center gap-1 text-gr-board font-mono text-[10px] uppercase font-bold tracking-wider group-hover:underline transition-all">
-                      <span>Lihat Detail</span>
-                      <ArrowRight size={12} />
+                  <div className="mt-6 pt-4 border-t border-gr-line flex justify-end relative z-20">
+                    <span className="inline-flex items-center gap-1 text-gr-board font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+                      <span className="group-hover:underline">Lihat Detail</span>
+                      <ArrowRight size={12} className="transform group-hover:translate-x-1 transition-transform duration-200" />
                     </span>
                   </div>
                 </div>
