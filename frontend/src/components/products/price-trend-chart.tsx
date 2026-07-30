@@ -110,7 +110,7 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
       .attr("fill", "none")
       .attr("stroke", trendColor)
       .attr("stroke-width", 2.5)
-      .attr("filter", `drop-shadow(0 0 6px ${trendShadow})`)
+      .attr("filter", `(0 0 6px ${trendShadow})`)
       .attr("d", lineGenerator);
 
     // Calculate tick interval in days to prevent sub-day ticks and duplicates

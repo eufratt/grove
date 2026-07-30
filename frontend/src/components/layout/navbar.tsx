@@ -178,7 +178,7 @@ export function Navbar() {
 
       {/* Main navbar — floating pill island on map page, flat editorial bar on regular pages */}
       {pathname === '/harga-pasar' ? (
-        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-sm shadow-md px-5 py-2 flex items-center justify-between gap-5 max-w-[90vw]">
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-sm  px-5 py-2 flex items-center justify-between gap-5 max-w-[90vw]">
           {/* Logo */}
           <div className="flex items-center">
             <GroveLogo href="/" size="sm" />
@@ -207,7 +207,7 @@ export function Navbar() {
                     <Icon size={11} />
                     <span>{item.name}</span>
                     {item.name === 'Chat' && unreadCount > 0 && (
-                      <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text-[8px] font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
+                      <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
                         {unreadCount}
                       </span>
                     )}
@@ -221,7 +221,7 @@ export function Navbar() {
           <div className="h-4 w-px bg-gr-line hidden md:block" />
 
           {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0 min-h-[30px]">
+          <div className="flex items-center gap-2 flex-shrink-0 min-h">
             {isLoading ? (
               <div className="h-7 w-16 bg-gr-ink/10 animate-pulse rounded-sm" />
             ) : user ? (
@@ -250,7 +250,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="font-mono text-[10px] uppercase tracking-wider bg-gr-board text-gr-chalk hover:bg-gr-board/90 px-3.5 py-1.5 rounded-sm transition-all duration-200 cursor-pointer shadow-sm"
+                className="font-mono text-[10px] uppercase tracking-wider bg-gr-board text-gr-chalk hover:bg-gr-board/90 px-3.5 py-1.5 rounded-sm transition-all duration-200 cursor-pointer "
               >
                 <span className="flex items-center gap-1.5">
                   <LogIn size={11} />
@@ -301,7 +301,7 @@ export function Navbar() {
                           <Icon size={11} />
                           <span>{item.name}</span>
                           {item.name === 'Chat' && unreadCount > 0 && (
-                            <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text-[8px] font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
+                            <span className="absolute -top-1.5 -right-3.5 bg-gr-down text-gr-chalk text font-bold h-4 w-4 rounded-full flex items-center justify-center scale-90 border border-gr-paper">
                               {unreadCount}
                             </span>
                           )}
@@ -314,7 +314,7 @@ export function Navbar() {
             </AnimatePresence>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 flex-shrink-0 min-h-[34px]">
+            <div className="flex items-center gap-3 flex-shrink-0 min-h">
               {isLoading ? (
                 <div className="h-8 w-16 bg-gr-ink/10 animate-pulse rounded-sm" />
               ) : user ? (

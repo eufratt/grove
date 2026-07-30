@@ -12,7 +12,7 @@ import { MapPin } from 'lucide-react';
 // Fix for leaflet default icons in Next.js
 const DefaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
@@ -246,7 +246,7 @@ export const MapView: React.FC<MapViewProps> = ({
     <div className={cn("h-full w-full overflow-hidden relative bg-gr-paper", className)}>
       {/* Location warning alert banner */}
       {locationError && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-11/12 max-w-md bg-gr-paper/95 border border-gr-line text-gr-ink px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest rounded-full shadow-md backdrop-blur-md text-center flex items-center justify-center gap-2">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-11/12 max-w-md bg-gr-paper/95 border border-gr-line text-gr-ink px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest rounded-full  backdrop-blur-md text-center flex items-center justify-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-gr-down animate-pulse" />
           <span>{locationError}</span>
         </div>
@@ -400,7 +400,7 @@ export const MapView: React.FC<MapViewProps> = ({
                 <Link 
                   href={`/produk/${activePopup.data.id}`}
                   style={{ color: 'var(--gr-chalk)' }}
-                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[8px] font-bold uppercase tracking-widest py-1.5 rounded-sm transition-all text-center block shadow-2xs font-extrabold"
+                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text font-bold uppercase tracking-widest py-1.5 rounded-sm transition-all text-center block  font-extrabold"
                 >
                   Detail Produk
                 </Link>
@@ -453,7 +453,7 @@ export const MapView: React.FC<MapViewProps> = ({
                     onCommitDemand?.(activePopup.data);
                   }}
                   style={{ color: '#ffffff' }}
-                  className="w-full bg-[#e65100] hover:bg-[#c94000] text-white font-mono text-[8px] font-bold uppercase tracking-widest py-1.5 rounded-sm transition-all text-center block cursor-pointer shadow-2xs font-extrabold"
+                  className="w-full bg-[#e65100] hover:bg-[#c94000] text-white font-mono text font-bold uppercase tracking-widest py-1.5 rounded-sm transition-all text-center block cursor-pointer  font-extrabold"
                 >
                   Penuhi Pasokan
                 </button>

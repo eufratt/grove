@@ -229,7 +229,7 @@ function BerandaContent() {
           <>
             {/* Store search results banner/matching farmers display */}
             {isSearchActive && matchingFarmers.length > 0 && (
-              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-xs animate-in fade-in duration-200">
+              <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm  animate-in fade-in duration-200">
                 <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-4 font-bold border-b border-gr-line/40 pb-2">
                   <span>Petani berkaitan dengan "{searchQuery}"</span>
                 </div>
@@ -284,14 +284,14 @@ function BerandaContent() {
                             <span className="block font-bold text-gr-ink font-sans text-xs">
                               ★ {farmer.seller_rating_avg ? farmer.seller_rating_avg.toFixed(1) : '0.0'}
                             </span>
-                            <span className="block text-[8px] opacity-65 mt-0.5">Penilaian</span>
+                            <span className="block text opacity-65 mt-0.5">Penilaian</span>
                           </div>
                           <div className="h-6 w-px bg-gr-line/70 hidden sm:block" />
                           <div>
                             <span className="block font-bold text-gr-ink font-sans text-xs">
                               {farmer.seller_rating_count || 0}
                             </span>
-                            <span className="block text-[8px] opacity-65 mt-0.5">Ulasan</span>
+                            <span className="block text opacity-65 mt-0.5">Ulasan</span>
                           </div>
                         </div>
                       </div>
@@ -299,7 +299,7 @@ function BerandaContent() {
                       {/* Action Button */}
                       <div className="shrink-0 self-end sm:self-center">
                         <div
-                          className="inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest py-2 px-4 rounded-sm transition-all group-hover:opacity-90 shadow-2xs"
+                          className="inline-flex items-center gap-1.5 text-white font-mono text-[10px] uppercase tracking-widest py-2 px-4 rounded-sm transition-all group-hover:opacity-90 "
                           style={{ backgroundColor: farmer.theme_color || '#1b4332' }}
                         >
                           Kunjungi Profil
@@ -331,7 +331,7 @@ function BerandaContent() {
                 <button
                   onClick={() => page > 1 && fetchProducts(page - 1)}
                   disabled={page === 1}
-                  className="flex items-center gap-1 px-4 py-2 rounded-full border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x-[-2px] disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer shadow-2xs animate-fade-in"
+                  className="flex items-center gap-1 px-4 py-2 rounded-full border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer  animate-fade-in"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Sebelumnya
@@ -343,7 +343,7 @@ function BerandaContent() {
                     <button
                       key={p}
                       onClick={() => p !== page && fetchProducts(p)}
-                      className={`flex items-center justify-center min-w-8 h-8 rounded-full border text-xs font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer shadow-2xs ${
+                      className={`flex items-center justify-center min-w-8 h-8 rounded-full border text-xs font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer  ${
                         p === page
                           ? 'border-gr-board bg-gr-board text-gr-chalk'
                           : 'border-gr-line/60 bg-white/20 text-gr-ink hover:bg-white/60 hover:border-gr-ink'
@@ -357,7 +357,7 @@ function BerandaContent() {
                 <button
                   onClick={() => hasMore && fetchProducts(page + 1)}
                   disabled={!hasMore}
-                  className="flex items-center gap-1 px-4 py-2 rounded-full border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x-[2px] disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer shadow-2xs animate-fade-in"
+                  className="flex items-center gap-1 px-4 py-2 rounded-full border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer  animate-fade-in"
                 >
                   Berikutnya
                   <ChevronRight className="h-4 w-4" />

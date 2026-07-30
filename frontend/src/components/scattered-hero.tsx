@@ -143,7 +143,7 @@ export function MastheadNav() {
       <GroveLogo href="/" size="md" />
 
       {/* Action / Login button */}
-      <div className="flex items-center gap-3 min-h-[42px]">
+      <div className="flex items-center gap-3 min-h">
         {isLoading ? (
           <div className="h-9 w-20 bg-gr-ink/10 animate-pulse rounded-sm" />
         ) : user ? (
@@ -209,7 +209,7 @@ export function HeroHeadline() {
       <div className="flex flex-wrap justify-center gap-3.5">
         <a
           href="/beranda"
-          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-1.5 border-gr-board hover:bg-gr-board/90 hover:border-gr-board/90 hover:shadow-md px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer shadow-sm"
+          className="font-mono text-xs uppercase tracking-wider bg-gr-board text-gr-chalk border-1.5 border-gr-board hover:bg-gr-board/90 hover:border-gr-board/90  px-6 py-3 rounded-sm transition-all duration-300 cursor-pointer "
         >
           Jelajahi marketplace
         </a>
@@ -297,7 +297,7 @@ export function QuoteSection() {
 export function Sparkline({ history, color }: { history: { price_per_kg: number }[]; color: string }) {
   if (!history || history.length === 0) {
     return (
-      <svg className="block w-full h-[58px] mb-3.5 bg-gr-ink/5 opacity-40">
+      <svg className="block w-full h mb-3.5 bg-gr-ink/5 opacity-40">
         <line x1="0" y1="30" x2="300" y2="30" stroke={color} strokeWidth={1} strokeDasharray="3,3" />
       </svg>
     );
@@ -328,7 +328,7 @@ export function Sparkline({ history, color }: { history: { price_per_kg: number 
   const lastPoint = points[points.length - 1] || { x: 0, y: 30 };
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block w-full h-[58px] mb-3.5 select-none">
+    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="block w-full h mb-3.5 select-none">
       {pathD && <path d={pathD} fill={color} opacity={0.12} />}
       <polyline points={polylinePoints} fill="none" stroke={color} strokeWidth={2} />
       <line 
@@ -482,7 +482,7 @@ export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps)
           }
 
           return (
-            <div key={idx} className="border border-gr-line rounded-sm p-5 flex flex-col bg-white/20 backdrop-blur-sm shadow-sm">
+            <div key={idx} className="border border-gr-line rounded-sm p-5 flex flex-col bg-white/20 backdrop-blur-sm ">
               <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-widest text-gr-ink-soft mb-3.5 flex-wrap gap-2">
                 <div className="flex items-center gap-2.5">
                   <span className={`w-2 h-2 ${swatchBg} flex-shrink-0`} />
@@ -546,7 +546,7 @@ export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps)
               theory: 'Asimetri informasi · Akerlof'
             }
           ].map((entry, idx) => (
-            <div key={idx} className="grid grid-cols-[52px_1fr] gap-5 py-6 border-b border-gr-line last:border-0">
+            <div key={idx} className="grid grid-cols gap-5 py-6 border-b border-gr-line last:border-0">
               <span className="font-display font-bold text-[26px] text-gr-down">{entry.mark}</span>
               <div>
                 <h3 className="font-display font-semibold text-lg text-gr-ink m-0 mb-2">{entry.title}</h3>

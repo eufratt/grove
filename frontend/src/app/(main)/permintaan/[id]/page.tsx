@@ -391,12 +391,12 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
     return (
       <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 rounded-sm text-center shadow-xl">
+        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 rounded-sm text-center ">
           <h2 className="font-display text-2xl font-semibold text-gr-ink mb-3">Error</h2>
           <p className="font-sans text-sm text-gr-ink-soft mb-6">{error}</p>
           <Link
             href={user?.role === 'PEMBELI' ? "/permintaan-saya" : "/beranda"}
-            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm  transition-all"
           >
             {user?.role === 'PEMBELI' ? "Kembali ke Ajukan Permintaan" : "Kembali ke Beranda"}
           </Link>
@@ -448,7 +448,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             </header>
 
             {/* Consolidated Request Detail Container */}
-            <div className="rounded-sm border border-gr-line bg-white/80 backdrop-blur-md shadow-md overflow-hidden">
+            <div className="rounded-sm border border-gr-line bg-white/80 backdrop-blur-md  overflow-hidden">
               {/* Progress Bar Section */}
               <div className="p-6 sm:p-8 border-b border-gr-line space-y-4">
                 <div className="flex justify-between items-baseline mb-2">
@@ -580,7 +580,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         <button
                           onClick={handleContactBuyer}
                           disabled={chatLoading}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider transition-all  cursor-pointer disabled:opacity-50"
                         >
                           {chatLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -604,7 +604,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
               <>
                 {/* Case 1: Already matched */}
                 {request.match_transaction ? (
-                  <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                  <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group space-y-4">
                     <div>
                       <span className="bg-gr-up/10 border border-gr-up/20 px-2 py-0.5 font-mono text-[9px] uppercase font-bold tracking-wider text-gr-up rounded-xs inline-block mb-2">
                         Telah Dicocokkan
@@ -670,7 +670,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           <Button
                             disabled={checkingOut}
                             onClick={handleCheckout}
-                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md flex items-center justify-center gap-2"
+                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer  flex items-center justify-center gap-2"
                           >
                             {checkingOut ? (
                               <>
@@ -693,7 +693,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           <Button
                             disabled={confirmingReceived}
                             onClick={handleConfirmReceived}
-                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer shadow-md"
+                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer "
                           >
                             {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
                           </Button>
@@ -723,7 +723,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         <button
                           onClick={handleContactSeller}
                           disabled={chatLoading}
-                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-gr-line hover:border-gr-ink bg-white/40 hover:bg-white/60 font-mono text-xs font-bold uppercase tracking-wider text-gr-ink transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-gr-line hover:border-gr-ink bg-white/40 hover:bg-white/60 font-mono text-xs font-bold uppercase tracking-wider text-gr-ink transition-all  cursor-pointer disabled:opacity-50"
                         >
                           {chatLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -739,7 +739,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   /* Case 2: Not matched yet */
                   request.status === 'TERBUKA' && (
                     loadingCandidates ? (
-                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group space-y-4">
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={18} className="text-gr-board" />
                           Kandidat Produk Petani
@@ -750,7 +750,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         </div>
                       </div>
                     ) : (
-                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group space-y-4">
+                      <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group space-y-4">
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={18} className="text-gr-board" />
                           Kandidat Produk Petani
@@ -816,7 +816,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                                           disabled={matching !== null}
                                           onClick={() => handlePilihClick(cand)}
                                           size="sm"
-                                          className="h-8 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-wider rounded-xs shadow-sm cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+                                          className="h-8 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[9px] font-bold uppercase tracking-wider rounded-xs  cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
                                         >
                                           {matching === cand.product_id ? (
                                             <>
@@ -891,7 +891,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
 
             {/* Farmer Commitment Action Panel */}
             {user && user.role === 'PETANI' && request.status === 'TERBUKA' && (
-              <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md shadow-md relative overflow-hidden group">
+              <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md  relative overflow-hidden group">
                 <h3 className="font-display text-xl font-semibold text-gr-ink mb-2 flex items-center gap-2">
                   <ClipboardCheck size={18} className="text-gr-board" />
                   Bantu Penuhi
@@ -925,14 +925,14 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       placeholder="Masukkan jumlah kg..."
                       value={commitQty}
                       onChange={(e) => setCommitQty(e.target.value)}
-                      className="w-full bg-white/70 border border-gr-line focus:border-gr-board text-gr-ink px-3 py-2.5 rounded-sm font-sans text-xs focus:outline-none transition-all placeholder:text-gr-ink-soft/40 shadow-xs"
+                      className="w-full bg-white/70 border border-gr-line focus:border-gr-board text-gr-ink px-3 py-2.5 rounded-sm font-sans text-xs focus:outline-none transition-all placeholder:text-gr-ink-soft/40 "
                     />
                   </div>
 
                   <Button
                     type="submit"
                     disabled={submittingCommit}
-                    className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer "
                   >
                     {submittingCommit ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -945,7 +945,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             )}
 
             {/* Commitment History Log */}
-            <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md max-h-[400px] flex flex-col shadow-md">
+            <div className="rounded-sm border border-gr-line bg-white/80 p-6 backdrop-blur-md max-h-[400px] flex flex-col ">
               <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft/80 mb-4">
                 Riwayat Komitmen ({request.commitments?.length || 0})
               </h3>
@@ -982,7 +982,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                           <button
                             onClick={() => handleContactPetani(commit.petani_id)}
                             disabled={chatLoading}
-                            className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                            className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer  disabled:opacity-50"
                             title="Chat Petani"
                           >
                             {chatLoading ? (

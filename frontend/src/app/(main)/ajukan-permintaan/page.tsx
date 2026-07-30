@@ -301,7 +301,7 @@ export default function AjukanPermintaanPage() {
       <main className="relative min-h-screen bg-gr-paper py-24 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
         <FilmGrain />
-        <div className="relative z-10 max-w-md w-full bg-white/60 dark:bg-white/10 border border-gr-line p-8 rounded-sm shadow-sm text-center backdrop-blur-sm">
+        <div className="relative z-10 max-w-md w-full bg-white/60 dark:bg-white/10 border border-gr-line p-8 rounded-sm  text-center backdrop-blur-sm">
           <AlertTriangle className="h-16 w-16 text-gr-down mx-auto mb-6 animate-pulse" />
           <h2 className="font-display text-2xl font-medium text-gr-ink mb-3">Akses Dibatasi</h2>
           <p className="font-sans text-sm text-gr-ink-soft mb-6 leading-relaxed">
@@ -309,7 +309,7 @@ export default function AjukanPermintaanPage() {
           </p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-sm transition-all  cursor-pointer"
           >
             Kembali ke Beranda
           </Link>
@@ -345,7 +345,7 @@ export default function AjukanPermintaanPage() {
         </header>
 
         {/* Form Container */}
-        <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line shadow-sm backdrop-blur-sm text-gr-ink">
+        <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line  backdrop-blur-sm text-gr-ink">
           {error && (
             <div className="rounded-sm bg-gr-down/10 p-4 text-xs text-gr-down border border-gr-down/20 font-sans flex items-center gap-2">
               <Info size={14} className="shrink-0" />
@@ -372,7 +372,7 @@ export default function AjukanPermintaanPage() {
               />
               {/* Autocomplete Dropdown */}
               {showDropdown && filteredCommodities.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm shadow-md z-30 divide-y divide-gr-line/40 text-gr-ink">
+                <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm  z-30 divide-y divide-gr-line/40 text-gr-ink">
                   {filteredCommodities.map((item) => (
                     <button
                       key={item}
@@ -447,7 +447,7 @@ export default function AjukanPermintaanPage() {
               {refPrice !== null && pricePerKg && (
                 <div className="mt-3 font-sans text-xs">
                   {parseFloat(pricePerKg) < 0.75 * refPrice && (
-                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start ">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Penawaran Cukup Rendah</span>
@@ -458,7 +458,7 @@ export default function AjukanPermintaanPage() {
                     </div>
                   )}
                   {parseFloat(pricePerKg) > 1.20 * refPrice && (
-                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start ">
                       <CheckCircle size={16} className="shrink-0 mt-0.5 text-gr-board animate-pulse" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Penawaran Sangat Menarik</span>
@@ -469,7 +469,7 @@ export default function AjukanPermintaanPage() {
                     </div>
                   )}
                   {parseFloat(pricePerKg) >= 0.75 * refPrice && parseFloat(pricePerKg) <= 1.20 * refPrice && (
-                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start ">
                       <CheckCircle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Penawaran Adil & Kompetitif</span>
@@ -523,7 +523,7 @@ export default function AjukanPermintaanPage() {
                   <button
                     type="button"
                     onClick={requestLocation}
-                    className="px-3 py-1.5 border border-gr-line hover:border-gr-ink text-[10px] font-mono uppercase tracking-wider bg-white/40 hover:bg-white/60 text-gr-ink rounded-sm transition-all duration-200 shadow-sm cursor-pointer"
+                    className="px-3 py-1.5 border border-gr-line hover:border-gr-ink text-[10px] font-mono uppercase tracking-wider bg-white/40 hover:bg-white/60 text-gr-ink rounded-sm transition-all duration-200  cursor-pointer"
                   >
                     Coba Dapatkan Ulang Lokasi
                   </button>
@@ -534,7 +534,7 @@ export default function AjukanPermintaanPage() {
                     <div className="h-2 w-2 rounded-full bg-gr-board animate-pulse shrink-0" />
                     <span className="font-sans text-xs font-semibold">Lokasi Terdeteksi</span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 py-1.5 rounded-sm shadow-3xs max-w-xs truncate">
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-gr-board bg-gr-board/10 border border-gr-board/20 px-3 py-1.5 rounded-sm  max-w-xs truncate">
                     <MapPin size={11} className="stroke-[2.2] shrink-0" />
                     <span className="truncate">{addressName || `${lat.toFixed(4)}, ${lng.toFixed(4)}`}</span>
                   </div>
@@ -552,7 +552,7 @@ export default function AjukanPermintaanPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2"
+                className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all  cursor-pointer flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

@@ -59,11 +59,11 @@ export default function PermintaanSayaPage() {
     return (
       <main className="relative min-h-[calc(100vh-80px)] bg-gr-paper py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 sm:p-10 rounded-sm backdrop-blur-xl shadow-xl text-center overflow-hidden">
+        <div className="relative z-10 max-w-md w-full bg-white/80 border border-gr-line p-8 sm:p-10 rounded-sm backdrop-blur-xl  text-center overflow-hidden">
           {/* Editorial Double Rule Top Accent */}
           <div className="absolute top-0 inset-x-0">
             <div className="h-[3px] bg-gr-ink w-full" />
-            <div className="h-[1px] bg-gr-ink w-full mt-[2px]" />
+            <div className="h-[1px] bg-gr-ink w-full mt" />
           </div>
 
           <ClipboardList className="h-12 w-12 text-gr-board mx-auto mb-4" />
@@ -73,7 +73,7 @@ export default function PermintaanSayaPage() {
           </p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm  transition-all cursor-pointer"
           >
             Kembali ke Beranda
           </Link>
@@ -103,7 +103,7 @@ export default function PermintaanSayaPage() {
 
           <Link
             href="/ajukan-permintaan"
-            className="group flex items-center gap-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-sm transition-all duration-200 shadow-md cursor-pointer"
+            className="group flex items-center gap-2 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-sm transition-all duration-200  cursor-pointer"
           >
             <Plus size={14} />
             <span>Ajukan Baru</span>
@@ -129,7 +129,7 @@ export default function PermintaanSayaPage() {
               return (
                 <div 
                   key={req.id}
-                  className="group relative rounded-sm border border-gr-line bg-white/80 p-6 hover:border-gr-ink/30 transition-all duration-200 flex flex-col justify-between shadow-md"
+                  className="group relative rounded-sm border border-gr-line bg-white/80 p-6 hover:border-gr-ink/30 transition-all duration-200 flex flex-col justify-between "
                 >
                   <Link href={`/permintaan/${req.id}`} className="absolute inset-0 z-10" />
                   
@@ -197,7 +197,7 @@ export default function PermintaanSayaPage() {
             })}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs">
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 ">
             <ClipboardList className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
             <span className="font-display text-2xl font-semibold text-gr-ink">
               Belum mengajukan permintaan

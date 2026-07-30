@@ -269,7 +269,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                   exit={{ scale: 0.9, y: 20, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 26 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white border border-gr-line p-6 sm:p-7 rounded-3xl w-full max-w-sm shadow-[0_24px_50px_rgba(0,0,0,0.25)] cursor-default flex flex-col relative"
+                  className="bg-white border border-gr-line p-6 sm:p-7 rounded-3xl w-full max-w-sm  cursor-default flex flex-col relative"
                 >
                   {/* Decorative Icon Header */}
                   <div className="flex items-center gap-3.5 mb-4">
@@ -376,7 +376,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                       <button
                         type="submit"
                         disabled={submittingCommit}
-                        className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-gr-board/20"
+                        className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]  "
                       >
                         {submittingCommit ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -541,16 +541,16 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
       >
         {/* Swipe indicators */}
         <motion.div style={{ opacity: likeOpacity }}
-          className="absolute left-4 top-8 z-50 rounded-lg border-4 border-gr-green px-3 py-0.5 font-display text-xl font-bold uppercase tracking-widest text-gr-green -rotate-12 bg-white/95 shadow-md pointer-events-none">
+          className="absolute left-4 top-8 z-50 rounded-lg border-4 border-gr-green px-3 py-0.5 font-display text-xl font-bold uppercase tracking-widest text-gr-green -rotate-12 bg-white/95  pointer-events-none">
           PENUHI
         </motion.div>
         <motion.div style={{ opacity: nopeOpacity }}
-          className="absolute right-4 top-8 z-50 rounded-lg border-4 border-gr-price-unfair px-3 py-0.5 font-display text-xl font-bold uppercase tracking-widest text-gr-price-unfair rotate-12 bg-white/95 shadow-md pointer-events-none">
+          className="absolute right-4 top-8 z-50 rounded-lg border-4 border-gr-price-unfair px-3 py-0.5 font-display text-xl font-bold uppercase tracking-widest text-gr-price-unfair rotate-12 bg-white/95  pointer-events-none">
           LEWATI
         </motion.div>
 
         {/* Enlarged card face */}
-        <div className="h-full w-full rounded-2xl flex flex-col overflow-hidden shadow-[0_32px_72px_rgba(0,0,0,0.24)]"
+        <div className="h-full w-full rounded-2xl flex flex-col overflow-hidden "
           style={{ background: color.bg, border: `1.5px solid ${color.border}` }}>
 
           {/* Header */}
@@ -572,7 +572,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
               </h3>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {color.label && (
-                  <span className="font-mono text-[8px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded"
+                  <span className="font-mono text uppercase tracking-widest font-bold px-1.5 py-0.5 rounded"
                     style={{ background: color.accent + '22', color: color.accent }}>
                     {color.label}
                   </span>
@@ -586,7 +586,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
             {/* Buyer */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
+                <p className="font-mono text uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
                 <p className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</p>
               </div>
               <div className="rounded-full px-2 py-0.5 flex items-center" style={{ background: color.border }}>
@@ -598,18 +598,18 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
             {/* Price */}
             <div className="flex justify-between items-start gap-2 pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
               <div>
-                <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
+                <p className="font-mono text uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
                 <p className="font-mono text-base font-bold text-gr-ink">
                   Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
                 </p>
               </div>
               {refPrice !== null && (
                 <div className="text-right">
-                  <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">PIHPS</p>
+                  <p className="font-mono text uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">PIHPS</p>
                   <p className="font-mono text-xs text-gr-ink-soft">Rp {Math.round(refPrice).toLocaleString('id-ID')}</p>
                   {request.price_per_kg >= refPrice
-                    ? <p className="font-mono text-[8px] font-bold text-gr-up uppercase mt-0.5">Harga Adil</p>
-                    : <p className="font-mono text-[8px] font-bold text-gr-price-unfair uppercase mt-0.5">Bawah Pasar</p>
+                    ? <p className="font-mono text font-bold text-gr-up uppercase mt-0.5">Harga Adil</p>
+                    : <p className="font-mono text font-bold text-gr-price-unfair uppercase mt-0.5">Bawah Pasar</p>
                   }
                 </div>
               )}
@@ -633,7 +633,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
 
           {/* Footer */}
           <div className="px-5 pb-4 pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
-            <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: color.accent }}>
+            <p className="font-mono text uppercase tracking-widest" style={{ color: color.accent }}>
               Geser kanan penuhi · kiri lewati
             </p>
           </div>
@@ -643,11 +643,11 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
       {/* Action buttons below the card */}
       <div className="flex items-center gap-10" style={{ pointerEvents: 'auto' }}>
         <button onClick={() => onSwipe('left')}
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-gr-price-unfair/30 bg-white text-gr-price-unfair transition-all hover:bg-gr-price-unfair hover:text-white hover:scale-110 active:scale-95 cursor-pointer shadow-lg">
+          className="flex h-14 w-14 items-center justify-center rounded-full border border-gr-price-unfair/30 bg-white text-gr-price-unfair transition-all hover:bg-gr-price-unfair hover:text-white hover:scale-110 active:scale-95 cursor-pointer ">
           <X size={24} />
         </button>
         <button onClick={() => onSwipe('right')}
-          className="flex h-16 w-16 items-center justify-center rounded-full border border-gr-green/30 bg-white text-gr-green transition-all hover:bg-gr-green hover:text-white hover:scale-110 active:scale-95 cursor-pointer shadow-lg">
+          className="flex h-16 w-16 items-center justify-center rounded-full border border-gr-green/30 bg-white text-gr-green transition-all hover:bg-gr-green hover:text-white hover:scale-110 active:scale-95 cursor-pointer ">
           <Heart size={30} fill="currentColor" />
         </button>
       </div>
@@ -692,7 +692,7 @@ const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => 
             {request.commodity_name}
           </h3>
           {color.label && (
-            <span className="inline-block mt-0.5 font-mono text-[8px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded"
+            <span className="inline-block mt-0.5 font-mono text uppercase tracking-widest font-bold px-1.5 py-0.5 rounded"
               style={{ background: color.accent + '22', color: color.accent }}>
               {color.label}
             </span>
@@ -701,13 +701,13 @@ const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => 
 
         {/* Buyer */}
         <div>
-          <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
+          <p className="font-mono text uppercase tracking-widest text-gr-ink-soft/40">Pemohon</p>
           <p className="font-sans text-xs font-semibold text-gr-ink">{request.buyer_name || 'Pembeli'}</p>
         </div>
 
         {/* Price */}
         <div className="pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
-          <p className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
+          <p className="font-mono text uppercase tracking-widest text-gr-ink-soft/40 mb-0.5">Penawaran</p>
           <p className="font-mono text-sm font-bold text-gr-ink">
             Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}<span className="text-[9px] font-normal text-gr-ink-soft/50">/kg</span>
           </p>
@@ -727,7 +727,7 @@ const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => 
 
       {/* Footer */}
       <div className="px-4 pb-3 pt-2" style={{ borderTop: `1px solid ${color.border}` }}>
-        <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: color.accent }}>
+        <p className="font-mono text uppercase tracking-widest" style={{ color: color.accent }}>
           {showDragHint ? 'Geser kanan penuhi · kiri lewati' : 'Klik untuk detail'}
         </p>
       </div>

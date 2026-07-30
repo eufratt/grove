@@ -390,7 +390,7 @@ export default function PriceTrendPage() {
             {/* COLUMN 1: Historical Trend Chart (Left - Main) */}
             <div className="flex flex-col h-full min-h-0 space-y-3">
               {fetchingChart ? (
-                <div className="flex-1 flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm shadow-sm">
+                <div className="flex-1 flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm ">
                   <Loader2 className="h-8 w-8 text-gr-board animate-spin opacity-50" />
                   <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mt-2">Membuat Grafik...</span>
                 </div>
@@ -431,14 +431,14 @@ export default function PriceTrendPage() {
                   </div>
                   
                   {/* Chart Wrapper to scale it properly */}
-                  <div className="flex-1 min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm shadow-sm flex items-center justify-center">
+                  <div className="flex-1 min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm  flex items-center justify-center">
                     <div className="w-full h-full">
                       <PriceTrendChart data={historyData} />
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm shadow-sm space-y-4">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm  space-y-4">
                   <HelpCircle className="h-10 w-10 text-gr-board/60 mx-auto animate-pulse" />
                   <h3 className="font-display text-xl font-medium text-gr-ink">
                     Data Historis Terbatas
@@ -454,7 +454,7 @@ export default function PriceTrendPage() {
             <div className="flex flex-col h-full min-h-0 space-y-4">
               
               {/* Controls panel */}
-              <div className="bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm shadow-sm space-y-4 shrink-0">
+              <div className="bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm  space-y-4 shrink-0">
                 {/* Select Commodity */}
                 <div>
                   <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-1.5 font-semibold">
@@ -520,7 +520,7 @@ export default function PriceTrendPage() {
 
               {/* AI Stability analysis card */}
               {historyData.length >= 2 ? (
-                <div className="flex-1 flex flex-col min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm shadow-sm">
+                <div className="flex-1 flex flex-col min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-4 rounded-sm ">
                   <div className="flex justify-between items-center border-b border-gr-line pb-2.5 flex-wrap gap-2 shrink-0">
                     <h3 className="font-mono text-xs uppercase tracking-widest text-gr-board font-bold flex items-center gap-2">
                       <TrendingUp size={14} />
@@ -584,7 +584,7 @@ export default function PriceTrendPage() {
                         <button
                           onClick={handleExplain}
                           disabled={isExplaining}
-                          className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-4 py-3 rounded-sm transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer font-bold shadow-sm"
+                          className="w-full font-mono text-xs uppercase tracking-widest bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 px-4 py-3 rounded-sm transition-all duration-300 disabled:opacity-80 flex items-center justify-center gap-2 cursor-pointer font-bold "
                         >
                           {isExplaining ? (
                             <>
@@ -600,7 +600,7 @@ export default function PriceTrendPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-center p-6 text-gr-ink-soft text-xs font-mono uppercase tracking-wider bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm shadow-sm">
+                <div className="flex-1 flex items-center justify-center text-center p-6 text-gr-ink-soft text-xs font-mono uppercase tracking-wider bg-white/20 backdrop-blur-sm border border-gr-line rounded-sm ">
                   Analisis AI tidak tersedia untuk riwayat terbatas.
                 </div>
               )}

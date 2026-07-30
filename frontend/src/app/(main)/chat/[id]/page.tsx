@@ -186,11 +186,11 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
           </button>
           
           <div>
-            <h4 className="font-sans text-[12px] font-bold text-gr-ink flex items-center gap-2">
+            <h4 className="font-sans text font-bold text-gr-ink flex items-center gap-2">
               {otherName}
               {otherUser.role && (
                 <span className={cn(
-                  "font-mono text-[8px] uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
+                  "font-mono text uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
                   otherUser.role === 'PETANI' 
                     ? "bg-gr-board/10 text-gr-board border-gr-board/20" 
                     : "bg-gr-down/10 text-gr-down border-gr-down/20"
@@ -212,7 +212,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
                   realtimeStatus === 'connecting' ? 'bg-[#D9A74A]' : 'bg-gr-down'
                 )} />
               </span>
-              <span className="font-mono text-[8px] text-gr-ink-soft uppercase tracking-wider">
+              <span className="font-mono text text-gr-ink-soft uppercase tracking-wider">
                 {realtimeStatus === 'connected' ? 'Aktif' :
                  realtimeStatus === 'connecting' ? 'Menghubungkan...' : 'Terputus'}
               </span>
@@ -236,7 +236,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
             )}
 
             <div className="space-y-1">
-              <h5 className="font-sans text-[12px] font-bold text-gr-ink">Mulai Obrolan Baru</h5>
+              <h5 className="font-sans text font-bold text-gr-ink">Mulai Obrolan Baru</h5>
               <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
                 Tanyakan ketersediaan produk, waktu panen terbaru, atau diskusikan pengiriman komoditas dengan {product ? (currentUser?.id === product.seller_id ? 'Pembeli' : 'Penjual') : (otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli')}.
               </p>
@@ -245,7 +245,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
             {/* Icebreakers suggestions */}
             {product && (
               <div className="w-full space-y-2">
-                <span className="font-mono text-[8px] uppercase tracking-wider text-gr-ink-soft block">Saran Pesan Pembuka:</span>
+                <span className="font-mono text uppercase tracking-wider text-gr-ink-soft block">Saran Pesan Pembuka:</span>
                 <div className="flex flex-col gap-1.5 w-full">
                   {(currentUser?.id === product.seller_id 
                     ? [
@@ -287,7 +287,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
                 <div className="w-full flex flex-col items-center my-4">
                   <div className="w-full flex items-center gap-2 mb-2">
                     <div className="flex-grow h-[1px] bg-gr-line/45" />
-                    <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft bg-white/80 dark:bg-black/20 px-2 py-0.5 rounded-md border border-gr-line/45 select-none">
+                    <span className="font-mono text uppercase tracking-widest text-gr-ink-soft bg-white/80 dark:bg-black/20 px-2 py-0.5 rounded-md border border-gr-line/45 select-none">
                       Konteks Komoditas
                     </span>
                     <div className="flex-grow h-[1px] bg-gr-line/45" />
@@ -295,7 +295,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
                   
                   <Link
                     href={`/produk/${m.products.id}`}
-                    className="flex items-center gap-3 p-3 bg-[#EDE6D1]/90 dark:bg-white/5 border border-dashed border-gr-board/40 rounded-xl max-w-xs w-full text-left transition-all hover:bg-[#EDE6D1] shadow-2xs group relative overflow-hidden"
+                    className="flex items-center gap-3 p-3 bg-[#EDE6D1]/90 dark:bg-white/5 border border-dashed border-gr-board/40 rounded-xl max-w-xs w-full text-left transition-all hover:bg-[#EDE6D1]  group relative overflow-hidden"
                   >
                     <div className="absolute inset-0 opacity-[0.02] bg-radial from-gr-board" />
                     <div className="p-2 rounded-lg bg-gr-board/10 text-gr-board flex-shrink-0">
@@ -318,17 +318,17 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               <div className={cn("flex flex-col max-w-[75%]", isMe ? "items-end ml-auto" : "items-start mr-auto")}>
                 <div 
                   className={cn(
-                    "px-4 py-3 rounded-2xl font-sans text-[12px] leading-relaxed shadow-3xs transition-all relative border",
+                    "px-4 py-3 rounded-2xl font-sans text leading-relaxed  transition-all relative border",
                     isMe 
-                      ? "bg-gr-board text-gr-chalk border-gr-board/30 rounded-tr-[4px]" 
-                      : "bg-white dark:bg-[#1E1812] text-gr-ink border-gr-line/50 rounded-tl-[4px]"
+                      ? "bg-gr-board text-gr-chalk border-gr-board/30 rounded-tr" 
+                      : "bg-white dark:bg-[#1E1812] text-gr-ink border-gr-line/50 rounded-tl"
                   )}
                 >
                   <p className="break-words whitespace-pre-wrap">{m.content}</p>
 
                   {/* Status indicator inside message bubble */}
                   <div className={cn(
-                    "mt-1 flex items-center justify-end gap-1 font-mono text-[8px] select-none",
+                    "mt-1 flex items-center justify-end gap-1 font-mono text select-none",
                     isMe ? "text-gr-chalk-soft/80" : "text-gr-ink-soft/75"
                   )}>
                     <span>
@@ -378,12 +378,12 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Tulis pesan ke mitra tani..."
-            className="flex-grow px-5 py-2.5 bg-gr-paper/30 border border-gr-line rounded-full font-sans text-[12px] text-gr-ink placeholder-gr-ink-soft focus:outline-none focus:border-gr-board focus:ring-2 focus:ring-gr-board/20 transition-all"
+            className="flex-grow px-5 py-2.5 bg-gr-paper/30 border border-gr-line rounded-full font-sans text text-gr-ink placeholder-gr-ink-soft focus:outline-none focus:border-gr-board focus:ring-2 focus:ring-gr-board/20 transition-all"
           />
           <button
             type="submit"
             disabled={!inputMessage.trim()}
-            className="p-2.5 bg-gr-board text-gr-chalk hover:bg-gr-board/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 shadow-md flex-shrink-0"
+            className="p-2.5 bg-gr-board text-gr-chalk hover:bg-gr-board/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95  flex-shrink-0"
           >
             <Send size={15} />
           </button>

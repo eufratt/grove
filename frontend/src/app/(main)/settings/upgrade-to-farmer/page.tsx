@@ -84,15 +84,15 @@ export default function UpgradeToFarmerPage() {
       <BgPattern />
       <Glow color="var(--gr-board)" position="center" className="opacity-10 pointer-events-none" />
 
-      <div className="z-10 w-full max-w-md space-y-8 rounded-sm border border-gr-line bg-white/80 p-8 sm:p-10 backdrop-blur-xl shadow-xl relative overflow-hidden">
+      <div className="z-10 w-full max-w-md space-y-8 rounded-sm border border-gr-line bg-white/80 p-8 sm:p-10 backdrop-blur-xl  relative overflow-hidden">
         {/* Editorial Double Rule Top Accent */}
         <div className="absolute top-0 inset-x-0">
           <div className="h-[3px] bg-gr-ink w-full" />
-          <div className="h-[1px] bg-gr-ink w-full mt-[2px]" />
+          <div className="h-[1px] bg-gr-ink w-full mt" />
         </div>
 
         <div className="flex flex-col items-center text-center pt-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-line bg-gr-paper text-gr-ink mb-4 shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-line bg-gr-paper text-gr-ink mb-4 ">
             <Store size={22} />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-gr-ink">
@@ -113,7 +113,7 @@ export default function UpgradeToFarmerPage() {
             </p>
             <Button
               onClick={() => router.push('/jual')}
-              className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm shadow-md cursor-pointer"
+              className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm  cursor-pointer"
             >
               Ke Halaman Jual
             </Button>
@@ -136,7 +136,7 @@ export default function UpgradeToFarmerPage() {
                   type="tel"
                   placeholder="0812..."
                   required
-                  className="block w-full rounded-sm border border-gr-line bg-white/70 px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/40 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-xs"
+                  className="block w-full rounded-sm border border-gr-line bg-white/70 px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/40 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
@@ -150,7 +150,7 @@ export default function UpgradeToFarmerPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm shadow-md cursor-pointer transition-all"
+                className="w-full bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-6 rounded-sm  cursor-pointer transition-all"
               >
                 {loading ? 'Memproses Upgrade...' : 'Upgrade Jadi Farmer'}
               </Button>

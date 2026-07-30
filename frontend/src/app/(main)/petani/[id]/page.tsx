@@ -158,12 +158,12 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
     return (
       <main className="relative min-h-[calc(100vh-80px)] bg-gr-bg py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
         <BgPattern />
-        <div className="relative z-10 max-w-md w-full bg-white/85 border border-gr-line p-8 rounded-sm text-center shadow-xl">
+        <div className="relative z-10 max-w-md w-full bg-white/85 border border-gr-line p-8 rounded-sm text-center ">
           <h2 className="font-display text-2xl font-semibold text-gr-text-primary mb-3">Profil Tidak Ditemukan</h2>
           <p className="font-sans text-sm text-gr-text-primary/60 mb-6">{error || 'Data profil petani tidak dapat ditampilkan.'}</p>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-md transition-all"
+            className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm  transition-all"
           >
             <ArrowLeft size={12} /> Kembali ke Beranda
           </Link>
@@ -231,7 +231,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           {isOwner && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center gap-1.5 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2 rounded-sm transition-all shadow-2xs hover:border-gr-ink-soft/40 cursor-pointer"
+              className="inline-flex items-center gap-1.5 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2 rounded-sm transition-all  hover:border-gr-ink-soft/40 cursor-pointer"
             >
               {isEditing ? 'Batal Edit' : 'Edit Profil'}
             </button>
@@ -239,7 +239,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         </div>
 
         {/* Clean, Theme-compliant Banner Header */}
-        <div className="bg-[#FAF9F5] border border-gr-line p-6 rounded-sm shadow-xs mb-8 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
+        <div className="bg-[#FAF9F5] border border-gr-line p-6 rounded-sm  mb-8 flex flex-col sm:flex-row gap-5 items-center justify-between relative overflow-hidden transition-all duration-300">
           {/* Subtle themed side bar stripe */}
           <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gr-board" />
 
@@ -247,7 +247,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             {/* Themed ring avatar */}
             <div className="relative group shrink-0">
               <div 
-                className="relative h-14 w-14 rounded-full bg-white p-0.5 border border-gr-line shadow-2xs transition-transform duration-300 group-hover:scale-102"
+                className="relative h-14 w-14 rounded-full bg-white p-0.5 border border-gr-line  transition-transform duration-300 group-hover:scale-102"
               >
                 <div className="relative h-full w-full rounded-full bg-gr-paper/50 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase">
                   {farmer.avatar_url ? (
@@ -287,7 +287,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
               <button
                 onClick={handleContactFarmer}
                 disabled={chatLoading}
-                className="inline-flex items-center gap-1.5 bg-gr-board text-gr-chalk font-mono text-[10px] uppercase tracking-widest py-2.5 px-5 rounded-sm shadow-2xs hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="inline-flex items-center gap-1.5 bg-gr-board text-gr-chalk font-mono text-[10px] uppercase tracking-widest py-2.5 px-5 rounded-sm  hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {chatLoading ? (
                   <>
@@ -340,7 +340,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     <button
                       onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="flex items-center gap-1 px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all duration-300 hover:border-gr-ink hover:translate-x-[-2px] disabled:translate-x-0 disabled:opacity-20 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer shadow-2xs"
+                      className="flex items-center gap-1 px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-20 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer "
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
                       Sebelumnya
@@ -352,7 +352,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                         <button
                           key={p}
                           onClick={() => p !== currentPage && handlePageChange(p)}
-                          className={`flex items-center justify-center min-w-8 h-8 rounded-sm border text-[10px] font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer shadow-2xs ${
+                          className={`flex items-center justify-center min-w-8 h-8 rounded-sm border text-[10px] font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer  ${
                             p === currentPage
                               ? 'border-gr-board bg-gr-board text-gr-chalk'
                               : 'border-gr-line/60 bg-white/20 text-gr-ink hover:bg-white/65 hover:border-gr-ink'
@@ -366,7 +366,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     <button
                       onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex items-center gap-1 px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all duration-300 hover:border-gr-ink hover:translate-x-[2px] disabled:translate-x-0 disabled:opacity-20 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer shadow-2xs"
+                      className="flex items-center gap-1 px-4 py-2 border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-[10px] uppercase tracking-widest rounded-sm transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-20 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer "
                     >
                       Selanjutnya
                       <ChevronRight className="h-3.5 w-3.5" />
@@ -381,7 +381,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           <div className="lg:col-span-3 space-y-6">
             
             {/* 1. Farmer Bio Card - Theme Compliant */}
-            <div className="bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-xs space-y-4">
+            <div className="bg-[#FAF9F5] border border-gr-line p-5 rounded-sm  space-y-4">
               <h3 className="font-display text-sm font-semibold text-gr-text-primary border-b border-gr-line/50 pb-2">
                 Tentang Petani
               </h3>
@@ -389,7 +389,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
               {isEditing ? (
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="block font-mono text-[8px] uppercase tracking-widest text-gr-text-primary/45 font-bold">
+                    <label className="block font-mono text uppercase tracking-widest text-gr-text-primary/45 font-bold">
                       Deskripsi / Bio Petani
                     </label>
                     <textarea
@@ -398,9 +398,9 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                       onChange={(e) => setEditBio(e.target.value)}
                       maxLength={1000}
                       placeholder={defaultBio}
-                      className="w-full bg-white border border-gr-line focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary rounded-sm transition-all shadow-xs"
+                      className="w-full bg-white border border-gr-line focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary rounded-sm transition-all "
                     />
-                    <span className="block text-right font-mono text-[8px] text-gr-text-primary/30">
+                    <span className="block text-right font-mono text text-gr-text-primary/30">
                       {editBio.length}/1000
                     </span>
                   </div>
@@ -408,7 +408,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   <Button
                     onClick={handleSaveChanges}
                     disabled={savingEdit}
-                    className="w-full bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] uppercase tracking-widest py-2.5 rounded-sm shadow-2xs transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
+                    className="w-full bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] uppercase tracking-widest py-2.5 rounded-sm  transition-all flex items-center justify-center gap-1 cursor-pointer font-bold"
                   >
                     {savingEdit ? <Loader2 size={10} className="animate-spin" /> : 'Simpan'}
                   </Button>
@@ -425,7 +425,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                       <span className="block font-mono text-base font-bold text-gr-text-primary">
                         {products.length}
                       </span>
-                      <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
+                      <span className="font-mono text uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
                         Produk
                       </span>
                     </div>
@@ -433,7 +433,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                       <span className="block font-mono text-base font-bold text-gr-text-primary">
                         {ratingsCount}
                       </span>
-                      <span className="font-mono text-[8px] uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
+                      <span className="font-mono text uppercase tracking-wider text-gr-text-primary/40 block mt-0.5 leading-none">
                         Ulasan
                       </span>
                     </div>
@@ -471,14 +471,14 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                     return (
                       <div
                         key={review.id}
-                        className="bg-white/80 border border-gr-line p-4 rounded-sm shadow-2xs space-y-2.5 hover:border-gr-ink-soft/30 transition-all duration-200 relative"
+                        className="bg-white/80 border border-gr-line p-4 rounded-sm  space-y-2.5 hover:border-gr-ink-soft/30 transition-all duration-200 relative"
                       >
                         {/* Top: Name & Date */}
                         <div className="flex justify-between items-center gap-2">
                           <span className="font-sans text-xs font-bold text-gr-text-primary truncate">
                             {review.rater_name || 'Pembeli Anonim'}
                           </span>
-                          <span className="font-mono text-[8px] text-gr-text-primary/30 uppercase shrink-0">
+                          <span className="font-mono text text-gr-text-primary/30 uppercase shrink-0">
                             {ratingDate}
                           </span>
                         </div>

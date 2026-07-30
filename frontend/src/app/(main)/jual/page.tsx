@@ -327,7 +327,7 @@ export default function JualPage() {
           <div className="flex flex-col items-center justify-start space-y-6">
             <div 
               className={cn(
-                "relative bg-white/60 dark:bg-white/10 backdrop-blur-sm p-4 pb-16 border border-gr-line rounded-sm shadow-sm transition-transform duration-300 hover:rotate-1",
+                "relative bg-white/60 dark:bg-white/10 backdrop-blur-sm p-4 pb-16 border border-gr-line rounded-sm  transition-transform duration-300 hover:rotate-1",
                 !previewUrl && "flex aspect-[4/5] w-full max-w-sm items-center justify-center border border-dashed border-gr-line bg-transparent"
               )}
             >
@@ -343,7 +343,7 @@ export default function JualPage() {
                   <button 
                     type="button"
                     onClick={removePhoto}
-                    className="absolute -right-2 -top-2 rounded-sm bg-gr-down p-1.5 text-gr-chalk shadow-md hover:bg-gr-down/90 border border-gr-down"
+                    className="absolute -right-2 -top-2 rounded-sm bg-gr-down p-1.5 text-gr-chalk  hover:bg-gr-down/90 border border-gr-down"
                   >
                     <X size={16} />
                   </button>
@@ -358,7 +358,7 @@ export default function JualPage() {
                   onClick={() => fileInputRef.current?.click()}
                   className="group flex cursor-pointer flex-col items-center space-y-4 text-gr-ink-soft/60 transition-colors hover:text-gr-board"
                 >
-                  <div className="rounded-full border border-gr-line p-6 bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-105 shadow-sm">
+                  <div className="rounded-full border border-gr-line p-6 bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-105 ">
                     <Camera size={44} className="text-gr-ink-soft" />
                   </div>
                   <span className="font-mono text-xs uppercase tracking-widest font-bold">
@@ -377,7 +377,7 @@ export default function JualPage() {
           </div>
 
           {/* Form Content */}
-          <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line shadow-sm backdrop-blur-sm text-gr-ink">
+          <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line  backdrop-blur-sm text-gr-ink">
             {error && (
               <div className="rounded-sm bg-gr-down/10 p-4 text-sm text-gr-down border border-gr-down/20 font-sans">
                 {error}
@@ -409,7 +409,7 @@ export default function JualPage() {
                   }}
                 />
                 {showDropdown && filteredCommodities.length > 0 && (
-                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm shadow-md z-30 divide-y divide-gr-line/40 text-gr-ink">
+                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm  z-30 divide-y divide-gr-line/40 text-gr-ink">
                     {filteredCommodities.map((item) => (
                       <button
                         key={item}
@@ -430,7 +430,7 @@ export default function JualPage() {
                   <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                     Harga Referensi (PIHPS)
                   </label>
-                  <div className="mt-2 block w-full bg-white/20 border border-gr-line px-3 py-2 text-sm text-gr-board font-mono font-bold rounded-sm h-[38px] flex items-center">
+                  <div className="mt-2 block w-full bg-white/20 border border-gr-line px-3 py-2 text-sm text-gr-board font-mono font-bold rounded-sm h flex items-center">
                     {refPrice !== null ? `Rp ${refPrice.toLocaleString('id-ID')}/kg` : '-'}
                   </div>
                 </div>
@@ -476,7 +476,7 @@ export default function JualPage() {
               {refPrice !== null && formData.price_per_kg && (
                 <div className="mt-2 font-sans text-xs">
                   {parseFloat(formData.price_per_kg) < 0.75 * refPrice && (
-                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start ">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Peringatan: Harga Terlalu Murah</span>
@@ -487,7 +487,7 @@ export default function JualPage() {
                     </div>
                   )}
                   {parseFloat(formData.price_per_kg) > 1.20 * refPrice && (
-                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start ">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5 animate-pulse" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Peringatan: Harga Cukup Tinggi</span>
@@ -498,7 +498,7 @@ export default function JualPage() {
                     </div>
                   )}
                   {parseFloat(formData.price_per_kg) >= 0.75 * refPrice && parseFloat(formData.price_per_kg) <= 1.20 * refPrice && (
-                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start ">
                       <CheckCircle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Adil & Kompetitif</span>
@@ -522,7 +522,7 @@ export default function JualPage() {
                       type="button"
                       onClick={handleGetLocation}
                       disabled={locating}
-                      className="px-4 py-2 border border-gr-line hover:border-gr-ink text-xs font-mono uppercase tracking-wider bg-white/40 hover:bg-white/60 text-gr-ink rounded-sm transition-all duration-200 shadow-sm cursor-pointer"
+                      className="px-4 py-2 border border-gr-line hover:border-gr-ink text-xs font-mono uppercase tracking-wider bg-white/40 hover:bg-white/60 text-gr-ink rounded-sm transition-all duration-200  cursor-pointer"
                     >
                       {locating ? 'Mencari...' : 'Gunakan Lokasi Saat Ini'}
                     </button>
@@ -543,7 +543,7 @@ export default function JualPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all shadow-sm cursor-pointer"
+              className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all  cursor-pointer"
             >
               {loading ? 'Mengunggah...' : 'Publish Hasil Panen'}
             </button>

@@ -93,7 +93,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
 
           {/* Product Price Dot */}
           <div
-            className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${colorClass} shadow-md z-20 transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1)`}
+            className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${colorClass}  z-20 transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1)`}
             style={{ left: `${position}%`, transform: `translate(-50%, -50%) scale(${animate ? 1 : 0.4})` }}
             title={`Harga: Rp ${Math.round(hargaProduk).toLocaleString('id-ID')} (${deviationText})`}
           />
@@ -134,11 +134,11 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
             style={{ left: '50%' }}
           >
             {/* Top label */}
-            <span className="absolute -top-6 font-mono text-[8px] font-extrabold tracking-widest text-gr-ink-soft opacity-60">
+            <span className="absolute -top-6 font-mono text font-extrabold tracking-widest text-gr-ink-soft opacity-60">
               ACUAN
             </span>
             {/* Dotted vertical line */}
-            <div className="w-[2px] h-6 bg-gr-ink border-l border-dashed border-gr-ink-soft/40" />
+            <div className="w h-6 bg-gr-ink border-l border-dashed border-gr-ink-soft/40" />
           </div>
 
           {/* Product Price Marker (Dot + Tooltip + Pulsing effect) */}
@@ -148,7 +148,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
           >
             {/* Floating deviation percentage tag */}
             <div 
-              className={`absolute -top-7 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-extrabold tracking-wider ${bgClass} ${textClass} border ${borderClass} shadow-sm transition-all duration-300 whitespace-nowrap`}
+              className={`absolute -top-7 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-extrabold tracking-wider ${bgClass} ${textClass} border ${borderClass}  transition-all duration-300 whitespace-nowrap`}
               style={{ transform: `scale(${animate ? 1 : 0.8})` }}
             >
               {deviationText}
@@ -156,7 +156,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
 
             {/* Solid dot */}
             <div 
-              className={`w-4.5 h-4.5 rounded-full ${colorClass} border-2 border-gr-chalk shadow-md cursor-pointer transform hover:scale-125 transition-transform duration-200`}
+              className={`w-4.5 h-4.5 rounded-full ${colorClass} border-2 border-gr-chalk  cursor-pointer transform hover:scale-125 transition-transform duration-200`}
             />
           </div>
 
@@ -174,7 +174,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
       </div>
 
       {/* Dynamic Summary Card to fit the theme better */}
-      <div className="flex items-start gap-3.5 p-3.5 bg-white/70 border border-gr-line/14 rounded-sm mt-3 transition-all duration-500 shadow-sm">
+      <div className="flex items-start gap-3.5 p-3.5 bg-white/70 border border-gr-line/14 rounded-sm mt-3 transition-all duration-500 ">
         {/* Custom editorial-style stamp status indicator */}
         <div className={`shrink-0 border px-2 py-0.5 rounded-sm flex items-center justify-center font-mono text-[9px] font-extrabold tracking-widest uppercase select-none ${textClass} ${bgClass} border-current`}>
           {badgeLabel}

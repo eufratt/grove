@@ -91,10 +91,10 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
       {/* Floating Action Button (FAB) */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-gr-green text-gr-bg shadow-2xl hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer border border-white/10"
+        className="fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-gr-green text-gr-bg  hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer border border-white/10"
       >
         <ShoppingCart size={24} />
-        <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gr-live font-mono text-xs font-bold text-white shadow-md animate-pulse">
+        <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gr-live font-mono text-xs font-bold text-white  animate-pulse">
           {cart.length}
         </span>
       </button>
@@ -110,7 +110,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
       {/* Drawer Panel */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-full max-w-md bg-gr-bg border-l border-white/10 p-6 shadow-2xl flex flex-col justify-between transform transition-transform duration-300 ease-out",
+          "fixed inset-y-0 right-0 z-50 w-full max-w-md bg-gr-bg border-l border-white/10 p-6  flex flex-col justify-between transform transition-transform duration-300 ease-out",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >

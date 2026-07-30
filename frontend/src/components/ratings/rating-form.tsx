@@ -67,7 +67,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
                 size={22}
                 className={
                   (hoverScore || score) >= star
-                    ? 'fill-gr-green text-gr-green drop-shadow-[0_0_8px_rgba(92,255,158,0.3)]'
+                    ? 'fill-gr-green text-gr-green '
                     : 'text-gr-text-primary/25'
                 }
               />
@@ -103,7 +103,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
         <Button
           type="submit"
           disabled={isSubmitting || score === 0}
-          className="w-full sm:w-auto bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest px-4 h-[36px] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300 shadow-md shadow-gr-green/10 flex items-center justify-center"
+          className="w-full sm:w-auto bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest px-4 h-[36px] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300   flex items-center justify-center"
         >
           {isSubmitting ? (
             <Loader2 size={14} className="animate-spin text-gr-bg" />

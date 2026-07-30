@@ -217,14 +217,14 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const isOwnProduct = currentUser && product && currentUser.id === product.seller_id;
 
   return (
-    <main className="relative min-h-screen lg:h-[calc(100vh-68px)] bg-gr-bg pt-6 pb-12 lg:pt-2 lg:pb-6 px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden flex flex-col justify-start">
+    <main className="relative min-h-screen lg:h bg-gr-bg pt-6 pb-12 lg:pt-2 lg:pb-6 px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden flex flex-col justify-start">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10" />
 
       {/* Floating Success Toast */}
       {successToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gr-green text-gr-bg px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest shadow-2xl animate-bounce">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gr-green text-gr-bg px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest  animate-bounce">
           {successToast}
         </div>
       )}
@@ -242,7 +242,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch lg:flex-1 lg:min-h-0">
           {/* Left: Polaroid Style Image */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center lg:min-h-0">
-            <div className="bg-[#FAF9F5] p-4 pb-5 shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[280px] sm:max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
+            <div className="bg-[#FAF9F5] p-4 pb-5  rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[280px] sm:max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
               <div className="aspect-square w-full overflow-hidden bg-black/5 rounded-xs border border-gr-line/5">
                 <Image 
                   src={product.photo_url || '/placeholder-crop.jpg'} 
@@ -256,7 +256,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               
               {/* Product Identity stamp/label */}
               <div className="mt-4 pt-3 border-t border-dashed border-gr-line/20 font-mono text-[9px] text-gr-ink-soft space-y-1.5 text-left w-full">
-                <div className="flex justify-between items-center text-[8px] uppercase tracking-widest text-gr-ink/30 font-bold">
+                <div className="flex justify-between items-center text uppercase tracking-widest text-gr-ink/30 font-bold">
                   <span>ID PRODUK</span>
                   <span>#{product.id.slice(0, 8).toUpperCase()}</span>
                 </div>
@@ -323,10 +323,10 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
  
             {/* Price Gauge Section */}
             {product.reference_price_per_kg && (
-              <div className="bg-[#FAF9F5] p-5 border border-gr-line shadow-sm space-y-4 rounded-sm">
+              <div className="bg-[#FAF9F5] p-5 border border-gr-line  space-y-4 rounded-sm">
                 <div className="flex justify-between items-start gap-4">
                   <div>
-                    <h4 className="font-mono text-[8px] uppercase tracking-[0.2em] text-gr-ink-soft mb-0.5">
+                    <h4 className="font-mono text uppercase tracking-[0.2em] text-gr-ink-soft mb-0.5">
                       Analisis Transparansi
                     </h4>
                     <p className="font-display text-xl text-gr-ink font-semibold leading-tight">
@@ -337,7 +337,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                     <span className="block font-mono text-base font-bold text-gr-ink leading-tight">
                       Rp {product.reference_price_per_kg.toLocaleString('id-ID')}
                     </span>
-                    <span className="font-mono text-[8px] uppercase tracking-wider text-gr-ink-soft">
+                    <span className="font-mono text uppercase tracking-wider text-gr-ink-soft">
                       Referensi Pasar
                     </span>
                   </div>
@@ -361,14 +361,14 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               <div className="flex items-center gap-2">
                 <Tag size={14} className="text-gr-green" />
                 <div>
-                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Stok</span>
+                  <span className="block font-sans text uppercase tracking-widest text-gr-text-primary/50">Stok</span>
                   <span className="font-mono text-sm text-gr-text-primary">{product.quantity_kg} KG</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar size={14} className="text-gr-green" />
                 <div>
-                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Dipanen</span>
+                  <span className="block font-sans text uppercase tracking-widest text-gr-text-primary/50">Dipanen</span>
                   <span className="font-mono text-sm text-gr-text-primary">
                     {new Date(product.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                   </span>
@@ -377,7 +377,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               <div className="flex items-center gap-2">
                 <MapPin size={14} className="text-gr-green" />
                 <div className="min-w-0">
-                  <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50">Lokasi</span>
+                  <span className="block font-sans text uppercase tracking-widest text-gr-text-primary/50">Lokasi</span>
                   <span className="font-mono text-sm text-gr-text-primary block truncate" title={product.region || 'Terverifikasi'}>
                     {product.region || 'Terverifikasi'}
                   </span>
@@ -415,7 +415,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               <div className="space-y-3 bg-gr-chalk/40 p-4 border border-gr-line backdrop-blur-md">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-sans text-[8px] uppercase tracking-[0.2em] text-gr-text-primary/50 mb-0.5">
+                    <h4 className="font-sans text uppercase tracking-[0.2em] text-gr-text-primary/50 mb-0.5">
                       Jumlah Pembelian
                     </h4>
                     <p className="font-display text-sm text-gr-text-primary">
@@ -452,7 +452,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                     </div>
 
                     <div className="text-right">
-                      <span className="block font-sans text-[8px] uppercase tracking-widest text-gr-text-primary/50 mb-0.5">
+                      <span className="block font-sans text uppercase tracking-widest text-gr-text-primary/50 mb-0.5">
                         Total Harga
                       </span>
                       <span className="font-mono text-lg text-gr-green font-bold">

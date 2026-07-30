@@ -248,7 +248,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
         <form onSubmit={handleSubmit} autoComplete="off" className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Polaroid Image View Section (ReadOnly) */}
           <div className="flex flex-col items-center justify-start space-y-6">
-            <div className="bg-[#FAF9F5] p-4 pb-14 shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
+            <div className="bg-[#FAF9F5] p-4 pb-14  rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
               <div className="aspect-square w-full overflow-hidden bg-black/5 rounded-xs border border-gr-line/5">
                 <img 
                   src={product.photo_url || '/placeholder-crop.jpg'} 
@@ -260,13 +260,13 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
                 <span className="font-mono text-[10px] uppercase tracking-widest text-gr-ink-soft/40 font-bold">
                   FOTO PRODUK TERUNGGAH
                 </span>
-                <p className="text-[8px] text-gr-ink-soft/30 italic">Foto produk tidak dapat diubah setelah diposting.</p>
+                <p className="text text-gr-ink-soft/30 italic">Foto produk tidak dapat diubah setelah diposting.</p>
               </div>
             </div>
           </div>
 
           {/* Form Content */}
-          <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line shadow-sm backdrop-blur-sm text-gr-ink">
+          <div className="space-y-6 rounded-sm bg-white/60 dark:bg-white/10 p-8 border border-gr-line  backdrop-blur-sm text-gr-ink">
             {error && (
               <div className="rounded-sm bg-gr-down/10 p-4 text-sm text-gr-down border border-gr-down/20 font-sans">
                 {error}
@@ -298,7 +298,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
                   }}
                 />
                 {showDropdown && filteredCommodities.length > 0 && (
-                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm shadow-md z-30 divide-y divide-gr-line/40 text-gr-ink">
+                  <div className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-sm border border-gr-line bg-gr-paper backdrop-blur-sm  z-30 divide-y divide-gr-line/40 text-gr-ink">
                     {filteredCommodities.map((item) => (
                       <button
                         key={item}
@@ -358,7 +358,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
                   <label className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold">
                     Harga Referensi
                   </label>
-                  <div className="mt-2 block w-full bg-white/20 border border-gr-line px-3 py-2 text-sm text-gr-board font-mono font-bold rounded-sm h-[38px] flex items-center">
+                  <div className="mt-2 block w-full bg-white/20 border border-gr-line px-3 py-2 text-sm text-gr-board font-mono font-bold rounded-sm h flex items-center">
                     {refPrice !== null ? `Rp ${refPrice.toLocaleString('id-ID')}/kg` : '-'}
                   </div>
                 </div>
@@ -386,7 +386,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
               {refPrice !== null && formData.price_per_kg && (
                 <div className="mt-2 font-sans text-xs">
                   {parseFloat(formData.price_per_kg) < 0.75 * refPrice && (
-                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-down/10 p-4 text-gr-down border border-gr-down/20 flex gap-2 items-start ">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Peringatan: Harga Terlalu Murah</span>
@@ -397,7 +397,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
                     </div>
                   )}
                   {parseFloat(formData.price_per_kg) > 1.20 * refPrice && (
-                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-board/10 p-4 text-gr-board border border-gr-board/20 flex gap-2 items-start ">
                       <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Peringatan: Harga Cukup Tinggi</span>
@@ -408,7 +408,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
                     </div>
                   )}
                   {parseFloat(formData.price_per_kg) >= 0.75 * refPrice && parseFloat(formData.price_per_kg) <= 1.20 * refPrice && (
-                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start shadow-sm">
+                    <div className="rounded-sm bg-gr-up/10 p-4 text-gr-up border border-gr-up/20 flex gap-2 items-start ">
                       <CheckCircle size={16} className="shrink-0 mt-0.5" />
                       <div>
                         <span className="font-mono uppercase tracking-wider text-[10px] font-bold block">Harga Adil & Kompetitif</span>
@@ -426,7 +426,7 @@ export default function EditProductPage({ params }: { params: React.Usable<{ id:
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-gr-board text-gr-chalk border border-gr-board hover:bg-gr-board/90 font-mono text-xs font-bold uppercase tracking-widest py-4 rounded-sm transition-all  flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>

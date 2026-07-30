@@ -57,7 +57,7 @@ export function PhoneModal({ isOpen, onClose, onSuccess }: PhoneModalProps) {
       />
 
       {/* Modal Container */}
-      <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-gr-bg-elevated p-8 backdrop-blur-xl shadow-2xl space-y-6 relative animate-in fade-in zoom-in duration-200">
+      <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-gr-bg-elevated p-8 backdrop-blur-xl  space-y-6 relative animate-in fade-in zoom-in duration-200">
         
         {/* Close Button */}
         <button
@@ -70,7 +70,7 @@ export function PhoneModal({ isOpen, onClose, onSuccess }: PhoneModalProps) {
 
         {/* Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-4 shadow-[0_0_15px_rgba(255,155,113,0.1)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-4 ">
             <Phone size={20} />
           </div>
           <h3 className="font-display text-2xl font-semibold text-gr-text-primary">

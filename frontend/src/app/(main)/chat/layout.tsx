@@ -33,7 +33,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   };
   return (
     <div className="max-w-[1150px] w-full mx-auto px-4 md:px-8 py-4 md:py-6 h-[calc(100vh-100px)] md:h-[calc(100vh-120px)] min-h-[500px]">
-      <div className="w-full flex bg-white/70 dark:bg-[#1E1812]/50 backdrop-blur-md border border-gr-line/80 h-full rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(32,29,22,0.06)] transition-all">
+      <div className="w-full flex bg-white/70 dark:bg-[#1E1812]/50 backdrop-blur-md border border-gr-line/80 h-full rounded-2xl overflow-hidden  transition-all">
         
         {/* Left Pane: Inbox / Conversation List */}
         <div 
@@ -91,7 +91,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                 </div>
                 <Link
                   href="/"
-                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gr-board text-gr-chalk text-[9px] uppercase tracking-wider font-mono font-bold rounded-lg hover:bg-gr-board/90 shadow-sm transition-all"
+                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gr-board text-gr-chalk text-[9px] uppercase tracking-wider font-mono font-bold rounded-lg hover:bg-gr-board/90  transition-all"
                 >
                   Jelajahi Produk
                 </Link>
@@ -111,20 +111,20 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                     className={cn(
                       "block p-3 rounded-xl border border-transparent transition-all duration-200 cursor-pointer relative",
                       isActive 
-                        ? "bg-white/80 dark:bg-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)] border-gr-line/40 font-medium" 
+                        ? "bg-white/80 dark:bg-white/10  border-gr-line/40 font-medium" 
                         : "hover:bg-white/40 dark:hover:bg-white/5 hover:border-gr-line/20"
                     )}
                   >
                     <div className="flex items-start gap-3">
                       {/* Avatar initials with style */}
-                      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gr-board/10 border border-gr-board/20 flex items-center justify-center font-sans font-bold text-xs text-gr-board shadow-xs">
+                      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gr-board/10 border border-gr-board/20 flex items-center justify-center font-sans font-bold text-xs text-gr-board ">
                         {initials}
                       </div>
 
                       {/* Content info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <span className="font-sans text-[12px] font-bold text-gr-ink truncate">
+                          <span className="font-sans text font-bold text-gr-ink truncate">
                             {name}
                           </span>
                           <span className="font-mono text-[9px] text-gr-ink-soft whitespace-nowrap">
@@ -140,7 +140,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                         {/* Badges footer */}
                         <div className="mt-2 flex items-center justify-between gap-2">
                           <span className={cn(
-                            "font-mono text-[8px] uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
+                            "font-mono text uppercase tracking-wider px-1.5 py-0.5 font-bold rounded-md border",
                             otherUser.role === 'PETANI' 
                               ? "bg-gr-board/10 text-gr-board border-gr-board/20" 
                               : "bg-gr-down/10 text-gr-down border-gr-down/20"
@@ -150,7 +150,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                           
                           {/* Unread badge */}
                           {c.unread_count > 0 && (
-                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-full flex items-center justify-center border border-white dark:border-black animate-pulse shadow-xs">
+                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-full flex items-center justify-center border border-white dark:border-black animate-pulse ">
                               {c.unread_count}
                             </span>
                           )}

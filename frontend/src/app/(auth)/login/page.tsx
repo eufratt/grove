@@ -48,11 +48,11 @@ export default function LoginPage() {
         <BgPattern />
         <Glow color="var(--gr-board)" position="center" className="opacity-10 pointer-events-none" />
         
-        <div className="z-10 w-full max-w-md bg-white/80 backdrop-blur-xl border border-gr-line rounded-sm p-6 sm:p-10 shadow-xl relative overflow-hidden space-y-6">
+        <div className="z-10 w-full max-w-md bg-white/80 backdrop-blur-xl border border-gr-line rounded-sm p-6 sm:p-10  relative overflow-hidden space-y-6">
           {/* Editorial Double Rule Top Accent */}
           <div className="absolute top-0 inset-x-0">
             <div className="h-[3px] bg-gr-ink w-full" />
-            <div className="h-[1px] bg-gr-ink w-full mt-[2px]" />
+            <div className="h-[1px] bg-gr-ink w-full mt" />
           </div>
 
           <div className="flex flex-col items-center text-center pt-2">

@@ -278,7 +278,7 @@ function OrdersPageContent() {
                     className={cn(
                       "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
                       activeTab === 'incoming'
-                        ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                        ? "bg-gr-board text-gr-chalk border-gr-board "
                         : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
                     )}
                   >
@@ -294,7 +294,7 @@ function OrdersPageContent() {
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
                     activeTab === 'purchases'
-                      ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                      ? "bg-gr-board text-gr-chalk border-gr-board "
                       : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
                   )}
                 >
@@ -310,7 +310,7 @@ function OrdersPageContent() {
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
                     activeTab === 'history'
-                      ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                      ? "bg-gr-board text-gr-chalk border-gr-board "
                       : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
                   )}
                 >
@@ -326,7 +326,7 @@ function OrdersPageContent() {
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
                     activeTab === 'demands'
-                      ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                      ? "bg-gr-board text-gr-chalk border-gr-board "
                       : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
                   )}
                 >
@@ -343,7 +343,7 @@ function OrdersPageContent() {
                     className={cn(
                       "w-full flex items-center justify-between px-4 py-3 rounded-sm font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer",
                       activeTab === 'products'
-                        ? "bg-gr-board text-gr-chalk border-gr-board shadow-sm"
+                        ? "bg-gr-board text-gr-chalk border-gr-board "
                         : "bg-white/40 text-gr-ink-soft border-gr-line hover:text-gr-ink hover:bg-white/60"
                     )}
                   >
@@ -462,7 +462,7 @@ function OrdersPageContent() {
                 />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8 shadow-xs w-full">
+              <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-gr-line rounded-sm bg-white/40 p-8  w-full">
                 <Package className="h-12 w-12 text-gr-ink-soft/30 mb-4" />
                 <span className="font-display text-2xl font-semibold text-gr-ink">
                   {emptyState.title}
@@ -657,7 +657,7 @@ function OrderCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="group relative rounded-sm bg-white border border-gr-line shadow-xs hover:shadow-md hover:border-gr-board/30 transition-all duration-200 overflow-hidden"
+      className="group relative rounded-sm bg-white border border-gr-line   hover:border-gr-board/30 transition-all duration-200 overflow-hidden"
     >
       {/* 1. ELEGANT TOP HEADER BAR */}
       <div className="bg-[#FAF9F5] px-5 py-3 border-b border-gr-line flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -678,7 +678,7 @@ function OrderCard({
         </div>
 
         <div className={cn(
-          "flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-sans font-bold uppercase tracking-wider shadow-3xs",
+          "flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-sans font-bold uppercase tracking-wider ",
           (currentStatus === 'MENUNGGU_KONFIRMASI' || currentStatus === 'DIPESAN') && "bg-amber-500/5 text-amber-800 border-amber-500/20",
           (currentStatus === 'DIKONFIRMASI' || currentStatus === 'DIPROSES' || currentStatus === 'DITERIMA') && "bg-emerald-50 text-emerald-800 border-[#C8E6C9]",
           (currentStatus === 'SELESAI') && "bg-gr-board/5 text-gr-board border-gr-line",
@@ -699,7 +699,7 @@ function OrderCard({
           {/* Product Thumbnail */}
           <Link
             href={`/produk/${order.product_id}`}
-            className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80 shadow-2xs hover:border-gr-board/40 transition-all group/thumb"
+            className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80  hover:border-gr-board/40 transition-all group/thumb"
           >
             {order.product_photo_url ? (
               <img
@@ -755,7 +755,7 @@ function OrderCard({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all  cursor-pointer"
           >
             <span>{isExpanded ? 'Sembunyikan' : 'Detail Pesanan'}</span>
             <span className="text-[10px]">{isExpanded ? '▲' : '▼'}</span>
@@ -829,7 +829,7 @@ function OrderCard({
                   <button
                     onClick={handleContact}
                     disabled={chatLoading}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-gr-board text-gr-board hover:bg-gr-board/10 font-sans text-xs font-semibold shadow-3xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-gr-board text-gr-board hover:bg-gr-board/10 font-sans text-xs font-semibold  transition-all cursor-pointer shrink-0 disabled:opacity-50"
                   >
                     {chatLoading ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -892,7 +892,7 @@ function OrderCard({
                     disabled={isUpdating}
                     variant="ghost"
                     onClick={() => handleStatusChange('DIBATALKAN')}
-                    className="border border-gr-down/40 text-gr-down hover:bg-gr-down/10 bg-white font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer transition-all shadow-2xs"
+                    className="border border-gr-down/40 text-gr-down hover:bg-gr-down/10 bg-white font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer transition-all "
                   >
                     {isUpdating ? 'Memproses...' : 'Batalkan Pesanan'}
                   </Button>
@@ -902,7 +902,7 @@ function OrderCard({
                   <Button
                     disabled={isCheckingOut}
                     onClick={handleCheckout}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk border border-gr-board font-mono text-xs font-bold uppercase tracking-wider px-5 py-2 rounded-sm cursor-pointer shadow-sm transition-all flex items-center justify-center gap-2"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk border border-gr-board font-mono text-xs font-bold uppercase tracking-wider px-5 py-2 rounded-sm cursor-pointer  transition-all flex items-center justify-center gap-2"
                   >
                     {isCheckingOut ? (
                       <>
@@ -919,7 +919,7 @@ function OrderCard({
                   <Button
                     disabled={isConfirming}
                     onClick={handleEscrowConfirmReceived}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer shadow-sm transition-all"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer  transition-all"
                   >
                     {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
                   </Button>
@@ -929,7 +929,7 @@ function OrderCard({
                   <Button
                     disabled={isConfirming}
                     onClick={handleConfirmSuccess}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer shadow-sm transition-all"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm cursor-pointer  transition-all"
                   >
                     {isConfirming ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
                   </Button>
@@ -966,7 +966,7 @@ function OrderCard({
                     <Button
                       disabled={isUpdating}
                       onClick={() => handleStatusChange('DIPROSES')}
-                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
+                      className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer  transition-all"
                     >
                       Konfirmasi Pesanan
                     </Button>
@@ -984,7 +984,7 @@ function OrderCard({
                   <Button
                     disabled={isUpdating}
                     onClick={() => handleStatusChange('SIAP_DIAMBIL')}
-                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer shadow-sm transition-all"
+                    className="bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm cursor-pointer  transition-all"
                   >
                     Tandai Siap Diambil
                   </Button>
@@ -1103,12 +1103,12 @@ function DemandCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="group relative rounded-sm bg-white border border-gr-line shadow-xs hover:shadow-md hover:border-gr-board/30 transition-all duration-200 overflow-hidden"
+      className="group relative rounded-sm bg-white border border-gr-line   hover:border-gr-board/30 transition-all duration-200 overflow-hidden"
     >
       {/* 1. TOP HEADER BAR: Request Meta & Status */}
       <div className="bg-[#FAF9F5] px-5 py-3 border-b border-gr-line flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] font-bold text-gr-ink uppercase tracking-wider bg-white px-2.5 py-1 rounded-sm border border-gr-line shadow-2xs">
+          <span className="font-mono text-[11px] font-bold text-gr-ink uppercase tracking-wider bg-white px-2.5 py-1 rounded-sm border border-gr-line ">
             REQUEST ID: {demand.id.slice(0, 8)}
           </span>
           <span className="font-sans text-gr-ink-soft text-[11px]">
@@ -1123,7 +1123,7 @@ function DemandCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-sm border font-mono text-[10px] uppercase font-bold tracking-wider shadow-2xs", config.pillStyle)}>
+          <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-sm border font-mono text-[10px] uppercase font-bold tracking-wider ", config.pillStyle)}>
             <StatusIcon size={12} />
             <span>{config.label}</span>
           </div>
@@ -1134,7 +1134,7 @@ function DemandCard({
       <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
           {/* Commodity Visual Icon Box */}
-          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80 shadow-2xs flex flex-col items-center justify-center text-gr-board p-2 text-center">
+          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80  flex flex-col items-center justify-center text-gr-board p-2 text-center">
             <ClipboardList size={28} className="text-gr-board/60" />
           </div>
 
@@ -1205,7 +1205,7 @@ function DemandCard({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-2xs cursor-pointer ml-auto"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all  cursor-pointer ml-auto"
           >
             <span>{isExpanded ? 'Sembunyikan' : 'Detail Permintaan'}</span>
             <span className="text-[10px]">{isExpanded ? '▲' : '▼'}</span>
@@ -1274,7 +1274,7 @@ function DemandCard({
                                 <button
                                   onClick={() => handleContactPetani(commit.petani_id)}
                                   disabled={chatLoading}
-                                  className="p-2 rounded-sm bg-gr-board hover:opacity-90 text-gr-chalk transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                                  className="p-2 rounded-sm bg-gr-board hover:opacity-90 text-gr-chalk transition-all cursor-pointer  disabled:opacity-50"
                                   title="Chat Petani"
                                 >
                                   {chatLoading ? (
@@ -1317,7 +1317,7 @@ function DemandCard({
                         <button
                           onClick={handleContactBuyer}
                           disabled={chatLoading}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider transition-all  cursor-pointer disabled:opacity-50"
                         >
                           {chatLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -1408,7 +1408,7 @@ function FarmerProductCard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onClick={() => router.push(`/produk/${product.id}`)}
-        className="group relative flex flex-col w-full max-w-[260px] mx-auto p-3 pb-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30 hover:shadow-md transition-all cursor-pointer select-none"
+        className="group relative flex flex-col w-full max-w-[260px] mx-auto p-3 pb-4 bg-white/60 backdrop-blur-sm border border-gr-line rounded-sm hover:border-gr-ink/30  transition-all cursor-pointer select-none"
       >
         {/* Polaroid Product Photo */}
         <div className="relative aspect-square w-full overflow-hidden bg-black/5 border border-gr-line rounded-sm">
@@ -1425,7 +1425,7 @@ function FarmerProductCard({
           )}
           
           {/* Status Stamp overlay inside the photo */}
-          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-sm border border-gr-board/20 bg-white/80 backdrop-blur-xs text-gr-board font-mono text-[8px] font-bold uppercase tracking-wider shadow-xs">
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-sm border border-gr-board/20 bg-white/80 backdrop-blur-xs text-gr-board font-mono text font-bold uppercase tracking-wider ">
             {product.status}
           </div>
         </div>
@@ -1468,7 +1468,7 @@ function FarmerProductCard({
             <div className="flex gap-2">
               <button
                 onClick={handleEditClick}
-                className="flex-1 flex items-center justify-center gap-1 py-2 bg-white/20 border border-gr-line hover:border-gr-green text-gr-ink-soft hover:text-gr-bg hover:bg-gr-green font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer shadow-xs"
+                className="flex-1 flex items-center justify-center gap-1 py-2 bg-white/20 border border-gr-line hover:border-gr-green text-gr-ink-soft hover:text-gr-bg hover:bg-gr-green font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer "
               >
                 <Edit size={10} />
                 Edit
@@ -1476,7 +1476,7 @@ function FarmerProductCard({
               <button
                 onClick={handleDeleteClick}
                 disabled={isDeleting}
-                className="flex-1 flex items-center justify-center gap-1 py-2 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 shadow-xs"
+                className="flex-1 flex items-center justify-center gap-1 py-2 bg-white/20 border border-gr-line hover:border-gr-down text-gr-ink-soft hover:text-gr-chalk hover:bg-gr-down font-mono text-[9px] font-bold uppercase tracking-widest rounded-sm transition-all duration-200 cursor-pointer disabled:opacity-50 "
               >
                 {isDeleting ? (
                   <Loader2 size={10} className="animate-spin" />
@@ -1502,11 +1502,11 @@ function FarmerProductCard({
             </p>
             <div className="border border-dashed border-gr-ink/20 bg-white/35 p-3 rounded-none flex items-center justify-between font-mono text-[9px] text-gr-ink-soft">
               <div>
-                <span className="block text-[8px] text-gr-ink-soft/60 uppercase tracking-widest mb-0.5">Komoditas</span>
+                <span className="block text text-gr-ink-soft/60 uppercase tracking-widest mb-0.5">Komoditas</span>
                 <span className="text-gr-ink font-bold uppercase tracking-wider">{product.name}</span>
               </div>
               <div className="text-right">
-                <span className="block text-[8px] text-gr-ink-soft/60 uppercase tracking-widest mb-0.5">Stok Listing</span>
+                <span className="block text text-gr-ink-soft/60 uppercase tracking-widest mb-0.5">Stok Listing</span>
                 <span className="text-gr-ink font-bold">{product.quantity_kg} KG</span>
               </div>
             </div>

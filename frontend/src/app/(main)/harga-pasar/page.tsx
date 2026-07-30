@@ -471,17 +471,17 @@ export default function HargaPasarPage() {
             {/* Metadata info cards floating on top right below pill navbar */}
             <div className="absolute top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
               {activeTab === 'pricing' && selectedProvince && (
-                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line shadow-sm">
+                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line ">
                   Provinsi: {selectedProvince}
                 </span>
               )}
               {activeTab === 'products' && userLocation && (
-                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line shadow-sm">
+                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line ">
                   Radius: {radiusKm} KM
                 </span>
               )}
               {activeTab === 'demands' && (
-                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line shadow-sm">
+                <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-[#FAF9F5]/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line ">
                   Kebutuhan: {filteredDemands.length} Permintaan
                 </span>
               )}
@@ -503,7 +503,7 @@ export default function HargaPasarPage() {
           </div>
 
           {/* Sidebar Paper Panel (Floating Overlay on Left below pill navbar) */}
-          <div className="absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm shadow-2xl overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
+          <div className="absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm  overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
             
             {/* 1. Header Block (Identitas Panel) */}
             <div className="flex items-center justify-between pb-3 border-b border-gr-line mb-3 shrink-0">
@@ -544,7 +544,7 @@ export default function HargaPasarPage() {
                 placeholder="Cari komoditas atau lokasi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-9 pr-4 py-2.5 rounded-sm font-mono text-[9px] uppercase tracking-widest focus:outline-none focus:border-gr-board/50 transition-all placeholder:text-gr-ink-soft/40 shadow-sm"
+                className="w-full bg-white/40 border border-gr-line hover:border-gr-ink-soft/40 text-gr-ink pl-9 pr-4 py-2.5 rounded-sm font-mono text-[9px] uppercase tracking-widest focus:outline-none focus:border-gr-board/50 transition-all placeholder:text-gr-ink-soft/40 "
               />
             </div>
  
@@ -607,13 +607,13 @@ export default function HargaPasarPage() {
                       {selectedProvince || 'Nasional'}
                     </h2>
                   </div>
-                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm shadow-sm shrink-0">
+                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm  shrink-0">
                     {filteredPrices.length} ditemukan
                   </span>
                 </div>
  
                 {/* Dropdowns panel without duplicate search bar */}
-                <div className="bg-gr-chalk/35 border border-gr-line p-3 rounded-sm shadow-sm mb-4 shrink-0">
+                <div className="bg-gr-chalk/35 border border-gr-line p-3 rounded-sm  mb-4 shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="relative">
                       <select
@@ -661,7 +661,7 @@ export default function HargaPasarPage() {
                     filteredPrices.map((item) => (
                       <div 
                         key={item.id}
-                        className="p-4 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex justify-between items-center group transition-all shadow-sm"
+                        className="p-4 bg-white/60 hover:bg-white/85 border border-gr-line rounded-sm flex justify-between items-center group transition-all "
                       >
                         <div className="min-w-0 pr-3">
                           <p className="font-display text-sm font-semibold text-gr-ink group-hover:text-gr-board transition-colors truncate">
@@ -708,13 +708,13 @@ export default function HargaPasarPage() {
                       Produk Terdekat
                     </h2>
                   </div>
-                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm shadow-sm shrink-0">
+                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm  shrink-0">
                     {filteredProducts.length} ditemukan
                   </span>
                 </div>
  
                 {/* Radius Slider Panel */}
-                <div className="bg-gr-chalk/35 border border-gr-line p-4 rounded-sm space-y-3 shadow-sm mb-4 shrink-0">
+                <div className="bg-gr-chalk/35 border border-gr-line p-4 rounded-sm space-y-3  mb-4 shrink-0">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
                       Radius Jangkauan
@@ -758,7 +758,7 @@ export default function HargaPasarPage() {
                             setFlyToCoords([prod.latitude, prod.longitude]);
                           }
                         }}
-                        className="p-4 bg-white border border-gr-line hover:border-gr-board/30 rounded-sm flex gap-3.5 group transition-all duration-150 cursor-pointer shadow-sm relative"
+                        className="p-4 bg-white border border-gr-line hover:border-gr-board/30 rounded-sm flex gap-3.5 group transition-all duration-150 cursor-pointer  relative"
                       >
                         <div className="h-16 w-16 bg-gr-paper/30 border border-gr-line rounded-sm overflow-hidden shrink-0">
                           <Image
@@ -793,7 +793,7 @@ export default function HargaPasarPage() {
                             <Link
                               href={`/produk/${prod.id}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[8px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-all duration-150 cursor-pointer text-center"
+                              className="border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-all duration-150 cursor-pointer text-center"
                             >
                               Lihat Detail
                             </Link>
@@ -825,13 +825,13 @@ export default function HargaPasarPage() {
                       Permintaan Pembeli
                     </h2>
                   </div>
-                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm shadow-sm shrink-0">
+                  <span className="font-mono text-[9px] font-extrabold text-gr-ink bg-gr-ink/5 border border-gr-line px-2.5 py-0.5 rounded-sm  shrink-0">
                     {filteredDemands.length} permintaan
                   </span>
                 </div>
 
                 {/* Info Tip */}
-                <div className="bg-[#FAF9F5]/80 border border-gr-line p-3 rounded-sm space-y-1 shadow-sm mb-4 shrink-0 font-sans text-[10px] text-gr-ink-soft leading-relaxed flex items-start gap-2">
+                <div className="bg-[#FAF9F5]/80 border border-gr-line p-3 rounded-sm space-y-1  mb-4 shrink-0 font-sans text-[10px] text-gr-ink-soft leading-relaxed flex items-start gap-2">
                   <Info size={14} className="text-gr-board mt-0.5 shrink-0" />
                   <div>
                     Klik kartu permintaan untuk mengarahkan peta ke lokasi pembeli. Klik <strong>Penuhi Pasokan</strong> untuk menyanggupi kebutuhan tersebut.
@@ -858,7 +858,7 @@ export default function HargaPasarPage() {
                               setFlyToCoords([req.latitude, req.longitude]);
                             }
                           }}
-                          className="p-5 bg-white border border-gr-line hover:border-gr-board/30 hover:shadow-md rounded-sm flex flex-col gap-3.5 cursor-pointer group transition-all duration-200 shadow-sm relative overflow-hidden"
+                          className="p-5 bg-white border border-gr-line hover:border-gr-board/30  rounded-sm flex flex-col gap-3.5 cursor-pointer group transition-all duration-200  relative overflow-hidden"
                         >
                           {/* Header row: title and price */}
                           <div className="flex justify-between items-start gap-4">
@@ -867,11 +867,11 @@ export default function HargaPasarPage() {
                                 {req.commodity_name}
                               </h3>
                               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                <span className="inline-flex items-center font-mono text-[8px] uppercase tracking-wider text-gr-board bg-gr-board/5 px-2 py-0.5 rounded-sm border border-gr-board/15 font-bold">
+                                <span className="inline-flex items-center font-mono text uppercase tracking-wider text-gr-board bg-gr-board/5 px-2 py-0.5 rounded-sm border border-gr-board/15 font-bold">
                                   {req.category}
                                 </span>
                                 {daysLeft <= 7 && (
-                                  <span className="font-mono text-[8px] uppercase tracking-wider bg-red-50 text-red-600 px-1.5 py-0.5 rounded-sm font-bold border border-red-200/50 animate-pulse">
+                                  <span className="font-mono text uppercase tracking-wider bg-red-50 text-red-600 px-1.5 py-0.5 rounded-sm font-bold border border-red-200/50 animate-pulse">
                                     Mendesak
                                   </span>
                                 )}
@@ -888,7 +888,7 @@ export default function HargaPasarPage() {
                           <div className="space-y-2 text-xs font-sans border-t border-b border-gr-line/50 py-3.5 mt-0.5">
                             <div className="flex items-center justify-between gap-4">
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold shrink-0">Pemohon:</span>
+                                <span className="font-mono text uppercase tracking-widest text-gr-ink-soft/60 font-bold shrink-0">Pemohon:</span>
                                 <span className="font-sans text-xs text-gr-ink font-semibold truncate">{req.buyer_name || 'Pembeli'}</span>
                               </div>
                               <div className="shrink-0 flex items-center">
@@ -897,7 +897,7 @@ export default function HargaPasarPage() {
                             </div>
                             <div className="flex items-center justify-between gap-4 text-xs">
                               <div className="flex items-center gap-1.5 min-w-0 text-gr-ink-soft">
-                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold shrink-0">Tujuan:</span>
+                                <span className="font-mono text uppercase tracking-widest text-gr-ink-soft/60 font-bold shrink-0">Tujuan:</span>
                                 <span className="font-sans text-xs font-semibold text-gr-ink truncate">{req.provinceName || 'DI Yogyakarta'}</span>
                               </div>
                               {req.distance_km !== null && (
@@ -913,7 +913,7 @@ export default function HargaPasarPage() {
                           <div className="space-y-2.5">
                             <div className="flex justify-between items-center text-[10px] font-sans">
                               <div className="flex items-center gap-1.5 text-gr-ink-soft">
-                                <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60 font-bold">Kebutuhan</span>
+                                <span className="font-mono text uppercase tracking-widest text-gr-ink-soft/60 font-bold">Kebutuhan</span>
                                 <span className="font-bold text-gr-ink">
                                   {Math.max(0, req.quantity_kg_needed - req.quantity_kg_committed).toLocaleString('id-ID')} KG <span className="font-normal text-gr-ink-soft">sisa</span>
                                 </span>
@@ -943,7 +943,7 @@ export default function HargaPasarPage() {
                               e.stopPropagation();
                               handleAddDemandToComparison(req);
                             }}
-                            className="w-full border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[9px] font-bold uppercase tracking-wider py-2.5 rounded-sm transition-all duration-150 cursor-pointer text-center shadow-3xs"
+                            className="w-full border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[9px] font-bold uppercase tracking-wider py-2.5 rounded-sm transition-all duration-150 cursor-pointer text-center "
                           >
                             Penuhi Pasokan
                           </button>
@@ -969,7 +969,7 @@ export default function HargaPasarPage() {
         {/* ── Commit Right Panel — portaled to document.body */}
         {mounted && comparisonDemands.length > 0 && createPortal(
           <div
-            className="fixed top-[84px] right-4 w-[calc(100vw-32px)] sm:w-[385px] bg-white border border-gr-line p-5 rounded-sm shadow-[0_12px_40px_rgba(0,0,0,0.18)] z-[9999] flex flex-col drawer-slide-in h-[calc(100vh-105px)]"
+            className="fixed top right-4 w sm:w-[385px] bg-white border border-gr-line p-5 rounded-sm  z-[9999] flex flex-col drawer-slide-in h-[calc(100vh-105px)]"
           >
             <style>{`
               @keyframes slideInRight {
@@ -1020,11 +1020,11 @@ export default function HargaPasarPage() {
                 const isSubmitting = submittingCommits[demand.id] || false;
 
                 return (
-                  <div key={demand.id} className="bg-gr-paper border border-gr-line rounded-sm p-4 space-y-3 relative animate-in fade-in duration-150 shadow-2xs">
+                  <div key={demand.id} className="bg-gr-paper border border-gr-line rounded-sm p-4 space-y-3 relative animate-in fade-in duration-150 ">
                     {/* Card Header (Buyer Details & Close) */}
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <span className="font-mono text-[8px] uppercase tracking-wider text-gr-ink-soft/60 font-bold block mb-0.5">PEMOHON</span>
+                        <span className="font-mono text uppercase tracking-wider text-gr-ink-soft/60 font-bold block mb-0.5">PEMOHON</span>
                         <div className="flex items-center gap-1.5">
                           <h4 className="font-display text-xs font-bold text-gr-ink leading-tight capitalize">
                             {demand.buyer_name || 'Pembeli'}
@@ -1133,7 +1133,7 @@ export default function HargaPasarPage() {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-2 rounded-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs font-extrabold"
+                          className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-2 rounded-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer  font-extrabold"
                         >
                           {isSubmitting ? (
                             <Loader2 size={12} className="animate-spin" />

@@ -272,7 +272,7 @@ export default function SettingsPage() {
           </div>
           <Link
             href="/beranda"
-            className="inline-flex items-center gap-1.5 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 rounded-sm transition-all shadow-2xs hover:border-gr-ink-soft/45 cursor-pointer"
+            className="inline-flex items-center gap-1.5 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 rounded-sm transition-all  hover:border-gr-ink-soft/45 cursor-pointer"
           >
             <ArrowLeft size={12} /> Kembali ke Beranda
           </Link>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT SIDEBAR MENU: Akun Saya & Reputasi */}
-          <div className="lg:col-span-3 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm shadow-2xs space-y-6">
+          <div className="lg:col-span-3 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm  space-y-6">
             
             {/* User Profile Mini Header */}
             <div className="flex items-center gap-3 pb-4 border-b border-gr-line/45">
@@ -368,11 +368,11 @@ export default function SettingsPage() {
           </div>
 
           {/* MAIN SETTINGS FORM CARD (9/12 width) */}
-          <div className="lg:col-span-9 bg-[#FAF9F5] border border-gr-line p-6 sm:p-8 rounded-sm shadow-xs relative overflow-hidden">
+          <div className="lg:col-span-9 bg-[#FAF9F5] border border-gr-line p-6 sm:p-8 rounded-sm  relative overflow-hidden">
             {/* Double top rule */}
             <div className="absolute top-0 inset-x-0">
               <div className="h-[2.5px] bg-gr-ink w-full" />
-              <div className="h-[0.8px] bg-gr-ink w-full mt-[1.5px]" />
+              <div className="h bg-gr-ink w-full mt-[1.5px]" />
             </div>
 
             {/* TAB 1: PROFILE MANAGEMENT */}
@@ -411,10 +411,10 @@ export default function SettingsPage() {
                       <span className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
                         Username / ID Akun
                       </span>
-                      <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/80 text-sm shadow-2xs">
+                      <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/80 text-sm ">
                         {user?.email ? user.email.split('@')[0] : 'user'}
                       </div>
-                      <span className="block font-mono text-[8px] text-gr-ink-soft/40 mt-1 uppercase tracking-wider">
+                      <span className="block font-mono text text-gr-ink-soft/40 mt-1 uppercase tracking-wider">
                         Username ditautkan otomatis dengan akun Google Anda
                       </span>
                     </div>
@@ -438,7 +438,7 @@ export default function SettingsPage() {
                               className={cn(
                                 "flex-1 border p-3 rounded-sm text-left transition-all duration-200 cursor-pointer focus:outline-none",
                                 isSelected 
-                                  ? "border-gr-board bg-gr-board/5 text-gr-ink shadow-3xs" 
+                                  ? "border-gr-board bg-gr-board/5 text-gr-ink " 
                                   : "border-gr-line bg-white text-gr-ink-soft hover:border-gr-ink-soft/45 hover:bg-gr-paper/10"
                               )}
                             >
@@ -460,7 +460,7 @@ export default function SettingsPage() {
                         type="text"
                         required
                         placeholder="Masukkan nama lengkap Anda"
-                        className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                        className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                       />
@@ -471,9 +471,9 @@ export default function SettingsPage() {
                       <span className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
                         Alamat Email
                       </span>
-                      <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/85 text-sm shadow-2xs flex justify-between items-center">
+                      <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/85 text-sm  flex justify-between items-center">
                         <span>{formatEmail(user?.email || '')}</span>
-                        <span className="font-mono text-[8px] uppercase tracking-wider text-gr-up bg-gr-up/10 px-1 py-0.5 rounded-xs border border-gr-up/25 font-bold">Terverifikasi</span>
+                        <span className="font-mono text uppercase tracking-wider text-gr-up bg-gr-up/10 px-1 py-0.5 rounded-xs border border-gr-up/25 font-bold">Terverifikasi</span>
                       </div>
                     </div>
 
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                         id="shopee-phone"
                         type="tel"
                         placeholder="0812..."
-                        className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                        className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                       />
@@ -504,11 +504,11 @@ export default function SettingsPage() {
                             rows={4}
                             maxLength={1000}
                             placeholder="Ceritakan tentang ladang, jenis tanaman, dan komoditas pertanian Anda..."
-                            className="block w-full rounded-sm border border-gr-line bg-white focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary transition-all shadow-2xs"
+                            className="block w-full rounded-sm border border-gr-line bg-white focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary transition-all "
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                           />
-                          <div className="flex justify-between items-center mt-1 font-mono text-[8px] text-gr-ink-soft/50">
+                          <div className="flex justify-between items-center mt-1 font-mono text text-gr-ink-soft/50">
                             <span>maksimal 1000 karakter</span>
                             <span>{bio.length}/1000</span>
                           </div>
@@ -527,7 +527,7 @@ export default function SettingsPage() {
                               </label>
                               <select
                                 id="bank-name"
-                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
                                 value={bankName}
                                 onChange={(e) => setBankName(e.target.value)}
                               >
@@ -549,7 +549,7 @@ export default function SettingsPage() {
                                 id="bank-acc-holder"
                                 type="text"
                                 placeholder="Nama sesuai buku tabungan"
-                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                                className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
                                 value={bankAccountHolder}
                                 onChange={(e) => setBankAccountHolder(e.target.value)}
                               />
@@ -564,11 +564,11 @@ export default function SettingsPage() {
                               id="bank-acc-number"
                               type="text"
                               placeholder="Contoh: 1234567890"
-                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all shadow-2xs"
+                              className="block w-full rounded-sm border border-gr-line bg-white px-3.5 py-2.5 font-sans text-gr-ink placeholder-gr-ink-soft/45 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board text-sm transition-all "
                               value={bankAccountNumber}
                               onChange={(e) => setBankAccountNumber(e.target.value)}
                             />
-                            <span className="block font-mono text-[8px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
+                            <span className="block font-mono text text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
                               Pencairan dana otomatis dari Xendit akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
                             </span>
                           </div>
@@ -580,7 +580,7 @@ export default function SettingsPage() {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] font-bold uppercase tracking-widest py-3 px-8 rounded-sm shadow-2xs cursor-pointer transition-all"
+                        className="bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] font-bold uppercase tracking-widest py-3 px-8 rounded-sm  cursor-pointer transition-all"
                       >
                         {loading ? 'Menyimpan...' : 'Simpan'}
                       </Button>
@@ -591,7 +591,7 @@ export default function SettingsPage() {
                   <div className="w-full md:w-64 flex flex-col items-center justify-center border-l border-gr-line/30 md:pl-8 pt-6 md:pt-0 pb-2 self-stretch">
                     <div className="relative group shrink-0">
                       {/* Live Image Box */}
-                      <div className="h-28 w-28 rounded-full bg-white p-0.5 border border-gr-line/75 shadow-sm overflow-hidden flex items-center justify-center">
+                      <div className="h-28 w-28 rounded-full bg-white p-0.5 border border-gr-line/75  overflow-hidden flex items-center justify-center">
                         {avatarUrl ? (
                           <img src={avatarUrl} alt="Avatar Large" className="h-full w-full object-cover rounded-full" />
                         ) : (
@@ -620,7 +620,7 @@ export default function SettingsPage() {
                       type="button"
                       disabled={avatarUploading}
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-4 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2 rounded-sm shadow-2xs hover:border-gr-ink-soft/40 cursor-pointer transition-all disabled:opacity-50"
+                      className="mt-4 border border-gr-line bg-white hover:bg-gr-paper text-gr-ink font-mono text-[10px] uppercase tracking-widest px-4 py-2 rounded-sm  hover:border-gr-ink-soft/40 cursor-pointer transition-all disabled:opacity-50"
                     >
                       Pilih Gambar
                     </button>
@@ -660,7 +660,7 @@ export default function SettingsPage() {
                   </div>
                 )}
 
-                <div className="bg-white border border-gr-line p-5 rounded-sm shadow-2xs space-y-4">
+                <div className="bg-white border border-gr-line p-5 rounded-sm  space-y-4">
                   {lat !== null && lng !== null ? (
                     <div>
                       <span className="block font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/60 mb-2">
@@ -695,7 +695,7 @@ export default function SettingsPage() {
                       type="button"
                       disabled={locationLoading}
                       onClick={handleUpdateLocation}
-                      className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] font-bold uppercase tracking-widest py-3 px-5 rounded-sm shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-[10px] font-bold uppercase tracking-widest py-3 px-5 rounded-sm  transition-all cursor-pointer disabled:opacity-50"
                     >
                       {locationLoading ? (
                         <>
@@ -731,7 +731,7 @@ export default function SettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Seller reputation box */}
-                  <div className="bg-white border border-gr-line p-4 rounded-sm shadow-2xs space-y-3">
+                  <div className="bg-white border border-gr-line p-4 rounded-sm  space-y-3">
                     <div className="border-b border-gr-line/30 pb-2">
                       <span className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/70 font-bold block">
                         Sebagai Penjual
@@ -762,7 +762,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Buyer reputation box */}
-                  <div className="bg-white border border-gr-line p-4 rounded-sm shadow-2xs space-y-3">
+                  <div className="bg-white border border-gr-line p-4 rounded-sm  space-y-3">
                     <div className="border-b border-gr-line/30 pb-2">
                       <span className="font-mono text-[9px] uppercase tracking-wider text-gr-ink-soft/70 font-bold block">
                         Sebagai Pembeli
@@ -795,7 +795,7 @@ export default function SettingsPage() {
 
                 {/* Collapsible Reviews List */}
                 {showSellerList && sellerRatings && sellerRatings.ratings.length > 0 && (
-                  <div className="bg-white border border-gr-line p-5 rounded-sm shadow-2xs space-y-4 animate-in fade-in duration-200">
+                  <div className="bg-white border border-gr-line p-5 rounded-sm  space-y-4 animate-in fade-in duration-200">
                     <h3 className="font-mono text-[9px] font-bold uppercase tracking-widest text-gr-ink-soft border-b border-gr-line/40 pb-2">
                       Daftar Ulasan Masuk Sebagai Penjual
                     </h3>
@@ -807,7 +807,7 @@ export default function SettingsPage() {
                             <span className="text-gr-ink font-mono font-semibold text-[11px]">★ {r.score}</span>
                           </div>
                           {r.comment && <p className="text-gr-ink-soft italic text-xs mt-1 bg-gr-paper/20 border border-gr-line/20 p-2.5 rounded-sm">"{r.comment}"</p>}
-                          <span className="text-[8px] text-gr-ink-soft/60 block mt-1.5 font-mono uppercase tracking-wider">
+                          <span className="text text-gr-ink-soft/60 block mt-1.5 font-mono uppercase tracking-wider">
                             {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
                         </div>
@@ -817,7 +817,7 @@ export default function SettingsPage() {
                 )}
 
                 {showBuyerList && buyerRatings && buyerRatings.ratings.length > 0 && (
-                  <div className="bg-white border border-gr-line p-5 rounded-sm shadow-2xs space-y-4 animate-in fade-in duration-200">
+                  <div className="bg-white border border-gr-line p-5 rounded-sm  space-y-4 animate-in fade-in duration-200">
                     <h3 className="font-mono text-[9px] font-bold uppercase tracking-widest text-gr-ink-soft border-b border-gr-line/40 pb-2">
                       Daftar Ulasan Masuk Sebagai Pembeli
                     </h3>
@@ -829,7 +829,7 @@ export default function SettingsPage() {
                             <span className="text-gr-ink font-mono font-semibold text-[11px]">★ {r.score}</span>
                           </div>
                           {r.comment && <p className="text-gr-ink-soft italic text-xs mt-1 bg-gr-paper/20 border border-gr-line/20 p-2.5 rounded-sm">"{r.comment}"</p>}
-                          <span className="text-[8px] text-gr-ink-soft/60 block mt-1.5 font-mono uppercase tracking-wider">
+                          <span className="text text-gr-ink-soft/60 block mt-1.5 font-mono uppercase tracking-wider">
                             {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
                         </div>

@@ -100,7 +100,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
         <input
           type="text"
-          className="block w-full bg-white/90 hover:bg-white focus:bg-white border border-gr-line hover:border-gr-ink-soft/40 focus:border-gr-board rounded-full py-2.5 pl-10 pr-9 font-sans text-xs text-gr-ink placeholder:text-gr-ink-soft/50 focus:outline-none focus:ring-1 focus:ring-gr-board/20 transition-all shadow-2xs"
+          className="block w-full bg-white/90 hover:bg-white focus:bg-white border border-gr-line hover:border-gr-ink-soft/40 focus:border-gr-board rounded-full py-2.5 pl-10 pr-9 font-sans text-xs text-gr-ink placeholder:text-gr-ink-soft/50 focus:outline-none focus:ring-1 focus:ring-gr-board/20 transition-all "
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -164,7 +164,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Autocomplete Suggestion Dropdown */}
       {isFocused && query.trim() && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#FAF9F5]/95 backdrop-blur-md border border-gr-line rounded-sm shadow-md z-50 overflow-hidden font-sans text-xs text-gr-ink animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#FAF9F5]/95 backdrop-blur-md border border-gr-line rounded-sm  z-50 overflow-hidden font-sans text-xs text-gr-ink animate-in fade-in slide-in-from-top-1 duration-150">
           <button
             type="button"
             onMouseDown={(e) => {
@@ -179,7 +179,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <Store className="h-4 w-4 text-gr-board" />
             <span>Cari Petani "{query}"</span>
           </button>
-          <div className="px-4 py-1.5 bg-gr-ink/5 font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft border-b border-gr-line/30">
+          <div className="px-4 py-1.5 bg-gr-ink/5 font-mono text uppercase tracking-widest text-gr-ink-soft border-b border-gr-line/30">
             Saran Pencarian Produk
           </div>
           <button

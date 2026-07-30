@@ -38,7 +38,7 @@ export function AccessibilityWidget() {
         aria-label="Alihkan Mode Aksesibilitas Petani (Teks Besar & Kontras Tinggi)"
         title={isAccessibleMode ? "Matikan Mode Aksesibilitas" : "Aktifkan Mode Aksesibilitas (Teks Besar & Kontras Tinggi)"}
         className={cn(
-          "group relative flex items-center justify-center p-3 rounded-full shadow-lg border transition-all duration-300 cursor-pointer",
+          "group relative flex items-center justify-center p-3 rounded-full  border transition-all duration-300 cursor-pointer",
           isAccessibleMode
             ? "bg-gr-board text-gr-chalk border-gr-board ring-2 ring-gr-board/40 scale-105"
             : "bg-gr-paper text-gr-ink border-gr-line hover:border-gr-board hover:bg-white"
@@ -47,7 +47,7 @@ export function AccessibilityWidget() {
         <Eye size={22} className="transition-transform group-hover:scale-110" />
         
         {/* Tooltip on desktop hover */}
-        <span className="absolute right-full mr-3 hidden md:group-hover:block whitespace-nowrap bg-gr-board text-gr-chalk text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-sm shadow-md pointer-events-none">
+        <span className="absolute right-full mr-3 hidden md:group-hover:block whitespace-nowrap bg-gr-board text-gr-chalk text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-sm  pointer-events-none">
           {isAccessibleMode ? "Mode Aksesibilitas (Aktif)" : "Mode Aksesibilitas"}
         </span>
       </button>

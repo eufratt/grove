@@ -46,19 +46,19 @@ export function ConfirmModal({
         return {
           headerTag: '// TINDAKAN KRITIKAL',
           tagColor: 'text-gr-down',
-          confirmBtn: 'bg-gr-down hover:bg-gr-down/90 text-gr-chalk border border-gr-ink/40 shadow-[4px_4px_0px_rgba(166,64,42,0.25)] hover:shadow-[2px_2px_0px_rgba(166,64,42,0.25)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none',
+          confirmBtn: 'bg-gr-down hover:bg-gr-down/90 text-gr-chalk border border-gr-ink/40   active:translate-x active:translate-y ',
         };
       case 'warning':
         return {
           headerTag: '// PERINGATAN SISTEM',
           tagColor: 'text-amber-600',
-          confirmBtn: 'bg-amber-600 hover:bg-amber-700 text-white border border-gr-ink/40 shadow-[4px_4px_0px_rgba(217,167,74,0.25)] hover:shadow-[2px_2px_0px_rgba(217,167,74,0.25)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none',
+          confirmBtn: 'bg-amber-600 hover:bg-amber-700 text-white border border-gr-ink/40   active:translate-x active:translate-y ',
         };
       default:
         return {
           headerTag: '// KONFIRMASI AKSES',
           tagColor: 'text-gr-board',
-          confirmBtn: 'bg-gr-board hover:bg-gr-board/90 text-gr-chalk border border-gr-ink/40 shadow-[4px_4px_0px_rgba(27,58,41,0.25)] hover:shadow-[2px_2px_0px_rgba(27,58,41,0.25)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none',
+          confirmBtn: 'bg-gr-board hover:bg-gr-board/90 text-gr-chalk border border-gr-ink/40   active:translate-x active:translate-y ',
         };
     }
   };
@@ -84,7 +84,7 @@ export function ConfirmModal({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.96, y: 15, opacity: 0 }}
             transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
-            className="z-10 w-full max-w-[390px] bg-gr-paper border border-gr-ink/80 p-6 shadow-[8px_8px_0px_rgba(32,29,22,0.2)] relative flex flex-col gap-4 cursor-default select-none rounded-none"
+            className="z-10 w-full max-w-[390px] bg-gr-paper border border-gr-ink/80 p-6  relative flex flex-col gap-4 cursor-default select-none rounded-none"
           >
             {/* Close Button - minimalist X */}
             <button
@@ -117,7 +117,7 @@ export function ConfirmModal({
 
             {/* Footer / Ticket Summary & Action Buttons */}
             <div className="flex justify-between items-center gap-4 mt-2 pt-4 border-t border-dashed border-gr-line">
-              <span className="font-mono text-[8px] text-gr-ink-soft/40 uppercase tracking-wider">
+              <span className="font-mono text text-gr-ink-soft/40 uppercase tracking-wider">
                 *Tindakan Permanen
               </span>
               <div className="flex gap-2.5">

@@ -108,7 +108,7 @@ export const CobwebChart: React.FC<CobwebChartProps> = ({
       .attr("fill", "none")
       .attr("stroke", chartColor)
       .attr("stroke-width", 2.2)
-      .attr("filter", `drop-shadow(0 0 5px ${shadowColor})`)
+      .attr("filter", `(0 0 5px ${shadowColor})`)
       .attr("d", lineGenerator);
 
     // Draw dots at each season point
