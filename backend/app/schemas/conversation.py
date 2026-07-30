@@ -4,7 +4,9 @@ from datetime import datetime
 from typing import Optional
 
 class ConversationCreate(BaseModel):
-    product_id: UUID
+    product_id: Optional[UUID] = None
+    seller_id: Optional[UUID] = None
+    buyer_id: Optional[UUID] = None
 
 class ConversationCreateResponse(BaseModel):
     conversation_id: UUID

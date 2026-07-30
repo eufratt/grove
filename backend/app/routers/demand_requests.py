@@ -502,7 +502,8 @@ async def get_demand_request_detail(
         "quantity_kg_committed": c.quantity_kg_committed,
         "committed_at": c.committed_at,
         "petani_name": c.petani.full_name if c.petani else None,
-        "petani_phone": c.petani.phone_whatsapp if c.petani else None
+        "petani_phone": c.petani.phone_whatsapp if c.petani else None,
+        "petani_id": c.petani_id
     } for c in commitments]
 
     has_petani_rated = False

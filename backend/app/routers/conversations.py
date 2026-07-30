@@ -24,17 +24,56 @@ async def create_conversation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    # Fetch product details
-    product_result = await db.execute(select(Product).where(Product.id == body.product_id))
-    product = product_result.scalar_one_or_none()
-    if not product:
+    target_seller_id = None
+    target_buyer_id = None
+    target_product_id = body.product_id
+
+    if body.product_id:
+        # Fetch product details
+        product_result = await db.execute(select(Product).where(Product.id == body.product_id))
+        product = product_result.scalar_one_or_none()
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail="Product not found"
+            )
+        target_seller_id = product.seller_id
+        target_buyer_id = current_user.id
+    elif body.seller_id:
+        # Check if seller exists and is a farmer
+        seller_result = await db.execute(select(User).where(User.id == body.seller_id))
+        seller = seller_result.scalar_one_or_none()
+        if not seller:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Seller not found"
+            )
+        if seller.role != 'PETANI':
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Recipient must be a farmer"
+            )
+        target_seller_id = seller.id
+        target_buyer_id = current_user.id
+    elif body.buyer_id:
+        # Check if buyer exists
+        buyer_result = await db.execute(select(User).where(User.id == body.buyer_id))
+        buyer = buyer_result.scalar_one_or_none()
+        if not buyer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Buyer not found"
+            )
+        target_buyer_id = buyer.id
+        target_seller_id = current_user.id
+    else:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Product not found"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either product_id, seller_id, or buyer_id must be provided"
         )
     
     # User cannot start conversation with themselves
-    if current_user.id == product.seller_id:
+    if target_buyer_id == target_seller_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="Cannot start a conversation with yourself"
@@ -42,24 +81,25 @@ async def create_conversation(
     
     # Check if a conversation between this buyer and seller already exists
     stmt = select(Conversation).where(
-        (Conversation.buyer_id == current_user.id) & 
-        (Conversation.seller_id == product.seller_id)
+        (Conversation.buyer_id == target_buyer_id) & 
+        (Conversation.seller_id == target_seller_id)
     )
     result = await db.execute(stmt)
     existing_conv = result.scalar_one_or_none()
     
     if existing_conv:
-        # Update last_product_id for the thread context
-        existing_conv.last_product_id = body.product_id
-        await db.commit()
-        await db.refresh(existing_conv)
+        # Update last_product_id for the thread context if product_id is provided
+        if target_product_id:
+            existing_conv.last_product_id = target_product_id
+            await db.commit()
+            await db.refresh(existing_conv)
         return ConversationCreateResponse(conversation_id=existing_conv.id)
     
     # Otherwise, create a new conversation thread
     new_conv = Conversation(
-        buyer_id=current_user.id,
-        seller_id=product.seller_id,
-        last_product_id=body.product_id
+        buyer_id=target_buyer_id,
+        seller_id=target_seller_id,
+        last_product_id=target_product_id
     )
     db.add(new_conv)
     await db.commit()

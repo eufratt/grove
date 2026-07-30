@@ -41,6 +41,7 @@ async def get_full_order_response(db: AsyncSession, order_id: UUID) -> OrderResp
             BuyerUser.phone_whatsapp.label("buyer_phone"),
             SellerUser.full_name.label("seller_name"),
             SellerUser.phone_whatsapp.label("seller_phone"),
+            Product.seller_id.label("seller_id"),
             has_buyer_rated_sub
         )
         .join(Product, Order.product_id == Product.id)
@@ -69,6 +70,7 @@ async def get_full_order_response(db: AsyncSession, order_id: UUID) -> OrderResp
         buyer_phone=row.buyer_phone,
         seller_name=row.seller_name,
         seller_phone=row.seller_phone,
+        seller_id=row.seller_id,
         has_buyer_rated=row.has_buyer_rated,
         cancellation_reason=row.Order.cancellation_reason,
         payment_status=row.Order.payment_status.value if row.Order.payment_status else None,
@@ -186,6 +188,7 @@ async def list_orders(
             BuyerUser.phone_whatsapp.label("buyer_phone"),
             SellerUser.full_name.label("seller_name"),
             SellerUser.phone_whatsapp.label("seller_phone"),
+            Product.seller_id.label("seller_id"),
             has_buyer_rated_sub
         )
         .join(Product, Order.product_id == Product.id)
@@ -221,6 +224,7 @@ async def list_orders(
             buyer_phone=row.buyer_phone,
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
+            seller_id=row.seller_id,
             has_buyer_rated=row.has_buyer_rated,
             cancellation_reason=order.cancellation_reason,
             payment_status=order.payment_status.value if order.payment_status else None,
@@ -270,6 +274,7 @@ async def list_incoming_orders(
             BuyerUser.phone_whatsapp.label("buyer_phone"),
             SellerUser.full_name.label("seller_name"),
             SellerUser.phone_whatsapp.label("seller_phone"),
+            Product.seller_id.label("seller_id"),
             has_buyer_rated_sub
         )
         .join(Product, Order.product_id == Product.id)
@@ -300,6 +305,7 @@ async def list_incoming_orders(
             buyer_phone=row.buyer_phone,
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
+            seller_id=row.seller_id,
             has_buyer_rated=row.has_buyer_rated,
             cancellation_reason=order.cancellation_reason,
             payment_status=order.payment_status.value if order.payment_status else None,
@@ -343,6 +349,7 @@ async def list_my_purchases(
             BuyerUser.phone_whatsapp.label("buyer_phone"),
             SellerUser.full_name.label("seller_name"),
             SellerUser.phone_whatsapp.label("seller_phone"),
+            Product.seller_id.label("seller_id"),
             has_buyer_rated_sub
         )
         .join(Product, Order.product_id == Product.id)
@@ -373,6 +380,7 @@ async def list_my_purchases(
             buyer_phone=row.buyer_phone,
             seller_name=row.seller_name,
             seller_phone=row.seller_phone,
+            seller_id=row.seller_id,
             has_buyer_rated=row.has_buyer_rated,
             cancellation_reason=order.cancellation_reason,
             payment_status=order.payment_status.value if order.payment_status else None,

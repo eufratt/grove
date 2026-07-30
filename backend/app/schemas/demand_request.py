@@ -22,6 +22,7 @@ class SupplyCommitmentSummary(BaseModel):
     committed_at: datetime
     petani_name: Optional[str] = None
     petani_phone: Optional[str] = None
+    petani_id: Optional[UUID] = None
 
     class Config:
         from_attributes = True

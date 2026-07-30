@@ -28,6 +28,7 @@ class OrderResponse(BaseModel):
     buyer_phone: Optional[str] = None
     seller_name: Optional[str] = None
     seller_phone: Optional[str] = None
+    seller_id: Optional[UUID] = None
 
     # Escrow payment fields
     payment_status: Optional[str] = None
