@@ -201,16 +201,6 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
           <div>
             <h4 className="font-sans text font-bold text-gr-ink flex items-center gap-2">
               {otherName}
-              {otherUser.role && (
-                <span className={cn(
-                  "font-mono text-[9px] uppercase tracking-widest font-bold",
-                  otherUser.role === 'PETANI' 
-                    ? "text-gr-board" 
-                    : "text-gr-down"
-                )}>
-                  {otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli'}
-                </span>
-              )}
             </h4>
             
             {/* Realtime Status Indicator */}

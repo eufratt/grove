@@ -149,24 +149,14 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                           {lastMsg ? lastMsg.content : 'Belum ada pesan'}
                         </p>
 
-                        {/* Badges footer */}
-                        <div className="mt-2 flex items-center justify-between gap-2">
-                          <span className={cn(
-                            "font-mono text-[9px] uppercase tracking-widest font-bold",
-                            otherUser.role === 'PETANI' 
-                              ? "text-gr-board" 
-                              : "text-gr-down"
-                          )}>
-                            {otherUser.role === 'PETANI' ? 'Penjual' : 'Pembeli'}
-                          </span>
-                          
-                          {/* Unread badge */}
-                          {c.unread_count > 0 && (
-                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-sm flex items-center justify-center border border-white dark:border-black animate-pulse ">
+                        {/* Unread badge */}
+                        {c.unread_count > 0 && (
+                          <div className="mt-2 flex justify-end">
+                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-sm flex items-center justify-center border border-white dark:border-black animate-pulse">
                               {c.unread_count}
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Link>
