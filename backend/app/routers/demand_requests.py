@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func, text, or_
 from app.db import get_db
 from app.models.user import User, UserRole
 from app.models.demand_request import DemandRequest, DemandRequestStatus, SupplyCommitment
@@ -203,12 +203,16 @@ async def list_committed_demand_requests(
             )
             .where(
                 DemandRequest.buyer_id == current_user.id,
-                DemandRequest.quantity_kg_committed > 0
+                or_(
+                    DemandRequest.commitments.any(),
+                    select(DemandTransaction.id).where(
+                        DemandTransaction.demand_request_id == DemandRequest.id
+                    ).exists()
+                )
             )
             .order_by(DemandRequest.created_at.desc())
         )
     elif current_user.role == UserRole.PETANI:
-        from sqlalchemy import or_
         stmt = (
             select(DemandRequest)
             .options(
@@ -600,7 +604,14 @@ async def commit_supply_to_demand(
             detail="Permintaan sudah tidak terbuka untuk komitmen"
         )
 
-    remaining_kg = max(0.0, request.quantity_kg_needed - request.quantity_kg_committed)
+    # Calculate remaining kg needed based on total commitments from the database
+    stmt_sum = select(func.sum(SupplyCommitment.quantity_kg_committed)).where(
+        SupplyCommitment.demand_request_id == id
+    )
+    res_sum = await db.execute(stmt_sum)
+    total_committed = res_sum.scalar() or 0.0
+
+    remaining_kg = max(0.0, request.quantity_kg_needed - total_committed)
     if body.quantity_kg > remaining_kg:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -615,11 +626,6 @@ async def commit_supply_to_demand(
     )
 
     db.add(commitment)
-    
-    # Increment total committed on the demand request
-    request.quantity_kg_committed += body.quantity_kg
-    if request.quantity_kg_committed >= request.quantity_kg_needed:
-        request.status = DemandRequestStatus.TERPENUHI
 
     await db.commit()
     await db.refresh(commitment)
