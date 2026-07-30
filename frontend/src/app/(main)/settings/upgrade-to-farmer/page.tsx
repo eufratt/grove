@@ -92,7 +92,7 @@ export default function UpgradeToFarmerPage() {
         </div>
 
         <div className="flex flex-col items-center text-center pt-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-line bg-gr-paper text-gr-ink mb-4 ">
+          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-gr-line bg-gr-paper text-gr-ink mb-4 ">
             <Store size={22} />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-gr-ink">

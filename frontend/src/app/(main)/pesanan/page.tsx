@@ -1231,7 +1231,7 @@ function DemandCard({
                 <div className="space-y-2">
                   <div className="w-full bg-gr-line/45 h-2 rounded-full overflow-hidden">
                     <div 
-                      className="bg-gr-board h-full rounded-full transition-all duration-300"
+                      className="bg-gr-board h-full rounded-sm transition-all duration-300"
                       style={{ width: `${Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%` }}
                     />
                   </div>

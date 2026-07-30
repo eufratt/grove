@@ -247,16 +247,16 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             {/* Themed ring avatar */}
             <div className="relative group shrink-0">
               <div 
-                className="relative h-14 w-14 rounded-full bg-white p-0.5 border border-gr-line  transition-transform duration-300 group-hover:scale-102"
+                className="relative h-14 w-14 rounded-sm bg-white p-0.5 border border-gr-line  transition-transform duration-300 group-hover:scale-102"
               >
-                <div className="relative h-full w-full rounded-full bg-gr-paper/50 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase">
+                <div className="relative h-full w-full rounded-sm bg-gr-paper/50 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-lg font-bold uppercase">
                   {farmer.avatar_url ? (
                     <Image 
                       src={farmer.avatar_url} 
                       alt={farmer.full_name} 
                       width={56} 
                       height={56} 
-                      className="h-full w-full object-cover rounded-full" 
+                      className="h-full w-full object-cover rounded-sm" 
                     />
                   ) : (
                     <span className="font-display font-bold text-gr-ink opacity-40">

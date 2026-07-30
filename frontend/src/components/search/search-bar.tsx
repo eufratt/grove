@@ -100,7 +100,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
         <input
           type="text"
-          className="block w-full bg-white/90 hover:bg-white focus:bg-white border border-gr-line hover:border-gr-ink-soft/40 focus:border-gr-board rounded-full py-2.5 pl-10 pr-9 font-sans text-xs text-gr-ink placeholder:text-gr-ink-soft/50 focus:outline-none focus:ring-1 focus:ring-gr-board/20 transition-all "
+          className="block w-full bg-white/90 hover:bg-white focus:bg-white border border-gr-line hover:border-gr-ink-soft/40 focus:border-gr-board rounded-sm py-2.5 pl-10 pr-9 font-sans text-xs text-gr-ink placeholder:text-gr-ink-soft/50 focus:outline-none focus:ring-1 focus:ring-gr-board/20 transition-all "
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -134,7 +134,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                   recognition.onend = () => setLoadingInternal(false);
                 }
               }}
-              className="p-1 rounded-full hover:bg-gr-paper text-gr-ink-soft hover:text-gr-board transition-colors cursor-pointer"
+              className="p-1 rounded-sm hover:bg-gr-paper text-gr-ink-soft hover:text-gr-board transition-colors cursor-pointer"
               title="Pencarian Suara (Bicara untuk mencari)"
               aria-label="Pencarian suara"
             >
@@ -153,7 +153,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 setQuery('');
                 onClear();
               }}
-              className="p-0.5 rounded-full hover:bg-gr-paper text-gr-ink-soft hover:text-gr-ink transition-colors cursor-pointer"
+              className="p-0.5 rounded-sm hover:bg-gr-paper text-gr-ink-soft hover:text-gr-ink transition-colors cursor-pointer"
               title="Hapus pencarian"
             >
               <X className="h-3.5 w-3.5" />

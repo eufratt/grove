@@ -9,7 +9,7 @@ export default function ChatIndexPage() {
       {/* Decorative crop dots pattern in background */}
       <div className="absolute inset-0 opacity-[0.015] bg-radial from-gr-board" />
       
-      <div className="w-14 h-14 rounded-2xl bg-gr-board/5 border border-gr-board/10 flex items-center justify-center text-gr-board mb-5  relative">
+      <div className="w-14 h-14 rounded-sm bg-gr-board/5 border border-gr-board/10 flex items-center justify-center text-gr-board mb-5  relative">
         <MessageCircle size={24} />
         <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gr-up opacity-75"></span>

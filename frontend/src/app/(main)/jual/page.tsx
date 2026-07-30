@@ -358,7 +358,7 @@ export default function JualPage() {
                   onClick={() => fileInputRef.current?.click()}
                   className="group flex cursor-pointer flex-col items-center space-y-4 text-gr-ink-soft/60 transition-colors hover:text-gr-board"
                 >
-                  <div className="rounded-full border border-gr-line p-6 bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-105 ">
+                  <div className="rounded-sm border border-gr-line p-6 bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-105 ">
                     <Camera size={44} className="text-gr-ink-soft" />
                   </div>
                   <span className="font-mono text-xs uppercase tracking-widest font-bold">

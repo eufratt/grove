@@ -169,7 +169,7 @@ export default function PermintaanSayaPage() {
                       {/* Bar indicator */}
                       <div className="w-full bg-gr-paper h-2 rounded-full overflow-hidden border border-gr-line">
                         <div 
-                          className="bg-gr-board h-full rounded-full transition-all duration-300"
+                          className="bg-gr-board h-full rounded-sm transition-all duration-300"
                           style={{ width: `${percent}%` }}
                         />
                       </div>

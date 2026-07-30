@@ -102,9 +102,9 @@ export default function LengkapiProfilPage() {
       <BgPattern />
       <Glow color="var(--gr-orange)" position="center" className="opacity-15" />
 
-      <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/5 bg-gr-bg-elevated p-10 backdrop-blur-xl ">
+      <div className="z-10 w-full max-w-md space-y-8 rounded-sm border border-white/5 bg-gr-bg-elevated p-10 backdrop-blur-xl ">
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-6 ">
+          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-6 ">
             <UserCheck size={24} />
           </div>
           <h2 className="font-display text-4xl font-semibold tracking-tight text-gr-text-primary">

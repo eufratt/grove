@@ -246,7 +246,7 @@ export const MapView: React.FC<MapViewProps> = ({
     <div className={cn("h-full w-full overflow-hidden relative bg-gr-paper", className)}>
       {/* Location warning alert banner */}
       {locationError && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-11/12 max-w-md bg-gr-paper/95 border border-gr-line text-gr-ink px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest rounded-full  backdrop-blur-md text-center flex items-center justify-center gap-2">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-11/12 max-w-md bg-gr-paper/95 border border-gr-line text-gr-ink px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest rounded-sm  backdrop-blur-md text-center flex items-center justify-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-gr-down animate-pulse" />
           <span>{locationError}</span>
         </div>

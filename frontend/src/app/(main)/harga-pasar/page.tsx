@@ -927,7 +927,7 @@ export default function HargaPasarPage() {
                             <div className="w-full">
                               <div className="w-full h-1.5 bg-gr-line rounded-full overflow-hidden">
                                 <div 
-                                  className="h-full bg-gr-board rounded-full transition-all duration-300" 
+                                  className="h-full bg-gr-board rounded-sm transition-all duration-300" 
                                   style={{ width: `${Math.min(100, Math.round((req.quantity_kg_committed / req.quantity_kg_needed) * 100))}%` }} 
                                 />
                               </div>

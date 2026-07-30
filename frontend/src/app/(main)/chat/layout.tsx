@@ -33,7 +33,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   };
   return (
     <div className="max-w-[1150px] w-full mx-auto px-4 md:px-8 py-4 md:py-6 h-[calc(100vh-100px)] md:h-[calc(100vh-120px)] min-h-[500px]">
-      <div className="w-full flex bg-white/70 dark:bg-[#1E1812]/50 backdrop-blur-md border border-gr-line/80 h-full rounded-2xl overflow-hidden  transition-all">
+      <div className="w-full flex bg-white/70 dark:bg-[#1E1812]/50 backdrop-blur-md border border-gr-line/80 h-full rounded-sm overflow-hidden  transition-all">
         
         {/* Left Pane: Inbox / Conversation List */}
         <div 
@@ -51,7 +51,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
               <span className="font-sans text-xs uppercase tracking-wider font-bold text-gr-board">Obrolan</span>
             </div>
             {conversations.length > 0 && (
-              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full bg-gr-board/10 text-gr-board font-bold">
+              <span className="font-mono text-[9px] px-2 py-0.5 rounded-sm bg-gr-board/10 text-gr-board font-bold">
                 {conversations.length}
               </span>
             )}
@@ -62,8 +62,8 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             {loading && conversations.length === 0 ? (
               <div className="space-y-2 p-1 animate-pulse">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-transparent">
-                    <div className="w-9 h-9 rounded-full bg-gr-ink/10 flex-shrink-0" />
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-sm bg-white/40 dark:bg-white/5 border border-transparent">
+                    <div className="w-9 h-9 rounded-sm bg-gr-ink/10 flex-shrink-0" />
                     <div className="flex-1 min-w-0 space-y-2">
                       <div className="flex justify-between items-center">
                         <div className="h-3 w-20 bg-gr-ink/15 rounded-md" />
@@ -75,12 +75,12 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                 ))}
               </div>
             ) : error ? (
-              <div className="p-4 text-center text-xs text-gr-down font-mono bg-gr-down/5 rounded-xl border border-gr-down/10 mx-2 mt-2">
+              <div className="p-4 text-center text-xs text-gr-down font-mono bg-gr-down/5 rounded-sm border border-gr-down/10 mx-2 mt-2">
                 {error}
               </div>
             ) : conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-6 text-center gap-3 h-full min-h-[300px]">
-                <div className="w-12 h-12 rounded-full bg-gr-board/5 flex items-center justify-center border border-gr-line/60 text-gr-board/40">
+                <div className="w-12 h-12 rounded-sm bg-gr-board/5 flex items-center justify-center border border-gr-line/60 text-gr-board/40">
                   <MessageCircle size={22} />
                 </div>
                 <div>
@@ -109,7 +109,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                     key={c.id}
                     href={`/chat/${c.id}`}
                     className={cn(
-                      "block p-3 rounded-xl border border-transparent transition-all duration-200 cursor-pointer relative",
+                      "block p-3 rounded-sm border border-transparent transition-all duration-200 cursor-pointer relative",
                       isActive 
                         ? "bg-white/80 dark:bg-white/10  border-gr-line/40 font-medium" 
                         : "hover:bg-white/40 dark:hover:bg-white/5 hover:border-gr-line/20"
@@ -117,7 +117,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                   >
                     <div className="flex items-start gap-3">
                       {/* Avatar initials with style */}
-                      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gr-board/10 border border-gr-board/20 flex items-center justify-center font-sans font-bold text-xs text-gr-board ">
+                      <div className="flex-shrink-0 w-9 h-9 rounded-sm bg-gr-board/10 border border-gr-board/20 flex items-center justify-center font-sans font-bold text-xs text-gr-board ">
                         {initials}
                       </div>
 
@@ -150,7 +150,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                           
                           {/* Unread badge */}
                           {c.unread_count > 0 && (
-                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-full flex items-center justify-center border border-white dark:border-black animate-pulse ">
+                            <span className="bg-gr-down text-white text-[9px] font-mono font-bold h-5 min-w-5 px-1 rounded-sm flex items-center justify-center border border-white dark:border-black animate-pulse ">
                               {c.unread_count}
                             </span>
                           )}

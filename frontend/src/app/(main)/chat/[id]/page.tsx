@@ -145,28 +145,28 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
         {/* Messages Skeleton */}
         <div className="flex-grow overflow-y-auto p-4 space-y-4">
           <div className="flex justify-start">
-            <div className="h-9 w-[45%] bg-gr-ink/10 rounded-2xl rounded-tl-xs" />
+            <div className="h-9 w-[45%] bg-gr-ink/10 rounded-sm rounded-tl-xs" />
           </div>
           <div className="flex justify-end">
-            <div className="h-12 w-[55%] bg-gr-ink/15 rounded-2xl rounded-tr-xs" />
+            <div className="h-12 w-[55%] bg-gr-ink/15 rounded-sm rounded-tr-xs" />
           </div>
           <div className="flex justify-start">
-            <div className="h-7 w-[30%] bg-gr-ink/10 rounded-2xl rounded-tl-xs" />
+            <div className="h-7 w-[30%] bg-gr-ink/10 rounded-sm rounded-tl-xs" />
           </div>
           <div className="flex justify-end">
-            <div className="h-9 w-[40%] bg-gr-ink/15 rounded-2xl rounded-tr-xs" />
+            <div className="h-9 w-[40%] bg-gr-ink/15 rounded-sm rounded-tr-xs" />
           </div>
           <div className="flex justify-center my-4">
-            <div className="h-6 w-[200px] bg-gr-ink/10 rounded-full" />
+            <div className="h-6 w-[200px] bg-gr-ink/10 rounded-sm" />
           </div>
           <div className="flex justify-start">
-            <div className="h-10 w-[50%] bg-gr-ink/10 rounded-2xl rounded-tl-xs" />
+            <div className="h-10 w-[50%] bg-gr-ink/10 rounded-sm rounded-tl-xs" />
           </div>
         </div>
         {/* Input Skeleton */}
         <div className="p-4 border-t border-gr-line/50 bg-white/40 dark:bg-black/25 flex gap-2">
-          <div className="flex-grow h-10 bg-gr-ink/10 rounded-full" />
-          <div className="h-10 w-10 bg-gr-ink/15 rounded-full" />
+          <div className="flex-grow h-10 bg-gr-ink/10 rounded-sm" />
+          <div className="h-10 w-10 bg-gr-ink/15 rounded-sm" />
         </div>
       </div>
     );
@@ -180,7 +180,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
         <div className="flex items-center gap-3">
           <button 
             onClick={() => router.push('/chat')}
-            className="md:hidden p-2 -ml-1 text-gr-ink-soft hover:text-gr-ink hover:bg-gr-line/30 rounded-full transition-colors cursor-pointer"
+            className="md:hidden p-2 -ml-1 text-gr-ink-soft hover:text-gr-ink hover:bg-gr-line/30 rounded-sm transition-colors cursor-pointer"
           >
             <ArrowLeft size={16} />
           </button>
@@ -230,7 +230,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
         {messages.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center py-8 text-center px-4 max-w-sm mx-auto h-full gap-5">
             {!product && (
-              <div className="w-12 h-12 rounded-full bg-gr-board/5 flex items-center justify-center border border-gr-line/40 text-gr-board/40">
+              <div className="w-12 h-12 rounded-sm bg-gr-board/5 flex items-center justify-center border border-gr-line/40 text-gr-board/40">
                 <Sparkles size={20} />
               </div>
             )}
@@ -261,7 +261,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
                     <button
                       key={idx}
                       onClick={() => handleIcebreakerClick(ib)}
-                      className="text-left px-3 py-2 bg-white/80 dark:bg-white/5 border border-gr-line/60 hover:bg-gr-board/5 hover:border-gr-board/40 rounded-xl text-[10px] text-gr-ink font-sans transition-all leading-normal cursor-pointer hover:-translate-y-px"
+                      className="text-left px-3 py-2 bg-white/80 dark:bg-white/5 border border-gr-line/60 hover:bg-gr-board/5 hover:border-gr-board/40 rounded-sm text-[10px] text-gr-ink font-sans transition-all leading-normal cursor-pointer hover:-translate-y-px"
                     >
                       {ib}
                     </button>
@@ -295,7 +295,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
                   
                   <Link
                     href={`/produk/${m.products.id}`}
-                    className="flex items-center gap-3 p-3 bg-[#EDE6D1]/90 dark:bg-white/5 border border-dashed border-gr-board/40 rounded-xl max-w-xs w-full text-left transition-all hover:bg-[#EDE6D1]  group relative overflow-hidden"
+                    className="flex items-center gap-3 p-3 bg-[#EDE6D1]/90 dark:bg-white/5 border border-dashed border-gr-board/40 rounded-sm max-w-xs w-full text-left transition-all hover:bg-[#EDE6D1]  group relative overflow-hidden"
                   >
                     <div className="absolute inset-0 opacity-[0.02] bg-radial from-gr-board" />
                     <div className="p-2 rounded-lg bg-gr-board/10 text-gr-board flex-shrink-0">
@@ -318,7 +318,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               <div className={cn("flex flex-col max-w-[75%]", isMe ? "items-end ml-auto" : "items-start mr-auto")}>
                 <div 
                   className={cn(
-                    "px-4 py-3 rounded-2xl font-sans text leading-relaxed  transition-all relative border",
+                    "px-4 py-3 rounded-sm font-sans text leading-relaxed  transition-all relative border",
                     isMe 
                       ? "bg-gr-board text-gr-chalk border-gr-board/30 rounded-tr" 
                       : "bg-white dark:bg-[#1E1812] text-gr-ink border-gr-line/50 rounded-tl"
@@ -378,12 +378,12 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Tulis pesan ke mitra tani..."
-            className="flex-grow px-5 py-2.5 bg-gr-paper/30 border border-gr-line rounded-full font-sans text text-gr-ink placeholder-gr-ink-soft focus:outline-none focus:border-gr-board focus:ring-2 focus:ring-gr-board/20 transition-all"
+            className="flex-grow px-5 py-2.5 bg-gr-paper/30 border border-gr-line rounded-sm font-sans text text-gr-ink placeholder-gr-ink-soft focus:outline-none focus:border-gr-board focus:ring-2 focus:ring-gr-board/20 transition-all"
           />
           <button
             type="submit"
             disabled={!inputMessage.trim()}
-            className="p-2.5 bg-gr-board text-gr-chalk hover:bg-gr-board/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95  flex-shrink-0"
+            className="p-2.5 bg-gr-board text-gr-chalk hover:bg-gr-board/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95  flex-shrink-0"
           >
             <Send size={15} />
           </button>

@@ -84,7 +84,7 @@ export function LiveStatsHero() {
         {[1, 2, 3].map((i) => (
           <div 
             key={i} 
-            className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center animate-pulse"
+            className="relative overflow-hidden rounded-sm border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center animate-pulse"
           >
             <div className="h-3 w-28 bg-white/10 rounded mb-3" />
             <div className="h-10 w-20 bg-white/10 rounded" />
@@ -97,7 +97,7 @@ export function LiveStatsHero() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mx-auto my-10 relative z-10">
       {/* Card 1: Total Reference Prices */}
-      <Link href="/harga-pasar" className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 hover:bg-white/[0.03] group cursor-pointer">
+      <Link href="/harga-pasar" className="relative overflow-hidden rounded-sm border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 hover:bg-white/[0.03] group cursor-pointer">
         <Glow color="var(--gr-green)" position="center" className="opacity-5 pointer-events-none scale-[0.6] group-hover:opacity-10 transition-opacity" />
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1 z-10">
           Total Acuan Harga
@@ -108,7 +108,7 @@ export function LiveStatsHero() {
       </Link>
 
       {/* Card 2: Last Scraped Time */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 group">
+      <div className="relative overflow-hidden rounded-sm border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 group">
         <Glow color="var(--gr-green)" position="center" className="opacity-5 pointer-events-none scale-[0.6] group-hover:opacity-10 transition-opacity" />
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1 z-10">
           Pembaruan Terakhir
@@ -119,7 +119,7 @@ export function LiveStatsHero() {
       </div>
 
       {/* Card 3: Active Products Count */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 group">
+      <div className="relative overflow-hidden rounded-sm border border-white/5 bg-gr-bg-elevated p-8 min-h-[140px] flex flex-col justify-center transition-all duration-300 hover:border-gr-green/20 group">
         <Glow color="var(--gr-green)" position="center" className="opacity-5 pointer-events-none scale-[0.6] group-hover:opacity-10 transition-opacity" />
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gr-text-primary/40 mb-1 z-10">
           Produk Aktif Petani

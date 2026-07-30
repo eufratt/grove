@@ -46,7 +46,7 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
   return (
     <form 
       onSubmit={handleSubmit} 
-      className="mt-4 p-4 rounded-xl border border-gr-line bg-gr-bg-elevated flex flex-col sm:flex-row sm:items-end gap-4"
+      className="mt-4 p-4 rounded-sm border border-gr-line bg-gr-bg-elevated flex flex-col sm:flex-row sm:items-end gap-4"
     >
       {/* Star Rating Select */}
       <div className="flex-none">

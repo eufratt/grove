@@ -224,7 +224,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
 
       {/* Floating Success Toast */}
       {successToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gr-green text-gr-bg px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest  animate-bounce">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gr-green text-gr-bg px-6 py-3 rounded-sm font-mono text-xs uppercase tracking-widest  animate-bounce">
           {successToast}
         </div>
       )}

@@ -91,10 +91,10 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
       {/* Floating Action Button (FAB) */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-gr-green text-gr-bg  hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer border border-white/10"
+        className="fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-sm bg-gr-green text-gr-bg  hover:scale-105 active:scale-95 transition-transform duration-200 cursor-pointer border border-white/10"
       >
         <ShoppingCart size={24} />
-        <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gr-live font-mono text-xs font-bold text-white  animate-pulse">
+        <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-sm bg-gr-live font-mono text-xs font-bold text-white  animate-pulse">
           {cart.length}
         </span>
       </button>
@@ -125,7 +125,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
           <button
             onClick={() => !checkingOut && setIsOpen(false)}
             disabled={checkingOut}
-            className="rounded-full p-2 text-gr-text-primary/60 hover:text-gr-text-primary hover:bg-gr-ink/5 disabled:opacity-30 transition-colors"
+            className="rounded-sm p-2 text-gr-text-primary/60 hover:text-gr-text-primary hover:bg-gr-ink/5 disabled:opacity-30 transition-colors"
           >
             <X size={20} />
           </button>
@@ -149,7 +149,7 @@ export function CartSummary({ cart, products, onRemoveFromCart, onCheckoutSucces
 
           {!checkingOut && results && (
             <div className="space-y-6 py-6">
-              <div className="flex items-center gap-3 bg-white/5 p-4 border border-white/10 rounded-xl">
+              <div className="flex items-center gap-3 bg-white/5 p-4 border border-white/10 rounded-sm">
                 <CheckCircle2 className="text-gr-green shrink-0" size={32} />
                 <div>
                   <h3 className="font-display text-lg text-gr-text-primary">Checkout Selesai</h3>

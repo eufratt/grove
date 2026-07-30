@@ -461,7 +461,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 {/* Actual Progress Bar */}
                 <div className="w-full bg-gr-line/45 h-2 rounded-full overflow-hidden">
                   <div 
-                    className="bg-gr-board h-full rounded-full transition-all duration-500 ease-out"
+                    className="bg-gr-board h-full rounded-sm transition-all duration-500 ease-out"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>

@@ -245,17 +245,17 @@ function BerandaContent() {
                         <div className="flex items-center gap-3">
                           {/* Avatar */}
                           <div 
-                            className="relative h-12 w-12 rounded-full bg-white p-0.5 border border-gr-line shrink-0"
+                            className="relative h-12 w-12 rounded-sm bg-white p-0.5 border border-gr-line shrink-0"
                             style={{ borderColor: farmer.theme_color || '#1b4332' }}
                           >
-                            <div className="h-full w-full rounded-full bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase">
+                            <div className="h-full w-full rounded-sm bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase">
                               {farmer.avatar_url ? (
                                 <Image 
                                   src={farmer.avatar_url} 
                                   alt={farmer.full_name} 
                                   width={48} 
                                   height={48} 
-                                  className="h-full w-full object-cover rounded-full" 
+                                  className="h-full w-full object-cover rounded-sm" 
                                 />
                               ) : (
                                 <span className="font-display font-bold text-gr-ink opacity-40">
@@ -319,7 +319,7 @@ function BerandaContent() {
                 ))}
               </div>
             ) : isSearchActive && (
-              <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-gr-line/40 rounded-2xl bg-white/20">
+              <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-gr-line/40 rounded-sm bg-white/20">
                 <p className="font-sans text-sm text-gr-text-primary/45 italic">
                   Tidak ada produk hasil panen yang cocok dengan pencarian Anda dari petani ini.
                 </p>
@@ -331,7 +331,7 @@ function BerandaContent() {
                 <button
                   onClick={() => page > 1 && fetchProducts(page - 1)}
                   disabled={page === 1}
-                  className="flex items-center gap-1 px-4 py-2 rounded-full border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer  animate-fade-in"
+                  className="flex items-center gap-1 px-4 py-2 rounded-sm border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer  animate-fade-in"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Sebelumnya
@@ -343,7 +343,7 @@ function BerandaContent() {
                     <button
                       key={p}
                       onClick={() => p !== page && fetchProducts(p)}
-                      className={`flex items-center justify-center min-w-8 h-8 rounded-full border text-xs font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer  ${
+                      className={`flex items-center justify-center min-w-8 h-8 rounded-sm border text-xs font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer  ${
                         p === page
                           ? 'border-gr-board bg-gr-board text-gr-chalk'
                           : 'border-gr-line/60 bg-white/20 text-gr-ink hover:bg-white/60 hover:border-gr-ink'
@@ -357,7 +357,7 @@ function BerandaContent() {
                 <button
                   onClick={() => hasMore && fetchProducts(page + 1)}
                   disabled={!hasMore}
-                  className="flex items-center gap-1 px-4 py-2 rounded-full border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer  animate-fade-in"
+                  className="flex items-center gap-1 px-4 py-2 rounded-sm border border-gr-line bg-white/40 hover:bg-white/85 text-gr-ink font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:border-gr-ink hover:translate-x disabled:translate-x-0 disabled:opacity-30 disabled:pointer-events-none disabled:border-gr-line/40 disabled:bg-white/15 cursor-pointer  animate-fade-in"
                 >
                   Berikutnya
                   <ChevronRight className="h-4 w-4" />
@@ -366,7 +366,7 @@ function BerandaContent() {
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-white/10 rounded-3xl bg-white/2">
+          <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-white/10 rounded-sm bg-white/2">
             <span className="font-display text-3xl text-gr-text-primary/20">
               Tidak ada hasil yang ditemukan
             </span>

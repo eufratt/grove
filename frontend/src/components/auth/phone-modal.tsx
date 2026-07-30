@@ -57,20 +57,20 @@ export function PhoneModal({ isOpen, onClose, onSuccess }: PhoneModalProps) {
       />
 
       {/* Modal Container */}
-      <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-gr-bg-elevated p-8 backdrop-blur-xl  space-y-6 relative animate-in fade-in zoom-in duration-200">
+      <div className="z-10 w-full max-w-md overflow-hidden rounded-sm border border-white/10 bg-gr-bg-elevated p-8 backdrop-blur-xl  space-y-6 relative animate-in fade-in zoom-in duration-200">
         
         {/* Close Button */}
         <button
           onClick={onClose}
           disabled={loading}
-          className="absolute top-4 right-4 text-gr-text-primary/40 hover:text-gr-text-primary hover:bg-gr-ink/5 p-2 rounded-full transition-colors disabled:opacity-30"
+          className="absolute top-4 right-4 text-gr-text-primary/40 hover:text-gr-text-primary hover:bg-gr-ink/5 p-2 rounded-sm transition-colors disabled:opacity-30"
         >
           <X size={18} />
         </button>
 
         {/* Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-4 ">
+          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-gr-orange/20 bg-gr-orange/5 text-gr-orange mb-4 ">
             <Phone size={20} />
           </div>
           <h3 className="font-display text-2xl font-semibold text-gr-text-primary">

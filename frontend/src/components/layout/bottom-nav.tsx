@@ -89,7 +89,7 @@ export function BottomNav() {
               )}
             >
               <div className={cn(
-                "p-1.5 rounded-full transition-all duration-300",
+                "p-1.5 rounded-sm transition-all duration-300",
                 isActive ? "bg-gr-board/5" : ""
               )}>
                 <Icon size={18} />

@@ -38,7 +38,7 @@ export function AccessibilityWidget() {
         aria-label="Alihkan Mode Aksesibilitas Petani (Teks Besar & Kontras Tinggi)"
         title={isAccessibleMode ? "Matikan Mode Aksesibilitas" : "Aktifkan Mode Aksesibilitas (Teks Besar & Kontras Tinggi)"}
         className={cn(
-          "group relative flex items-center justify-center p-3 rounded-full  border transition-all duration-300 cursor-pointer",
+          "group relative flex items-center justify-center p-3 rounded-sm  border transition-all duration-300 cursor-pointer",
           isAccessibleMode
             ? "bg-gr-board text-gr-chalk border-gr-board ring-2 ring-gr-board/40 scale-105"
             : "bg-gr-paper text-gr-ink border-gr-line hover:border-gr-board hover:bg-white"

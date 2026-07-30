@@ -175,7 +175,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
   if (currentIndex >= requests.length) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-        <div className="h-20 w-20 rounded-full bg-gr-board/5 border border-gr-line flex items-center justify-center text-gr-board/40">
+        <div className="h-20 w-20 rounded-sm bg-gr-board/5 border border-gr-line flex items-center justify-center text-gr-board/40">
           <RefreshCw size={40} />
         </div>
         <div>
@@ -183,7 +183,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
           <p className="mt-2 font-sans text-sm text-gr-ink-soft">Tidak ada permintaan komoditas lagi saat ini.</p>
         </div>
         <Button onClick={() => { setCurrentSetIndex(0); setFocusedCardId(null); onEmpty(); }}
-          className="bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-sans font-bold uppercase tracking-widest px-8 cursor-pointer rounded-full py-3">
+          className="bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-sans font-bold uppercase tracking-widest px-8 cursor-pointer rounded-sm py-3">
           Muat Ulang
         </Button>
       </div>
@@ -269,11 +269,11 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                   exit={{ scale: 0.9, y: 20, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 26 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white border border-gr-line p-6 sm:p-7 rounded-3xl w-full max-w-sm  cursor-default flex flex-col relative"
+                  className="bg-white border border-gr-line p-6 sm:p-7 rounded-sm w-full max-w-sm  cursor-default flex flex-col relative"
                 >
                   {/* Decorative Icon Header */}
                   <div className="flex items-center gap-3.5 mb-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gr-board/10 text-gr-board">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-gr-board/10 text-gr-board">
                       <Scale size={22} className="stroke-[2.2]" />
                     </div>
                     <div>
@@ -287,7 +287,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                   </div>
 
                   {/* Commodity & Demand summary box */}
-                  <div className="bg-gr-paper/40 border border-gr-line/60 rounded-2xl p-4 mb-5 space-y-2.5">
+                  <div className="bg-gr-paper/40 border border-gr-line/60 rounded-sm p-4 mb-5 space-y-2.5">
                     <div className="flex justify-between items-center">
                       <span className="font-sans text-xs font-semibold text-gr-ink-soft">Komoditas</span>
                       <span className="font-display text-xs font-bold text-gr-board bg-gr-board/10 px-2.5 py-0.5 rounded-sm">
@@ -312,7 +312,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                   </div>
 
                   {commitError && (
-                    <div className="mb-4 rounded-xl bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20 font-sans font-medium">
+                    <div className="mb-4 rounded-sm bg-gr-price-unfair/10 p-3 text-xs text-gr-price-unfair border border-gr-price-unfair/20 font-sans font-medium">
                       {commitError}
                     </div>
                   )}
@@ -330,7 +330,7 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                           placeholder="Contoh: 50"
                           value={commitQty}
                           onChange={(e) => setCommitQty(e.target.value)}
-                          className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-4 pr-12 py-3 rounded-2xl font-mono text-sm font-bold focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
+                          className="w-full bg-gr-paper/30 border border-gr-line hover:border-gr-ink-soft/30 focus:border-gr-board/50 text-gr-ink pl-4 pr-12 py-3 rounded-sm font-mono text-sm font-bold focus:outline-none transition-all placeholder:text-gr-ink-soft/40"
                           autoFocus
                         />
                         <span className="absolute right-4 font-mono text-xs font-bold text-gr-ink-soft/40">
@@ -369,14 +369,14 @@ export const SwipeDeck: React.FC<SwipeDeckProps> = ({
                       <button
                         type="button"
                         onClick={() => setCommitRequest(null)}
-                        className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/60 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-2xl transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                        className="flex-1 bg-gr-paper/30 hover:bg-gr-paper/60 border border-gr-line text-gr-ink font-sans text-xs font-semibold py-3 rounded-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                       >
                         Batal
                       </button>
                       <button
                         type="submit"
                         disabled={submittingCommit}
-                        className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]  "
+                        className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-sans text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]  "
                       >
                         {submittingCommit ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -550,7 +550,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
         </motion.div>
 
         {/* Enlarged card face */}
-        <div className="h-full w-full rounded-2xl flex flex-col overflow-hidden "
+        <div className="h-full w-full rounded-sm flex flex-col overflow-hidden "
           style={{ background: color.bg, border: `1.5px solid ${color.border}` }}>
 
           {/* Header */}
@@ -622,7 +622,7 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
                 <span className="text-gr-ink font-semibold">{needed.toLocaleString('id-ID')} KG</span>
               </div>
               <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: color.border }}>
-                <div className="h-full rounded-full bg-gr-board transition-all" style={{ width: `${percent}%` }} />
+                <div className="h-full rounded-sm bg-gr-board transition-all" style={{ width: `${percent}%` }} />
               </div>
               <div className="flex justify-between text-[9px] font-mono">
                 <span className="font-semibold text-gr-board">{percent}% terpenuhi</span>
@@ -643,11 +643,11 @@ const FocusedCardOverlay: React.FC<FocusedCardOverlayProps> = ({
       {/* Action buttons below the card */}
       <div className="flex items-center gap-10" style={{ pointerEvents: 'auto' }}>
         <button onClick={() => onSwipe('left')}
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-gr-price-unfair/30 bg-white text-gr-price-unfair transition-all hover:bg-gr-price-unfair hover:text-white hover:scale-110 active:scale-95 cursor-pointer ">
+          className="flex h-14 w-14 items-center justify-center rounded-sm border border-gr-price-unfair/30 bg-white text-gr-price-unfair transition-all hover:bg-gr-price-unfair hover:text-white hover:scale-110 active:scale-95 cursor-pointer ">
           <X size={24} />
         </button>
         <button onClick={() => onSwipe('right')}
-          className="flex h-16 w-16 items-center justify-center rounded-full border border-gr-green/30 bg-white text-gr-green transition-all hover:bg-gr-green hover:text-white hover:scale-110 active:scale-95 cursor-pointer ">
+          className="flex h-16 w-16 items-center justify-center rounded-sm border border-gr-green/30 bg-white text-gr-green transition-all hover:bg-gr-green hover:text-white hover:scale-110 active:scale-95 cursor-pointer ">
           <Heart size={30} fill="currentColor" />
         </button>
       </div>
@@ -671,7 +671,7 @@ const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => 
   const numPetani = request.num_petani_committed || 0;
 
   return (
-    <div className="h-full w-full rounded-2xl flex flex-col overflow-hidden"
+    <div className="h-full w-full rounded-sm flex flex-col overflow-hidden"
       style={{ background: color.bg, border: `1.5px solid ${color.border}` }}>
 
       {/* Header */}
@@ -716,7 +716,7 @@ const CardFace: React.FC<CardFaceProps> = ({ request, color, showDragHint }) => 
         {/* Progress */}
         <div className="pt-2 space-y-1.5" style={{ borderTop: `1px solid ${color.border}` }}>
           <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: color.border }}>
-            <div className="h-full rounded-full bg-gr-board" style={{ width: `${percent}%` }} />
+            <div className="h-full rounded-sm bg-gr-board" style={{ width: `${percent}%` }} />
           </div>
           <div className="flex justify-between text-[9px] font-mono">
             <span className="font-semibold text-gr-board">{percent}% terpenuhi</span>

@@ -93,7 +93,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
 
           {/* Product Price Dot */}
           <div
-            className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${colorClass}  z-20 transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1)`}
+            className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-sm ${colorClass}  z-20 transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1)`}
             style={{ left: `${position}%`, transform: `translate(-50%, -50%) scale(${animate ? 1 : 0.4})` }}
             title={`Harga: Rp ${Math.round(hargaProduk).toLocaleString('id-ID')} (${deviationText})`}
           />
@@ -107,7 +107,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
       {/* Visual Gauge Component */}
       <div className="relative pt-6 pb-2 px-1">
         {/* Track Container */}
-        <div className="relative w-full h-3 bg-gr-chalk rounded-full border border-gr-line/5 overflow-visible">
+        <div className="relative w-full h-3 bg-gr-chalk rounded-sm border border-gr-line/5 overflow-visible">
           
           {/* Zone Overlays to show color tracks inside the bar */}
           {/* Unfair Zone (0% to 33.3%) */}
@@ -156,7 +156,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
 
             {/* Solid dot */}
             <div 
-              className={`w-4.5 h-4.5 rounded-full ${colorClass} border-2 border-gr-chalk  cursor-pointer transform hover:scale-125 transition-transform duration-200`}
+              className={`w-4.5 h-4.5 rounded-sm ${colorClass} border-2 border-gr-chalk  cursor-pointer transform hover:scale-125 transition-transform duration-200`}
             />
           </div>
 

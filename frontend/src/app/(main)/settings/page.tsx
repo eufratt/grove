@@ -286,8 +286,8 @@ export default function SettingsPage() {
             
             {/* User Profile Mini Header */}
             <div className="flex items-center gap-3 pb-4 border-b border-gr-line/45">
-              <div className="relative h-11 w-11 rounded-full bg-white p-0.5 border border-gr-line shrink-0">
-                <div className="h-full w-full rounded-full bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase">
+              <div className="relative h-11 w-11 rounded-sm bg-white p-0.5 border border-gr-line shrink-0">
+                <div className="h-full w-full rounded-sm bg-gr-paper/40 overflow-hidden flex items-center justify-center text-gr-text-primary font-display text-sm font-bold uppercase">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
@@ -591,9 +591,9 @@ export default function SettingsPage() {
                   <div className="w-full md:w-64 flex flex-col items-center justify-center border-l border-gr-line/30 md:pl-8 pt-6 md:pt-0 pb-2 self-stretch">
                     <div className="relative group shrink-0">
                       {/* Live Image Box */}
-                      <div className="h-28 w-28 rounded-full bg-white p-0.5 border border-gr-line/75  overflow-hidden flex items-center justify-center">
+                      <div className="h-28 w-28 rounded-sm bg-white p-0.5 border border-gr-line/75  overflow-hidden flex items-center justify-center">
                         {avatarUrl ? (
-                          <img src={avatarUrl} alt="Avatar Large" className="h-full w-full object-cover rounded-full" />
+                          <img src={avatarUrl} alt="Avatar Large" className="h-full w-full object-cover rounded-sm" />
                         ) : (
                           <span className="font-display font-bold text-gr-ink opacity-30 text-3xl">
                             {fullName ? fullName.charAt(0) : '?'}
@@ -602,7 +602,7 @@ export default function SettingsPage() {
                       </div>
                       
                       {avatarUploading && (
-                        <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white">
+                        <div className="absolute inset-0 rounded-sm bg-black/40 flex items-center justify-center text-white">
                           <Loader2 size={20} className="animate-spin" />
                         </div>
                       )}
