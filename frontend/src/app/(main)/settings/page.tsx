@@ -409,7 +409,7 @@ export default function SettingsPage() {
                       <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/80 text-sm ">
                         {user?.email ? user.email.split('@')[0] : 'user'}
                       </div>
-                      <span className="block font-mono text text-gr-ink-soft/40 mt-1 uppercase tracking-wider">
+                      <span className="block font-mono text-[9px] text-gr-ink-soft/40 mt-1 uppercase tracking-wider">
                         Username ditautkan otomatis dengan akun Google Anda
                       </span>
                     </div>
@@ -468,7 +468,7 @@ export default function SettingsPage() {
                       </span>
                       <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/85 text-sm  flex justify-between items-center">
                         <span>{formatEmail(user?.email || '')}</span>
-                        <span className="font-mono text uppercase tracking-wider text-gr-up bg-gr-up/10 px-1 py-0.5 rounded-xs border border-gr-up/25 font-bold">Terverifikasi</span>
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-gr-up bg-gr-up/10 px-1.5 py-0.5 rounded-xs border border-gr-up/25 font-bold">Terverifikasi</span>
                       </div>
                     </div>
 
@@ -489,7 +489,7 @@ export default function SettingsPage() {
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                           />
-                          <div className="flex justify-between items-center mt-1 font-mono text text-gr-ink-soft/50">
+                          <div className="flex justify-between items-center mt-1 font-mono text-[9px] text-gr-ink-soft/50">
                             <span>maksimal 1000 karakter</span>
                             <span>{bio.length}/1000</span>
                           </div>
@@ -549,7 +549,7 @@ export default function SettingsPage() {
                               value={bankAccountNumber}
                               onChange={(e) => setBankAccountNumber(e.target.value)}
                             />
-                            <span className="block font-mono text text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
+                            <span className="block font-mono text-[9px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
                               Pencairan dana otomatis akan dikirim ke rekening ini setelah pembeli mengonfirmasi pesanan diterima.
                             </span>
                           </div>
