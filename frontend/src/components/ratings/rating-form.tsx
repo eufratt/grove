@@ -44,16 +44,18 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
-      className="mt-4 flex flex-col sm:flex-row sm:items-end gap-4 bg-transparent w-full"
-    >
-      {/* Star Rating Select */}
-      <div className="flex-none">
-        <p className="font-mono text-[10px] uppercase tracking-wider text-gr-text-primary/60 mb-2">
-          {label || 'Berikan Rating Anda'}
+    <div className="w-full">
+      {label && (
+        <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-3">
+          {label}
         </p>
-        <div className="flex items-center gap-1">
+      )}
+      <form 
+        onSubmit={handleSubmit} 
+        className="flex flex-col sm:flex-row sm:items-center gap-4 bg-transparent w-full"
+      >
+        {/* Star Rating Select */}
+        <div className="flex items-center gap-1 shrink-0">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -67,51 +69,48 @@ export function RatingForm({ transactionType, referenceId, onSuccess, label }: R
                 size={22}
                 className={
                   (hoverScore || score) >= star
-                    ? 'fill-gr-green text-gr-green '
-                    : 'text-gr-text-primary/25'
+                    ? 'fill-gr-board text-gr-board'
+                    : 'text-gr-ink-soft/30'
                 }
               />
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Comment Field */}
-      <div className="flex-1 min-w-0">
-        <label className="block font-sans text-xs text-gr-text-primary/50 mb-1">
-          Komentar (Opsional)
-        </label>
-        <textarea
-          value={comment}
-          onChange={(e) => {
-            setComment(e.target.value);
-            e.target.style.height = '36px';
-            e.target.style.height = `${e.target.scrollHeight}px`;
-          }}
-          placeholder="Tulis ulasan Anda di sini..."
-          rows={1}
-          style={{ height: '36px', minHeight: '36px' }}
-          className="w-full rounded-sm border border-gr-line bg-gr-bg-elevated px-3 py-2 text-xs font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-green focus:outline-none focus:ring-1 focus:ring-gr-green resize-none overflow-hidden"
-        />
-      </div>
-
-      {/* Submit Button */}
-      <div className="flex-none flex flex-col justify-end">
-        {error && (
-          <p className="text-[10px] text-gr-price-unfair mb-1">{error}</p>
-        )}
-        <Button
-          type="submit"
-          disabled={isSubmitting || score === 0}
-          className="w-full sm:w-auto bg-gr-green text-gr-bg hover:bg-gr-green/90 font-sans text-xs font-bold uppercase tracking-widest px-4 h-[36px] rounded-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300 flex items-center justify-center"
-        >
-          {isSubmitting ? (
-            <Loader2 size={14} className="animate-spin text-gr-bg" />
-          ) : (
-            'Kirim'
+ 
+        {/* Comment Field */}
+        <div className="flex-1 min-w-0">
+          <textarea
+            value={comment}
+            onChange={(e) => {
+              setComment(e.target.value);
+              e.target.style.height = '36px';
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            placeholder="Tulis ulasan Anda di sini (opsional)..."
+            rows={1}
+            style={{ height: '36px', minHeight: '36px' }}
+            className="w-full rounded-sm border border-gr-line bg-gr-bg-elevated px-3 py-2 text-xs font-sans text-gr-text-primary placeholder-gr-text-primary/30 focus:border-gr-board focus:outline-none focus:ring-1 focus:ring-gr-board/20 resize-none overflow-hidden"
+          />
+        </div>
+ 
+        {/* Submit Button */}
+        <div className="flex-none flex items-center gap-2">
+          {error && (
+            <p className="text-[10px] text-gr-price-unfair mb-0.5">{error}</p>
           )}
-        </Button>
-      </div>
-    </form>
+          <Button
+            type="submit"
+            disabled={isSubmitting || score === 0}
+            className="w-full sm:w-auto bg-gr-board text-gr-chalk hover:bg-gr-board/90 font-sans text-xs font-bold uppercase tracking-widest px-5 h-[36px] rounded-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300 flex items-center justify-center"
+          >
+            {isSubmitting ? (
+              <Loader2 size={14} className="animate-spin text-gr-chalk" />
+            ) : (
+              'Kirim'
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }

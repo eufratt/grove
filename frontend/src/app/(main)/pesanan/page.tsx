@@ -729,13 +729,12 @@ function OrderCard({
               </h3>
             </Link>
             
-            <div className="mt-2 flex items-baseline gap-1 flex-wrap">
-              <span className="font-display text-2xl font-bold text-gr-ink">
-                {order.quantity_kg}
+            <div className="mt-1.5 flex items-center gap-1.5 flex-wrap font-mono text-xs text-gr-ink-soft">
+              <span className="font-bold text-gr-ink">
+                {order.quantity_kg} KG
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mr-3">KG</span>
               {order.price_per_kg && (
-                <span className="font-mono text-xs text-gr-ink-soft">
+                <span>
                   @ Rp {Math.round(order.price_per_kg).toLocaleString('id-ID')} / KG
                 </span>
               )}
@@ -743,23 +742,12 @@ function OrderCard({
           </div>
         </div>
 
-        {/* Total Price & Toggle Detail Action */}
-        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gr-line/40 shrink-0">
-          <div className="text-left sm:text-right">
-            <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-0.5">Total Tagihan</span>
-            <span className="font-display text-2xl font-bold text-gr-board">
-              {order.price_per_kg ? `Rp ${Math.round(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all  cursor-pointer"
-          >
-            <span>{isExpanded ? 'Sembunyikan' : 'Detail Pesanan'}</span>
-            <span className="text-[10px]">{isExpanded ? '▲' : '▼'}</span>
-          </button>
+        {/* Total Price (Toggle Action is now full-width at the bottom of the card) */}
+        <div className="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gr-line/40 shrink-0">
+          <span className="block font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft font-bold mb-0.5">Total Tagihan</span>
+          <span className="font-display text-2xl font-bold text-gr-board">
+            {order.price_per_kg ? `Rp ${Math.round(order.price_per_kg * order.quantity_kg).toLocaleString('id-ID')}` : '-'}
+          </span>
         </div>
       </div>
 
@@ -792,52 +780,63 @@ function OrderCard({
             {/* SECTION A: STATUS PEMBAYARAN & INFORMASI KONTAK */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
               {/* Payment Status Details */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft flex items-center gap-2">
                   <ShieldCheck size={13} />
                   Status Transaksi
                 </h4>
-                <div className="flex items-center justify-between font-sans text-xs pt-1">
-                  <span className="text-gr-ink-soft">Status Pembayaran</span>
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <span className={cn(
-                      "h-1.5 w-1.5 rounded-full shrink-0",
-                      currentPaymentStatus === 'paid' ? "bg-gr-up" : "bg-amber-500 animate-pulse"
-                    )} />
-                    <span className={cn(
-                      "font-sans text-xs",
-                      currentPaymentStatus === 'paid' ? "text-gr-up" : "text-amber-700"
-                    )}>
-                      {currentPaymentStatus === 'paid' ? 'Lunas' : 'Belum Dibayar'}
-                    </span>
+                <div className="space-y-2.5 pt-1 text-xs font-sans">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gr-ink-soft">Status Pembayaran</span>
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <span className={cn(
+                        "h-1.5 w-1.5 rounded-full shrink-0",
+                        currentPaymentStatus === 'paid' ? "bg-gr-up" : "bg-amber-500 animate-pulse"
+                      )} />
+                      <span className={cn(
+                        "font-sans text-xs",
+                        currentPaymentStatus === 'paid' ? "text-gr-up" : "text-amber-700"
+                      )}>
+                        {currentPaymentStatus === 'paid' ? 'Lunas' : 'Belum Dibayar'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gr-ink-soft">Status Pesanan</span>
+                    <span className="font-bold text-gr-ink">{config.label}</span>
                   </div>
                 </div>
               </div>
 
               {/* Farmer Contact Info */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft flex items-center gap-2">
                   <User size={13} />
                   Kontak {contactRoleLabel}
                 </h4>
-                <div className="flex items-center justify-between gap-4 pt-1">
-                  <div className="font-sans">
-                    <p className="text-gr-ink font-bold text-sm">{contactName || 'Petani'}</p>
-                    <p className="text-gr-ink-soft text-xs mt-0.5">{contactPhone || 'Tidak ada nomor telepon'}</p>
+                <div className="space-y-2.5 pt-1 text-xs font-sans">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gr-ink-soft">Nama</span>
+                    <span className="font-bold text-gr-ink">{contactName || 'Petani'}</span>
                   </div>
-
-                  <button
-                    onClick={handleContact}
-                    disabled={chatLoading}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-gr-board text-gr-board hover:bg-gr-board/10 font-sans text-xs font-semibold  transition-all cursor-pointer shrink-0 disabled:opacity-50"
-                  >
-                    {chatLoading ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <MessageSquare className="h-3.5 w-3.5" />
-                    )}
-                    <span>Chat {isIncoming ? 'Pembeli' : 'Petani'}</span>
-                  </button>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gr-ink-soft">WhatsApp / Telepon</span>
+                    <span className="font-bold text-gr-ink font-mono">{contactPhone || '-'}</span>
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <button
+                      onClick={handleContact}
+                      disabled={chatLoading}
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-sm border border-gr-board text-gr-board hover:bg-gr-board/10 font-sans text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {chatLoading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      )}
+                      <span>Chat {isIncoming ? 'Pembeli' : 'Petani'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -849,30 +848,26 @@ function OrderCard({
                   <CreditCard size={13} />
                   Pilihan Pembayaran
                 </h4>
-
+ 
                 <div className="space-y-3 text-xs font-sans">
                   {/* Option 1: Payment Gateway Rekber */}
-                  <div className="flex items-start gap-3">
-                    <CreditCard size={15} className="text-gr-board shrink-0 mt-0.5" />
+                  <div className="flex items-center gap-3">
+                    <CreditCard size={16} className="text-gr-ink-soft shrink-0" />
                     <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gr-ink">Transfer Bank & QRIS (Rekening Bersama)</span>
-                      </div>
+                      <span className="font-bold text-gr-ink block">Transfer Bank & QRIS (Rekening Bersama)</span>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
-                        Dana ditahan secara aman oleh sistem dan baru diteruskan ke petani setelah Anda mengonfirmasi penerimaan barang. Dikenakan perkiraan biaya admin/gerbang pembayaran sebesar <strong className="font-semibold text-gr-board">Rp {Math.round(estimatedAdminFee).toLocaleString('id-ID')}</strong> (2% dari total tagihan).
+                        Dana ditahan secara aman oleh sistem dan diteruskan setelah Anda mengonfirmasi penerimaan barang. Perkiraan biaya admin/gerbang pembayaran sebesar <strong className="font-semibold text-gr-ink">Rp {Math.round(estimatedAdminFee).toLocaleString('id-ID')}</strong> (2% dari total tagihan).
                       </p>
                     </div>
                   </div>
-
+ 
                   {/* Option 2: Cash / COD */}
-                  <div className="flex items-start gap-3">
-                    <Banknote size={15} className="text-amber-700 shrink-0 mt-0.5" />
+                  <div className="flex items-center gap-3">
+                    <Banknote size={16} className="text-gr-ink-soft shrink-0" />
                     <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gr-ink">Pembayaran Tunai (Cash / COD)</span>
-                      </div>
+                      <span className="font-bold text-gr-ink block">Pembayaran Tunai (Cash / COD)</span>
                       <p className="text-gr-ink-soft text-xs leading-relaxed">
-                        Dapat dibayar tunai langsung saat penimbangan & serah terima barang. <strong className="text-amber-700">Tanpa biaya admin tambahan (Gratis biaya transaksi)</strong>.
+                        Dapat dibayar tunai langsung saat penimbangan & serah terima barang. <strong className="font-semibold text-gr-ink">Tanpa biaya admin tambahan (Gratis biaya transaksi)</strong>.
                       </p>
                     </div>
                   </div>
@@ -990,6 +985,16 @@ function OrderCard({
           </motion.div>
         )}
       </AnimatePresence>
+ 
+      {/* Full-width toggle at the bottom of the card */}
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full py-2.5 bg-[#FAF9F5] hover:bg-gr-line/10 text-gr-ink border-t border-gr-line font-mono text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+      >
+        <span>{isExpanded ? 'Sembunyikan Detail' : 'Detail Pesanan'}</span>
+        <span className="text-[9px]">{isExpanded ? '▲' : '▼'}</span>
+      </button>
     </motion.div>
   );
 }
@@ -1196,17 +1201,6 @@ function DemandCard({
           </div>
         </div>
 
-        {/* Toggle Detail Action */}
-        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-4 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gr-line/40 shrink-0">
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-gr-paper hover:bg-gr-board text-gr-ink hover:text-gr-chalk border border-gr-line font-mono text-xs font-bold uppercase tracking-wider transition-all  cursor-pointer ml-auto"
-          >
-            <span>{isExpanded ? 'Sembunyikan' : 'Detail Permintaan'}</span>
-            <span className="text-[10px]">{isExpanded ? '▲' : '▼'}</span>
-          </button>
-        </div>
       </div>
 
       {/* Expanded details */}
@@ -1353,6 +1347,16 @@ function DemandCard({
           </motion.div>
         )}
       </AnimatePresence>
+ 
+      {/* Full-width toggle at the bottom of the card */}
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full py-2.5 bg-[#FAF9F5] hover:bg-gr-line/10 text-gr-ink border-t border-gr-line font-mono text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+      >
+        <span>{isExpanded ? 'Sembunyikan Detail' : 'Detail Permintaan'}</span>
+        <span className="text-[9px]">{isExpanded ? '▲' : '▼'}</span>
+      </button>
     </motion.div>
   );
 }
