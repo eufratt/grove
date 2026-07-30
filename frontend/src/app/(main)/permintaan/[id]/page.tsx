@@ -514,27 +514,14 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
  
                     <div className="space-y-1">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/75 font-semibold block mb-0.5">Lokasi Penerimaan</span>
-                      <div className="space-y-1.5">
-                        <p className="text-gr-ink font-semibold flex items-start gap-2">
-                          <MapPin size={14} strokeWidth={2} className="text-gr-board/60 mt-0.5 shrink-0" />
-                          <span className="leading-snug">
-                            {request.latitude && request.longitude
-                              ? (addressName || getClosestProvince(request.latitude, request.longitude))
-                              : 'Lokasi tidak diketahui'}
-                          </span>
-                        </p>
-                        {request.latitude && request.longitude && (
-                          <a 
-                            href={`https://www.google.com/maps/search/?api=1&query=${request.latitude},${request.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 font-mono text-[10px] uppercase font-bold text-gr-board ink-link ml-6"
-                          >
-                            <span>Lihat di Peta</span>
-                            <span className="text-[8px]">↗</span>
-                          </a>
-                        )}
-                      </div>
+                      <p className="text-gr-ink font-semibold flex items-start gap-2">
+                        <MapPin size={14} strokeWidth={2} className="text-gr-board/60 mt-0.5 shrink-0" />
+                        <span className="leading-snug">
+                          {request.latitude && request.longitude
+                            ? (addressName || getClosestProvince(request.latitude, request.longitude))
+                            : 'Lokasi tidak diketahui'}
+                        </span>
+                      </p>
                     </div>
                   </div>
  
@@ -597,14 +584,10 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   </div>
  
                   {/* Row 4: Footer Notice & System Metadata */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
+                  <div className="pt-5 border-t border-gr-line/35 pl-4 border-l-2 border-gr-board/15">
                     <div className="flex items-center gap-2 text-[10px] font-mono text-gr-ink-soft/60">
                       <span className="w-1.5 h-1.5 rounded-full bg-gr-up animate-pulse" />
                       <span>Terakhir diperbarui: {new Date(request.updated_at || request.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} WIB</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-gr-ink-soft/50 sm:justify-end">
-                      <span className="w-1 h-1 rounded-full bg-gr-board/40" />
-                      <span>Sistem Escrow Aktif & Terlindungi</span>
                     </div>
                   </div>
                 </div>
