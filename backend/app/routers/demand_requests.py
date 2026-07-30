@@ -971,3 +971,92 @@ async def disburse_demand_escrow(
     )
     return {"status": "success"}
 
+
+@router.post("/{id}/cancel", response_model=DemandRequestResponse)
+async def cancel_demand_request(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """
+    Cancel an open demand request if no farmers have committed to it.
+    """
+    stmt = select(DemandRequest).where(DemandRequest.id == id)
+    res = await db.execute(stmt)
+    request = res.scalar_one_or_none()
+
+    if not request:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Permintaan tidak ditemukan"
+        )
+
+    if request.buyer_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya pembeli pembuat permintaan yang dapat membatalkan"
+        )
+
+    if request.status != DemandRequestStatus.TERBUKA:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Hanya permintaan terbuka yang dapat dibatalkan"
+        )
+
+    # Check if any commitments exist
+    stmt_sum = select(func.sum(SupplyCommitment.quantity_kg_committed)).where(
+        SupplyCommitment.demand_request_id == id
+    )
+    res_sum = await db.execute(stmt_sum)
+    total_committed = res_sum.scalar() or 0.0
+
+    if total_committed > 0 or request.quantity_kg_committed > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Permintaan tidak dapat dibatalkan karena sudah ada komitmen dari petani"
+        )
+
+    request.status = DemandRequestStatus.DIBATALKAN
+    db.add(request)
+    await db.commit()
+    await db.refresh(request)
+
+    # Broadcast updated stats to active WebSocket subscribers
+    await demand_manager.broadcast(
+        str(id),
+        {
+            "demand_request_id": str(id),
+            "quantity_kg_committed": request.quantity_kg_committed,
+            "status": request.status.value,
+            "num_petani_committed": 0
+        }
+    )
+
+    # Convert geography location coordinates for the response
+    stmt_loc = select(
+        func.ST_Y(request.location).label("latitude"),
+        func.ST_X(request.location).label("longitude")
+    )
+    res_loc = await db.execute(stmt_loc)
+    row = res_loc.first()
+    lat, lng = row if row else (None, None)
+
+    return {
+        "id": request.id,
+        "buyer_id": request.buyer_id,
+        "commodity_name": request.commodity_name,
+        "category": request.category,
+        "quantity_kg_needed": request.quantity_kg_needed,
+        "quantity_kg_committed": request.quantity_kg_committed,
+        "price_per_kg": request.price_per_kg,
+        "deadline": request.deadline,
+        "status": request.status,
+        "created_at": request.created_at,
+        "latitude": lat,
+        "longitude": lng,
+        "buyer_name": current_user.full_name,
+        "buyer_rating_avg": current_user.buyer_rating_avg,
+        "buyer_rating_count": current_user.buyer_rating_count
+    }
+
+
