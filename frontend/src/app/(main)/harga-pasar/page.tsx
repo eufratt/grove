@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { referencePricesApi } from '@/lib/api/reference-prices';
 import { productsApi } from '@/lib/api/products';
 import { demandRequestsApi } from '@/lib/api/demand-requests';
+import { authApi } from '@/lib/api/auth';
 import { RatingBadge } from '@/components/ratings/rating-badge';
 import { BgPattern } from '@/components/effects/bg-pattern';
 import { FilmGrain } from '@/components/effects/film-grain';
@@ -51,10 +52,26 @@ export default function HargaPasarPage() {
   // Mode selection state
   const [activeTab, setActiveTab] = useState<'pricing' | 'products' | 'demands'>('pricing');
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    const fetchUser = async () => {
+      try {
+        const userData = await authApi.getMe();
+        setUser(userData);
+      } catch {
+        setUser(null);
+      }
+    };
+    fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'demands' && user && user.role !== 'PETANI') {
+      setActiveTab('pricing');
+    }
+  }, [activeTab, user]);
 
   // Explicit flyTo coordinates (to target from list card click)
   const [flyToCoords, setFlyToCoords] = useState<[number, number] | null>(null);
@@ -553,25 +570,28 @@ export default function HargaPasarPage() {
                   setFlyToCoords(null);
                 }}
                 className={cn(
-                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer border-r border-gr-line rounded-none",
+                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer rounded-none",
+                  user?.role === 'PETANI' ? "border-r border-gr-line" : "",
                   activeTab === 'products' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
                 Produk Terdekat
               </button>
-              <button
-                onClick={() => {
-                  setActiveTab('demands');
-                  setSearchQuery('');
-                  setFlyToCoords(null);
-                }}
-                className={cn(
-                  "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer rounded-none",
-                  activeTab === 'demands' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
-                )}
-              >
-                Permintaan Pembeli
-              </button>
+              {user?.role === 'PETANI' && (
+                <button
+                  onClick={() => {
+                    setActiveTab('demands');
+                    setSearchQuery('');
+                    setFlyToCoords(null);
+                  }}
+                  className={cn(
+                    "flex-1 text-center py-2.5 font-mono text-[9px] font-extrabold uppercase tracking-widest transition-all cursor-pointer rounded-none",
+                    activeTab === 'demands' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
+                  )}
+                >
+                  Permintaan Pembeli
+                </button>
+              )}
             </div>
 
             {/* Layout Mode 1: Harga Referensi */}
