@@ -724,7 +724,7 @@ function OrderCard({
           {/* Product Title & Details */}
           <div className="flex-1 min-w-0">
             <Link href={`/produk/${order.product_id}`} className="hover:underline decoration-gr-board/40">
-              <h3 className="font-display text-2xl font-bold tracking-tight text-gr-ink capitalize truncate" title={order.product_name || 'Hasil Panen'}>
+              <h3 className="font-display text-2xl font-normal tracking-tight text-gr-ink capitalize truncate" title={order.product_name || 'Hasil Panen'}>
                 {order.product_name || 'Hasil Panen'}
               </h3>
             </Link>
@@ -1141,7 +1141,7 @@ function DemandCard({
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-display text-2xl font-bold tracking-tight text-gr-ink capitalize truncate" title={demand.commodity_name}>
+            <h3 className="font-display text-2xl font-normal tracking-tight text-gr-ink capitalize truncate" title={demand.commodity_name}>
               {demand.commodity_name}
             </h3>
 
