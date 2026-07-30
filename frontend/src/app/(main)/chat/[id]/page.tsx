@@ -22,6 +22,42 @@ const formatMessageTime = (dateStr: string) => {
   }
 };
 
+const formatMessageDateHeader = (dateStr: string) => {
+  if (!dateStr) return '';
+  let safeStr = dateStr;
+  if (!safeStr.endsWith('Z') && !safeStr.includes('+') && !safeStr.match(/-\d{2}:\d{2}$/)) {
+    safeStr = safeStr + 'Z';
+  }
+  try {
+    const d = new Date(safeStr);
+    const today = new Date();
+    
+    const dDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    const diffTime = todayDate.getTime() - dDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return 'Hari Ini';
+    }
+    if (diffDays === 1) {
+      return 'Kemarin';
+    }
+
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    if (diffDays < 7 && diffDays > 0) {
+      return days[d.getDay()];
+    }
+
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  } catch (err) {
+    return '';
+  }
+};
+
 export default function ChatRoomPage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = React.use(params);
   const conversationId = resolvedParams.id;
@@ -266,6 +302,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
 
         {(() => {
           const renderedProductIds = new Set<string>();
+          let lastDateString = '';
           return messages.map((m) => {
             const isMe = m.sender_id === currentUser?.id;
             const isOptimistic = m.id.toString().startsWith('opt-');
@@ -276,11 +313,41 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               renderedProductIds.add(m.products.id);
             }
 
+            // Calculate date separation
+            let showDateHeader = false;
+            let dateHeaderLabel = '';
+            if (m.created_at) {
+              try {
+                let safeStr = m.created_at;
+                if (!safeStr.endsWith('Z') && !safeStr.includes('+') && !safeStr.match(/-\d{2}:\d{2}$/)) {
+                  safeStr = safeStr + 'Z';
+                }
+                const msgDateObj = new Date(safeStr);
+                const currentMsgDate = msgDateObj.toDateString();
+                if (currentMsgDate && currentMsgDate !== 'Invalid Date' && currentMsgDate !== lastDateString) {
+                  showDateHeader = true;
+                  dateHeaderLabel = formatMessageDateHeader(m.created_at);
+                  lastDateString = currentMsgDate;
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            }
+
             return (
               <div 
                 key={m.id}
                 className="w-full flex flex-col"
               >
+                {/* Date separator like WhatsApp */}
+                {showDateHeader && (
+                  <div className="w-full flex justify-center my-4">
+                    <span className="font-mono text-[10px] font-bold text-gr-ink-soft bg-[#EDE6D1]/45 dark:bg-white/5 border border-gr-line/50 px-3 py-1 rounded-sm select-none">
+                      {dateHeaderLabel}
+                    </span>
+                  </div>
+                )}
+
                 {/* Product link tag shared in chat stream - Redesigned as a System Notice Divider */}
                 {shouldRenderProductContext && (
                   <div className="w-full flex flex-col items-center my-4">
