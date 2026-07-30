@@ -1134,9 +1134,10 @@ function DemandCard({
       {/* 2. CARD CONTENT BODY: Commodity Icon, Info, Progress, and Toggle Button */}
       <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
-          {/* Commodity Visual Icon Box */}
-          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-gr-line bg-gr-paper/80  flex flex-col items-center justify-center text-gr-board p-2 text-center">
-            <ClipboardList size={28} className="text-gr-board/60" />
+          {/* Styled Specimen-tag style Placeholder */}
+          <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-sm border border-dashed border-gr-board/25 bg-[#FAF9F5] flex flex-col items-center justify-center text-center p-1.5 select-none">
+            <ClipboardList size={22} className="text-gr-board/50 mb-1" />
+            <span className="font-mono text-[8px] uppercase tracking-widest text-gr-ink-soft/60">Permintaan</span>
           </div>
 
           <div className="flex-1 min-w-0">
@@ -1146,26 +1147,25 @@ function DemandCard({
 
             {matchedTx ? (
               <div className="mt-2 flex flex-col gap-1 text-xs border-t border-gr-line/45 pt-2 font-sans w-full">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-bold text-gr-board bg-gr-board/10 px-2 py-0.5 rounded-xs border border-gr-board/20">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-mono">
+                  <span className="font-bold text-gr-board bg-gr-board/5 px-2 py-0.5 rounded-xs border border-gr-board/15">
                     Harga: Rp {Math.round(matchedTx.price_per_kg).toLocaleString('id-ID')}/KG
                   </span>
-                  <span className="font-bold text-gr-up bg-gr-up/10 px-2 py-0.5 rounded-xs border border-gr-up/20">
+                  <span className="font-bold text-gr-up bg-gr-up/5 px-2 py-0.5 rounded-xs border border-gr-up/15">
                     Total: Rp {Math.round(matchedTx.amount).toLocaleString('id-ID')} ({matchedTx.quantity_kg} KG)
                   </span>
-                </div>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-gr-ink-soft">Status:</span>
                   <span className={cn(
-                    "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
-                    matchedTx.payment_status === 'paid' ? "bg-gr-up/10 text-gr-up border-gr-up/20" : "bg-gr-board/10 text-gr-board border-gr-board/20"
+                    "font-bold px-2 py-0.5 rounded-xs border",
+                    matchedTx.payment_status === 'paid' 
+                      ? "bg-gr-up/10 text-gr-up border-gr-up/20" 
+                      : "bg-amber-500/10 text-amber-700 border-amber-500/20"
                   )}>
                     {matchedTx.payment_status === 'paid' ? 'LUNAS' : 'MENUNGGU PEMBAYARAN'}
                   </span>
                   {matchedTx.escrow_status && matchedTx.escrow_status !== 'not_started' && (
                     <span className={cn(
-                      "font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded-xs border",
-                      matchedTx.escrow_status === 'held' && "bg-amber-500/10 text-amber-600 border-amber-500/20",
+                      "font-bold px-2 py-0.5 rounded-xs border",
+                      matchedTx.escrow_status === 'held' && "bg-amber-500/10 text-amber-700 border-amber-500/20",
                       matchedTx.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border-gr-up/20",
                       matchedTx.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border-gr-down/20"
                     )}>
@@ -1215,30 +1215,31 @@ function DemandCard({
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-2">
-                  Progress Pemenuhan
-                </h4>
-                <div className="space-y-2">
-                  <div className="w-full bg-gr-line/45 h-2 rounded-full overflow-hidden">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-baseline text-xs font-sans text-gr-ink-soft">
+                    <span className="font-mono text-[10px] uppercase tracking-wider font-bold">Progress Pemenuhan</span>
+                    <span className="text-gr-board font-mono font-bold text-sm">
+                      {Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gr-line/20 h-2.5 rounded-sm overflow-hidden border border-gr-line">
                     <div 
-                      className="bg-gr-board h-full rounded-sm transition-all duration-300"
+                      className="bg-gr-board h-full rounded-xs transition-all duration-300"
                       style={{ width: `${Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%` }}
                     />
                   </div>
-                  <div className="flex justify-between font-sans text-xs text-gr-ink-soft">
+                  <div className="font-sans text-xs text-gr-ink-soft">
                     <span>Deadline: {new Date(demand.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    <span className="text-gr-board font-mono font-bold">
-                      {Math.min(100, Math.round((currentCommitted / demand.quantity_kg_needed) * 100))}%
-                    </span>
                   </div>
                 </div>
                 
                 <div className="mt-4">
                   <Link 
                     href={`/permintaan/${demand.id}`}
-                    className="inline-flex items-center gap-1 font-mono text-xs uppercase font-bold tracking-wider text-gr-board hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-2 font-mono text-xs uppercase font-bold tracking-wider text-gr-board ink-link cursor-pointer hover:opacity-90"
                   >
-                    Buka Halaman Detail
+                    <span>Buka Halaman Detail</span>
+                    <span className="text-[10px] tracking-normal">→</span>
                   </Link>
                 </div>
               </div>
@@ -1278,7 +1279,14 @@ function DemandCard({
                           );
                         })
                       ) : (
-                        <p className="text-gr-ink-soft/50 italic text-xs">Belum ada komitmen masuk.</p>
+                        <div className="border border-dashed border-gr-line bg-white/20 p-4 rounded-sm text-center">
+                          <p className="text-gr-ink-soft text-xs leading-relaxed font-sans">
+                            Belum ada komitmen supply dari petani.
+                          </p>
+                          <p className="text-gr-ink-soft/60 text-[10px] mt-1.5 font-mono uppercase tracking-widest font-bold">
+                            Menunggu Mitra Tani Mengajukan Supply
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
