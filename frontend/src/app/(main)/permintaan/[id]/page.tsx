@@ -649,146 +649,206 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
             {user && user.role === 'PEMBELI' && request.buyer_id === user.id && (
               <>
                 {/* Case 1: Already matched */}
-                {request.match_transaction && (
-                  <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-5">
-                    <div>
-                      <span className="bg-gr-up/10 border border-gr-up/20 px-2 py-0.5 font-mono text-[9px] uppercase font-bold tracking-wider text-gr-up rounded-xs inline-block mb-2">
-                        Telah Dicocokkan
-                      </span>
-                      <h3 className="font-display text-xl font-semibold text-gr-ink">
-                        Pencocokan Escrow
-                      </h3>
-                      <p className="font-sans text-[11px] text-gr-ink mt-1 leading-relaxed">
-                        Permintaan Anda berhasil dicocokkan dengan produk petani.
-                      </p>
-                    </div>
+                {request.match_transaction && (() => {
+                  const isPartial = request.status === 'TERBUKA' && request.quantity_kg_committed < request.quantity_kg_needed;
+                  return (
+                    <div className={cn(
+                      "rounded-sm border border-gr-line bg-white/80 overflow-hidden",
+                      isPartial ? "p-4" : "p-6 space-y-5"
+                    )}>
+                      <div className={cn(isPartial ? "flex items-center justify-between" : "")}>
+                        <div>
+                          <span className="bg-gr-up/10 border border-gr-up/20 px-2 py-0.5 font-mono text-[9px] uppercase font-bold tracking-wider text-gr-up rounded-xs inline-block mb-1">
+                            Telah Dicocokkan
+                          </span>
+                          <h3 className="font-display font-semibold text-gr-ink" style={{fontSize: isPartial ? '1rem' : '1.25rem'}}>
+                            Pencocokan Escrow
+                          </h3>
+                        </div>
+                        {isPartial && (
+                          <div className="text-right">
+                            <div className="font-mono font-bold text-sm text-gr-ink">{request.match_transaction.quantity_kg} KG</div>
+                            <div className="font-mono text-[9px] text-gr-ink-soft uppercase tracking-wide">terpenuhi</div>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="border-t border-gr-line pt-4 space-y-2 text-xs font-sans">
-                      <div className="flex justify-between">
-                        <span className="text-gr-ink-soft">Petani:</span>
-                        <span className="text-gr-ink font-semibold">{request.match_transaction.seller_name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gr-ink-soft">Jumlah KG:</span>
-                        <span className="text-gr-ink font-mono font-bold">{request.match_transaction.quantity_kg} KG</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gr-ink-soft">Harga per KG:</span>
-                        <span className="text-gr-ink font-mono">Rp {Math.round(request.match_transaction.price_per_kg).toLocaleString('id-ID')}</span>
-                      </div>
-                      <div className="flex justify-between border-t border-gr-line pt-2 font-bold text-sm">
-                        <span className="text-gr-ink-soft">Total Pembayaran:</span>
-                        <span className="text-gr-up font-mono">Rp {Math.round(request.match_transaction.amount).toLocaleString('id-ID')}</span>
-                      </div>
-                    </div>
+                      {!isPartial && (
+                        <div className="border-t border-gr-line pt-4 space-y-2 text-xs font-sans">
+                          <div className="flex justify-between">
+                            <span className="text-gr-ink-soft">Petani:</span>
+                            <span className="text-gr-ink font-semibold">{request.match_transaction.seller_name}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gr-ink-soft">Jumlah KG:</span>
+                            <span className="text-gr-ink font-mono font-bold">{request.match_transaction.quantity_kg} KG</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gr-ink-soft">Harga per KG:</span>
+                            <span className="text-gr-ink font-mono">Rp {Math.round(request.match_transaction.price_per_kg).toLocaleString('id-ID')}</span>
+                          </div>
+                          <div className="flex justify-between border-t border-gr-line pt-2 font-bold text-sm">
+                            <span className="text-gr-ink-soft">Total Pembayaran:</span>
+                            <span className="text-gr-up font-mono">Rp {Math.round(request.match_transaction.amount).toLocaleString('id-ID')}</span>
+                          </div>
+                        </div>
+                      )}
 
-                    <div className="border-t border-gr-line pt-4 space-y-2 text-xs font-sans">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gr-ink-soft">Status Pembayaran:</span>
-                        <span className={cn(
-                          "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
-                          request.match_transaction.payment_status === 'paid' 
-                            ? "bg-gr-up/10 text-gr-up border border-gr-up/20" 
-                            : "bg-gr-down/10 text-gr-down border border-gr-down/20"
-                        )}>
-                          {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : 'PENDING'}
-                        </span>
-                      </div>
- 
-                      {request.match_transaction.escrow_status && request.match_transaction.escrow_status !== 'not_started' && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-gr-ink-soft">Status Escrow:</span>
+                      {isPartial && (
+                        <div className="mt-2 border-t border-gr-line pt-3 flex items-center justify-between text-xs font-sans">
+                          <span className="text-gr-ink-soft">{request.match_transaction.seller_name}</span>
                           <span className={cn(
-                            "font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded-xs",
-                            request.match_transaction.escrow_status === 'held' && "bg-gr-down/10 text-gr-down border border-gr-down/20",
-                            request.match_transaction.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border border-gr-up/20",
-                            request.match_transaction.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border border-gr-down/20"
+                            "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
+                            request.match_transaction.payment_status === 'paid' 
+                              ? "bg-gr-up/10 text-gr-up border-gr-up/20" 
+                              : "bg-gr-down/10 text-gr-down border-gr-down/20"
                           )}>
-                            {request.match_transaction.escrow_status === 'held' && 'DANA DITAHAN'}
-                            {request.match_transaction.escrow_status === 'released' && 'DANA DICAIRKAN'}
-                            {request.match_transaction.escrow_status === 'disputed' && 'SENGKETA'}
+                            {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : 'PENDING'}
                           </span>
                         </div>
                       )}
-                    </div>
 
-                    <div className="pt-4 border-t border-gr-line space-y-3">
-                      {request.match_transaction.payment_status !== 'paid' && (
-                        isRequestBuyer ? (
-                          <Button
-                            disabled={checkingOut}
-                            onClick={handleCheckout}
-                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer  flex items-center justify-center gap-2"
-                          >
-                            {checkingOut ? (
-                              <>
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                                Memproses...
-                              </>
-                            ) : (
-                              'Bayar Sekarang (Xendit)'
+                      {!isPartial && (
+                        <>
+                          <div className="border-t border-gr-line pt-4 space-y-2 text-xs font-sans">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gr-ink-soft">Status Pembayaran:</span>
+                              <span className={cn(
+                                "font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-xs border",
+                                request.match_transaction.payment_status === 'paid' 
+                                  ? "bg-gr-up/10 text-gr-up border border-gr-up/20" 
+                                  : "bg-gr-down/10 text-gr-down border border-gr-down/20"
+                              )}>
+                                {request.match_transaction.payment_status === 'paid' ? 'LUNAS' : 'PENDING'}
+                              </span>
+                            </div>
+           
+                            {request.match_transaction.escrow_status && request.match_transaction.escrow_status !== 'not_started' && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-gr-ink-soft">Status Escrow:</span>
+                                <span className={cn(
+                                  "font-mono text-[9px] uppercase font-bold px-2 py-0.5 rounded-xs",
+                                  request.match_transaction.escrow_status === 'held' && "bg-gr-down/10 text-gr-down border border-gr-down/20",
+                                  request.match_transaction.escrow_status === 'released' && "bg-gr-up/10 text-gr-up border border-gr-up/20",
+                                  request.match_transaction.escrow_status === 'disputed' && "bg-gr-down/10 text-gr-down border border-gr-down/20"
+                                )}>
+                                  {request.match_transaction.escrow_status === 'held' && 'DANA DITAHAN'}
+                                  {request.match_transaction.escrow_status === 'released' && 'DANA DICAIRKAN'}
+                                  {request.match_transaction.escrow_status === 'disputed' && 'SENGKETA'}
+                                </span>
+                              </div>
                             )}
-                          </Button>
-                        ) : (
-                          <div className="text-center py-3 bg-gr-paper border border-gr-line rounded-sm text-xs font-mono font-bold text-gr-board uppercase tracking-wider animate-pulse">
-                            Menunggu Pembayaran dari Pembeli
                           </div>
-                        )
-                      )}
 
-                      {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'held' && (
-                        isRequestBuyer ? (
-                          <Button
-                            disabled={confirmingReceived}
-                            onClick={handleConfirmReceived}
-                            className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer "
-                          >
-                            {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
-                          </Button>
-                        ) : (
-                          <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
-                            <span className="font-bold uppercase tracking-wider font-mono block mb-1">Dana Ditahan (Escrow)</span>
-                            Pembayaran telah diverifikasi. Silakan kirim komoditas Anda ke Pembeli.
+                          <div className="pt-4 border-t border-gr-line space-y-3">
+                            {request.match_transaction.payment_status !== 'paid' && (
+                              isRequestBuyer ? (
+                                <Button
+                                  disabled={checkingOut}
+                                  onClick={handleCheckout}
+                                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer  flex items-center justify-center gap-2"
+                                >
+                                  {checkingOut ? (
+                                    <>
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      Memproses...
+                                    </>
+                                  ) : (
+                                    'Bayar Sekarang (Xendit)'
+                                  )}
+                                </Button>
+                              ) : (
+                                <div className="text-center py-3 bg-gr-paper border border-gr-line rounded-sm text-xs font-mono font-bold text-gr-board uppercase tracking-wider animate-pulse">
+                                  Menunggu Pembayaran dari Pembeli
+                                </div>
+                              )
+                            )}
+
+                            {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'held' && (
+                              isRequestBuyer ? (
+                                <Button
+                                  disabled={confirmingReceived}
+                                  onClick={handleConfirmReceived}
+                                  className="w-full bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-xs font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-200 cursor-pointer "
+                                >
+                                  {confirmingReceived ? 'Memproses...' : 'Konfirmasi Barang Diterima'}
+                                </Button>
+                              ) : (
+                                <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
+                                  <span className="font-bold uppercase tracking-wider font-mono block mb-1">Dana Ditahan (Escrow)</span>
+                                  Pembayaran telah diverifikasi. Silakan kirim komoditas Anda ke Pembeli.
+                                </div>
+                              )
+                            )}
+
+                            {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'released' && (
+                              <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
+                                <span className="font-bold uppercase tracking-wider font-mono block mb-1">Transaksi Selesai</span>
+                                {isMatchedSeller ? 'Dana telah dicairkan ke rekening bank Anda.' : 'Dana telah dicairkan ke rekening bank Petani.'}
+                              </div>
+                            )}
+
+                            {request.match_transaction.escrow_status === 'disputed' && (
+                              <div className="text-center py-3 px-4 bg-gr-down/10 border border-gr-down/20 rounded-sm text-xs font-sans text-gr-down font-semibold leading-relaxed">
+                                <span className="font-bold uppercase tracking-wider font-mono block mb-1">Status Sengketa (Dispute)</span>
+                                Transaksi ditangguhkan. Layanan Pelanggan kami akan menghubungi kedua belah pihak.
+                              </div>
+                            )}
+
+                            {isRequestBuyer && request.match_transaction.seller_id && (
+                              <button
+                                onClick={handleContactSeller}
+                                disabled={chatLoading}
+                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-gr-line hover:border-gr-ink bg-white/40 hover:bg-white/60 font-mono text-xs font-bold uppercase tracking-wider text-gr-ink transition-all  cursor-pointer disabled:opacity-50"
+                              >
+                                {chatLoading ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <MessageSquare className="h-4 w-4" />
+                                )}
+                                <span>Chat Petani</span>
+                              </button>
+                            )}
                           </div>
-                        )
+                        </>
                       )}
 
-                      {request.match_transaction.payment_status === 'paid' && request.match_transaction.escrow_status === 'released' && (
-                        <div className="text-center py-3 px-4 bg-gr-up/10 border border-gr-up/20 rounded-sm text-xs font-sans text-gr-up font-semibold leading-relaxed">
-                          <span className="font-bold uppercase tracking-wider font-mono block mb-1">Transaksi Selesai</span>
-                          {isMatchedSeller ? 'Dana telah dicairkan ke rekening bank Anda.' : 'Dana telah dicairkan ke rekening bank Petani.'}
-                        </div>
-                      )}
-
-                      {request.match_transaction.escrow_status === 'disputed' && (
-                        <div className="text-center py-3 px-4 bg-gr-down/10 border border-gr-down/20 rounded-sm text-xs font-sans text-gr-down font-semibold leading-relaxed">
-                          <span className="font-bold uppercase tracking-wider font-mono block mb-1">Status Sengketa (Dispute)</span>
-                          Transaksi ditangguhkan. Layanan Pelanggan kami akan menghubungi kedua belah pihak.
-                        </div>
-                      )}
-
-                      {isRequestBuyer && request.match_transaction.seller_id && (
-                        <button
-                          onClick={handleContactSeller}
-                          disabled={chatLoading}
-                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm border border-gr-line hover:border-gr-ink bg-white/40 hover:bg-white/60 font-mono text-xs font-bold uppercase tracking-wider text-gr-ink transition-all  cursor-pointer disabled:opacity-50"
-                        >
-                          {chatLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <MessageSquare className="h-4 w-4" />
+                      {isPartial && (
+                        <div className="pt-3 border-t border-gr-line flex gap-2">
+                          {request.match_transaction.payment_status !== 'paid' && isRequestBuyer && (
+                            <Button
+                              disabled={checkingOut}
+                              onClick={handleCheckout}
+                              className="flex-1 bg-gr-board hover:bg-gr-board/90 text-gr-chalk font-mono text-[10px] font-bold uppercase tracking-wider py-2 rounded-sm transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                            >
+                              {checkingOut ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Bayar'}
+                            </Button>
                           )}
-                          <span>Chat Petani</span>
-                        </button>
+                          {isRequestBuyer && request.match_transaction.seller_id && (
+                            <button
+                              onClick={handleContactSeller}
+                              disabled={chatLoading}
+                              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-sm border border-gr-line hover:border-gr-ink bg-white/40 hover:bg-white/60 font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              {chatLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <MessageSquare className="h-3 w-3" />}
+                              <span>Chat</span>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {(!request.match_transaction || (request.status === 'TERBUKA' && request.quantity_kg_committed < request.quantity_kg_needed)) && (
                   request.status === 'TERBUKA' && (
                     loadingCandidates ? (
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
+                        {request.match_transaction && (
+                          <div className="bg-[#D9A74A]/10 border border-[#D9A74A]/30 rounded-sm px-3 py-2 font-mono text-[10px] text-[#7A5C1E] uppercase tracking-wider">
+                            Masih butuh {Math.round(request.quantity_kg_needed - request.quantity_kg_committed)} KG lagi — cari petani tambahan
+                          </div>
+                        )}
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={16} strokeWidth={2} className="text-gr-board" />
                           Kandidat Produk Petani
@@ -800,6 +860,11 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       </div>
                     ) : (
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
+                        {request.match_transaction && (
+                          <div className="bg-[#D9A74A]/10 border border-[#D9A74A]/30 rounded-sm px-3 py-2 font-mono text-[10px] text-[#7A5C1E] uppercase tracking-wider">
+                            Masih butuh {Math.round(request.quantity_kg_needed - request.quantity_kg_committed)} KG lagi — cari petani tambahan
+                          </div>
+                        )}
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={16} strokeWidth={2} className="text-gr-board" />
                           Kandidat Produk Petani
