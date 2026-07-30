@@ -20,25 +20,28 @@ import {
   Tag,
   Info,
   Star,
-  User,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { conversationsApi } from '@/lib/api/conversations';
 
 export default function FarmerProfilePage({ params }: { params: React.Usable<{ id: string }> }) {
   const resolvedParams = use(params);
   const { id } = resolvedParams;
 
-  const [farmer, setFarmer] = useState<any>(null);
-  const [products, setProducts] = useState<any[]>([]);
-  const [ratings, setRatings] = useState<any[]>([]);
+  const [farmer, setFarmer] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [products, setProducts] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [ratings, setRatings] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [ratingsAvg, setRatingsAvg] = useState<number>(0);
   const [ratingsCount, setRatingsCount] = useState<number>(0);
   
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const router = useRouter();
+  const [chatLoading, setChatLoading] = useState(false);
 
   // Editing States
   const [isEditing, setIsEditing] = useState(false);
@@ -62,53 +65,42 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
     return closestProv;
   };
 
-  const getWhatsAppUrl = (phone: string, msg: string) => {
-    let cleaned = phone.replace(/[^0-9]/g, '');
-    if (cleaned.startsWith('0')) {
-      cleaned = '62' + cleaned.slice(1);
-    }
-    return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
-  };
-
-  const fetchFarmerData = async () => {
-    try {
-      const [farmerData, productsData, ratingsData, meData] = await Promise.all([
-        authApi.getUserById(id),
-        productsApi.getProducts(0, 100, id),
-        ratingsApi.getUserRatingsAsSeller(id).catch(() => null),
-        authApi.getMe().catch(() => null)
-      ]);
-
-      if (farmerData.role !== 'PETANI') {
-        throw new Error('Pengguna ini bukan merupakan petani mitra Grove.');
-      }
-
-      setFarmer(farmerData);
-      setProducts(productsData);
-      setCurrentUser(meData);
-      setEditBio(farmerData.bio || '');
-
-      if (ratingsData) {
-        setRatings(ratingsData.ratings || []);
-        setRatingsAvg(ratingsData.average || 0);
-        setRatingsCount(ratingsData.count || 0);
-      }
-    } catch (err: any) {
-      console.error('Failed to load farmer profile:', err);
-      setError(err.message || 'Gagal memuat profil petani.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchFarmerData = async () => {
+      try {
+        const [farmerData, productsData, ratingsData, meData] = await Promise.all([
+          authApi.getUserById(id),
+          productsApi.getProducts(0, 100, id),
+          ratingsApi.getUserRatingsAsSeller(id).catch(() => null),
+          authApi.getMe().catch(() => null)
+        ]);
+
+        if (farmerData.role !== 'PETANI') {
+          throw new Error('Pengguna ini bukan merupakan petani mitra Grove.');
+        }
+
+        setFarmer(farmerData);
+        setProducts(productsData);
+        setCurrentPage(1);
+        setCurrentUser(meData);
+        setEditBio(farmerData.bio || '');
+
+        if (ratingsData) {
+          setRatings(ratingsData.ratings || []);
+          setRatingsAvg(ratingsData.average || 0);
+          setRatingsCount(ratingsData.count || 0);
+        }
+      } catch (err) {
+        console.error('Failed to load farmer profile:', err);
+        const errMsg = err instanceof Error ? err.message : 'Gagal memuat profil petani.';
+        setError(errMsg);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchFarmerData();
   }, [id]);
-
-  // Reset page to 1 when products change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [products.length]);
 
   const handleSaveChanges = async () => {
     setSavingEdit(true);
@@ -121,11 +113,35 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         bio: updatedUser.bio
       }));
       setIsEditing(false);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to update profile:', err);
-      alert(err.message || 'Gagal memperbarui profil');
+      const errMsg = err instanceof Error ? err.message : 'Gagal memperbarui profil';
+      alert(errMsg);
     } finally {
       setSavingEdit(false);
+    }
+  };
+
+  const handleContactFarmer = async () => {
+    if (!currentUser) {
+      router.push('/login');
+      return;
+    }
+
+    setChatLoading(true);
+    try {
+      const res = await conversationsApi.createConversation(undefined, id);
+      if (res && res.conversation_id) {
+        router.push(`/chat/${res.conversation_id}`);
+      } else {
+        throw new Error('Gagal memulai percakapan');
+      }
+    } catch (err) {
+      console.error('Failed to initiate chat:', err);
+      const errMsg = err instanceof Error ? err.message : 'Gagal memulai chat dengan penjual';
+      alert(errMsg);
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -163,9 +179,6 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
 
   const defaultBio = 'Petani mitra terdaftar Grove yang berdedikasi menghasilkan produk pertanian segar berkualitas premium secara berkelanjutan dari ladang lokal langsung ke meja makan Anda. Berkomitmen menjaga kelestarian alam dan transparansi harga pasar.';
   const farmerBio = farmer.bio || defaultBio;
-
-  const waMessage = `Halo Pak/Ibu ${farmer.full_name}, saya melihat profil Anda di Grove dan berminat untuk mendiskusikan hasil panen Anda.`;
-  const waUrl = farmer.phone_whatsapp ? getWhatsAppUrl(farmer.phone_whatsapp, waMessage) : null;
 
   // Pagination calculation
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -270,15 +283,22 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            {waUrl && (
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 bg-gr-board text-gr-chalk font-mono text-[10px] uppercase tracking-widest py-2.5 px-5 rounded-sm shadow-2xs hover:opacity-90 transition-all"
+            {!isOwner && (
+              <button
+                onClick={handleContactFarmer}
+                disabled={chatLoading}
+                className="inline-flex items-center gap-1.5 bg-gr-board text-gr-chalk font-mono text-[10px] uppercase tracking-widest py-2.5 px-5 rounded-sm shadow-2xs hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                <MessageSquare size={12} /> Chat Penjual
-              </a>
+                {chatLoading ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" /> Memproses...
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare size={12} /> Chat Penjual
+                  </>
+                )}
+              </button>
             )}
           </div>
         </div>
@@ -480,7 +500,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                         {/* Comment */}
                         {review.comment ? (
                           <p className="font-sans text-[11px] text-gr-text-primary/75 leading-relaxed italic bg-[#FAF9F5]/40 border border-gr-line/45 p-2.5 rounded-sm">
-                            "{review.comment}"
+                            &quot;{review.comment}&quot;
                           </p>
                         ) : (
                           <p className="font-sans text-[10px] text-gr-text-primary/30 italic">

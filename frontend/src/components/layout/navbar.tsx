@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
-import { LogOut, LogIn, Leaf, Compass, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart, MessageCircle } from 'lucide-react';
+import { LogOut, LogIn, Leaf, PlusCircle, ClipboardList, Settings, X, AlertCircle, TrendingUp, LineChart, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { GroveLogo } from '@/components/ui/grove-logo';
 import { supabase, setSupabaseCustomToken } from '@/lib/supabase';
 import { conversationsApi } from '@/lib/api/conversations';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -24,7 +25,7 @@ export function Navbar() {
   const fetchUnreadCount = useCallback(async () => {
     try {
       const data = await conversationsApi.getConversations();
-      const total = data.reduce((sum: number, c: any) => sum + c.unread_count, 0);
+      const total = data.reduce((sum: number, c: { unread_count: number }) => sum + c.unread_count, 0);
       setUnreadCount(total);
     } catch (err) {
       console.error('Failed to fetch unread count:', err);
@@ -32,20 +33,23 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUnreadCount(0);
       return;
     }
 
-    let channel: any;
+    let active = true;
+    let channel: RealtimeChannel | undefined;
     const initRealtime = async () => {
       try {
         const { token } = await authApi.getSupabaseToken();
-        if (!token) return;
+        if (!active || !token) return;
         setSupabaseCustomToken(token);
 
         // Fetch initial unread count
         await fetchUnreadCount();
+        if (!active) return;
 
         // Subscribe to messages table realtime inserts and updates
         const channelName = `navbar_messages_${user.id}_${Math.random().toString(36).substring(2, 9)}`;
@@ -57,7 +61,7 @@ export function Navbar() {
             (payload) => {
               const newMsg = payload.new;
               if (newMsg.sender_id !== user.id) {
-                setUnreadCount((prev) => prev + 1);
+                fetchUnreadCount();
               }
             }
           )
@@ -77,11 +81,20 @@ export function Navbar() {
     initRealtime();
 
     return () => {
+      active = false;
       if (channel) {
         supabase.removeChannel(channel);
       }
     };
-  }, [user, pathname, fetchUnreadCount]);
+  }, [user?.id, fetchUnreadCount]);
+
+  // Fetch unread count on page navigation
+  useEffect(() => {
+    if (user?.id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchUnreadCount();
+    }
+  }, [pathname, user?.id, fetchUnreadCount]);
 
   useEffect(() => {
     const checkAuth = async () => {
