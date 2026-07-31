@@ -267,7 +267,7 @@ export const MapView: React.FC<MapViewProps> = ({
           mode={mode}
           userLocation={userLocation}
         />
-        <ZoomControl position="bottomright" />
+        <ZoomControl position="topleft" />
         
         {/* CartoDB Positron (Light) Tile Layer */}
         <TileLayer

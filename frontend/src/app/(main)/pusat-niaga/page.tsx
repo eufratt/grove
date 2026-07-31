@@ -488,7 +488,7 @@ export default function HargaPasarPage() {
           {/* Map Area (100% Full-bleed layer extending behind floating island navbar) */}
           <div className="absolute inset-0 w-full h-full z-0">
             {/* Metadata info cards floating on top left below pill navbar, only above the map area */}
-            <div className="absolute top-4 md:top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
+            <div className="absolute top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
               {activeTab === 'pricing' && selectedProvince && (
                 <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line ">
                   Provinsi: {selectedProvince}
@@ -535,7 +535,7 @@ export default function HargaPasarPage() {
           {/* Sidebar Paper Panel (Floating Overlay on Left below pill navbar) */}
           <div 
             className={cn(
-              "absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px] transition-all duration-300",
+              "absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm overflow-hidden bottom-20 left-4 right-4 h-[58%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px] transition-all duration-300",
               isSidebarCollapsed && "translate-y-full opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto"
             )}
           >
