@@ -80,6 +80,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
   } = useMessages(conversationId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastMessagesLengthRef = useRef(0);
 
   // Set product context query parameter once on mount
@@ -122,6 +123,14 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
     lastMessagesLengthRef.current = messages.length;
   }, [messages]);
 
+  // Auto-resize textarea height as text grows
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  }, [inputMessage]);
+
   // Pre-fill product context message if product_id is in query params
   useEffect(() => {
     if (!conversationId || !targetProductId || !currentUser || !conversation) return;
@@ -142,12 +151,23 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
     const text = inputMessage;
     setInputMessage('');
 
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
     try {
       // Send message. Only associate product context for the opening/first message (productContextToAdd)
       await sendMessage(text, productContextToAdd || undefined);
       setProductContextToAdd(null); // Clear context immediately after sending
     } catch (err) {
       console.error('Send message failed:', err);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend(e);
     }
   };
 
@@ -252,7 +272,7 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
       </div>
 
       {/* Chat Area */}
-      <div className="flex-grow overflow-y-auto p-4 space-y-4 min-h-0 custom-scrollbar bg-white/20 dark:bg-black/5">
+      <div className="flex-grow overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0 custom-scrollbar bg-white/20 dark:bg-black/5">
 
         {/* Empty state: Chat baru dimulai */}
         {messages.length === 0 && !loading && (
@@ -381,10 +401,10 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
               )}
 
               {/* Message Bubble wrapper */}
-              <div className={cn("flex flex-col max-w-[75%]", isMe ? "items-end ml-auto" : "items-start mr-auto")}>
+              <div className={cn("flex flex-col max-w-[75%] min-w-0", isMe ? "items-end ml-auto" : "items-start mr-auto")}>
                 <div 
                   className={cn(
-                    "px-4 py-3 rounded-sm font-sans text leading-relaxed  transition-all relative border",
+                    "w-full px-4 py-3 rounded-sm font-sans text leading-relaxed transition-all relative border break-words",
                     isMe 
                       ? "bg-gr-board text-gr-chalk border-gr-board/30 rounded-tr" 
                       : "bg-white dark:bg-[#1E1812] text-gr-ink border-gr-line/50 rounded-tl"
@@ -440,12 +460,14 @@ export default function ChatRoomPage({ params }: { params: React.Usable<{ id: st
         className="p-3 md:p-4 border-t border-gr-line bg-white/80 dark:bg-[#1E1812]/80 backdrop-blur-md z-10 sticky bottom-0"
       >
         <div className="flex gap-2 items-center max-w-4xl mx-auto">
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
+            rows={1}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Tulis pesan ke mitra tani..."
-            className="flex-grow px-5 py-2.5 bg-gr-paper/30 border border-gr-line rounded-sm font-sans text text-gr-ink placeholder-gr-ink-soft focus:outline-none focus:border-gr-board focus:ring-2 focus:ring-gr-board/20 transition-all"
+            className="flex-grow px-5 py-[10px] bg-gr-paper/30 border border-gr-line rounded-sm font-sans text text-gr-ink placeholder-gr-ink-soft focus:outline-none focus:border-gr-board focus:ring-2 focus:ring-gr-board/20 transition-all resize-none overflow-y-auto max-h-[120px] min-h-[40px] flex items-center"
           />
           <button
             type="submit"
