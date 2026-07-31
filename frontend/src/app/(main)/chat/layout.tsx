@@ -169,7 +169,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* Right Pane: Chat Window / Content */}
         <div 
           className={cn(
-            "flex-1 flex flex-col h-full bg-white/10 dark:bg-black/5 min-h-0",
+            "flex-1 flex flex-col h-full bg-white/10 dark:bg-black/5 min-h-0 min-w-0",
             !isChatRoomPage && "hidden md:flex"
           )}
         >
