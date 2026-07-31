@@ -47,7 +47,10 @@ class UpdateProfileRequest(BaseModel):
 
 
 class UpgradeToFarmerRequest(BaseModel):
-    phone_whatsapp: Optional[str] = None
+    bio: str
+    bank_name: str
+    bank_account_number: str
+    bank_account_holder: str
 
 class UserLocationUpdate(BaseModel):
     lat: float

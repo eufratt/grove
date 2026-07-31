@@ -29,14 +29,21 @@ async def upgrade_to_farmer(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user)
 ):
-    phone = upgrade_data.phone_whatsapp
-    if phone:
-        if not validate_indonesian_phone(phone):
-            raise HTTPException(
-                status_code=400,
-                detail="Format nomor telepon tidak valid. Gunakan format Indonesia (misal: 08xx atau +628xx)"
-            )
-        current_user.phone_whatsapp = phone
+    if not upgrade_data.bio.strip():
+        raise HTTPException(status_code=400, detail="Deskripsi/Bio tidak boleh kosong")
+    current_user.bio = upgrade_data.bio.strip()
+
+    if not upgrade_data.bank_name.strip():
+        raise HTTPException(status_code=400, detail="Nama bank tidak boleh kosong")
+    current_user.bank_name = upgrade_data.bank_name.strip()
+
+    if not upgrade_data.bank_account_number.strip():
+        raise HTTPException(status_code=400, detail="Nomor rekening tidak boleh kosong")
+    current_user.bank_account_number = upgrade_data.bank_account_number.strip()
+
+    if not upgrade_data.bank_account_holder.strip():
+        raise HTTPException(status_code=400, detail="Nama pemilik rekening tidak boleh kosong")
+    current_user.bank_account_holder = upgrade_data.bank_account_holder.strip()
     
     current_user.role = UserRole.PETANI
     await db.commit()

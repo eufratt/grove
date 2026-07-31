@@ -41,12 +41,15 @@ export const authApi = {
   },
 
 
-  upgradeToFarmer: async (phone: string) => {
+  upgradeToFarmer: async (data: {
+    bio: string;
+    bank_name: string;
+    bank_account_number: string;
+    bank_account_holder: string;
+  }) => {
     const response = await apiClient('/users/upgrade-to-farmer', {
       method: 'POST',
-      body: JSON.stringify({
-        phone_whatsapp: phone
-      }),
+      body: JSON.stringify(data),
     });
     return response.json();
   },
