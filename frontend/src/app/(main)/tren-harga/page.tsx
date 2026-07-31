@@ -435,7 +435,7 @@ export default function PriceTrendPage() {
             </span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 flex-1 min-h-0 items-stretch overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 flex-1 min-h-0 items-stretch lg:overflow-hidden">
             
             {/* COLUMN 1: Historical Trend Chart (Left - Main) */}
             <div className="flex flex-col h-full min-h-0 space-y-3">
@@ -478,7 +478,7 @@ export default function PriceTrendPage() {
                   </div>
                   
                   {/* Chart Wrapper to scale it properly */}
-                  <div className="flex-1 min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm  flex items-center justify-center">
+                  <div className="flex-1 min-h-[300px] lg:min-h-0 bg-white/20 backdrop-blur-sm border border-gr-line p-5 rounded-sm  flex items-center justify-center">
                     <div className="w-full h-full">
                       <PriceTrendChart data={historyData} />
                     </div>

@@ -71,6 +71,7 @@ export default function HargaPasarPage() {
   const [activeTab, setActiveTab] = useState<'pricing' | 'products' | 'demands'>('pricing');
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<any | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -505,6 +506,17 @@ export default function HargaPasarPage() {
               )}
             </div>
             
+            {isSidebarCollapsed && (
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="absolute bottom-20 left-4 z-30 px-4 py-2.5 rounded-sm bg-gr-board text-gr-chalk border border-gr-board/30 shadow-lg md:hidden flex items-center gap-2 cursor-pointer font-mono text-[9px] uppercase tracking-widest font-bold"
+              >
+                <TrendingUp size={14} className="animate-pulse" />
+                <span>Buka Panel</span>
+              </button>
+            )}
+
             <MapView
               mode={activeTab}
               products={activeTab === 'products' ? filteredProducts : []}
@@ -521,7 +533,12 @@ export default function HargaPasarPage() {
           </div>
 
           {/* Sidebar Paper Panel (Floating Overlay on Left below pill navbar) */}
-          <div className="absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm  overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px]">
+          <div 
+            className={cn(
+              "absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm overflow-hidden bottom-4 left-4 right-4 h-[48%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px] transition-all duration-300",
+              isSidebarCollapsed && "translate-y-full opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto"
+            )}
+          >
             
             {/* 1. Header Block (Identitas Panel) */}
             <div className="flex items-center justify-between pb-3 border-b border-gr-line mb-3 shrink-0">
@@ -538,12 +555,22 @@ export default function HargaPasarPage() {
                   </span>
                 </div>
               </div>
-              <Link
-                href="/tren-harga"
-                className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-board bg-gr-board/10 border border-gr-board/25 px-3 py-1.5 rounded-sm hover:bg-gr-board/20 hover:border-gr-board/40 transition-all cursor-pointer shrink-0 font-bold"
-              >
-                Tren Historis &rarr;
-              </Link>
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href="/tren-harga"
+                  className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-gr-board bg-gr-board/10 border border-gr-board/25 px-3 py-1.5 rounded-sm hover:bg-gr-board/20 hover:border-gr-board/40 transition-all cursor-pointer font-bold"
+                >
+                  Tren Historis &rarr;
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarCollapsed(true)}
+                  className="md:hidden p-1.5 border border-gr-line hover:border-gr-ink text-gr-ink-soft hover:text-gr-ink rounded-sm transition-all cursor-pointer flex items-center justify-center bg-white/40"
+                  title="Sembunyikan Panel"
+                >
+                  <ChevronDown size={12} />
+                </button>
+              </div>
             </div>
  
             {/* Location Message inside Sidebar */}
