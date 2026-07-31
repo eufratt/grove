@@ -38,7 +38,7 @@ export function AccessibilityWidget() {
     <div className={cn(
       "fixed z-50",
       isMapPage
-        ? "top-4 right-4 md:top-auto md:bottom-24 md:right-6"
+        ? "top-4 right-4 md:top-auto md:bottom-24 md:right-[10px]"
         : "bottom-20 right-4 md:bottom-6 md:right-6"
     )}>
       <button
