@@ -82,7 +82,7 @@ export default function LoginPage() {
                 <span>Memproses otentikasi...</span>
               </div>
             ) : (
-              <div className="w-full flex justify-center [&_iframe]:!w-full">
+              <div className="w-full flex justify-center">
                 <GoogleSignInButton
                   onSuccess={(credential) =>
                     handleGoogleSuccess({ credential })
