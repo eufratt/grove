@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ordersApi, useOrderSocket } from '@/lib/api/orders';
 import { demandRequestsApi, useDemandSocket } from '@/lib/api/demand-requests';
@@ -22,6 +22,7 @@ import { Pagination } from '@/components/ui/pagination';
 function OrdersPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const [user, setUser] = useState<any | null>(null);
@@ -89,8 +90,8 @@ function OrdersPageContent() {
       const userData = await authApi.getMe();
       setUser(userData);
       
-      const queryTab = new URLSearchParams(window.location.search).get('tab');
-      const queryPage = new URLSearchParams(window.location.search).get('page');
+      const queryTab = searchParams.get('tab');
+      const queryPage = searchParams.get('page');
       
       const initialTab = (queryTab as any) || (userData.role === 'PETANI' ? 'incoming' : 'purchases');
       const initialPage = queryPage ? parseInt(queryPage, 10) : 1;
@@ -129,17 +130,19 @@ function OrdersPageContent() {
 
   const handleTabChange = (tab: 'incoming' | 'purchases' | 'history' | 'demands' | 'products') => {
     if (!user) return;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
     params.set('tab', tab);
     params.set('page', '1');
-    router.push(`${window.location.pathname}?${params.toString()}`);
+    params.delete('status'); // Clear success/failed status when navigating between tabs
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
     params.set('tab', activeTab);
     params.set('page', newPage.toString());
-    router.push(`${window.location.pathname}?${params.toString()}`);
+    params.delete('status'); // Clear success/failed status when changing pages
+    router.push(`${pathname}?${params.toString()}`);
     
     // Smooth scroll to top of list container
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -156,10 +159,11 @@ function OrdersPageContent() {
     }
     
     // Reset to page 1 in state and URL when items per page limit changes
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(searchParams.toString());
     params.set('tab', activeTab);
     params.set('page', '1');
-    router.push(`${window.location.pathname}?${params.toString()}`);
+    params.delete('status'); // Clear success/failed status when changing limit
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleUpdate = () => {
