@@ -10,7 +10,7 @@ import { authApi } from '@/lib/api/auth';
 export function BottomNav() {
   const pathname = usePathname();
   const [user, setUser] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<'beranda' | 'jual' | 'ajukan' | 'pesanan' | null>(null);
+  const [activeTab, setActiveTab] = useState<'beranda' | 'pusat-niaga' | 'jual' | 'ajukan' | 'pesanan' | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -34,6 +34,8 @@ export function BottomNav() {
       setActiveTab('ajukan');
     } else if (pathname === '/pesanan') {
       setActiveTab('pesanan');
+    } else if (pathname === '/pusat-niaga') {
+      setActiveTab('pusat-niaga');
     } else if (pathname === '/beranda' || pathname === '/') {
       setActiveTab('beranda');
     } else {
@@ -50,6 +52,12 @@ export function BottomNav() {
       name: 'Beranda',
       href: '/beranda',
       icon: Home,
+    },
+    {
+      id: 'pusat-niaga',
+      name: 'Pusat Niaga',
+      href: '/pusat-niaga',
+      icon: Compass,
     },
     ...(user && user.role === 'PETANI' ? [{
       id: 'jual',
