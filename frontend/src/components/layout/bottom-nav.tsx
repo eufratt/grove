@@ -3,14 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Plus, ClipboardList } from 'lucide-react';
+import { Home, Compass, LineChart, Plus, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authApi } from '@/lib/api/auth';
 
 export function BottomNav() {
   const pathname = usePathname();
   const [user, setUser] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<'beranda' | 'pusat-niaga' | 'jual' | 'ajukan' | 'pesanan' | null>(null);
+  const [activeTab, setActiveTab] = useState<'beranda' | 'pusat-niaga' | 'tren-harga' | 'jual' | 'ajukan' | 'pesanan' | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,6 +36,8 @@ export function BottomNav() {
       setActiveTab('pesanan');
     } else if (pathname === '/pusat-niaga') {
       setActiveTab('pusat-niaga');
+    } else if (pathname === '/tren-harga') {
+      setActiveTab('tren-harga');
     } else if (pathname === '/beranda' || pathname === '/') {
       setActiveTab('beranda');
     } else {
@@ -59,6 +61,12 @@ export function BottomNav() {
       href: '/pusat-niaga',
       icon: Compass,
     },
+    {
+      id: 'tren-harga',
+      name: 'Tren Harga',
+      href: '/tren-harga',
+      icon: LineChart,
+    },
     ...(user && user.role === 'PETANI' ? [{
       id: 'jual',
       name: 'Jual',
@@ -81,7 +89,7 @@ export function BottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-gr-paper/95 backdrop-blur-lg border-t border-gr-line md:hidden">
-      <nav className="flex justify-around items-center h-16 px-4">
+      <nav className="flex justify-around items-center h-16 px-2">
         {items.map((item) => {
           const isActive = activeTab === item.id;
           const Icon = item.icon;
@@ -90,19 +98,21 @@ export function BottomNav() {
               key={item.id}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full font-sans text-[10px] font-bold uppercase tracking-wider transition-all duration-300 gap-1",
+                "flex flex-col items-center justify-center flex-1 h-full font-sans text-center transition-all duration-300 gap-0.5",
                 isActive 
                   ? "text-gr-board" 
                   : "text-gr-ink-soft hover:text-gr-ink"
               )}
             >
               <div className={cn(
-                "p-1.5 rounded-sm transition-all duration-300",
+                "p-1 rounded-sm transition-all duration-300",
                 isActive ? "bg-gr-board/5" : ""
               )}>
-                <Icon size={18} />
+                <Icon size={16} />
               </div>
-              <span className="text-[9px]">{item.name}</span>
+              <span className="text-[8px] sm:text-[9.5px] font-bold uppercase tracking-wider block truncate max-w-full px-0.5">
+                {item.name}
+              </span>
             </Link>
           );
         })}
