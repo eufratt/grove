@@ -19,7 +19,7 @@ if not DATABASE_URL:
     print("Error: DATABASE_URL is not set.")
     sys.exit(1)
 
-engine = create_async_engine(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL, connect_args={"statement_cache_size": 0})
 AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 async def main():
