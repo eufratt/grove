@@ -469,7 +469,7 @@ export default function SettingsPage() {
                       <span className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
                         Alamat Email
                       </span>
-                      <div className="block w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/85 text-sm  flex justify-between items-center">
+                      <div className="flex w-full rounded-sm border border-gr-line bg-white/40 px-3.5 py-2.5 font-sans text-gr-ink-soft/85 text-sm justify-between items-center">
                         <span>{formatEmail(user?.email || '')}</span>
                         <span className="font-mono text-[9px] uppercase tracking-wider text-gr-up bg-gr-up/10 px-1.5 py-0.5 rounded-xs border border-gr-up/25 font-bold">Terverifikasi</span>
                       </div>

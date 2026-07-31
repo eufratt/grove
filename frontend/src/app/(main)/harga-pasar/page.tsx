@@ -486,8 +486,8 @@ export default function HargaPasarPage() {
           
           {/* Map Area (100% Full-bleed layer extending behind floating island navbar) */}
           <div className="absolute inset-0 w-full h-full z-0">
-            {/* Metadata info cards floating on top right below pill navbar */}
-            <div className="absolute top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
+            {/* Metadata info cards floating on top left below pill navbar, only above the map area */}
+            <div className="absolute top-4 md:top-20 right-6 z-[1000] flex flex-col gap-2 pointer-events-auto">
               {activeTab === 'pricing' && selectedProvince && (
                 <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-gr-board bg-gr-paper/95 backdrop-blur-md px-3 py-1.5 rounded-sm border border-gr-line ">
                   Provinsi: {selectedProvince}
@@ -579,7 +579,8 @@ export default function HargaPasarPage() {
                   activeTab === 'pricing' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
-                Harga Referensi
+                <span className="hidden sm:inline">Harga Referensi</span>
+                <span className="sm:hidden">Harga Ref.</span>
               </button>
               <button
                 onClick={() => {
@@ -593,7 +594,8 @@ export default function HargaPasarPage() {
                   activeTab === 'products' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                 )}
               >
-                Produk Terdekat
+                <span className="hidden sm:inline">Produk Terdekat</span>
+                <span className="sm:hidden">Terdekat</span>
               </button>
               {user?.role === 'PETANI' && (
                 <button
@@ -607,7 +609,8 @@ export default function HargaPasarPage() {
                     activeTab === 'demands' ? "bg-gr-board text-gr-chalk" : "text-gr-ink-soft hover:text-gr-ink hover:bg-black/5"
                   )}
                 >
-                  Permintaan Pembeli
+                  <span className="hidden sm:inline">Permintaan Pembeli</span>
+                  <span className="sm:hidden">Permintaan</span>
                 </button>
               )}
             </div>

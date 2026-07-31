@@ -89,7 +89,7 @@ export function KickerBar() {
       <div className="h-[1px] bg-gr-ink max-w-[1100px] mx-auto mt-[3px]" />
       
       {/* Meta Row */}
-      <div className="max-w-[1100px] mx-auto padding-kicker px-8 pt-3.5 pb-4 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none border-b border-gr-line">
+      <div className="max-w-[1100px] mx-auto padding-kicker px-4 sm:px-6 md:px-8 pt-3.5 pb-4 flex justify-between flex-wrap gap-2 font-mono text-[10px] tracking-widest uppercase text-gr-ink-soft select-none border-b border-gr-line">
         <span>Buletin harga pangan · Nº {getEditionNumber()}</span>
         <span className="hidden sm:inline">Rantai pasok pangan pedesaan</span>
         <span>PIHPS · {formatDateIndonesian(today)}</span>
@@ -139,7 +139,7 @@ export function MastheadNav() {
   };
 
   return (
-    <header className="w-full max-w-[1100px] mx-auto px-8 pt-5 pb-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
+    <header className="w-full max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 pt-5 pb-6 flex items-center justify-between flex-wrap gap-4 relative z-40 select-none bg-transparent">
       {/* Logo Wordmark */}
       <GroveLogo href="/" size="md" />
 
@@ -202,7 +202,7 @@ export function HeroHeadline() {
   }, []);
 
   return (
-    <section className="w-full max-w-[1100px] mx-auto px-8 py-12 md:py-16 text-center select-none">
+    <section className="w-full max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-12 md:py-16 text-center select-none">
       <span className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-gr-down block mb-5">
         Rantai pasok pangan pedesaan
       </span>
@@ -254,7 +254,7 @@ export function LedeSection() {
   const { ref: listRef, isVisible: listVisible } = useScrollReveal<HTMLUListElement>({ rootMargin: '0px 0px -16px 0px' });
 
   return (
-    <section className="w-full max-w-[1100px] mx-auto px-8 py-8 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 relative z-40 select-none">
+    <section className="w-full max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-8 grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-12 relative z-40 select-none">
       <style dangerouslySetInnerHTML={{__html: `
         .lede-dropcap::first-letter {
           font-family: 'Fraunces', Georgia, serif;
@@ -307,7 +307,7 @@ export function QuoteSection() {
   const { ref: quoteRef, isVisible: quoteVisible } = useScrollReveal<HTMLQuoteElement>();
 
   return (
-    <section className="w-full max-w-[900px] mx-auto px-8 py-10 relative z-40 select-none">
+    <section className="w-full max-w-[900px] mx-auto px-4 sm:px-6 md:px-8 py-10 relative z-40 select-none">
       {/* Quote Eyebrow */}
       <div className="flex items-center gap-4 justify-center mb-8">
         <span className="flex-1 h-px bg-gr-line" />
@@ -471,7 +471,7 @@ export function FigPanels({ pricesData = defaultFigPanelsData }: FigPanelsProps)
   const { ref: gridRef, isVisible: gridVisible } = useScrollReveal<HTMLDivElement>({ rootMargin: '0px 0px -60px 0px' });
 
   return (
-    <section className="w-full max-w-[1100px] mx-auto px-8 pb-16 relative z-40 select-none">
+    <section className="w-full max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 pb-16 relative z-40 select-none">
       {/* Fig Head */}
       <div className="flex justify-between items-baseline flex-wrap gap-2 border-b border-gr-line pb-4 mb-6">
         <div className="flex items-center gap-2">
@@ -605,7 +605,7 @@ function EntriesSection() {
         className={`flex flex-col gap-6 gr-stagger${entriesVisible ? ' gr-stagger--visible' : ''}`}
       >
         {entries.map((entry, idx) => (
-          <div key={idx} className="grid grid-cols gap-5 py-6 border-b border-gr-line last:border-0">
+          <div key={idx} className="grid grid-cols-[auto_1fr] gap-5 py-6 border-b border-gr-line last:border-0">
             <span className="font-display font-bold text-[26px] text-gr-down">{entry.mark}</span>
             <div>
               <h3 className="font-display font-semibold text-lg text-gr-ink m-0 mb-2">{entry.title}</h3>
@@ -626,7 +626,7 @@ export function LandingFooter() {
     <footer className="w-full border-t-3 border-gr-ink mt-8 relative z-40 select-none bg-transparent">
       <div
         ref={footerRef}
-        className={`max-w-[1100px] mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-[5fr_4fr_3fr] gap-8 gr-stagger${footerVisible ? ' gr-stagger--visible' : ''}`}
+        className={`max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-10 grid grid-cols-1 md:grid-cols-[5fr_4fr_3fr] gap-8 gr-stagger${footerVisible ? ' gr-stagger--visible' : ''}`}
       >
         <div>
           <h3 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-3">
