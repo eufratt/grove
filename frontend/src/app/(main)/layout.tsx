@@ -9,7 +9,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isFullBleed = pathname === '/harga-pasar' || pathname.startsWith('/chat');
+  const isFullBleed = pathname === '/pusat-niaga' || pathname.startsWith('/chat');
 
   return (
     <div className="flex-1 flex flex-col min-h-full">

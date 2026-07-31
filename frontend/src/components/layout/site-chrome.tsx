@@ -177,7 +177,7 @@ export function SiteChrome() {
       </AnimatePresence>
 
       {/* Kicker bar — hidden on map page */}
-      {pathname !== '/harga-pasar' && (
+      {pathname !== '/pusat-niaga' && (
         <div className={isLanding ? "" : "pt-3.5"}>
           <KickerBar />
         </div>

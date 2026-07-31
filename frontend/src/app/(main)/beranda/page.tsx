@@ -207,7 +207,7 @@ function BerandaContent() {
             />
             <div className="flex justify-start px-2">
               <Link 
-                href="/harga-pasar" 
+                href="/pusat-niaga" 
                 className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-gr-board hover:underline transition-all cursor-pointer"
               >
                 Lihat Peta Acuan Harga

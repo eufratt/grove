@@ -133,7 +133,7 @@ export function Navbar() {
 
   const navItems = [
     { name: 'Beranda', href: '/beranda', icon: Leaf },
-    { name: 'Pusat Niaga', href: '/harga-pasar', icon: TrendingUp },
+    { name: 'Pusat Niaga', href: '/pusat-niaga', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
     ...(user && user.role === 'PETANI' ? [{ name: 'Jual', href: '/jual', icon: PlusCircle }] : []),
     ...(user && user.role === 'PEMBELI' ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
@@ -146,7 +146,7 @@ export function Navbar() {
 
 
       {/* Main navbar — floating pill island on map page, flat editorial bar on regular pages */}
-      {pathname === '/harga-pasar' ? (
+      {pathname === '/pusat-niaga' ? (
         <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gr-paper/95 backdrop-blur-md border border-gr-line rounded-sm  px-5 py-2 flex items-center justify-between gap-5 max-w-[90vw]">
           {/* Logo */}
           <div className="flex items-center">
@@ -159,7 +159,7 @@ export function Navbar() {
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
-              const isActive = item.href === '/harga-pasar';
+              const isActive = item.href === '/pusat-niaga';
               const Icon = item.icon;
               return (
                 <Link
