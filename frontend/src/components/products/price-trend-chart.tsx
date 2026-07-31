@@ -28,8 +28,9 @@ export const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
     const innerHeight = height - margin.top - margin.bottom;
 
     const svg = select(svgRef.current)
-      .attr("width", width)
-      .attr("height", height)
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("width", "100%")
+      .attr("height", "100%")
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
