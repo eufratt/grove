@@ -78,7 +78,7 @@ async def create_product(
     current_user: User = Depends(auth_service.get_current_user)
 ):
     if current_user.role != UserRole.PETANI:
-        raise HTTPException(status_code=403, detail="Only farmers can post products")
+        raise HTTPException(status_code=403, detail="Only farmers/livestock breeders can post products")
     
     photo_url = await storage_service.upload_product_photo(photo)
     
@@ -247,7 +247,7 @@ async def list_my_products(
     current_user: User = Depends(auth_service.get_current_user)
 ):
     if current_user.role != UserRole.PETANI:
-        raise HTTPException(status_code=403, detail="Only farmers have listed products")
+        raise HTTPException(status_code=403, detail="Only farmers/livestock breeders have listed products")
         
     sql = text("""
         SELECT p.id, p.seller_id, p.name, p.category, p.quantity_kg, p.price_per_kg, p.reference_price_per_kg, p.status, p.photo_url, p.created_at,

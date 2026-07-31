@@ -277,7 +277,7 @@ class EscrowService:
             res_seller = await db.execute(stmt_seller)
             seller = res_seller.scalar_one_or_none()
             if not seller:
-                raise HTTPException(status_code=404, detail="Petani penjual tidak ditemukan")
+                raise HTTPException(status_code=404, detail="Petani/peternak penjual tidak ditemukan")
 
             order.escrow_status = EscrowStatus.RELEASED
             order.confirmed_received_at = now
@@ -322,7 +322,7 @@ class EscrowService:
                     "status": order.status.value,
                     "payment_status": order.payment_status.value,
                     "escrow_status": order.escrow_status.value,
-                    "message": "Barang dikonfirmasi diterima. Dana dicairkan ke petani.",
+                    "message": "Barang dikonfirmasi diterima. Dana dicairkan ke petani/peternak.",
                     "timestamp": now.isoformat()
                 }
             )
@@ -352,7 +352,7 @@ class EscrowService:
             res_seller = await db.execute(stmt_seller)
             seller = res_seller.scalar_one_or_none()
             if not seller:
-                raise HTTPException(status_code=404, detail="Petani penjual tidak ditemukan")
+                raise HTTPException(status_code=404, detail="Petani/peternak penjual tidak ditemukan")
 
             dt.escrow_status = EscrowStatus.RELEASED
             dt.confirmed_received_at = now
@@ -391,7 +391,7 @@ class EscrowService:
                     "status": dt.demand_request.status.value,
                     "payment_status": dt.payment_status.value,
                     "escrow_status": dt.escrow_status.value,
-                    "message": "Barang dikonfirmasi diterima. Dana dicairkan ke petani.",
+                    "message": "Barang dikonfirmasi diterima. Dana dicairkan ke petani/peternak.",
                     "timestamp": now.isoformat()
                 }
             )
@@ -426,7 +426,7 @@ class EscrowService:
 
             # Verify that the user triggering this is the seller
             if product.seller_id != user_id:
-                raise HTTPException(status_code=403, detail="Hanya petani penjual yang dapat mencairkan dana")
+                raise HTTPException(status_code=403, detail="Hanya petani/peternak penjual yang dapat mencairkan dana")
 
             if order.escrow_status != EscrowStatus.RELEASED:
                 raise HTTPException(status_code=400, detail="Dana belum dicairkan oleh pembeli")
@@ -466,7 +466,7 @@ class EscrowService:
                 raise HTTPException(status_code=404, detail="Transaksi permintaan tidak ditemukan")
 
             if dt.seller_id != user_id:
-                raise HTTPException(status_code=403, detail="Hanya petani penjual yang dapat mencairkan dana")
+                raise HTTPException(status_code=403, detail="Hanya petani/peternak penjual yang dapat mencairkan dana")
 
             if dt.escrow_status != EscrowStatus.RELEASED:
                 raise HTTPException(status_code=400, detail="Dana belum dicairkan oleh pembeli")

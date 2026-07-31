@@ -242,7 +242,7 @@ async def list_incoming_orders(
     if current_user.role != UserRole.PETANI:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya petani yang dapat melihat pesanan masuk"
+            detail="Hanya petani/peternak yang dapat melihat pesanan masuk"
         )
     
     BuyerUser = aliased(User, name="buyer")

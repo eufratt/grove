@@ -66,7 +66,7 @@ async def create_rating(
         res_commit = await db.execute(stmt_commit)
         commitment = res_commit.scalar_one_or_none()
         if not commitment:
-            raise HTTPException(status_code=403, detail="Hanya petani yang berkomitmen yang dapat menilai pembeli")
+            raise HTTPException(status_code=403, detail="Hanya petani/peternak yang berkomitmen yang dapat menilai pembeli")
         
         rated_id = req.buyer_id
         role_context = RoleContext.AS_BUYER

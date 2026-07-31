@@ -585,7 +585,7 @@ async def commit_supply_to_demand(
     if current_user.role != UserRole.PETANI:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya petani yang dapat melakukan komitmen supply"
+            detail="Hanya petani/peternak yang dapat melakukan komitmen supply"
         )
 
     stmt = select(DemandRequest).where(DemandRequest.id == id)
@@ -1013,7 +1013,7 @@ async def cancel_demand_request(
     if total_committed > 0 or request.quantity_kg_committed > 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Permintaan tidak dapat dibatalkan karena sudah ada komitmen dari petani"
+            detail="Permintaan tidak dapat dibatalkan karena sudah ada komitmen dari petani/peternak"
         )
 
     request.status = DemandRequestStatus.DIBATALKAN

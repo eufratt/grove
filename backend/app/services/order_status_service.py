@@ -46,7 +46,7 @@ def get_countdown_message(target_status: OrderStatus, base_time: datetime) -> st
     time_str = f"{hours} jam {minutes} menit" if days == 0 else f"{days} hari {hours} jam"
     
     if target_status == OrderStatus.MENUNGGU_KONFIRMASI:
-        return f"Sisa waktu konfirmasi petani: {time_str}"
+        return f"Sisa waktu konfirmasi petani/peternak: {time_str}"
     elif target_status == OrderStatus.SIAP_DIAMBIL:
         return f"Sisa waktu ambil barang: {time_str}"
     elif target_status == OrderStatus.DIKIRIM:
@@ -89,7 +89,7 @@ async def accept_order(db: AsyncSession, order: Order, current_user: User) -> Or
     if product.seller_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya petani pemilik produk yang dapat menerima pesanan"
+            detail="Hanya petani/peternak pemilik produk yang dapat menerima pesanan"
         )
         
     order.status = OrderStatus.DIPROSES
@@ -99,7 +99,7 @@ async def accept_order(db: AsyncSession, order: Order, current_user: User) -> Or
     await db.commit()
     await db.refresh(order)
     
-    await broadcast_status_change(order, "Pesanan diterima oleh petani dan sedang diproses.")
+    await broadcast_status_change(order, "Pesanan diterima oleh petani/peternak dan sedang diproses.")
     return order
 
 # Transition 2: Reject Order (Farmer)
@@ -118,7 +118,7 @@ async def reject_order(db: AsyncSession, order: Order, current_user: User) -> Or
     if product.seller_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya petani pemilik produk yang dapat menolak pesanan"
+            detail="Hanya petani/peternak pemilik produk yang dapat menolak pesanan"
         )
         
     # Rollback stock and update status in one transaction
@@ -132,7 +132,7 @@ async def reject_order(db: AsyncSession, order: Order, current_user: User) -> Or
     await db.commit()
     await db.refresh(order)
     
-    await broadcast_status_change(order, "Pesanan ditolak oleh petani. Status: DIBATALKAN.")
+    await broadcast_status_change(order, "Pesanan ditolak oleh petani/peternak. Status: DIBATALKAN.")
     return order
 
 # Transition 3: Cancel by Buyer
@@ -187,7 +187,7 @@ async def mark_order_ready(db: AsyncSession, order: Order, current_user: User, t
     if product.seller_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Hanya petani pemilik produk yang dapat menandai pesanan siap"
+            detail="Hanya petani/peternak pemilik produk yang dapat menandai pesanan siap"
         )
         
     now = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -277,7 +277,7 @@ async def system_timeout_confirmation(db: AsyncSession, order: Order) -> Order:
     await db.commit()
     await db.refresh(order)
     
-    await broadcast_status_change(order, "Pesanan dibatalkan otomatis karena petani tidak merespons dalam 24 jam. Status: DIBATALKAN.")
+    await broadcast_status_change(order, "Pesanan dibatalkan otomatis karena petani/peternak tidak merespons dalam 24 jam. Status: DIBATALKAN.")
     return order
 
 # Timeout 2: Pickup/Delivery Timeout

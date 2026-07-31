@@ -25,8 +25,8 @@ class GroqService:
         avg_frequency: float
     ) -> str:
         return (
-            f"Anda adalah sistem analis harga pasar pangan komoditas pertanian lokal 'Grove'.\n"
-            f"Tugas Anda adalah memberikan penjelasan bahasa natural yang sangat ringkas, padat, informatif, dan mudah dipahami oleh petani dan pembeli di Indonesia mengenai stabilitas harga komoditas berdasarkan hasil perhitungan statistik berikut:\n"
+            f"Anda adalah sistem analis harga pasar pangan komoditas pertanian/peternakan lokal 'Grove'.\n"
+            f"Tugas Anda adalah memberikan penjelasan bahasa natural yang sangat ringkas, padat, informatif, dan mudah dipahami oleh petani/peternak dan pembeli di Indonesia mengenai stabilitas harga komoditas berdasarkan hasil perhitungan statistik berikut:\n"
             f"- Nama Komoditas: {commodity_name}\n"
             f"- Wilayah: {region}\n"
             f"- Rentang Data: {days} hari terakhir\n"
@@ -43,7 +43,7 @@ class GroqService:
             f"Berikan penjelasan bahasa Indonesia maksimal 3 kalimat yang berisi:\n"
             f"1. Status stabilitas harga saat ini (menuju stabil, bergejolak, atau normal).\n"
             f"2. Penjelasan statistik osilasi (fluktuasi rata-rata Rp X dalam rentang Y hari).\n"
-            f"3. Rekomendasi taktis untuk petani atau pembeli.\n\n"
+            f"3. Rekomendasi taktis untuk petani/peternak atau pembeli.\n\n"
             f"Jawab hanya teks penjelasan saja langsung ke poinnya, tanpa kata sambutan/salam pembuka atau penutup."
         )
 

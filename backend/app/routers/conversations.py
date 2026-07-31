@@ -71,7 +71,7 @@ async def create_conversation(
         if seller.role != 'PETANI':
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Recipient must be a farmer"
+                detail="Recipient must be a farmer/livestock breeder"
             )
         target_seller_id = seller.id
         target_buyer_id = current_user.id
