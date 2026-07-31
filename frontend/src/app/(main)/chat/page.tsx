@@ -6,8 +6,6 @@ import { MessageCircle } from 'lucide-react';
 export default function ChatIndexPage() {
   return (
     <div className="flex-grow flex flex-col items-center justify-center p-8 text-center bg-white/10 dark:bg-black/5 h-full relative overflow-hidden">
-      {/* Decorative crop dots pattern in background */}
-      <div className="absolute inset-0 opacity-[0.015] bg-radial from-gr-board" />
       
       <div className="w-14 h-14 rounded-sm bg-gr-board/5 border border-gr-board/10 flex items-center justify-center text-gr-board mb-5  relative">
         <MessageCircle size={24} />
