@@ -11,7 +11,7 @@ import { Glow } from '@/components/effects/glow';
 import { PriceGauge } from '@/components/products/price-gauge';
 import { SellerRatingBadge } from '@/components/ratings/seller-rating-badge';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, MessageCircle, MapPin, Calendar, Tag, Loader2, Minus, Plus, ShieldAlert } from 'lucide-react';
+import { ShoppingCart, MessageSquare, MapPin, Calendar, Tag, Loader2, Minus, Plus, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
