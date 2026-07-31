@@ -841,7 +841,7 @@ export default function HargaPasarPage() {
                             <Link
                               href={`/produk/${prod.id}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-all duration-150 cursor-pointer text-center"
+                              className="border border-gr-board text-gr-board hover:bg-gr-board/5 font-mono text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-all duration-150 cursor-pointer text-center"
                             >
                               Lihat Detail
                             </Link>
