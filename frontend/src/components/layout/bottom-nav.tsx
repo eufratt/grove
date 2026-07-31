@@ -73,7 +73,7 @@ export function BottomNav() {
       href: '/jual',
       icon: Plus,
     }] : []),
-    ...(user && user.role === 'PEMBELI' ? [{
+    ...(user && user.role !== 'PETANI' ? [{
       id: 'ajukan',
       name: 'Ajukan',
       href: '/permintaan-saya',

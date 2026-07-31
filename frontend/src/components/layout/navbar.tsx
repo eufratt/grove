@@ -102,6 +102,9 @@ export function Navbar() {
         const userData = await authApi.getMe();
         setUser(userData);
         setShowBanner(false);
+        if (userData && !userData.role && pathname !== '/lengkapi-profil') {
+          router.push('/lengkapi-profil');
+        }
       } catch {
         setUser(null);
         setShowBanner(false);
@@ -136,7 +139,7 @@ export function Navbar() {
     { name: 'Pusat Niaga', href: '/pusat-niaga', icon: TrendingUp },
     { name: 'Tren Harga', href: '/tren-harga', icon: LineChart },
     ...(user && user.role === 'PETANI' ? [{ name: 'Jual', href: '/jual', icon: PlusCircle }] : []),
-    ...(user && user.role === 'PEMBELI' ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
+    ...(user && user.role !== 'PETANI' ? [{ name: 'Ajukan Permintaan', href: '/permintaan-saya', icon: PlusCircle }] : []),
     ...(user ? [{ name: 'Pesanan', href: '/pesanan', icon: ClipboardList }] : []),
     ...(user ? [{ name: 'Chat', href: '/chat', icon: MessageCircle }] : []),
   ];
