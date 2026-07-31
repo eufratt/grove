@@ -158,6 +158,16 @@ export const MapView: React.FC<MapViewProps> = ({
     data: any;
   } | null>(null);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Synchronize activePopup with propFlyToCoords
   useEffect(() => {
     if (propFlyToCoords) {
@@ -267,7 +277,7 @@ export const MapView: React.FC<MapViewProps> = ({
           mode={mode}
           userLocation={userLocation}
         />
-        <ZoomControl position="topleft" />
+        <ZoomControl key={isMobile ? 'mobile-zoom' : 'desktop-zoom'} position={isMobile ? "topleft" : "bottomright"} />
         
         {/* CartoDB Positron (Light) Tile Layer */}
         <TileLayer
