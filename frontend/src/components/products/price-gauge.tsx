@@ -105,7 +105,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
   return (
     <div className="flex flex-col gap-4 select-none w-full">
       {/* Visual Gauge Component */}
-      <div className="relative pt-6 pb-2 px-1">
+      <div className="relative pt-10 pb-2 px-1">
         {/* Track Container */}
         <div className="relative w-full h-3 bg-gr-chalk rounded-sm border border-gr-line/5 overflow-visible">
           
@@ -134,11 +134,11 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
             style={{ left: '50%' }}
           >
             {/* Top label */}
-            <span className="absolute -top-6 font-mono text font-extrabold tracking-widest text-gr-ink-soft opacity-60">
+            <span className="absolute -top-4 font-mono text-[8px] font-extrabold tracking-widest text-gr-ink-soft opacity-60">
               ACUAN
             </span>
             {/* Dotted vertical line */}
-            <div className="w h-6 bg-gr-ink border-l border-dashed border-gr-ink-soft/40" />
+            <div className="w-px h-6 bg-gr-ink border-l border-dashed border-gr-ink-soft/40" />
           </div>
 
           {/* Product Price Marker (Dot + Tooltip + Pulsing effect) */}
@@ -148,7 +148,7 @@ export const PriceGauge: React.FC<PriceGaugeProps> = ({
           >
             {/* Floating deviation percentage tag */}
             <div 
-              className={`absolute -top-7 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-extrabold tracking-wider ${bgClass} ${textClass} border ${borderClass}  transition-all duration-300 whitespace-nowrap`}
+              className={`absolute -top-9 px-1.5 py-0.5 rounded-sm font-mono text-[9px] font-extrabold tracking-wider ${bgClass} ${textClass} border ${borderClass}  transition-all duration-300 whitespace-nowrap`}
               style={{ transform: `scale(${animate ? 1 : 0.8})` }}
             >
               {deviationText}
