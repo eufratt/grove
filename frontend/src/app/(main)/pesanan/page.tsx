@@ -917,7 +917,6 @@ function OrderCard({
                         setHasBuyerRated(true);
                         onUpdate();
                       }}
-                      raterRole={order.seller_id === user.id ? 'PEMBELI' : 'PETANI'}
                       label="Nilai Penjual (Petani/Peternak)"
                     />
                   </div>
