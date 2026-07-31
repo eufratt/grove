@@ -429,12 +429,12 @@ export default function SettingsPage() {
                             <button
                               key={roleOpt.value}
                               type="button"
-                              onClick={() => setSelectedRole(roleOpt.value as 'PETANI' | 'PEMBELI')}
+                              disabled
                               className={cn(
-                                "flex-1 border p-3 rounded-sm text-left transition-all duration-200 cursor-pointer focus:outline-none",
+                                "flex-1 border p-3 rounded-sm text-left transition-all duration-200 focus:outline-none cursor-not-allowed opacity-75",
                                 isSelected 
                                   ? "border-gr-board bg-gr-board/5 text-gr-ink " 
-                                  : "border-gr-line bg-white text-gr-ink-soft hover:border-gr-ink-soft/45 hover:bg-gr-paper/10"
+                                  : "border-gr-line bg-white/40 text-gr-ink-soft/40"
                               )}
                             >
                               <span className="block font-sans text-xs font-extrabold">{roleOpt.label}</span>
@@ -443,6 +443,9 @@ export default function SettingsPage() {
                           );
                         })}
                       </div>
+                      <span className="block font-mono text-[9px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
+                        Peran tidak dapat diubah dari sini. Gunakan menu upgrade di samping jika ingin menjadi Farmer.
+                      </span>
                     </div>
 
                     {/* Full Name */}
