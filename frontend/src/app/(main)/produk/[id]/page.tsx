@@ -213,7 +213,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
   const isOwnProduct = currentUser && product && currentUser.id === product.seller_id;
 
   return (
-    <main className="relative min-h-screen lg:h bg-gr-bg pt-6 pb-12 lg:pt-2 lg:pb-6 px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden flex flex-col justify-start">
+    <main className="relative min-h-screen bg-gr-bg pt-6 pb-12 lg:py-8 px-4 sm:px-6 lg:px-8 overflow-y-auto flex flex-col justify-start">
       <BgPattern />
       <FilmGrain />
       <Glow color="var(--gr-green)" position="top" className="opacity-10" />
@@ -225,7 +225,7 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
         </div>
       )}
       
-      <div className="relative z-10 mx-auto w-full max-w-5xl lg:h-full lg:max-h-[580px] flex flex-col justify-between">
+      <div className="relative z-10 mx-auto w-full max-w-5xl flex flex-col justify-between">
         <div className="shrink-0 mb-3">
           <Link 
             href="/beranda" 
@@ -235,9 +235,9 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
           </Link>
         </div>
  
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch lg:flex-1 lg:min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Left: Polaroid Style Image */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center lg:min-h-0">
+          <div className="lg:col-span-5 flex flex-col items-center justify-start lg:pt-4">
             <div className="bg-[#FAF9F5] p-4 pb-5  rotate-1 hover:rotate-0 transition-all duration-500 w-full max-w-[280px] sm:max-w-[320px] flex flex-col justify-start border border-gr-line/14 rounded-sm">
               <div className="aspect-square w-full overflow-hidden bg-black/5 rounded-xs border border-gr-line/5">
                 <Image 
