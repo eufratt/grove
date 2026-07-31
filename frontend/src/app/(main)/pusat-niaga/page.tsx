@@ -535,13 +535,13 @@ export default function HargaPasarPage() {
           {/* Sidebar Paper Panel (Floating Overlay on Left below pill navbar) */}
           <div 
             className={cn(
-              "absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-5 sm:p-6 rounded-sm overflow-hidden bottom-20 left-4 right-4 h-[58%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px] transition-all duration-300",
+              "absolute z-20 flex flex-col bg-gr-paper/97 backdrop-blur-xl border border-gr-line p-4 sm:p-6 rounded-sm overflow-hidden bottom-20 left-4 right-4 h-[64%] md:top-20 md:bottom-6 md:left-6 md:right-auto md:h-auto md:w-[440px] lg:w-[480px] transition-all duration-300",
               isSidebarCollapsed && "translate-y-full opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto"
             )}
           >
             
             {/* 1. Header Block (Identitas Panel) */}
-            <div className="flex items-center justify-between pb-3 border-b border-gr-line mb-3 shrink-0">
+            <div className="flex items-center justify-between pb-2.5 border-b border-gr-line mb-2.5 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-sm bg-gr-board/10 flex items-center justify-center border border-gr-board/20">
                   <TrendingUp size={16} className="text-gr-board animate-pulse" />
@@ -575,14 +575,14 @@ export default function HargaPasarPage() {
  
             {/* Location Message inside Sidebar */}
             {locationMessage && (
-              <div className="mb-3 rounded-sm bg-gr-down/10 p-3 text-[10px] text-gr-down border border-gr-down/20 flex items-center gap-2 shrink-0 font-mono uppercase tracking-wider">
+              <div className="mb-2.5 rounded-sm bg-gr-down/10 p-3 text-[10px] text-gr-down border border-gr-down/20 flex items-center gap-2 shrink-0 font-mono uppercase tracking-wider">
                 <Info size={12} className="shrink-0" />
                 <span className="leading-relaxed">{locationMessage}</span>
               </div>
             )}
 
             {/* 2. Prominent Search Bar */}
-            <div className="relative mb-3 shrink-0">
+            <div className="relative mb-2.5 shrink-0">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gr-ink-soft" />
               <input
                 type="text"
@@ -594,7 +594,7 @@ export default function HargaPasarPage() {
             </div>
  
             {/* 3. Tab Toggle Selector */}
-            <div className="flex bg-gr-ink/5 border border-gr-line mb-4 shrink-0 rounded-sm overflow-hidden">
+            <div className="flex bg-gr-ink/5 border border-gr-line mb-3 shrink-0 rounded-sm overflow-hidden">
               <button
                 onClick={() => {
                   setActiveTab('pricing');
@@ -646,7 +646,7 @@ export default function HargaPasarPage() {
             {activeTab === 'pricing' && (
               <>
                 {/* Title and Count Badge */}
-                <div className="mb-4 flex items-center justify-between shrink-0">
+                <div className="mb-3 flex items-center justify-between shrink-0">
                   <div>
                     <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft">
                       Rincian Acuan Harga
@@ -661,7 +661,7 @@ export default function HargaPasarPage() {
                 </div>
  
                 {/* Dropdowns panel without duplicate search bar */}
-                <div className="bg-gr-chalk/35 border border-gr-line p-3 rounded-sm  mb-4 shrink-0">
+                <div className="bg-gr-chalk/35 border border-gr-line p-3 rounded-sm  mb-3 shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="relative">
                       <select

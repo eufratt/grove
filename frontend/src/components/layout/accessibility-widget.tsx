@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AccessibilityWidget() {
+  const pathname = usePathname();
   const [isAccessibleMode, setIsAccessibleMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -30,8 +32,15 @@ export function AccessibilityWidget() {
     }
   };
 
+  const isMapPage = pathname === '/pusat-niaga';
+
   return (
-    <div className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50">
+    <div className={cn(
+      "fixed z-50",
+      isMapPage
+        ? "top-32 right-4 md:bottom-6 md:right-6"
+        : "bottom-20 right-4 md:bottom-6 md:right-6"
+    )}>
       <button
         onClick={toggleAccessibility}
         type="button"
