@@ -223,8 +223,8 @@ function OrdersPageContent() {
       return {
         title: 'Belum ada permintaan diterima',
         desc: user?.role === 'PETANI'
-          ? 'Kamu belum memberikan komitmen supply pada permintaan pembeli.'
-          : 'Belum ada petani yang menyetujui/berkomitmen pada permintaan hasil panenmu.'
+          ? 'Belum ada permintaan masuk yang dikomit atau dicocokkan.'
+          : 'Belum ada petani/peternak yang menyetujui/berkomitmen pada permintaan hasil panen/ternakmu.'
       };
     }
   };
@@ -634,7 +634,7 @@ function OrderCard({
   });
 
   const contactName = isIncoming ? order.buyer_name : order.seller_name;
-  const contactRoleLabel = isIncoming ? 'Pembeli' : 'Penjual/Petani';
+  const contactRoleLabel = isIncoming ? 'Pembeli' : 'Penjual/Petani/Peternak';
   const basePrice = (order.price_per_kg || 0) * (order.quantity_kg || 0);
   const estimatedAdminFee = Math.round(basePrice * 0.02);
 
@@ -754,8 +754,8 @@ function OrderCard({
                 <div className="font-sans leading-relaxed">
                   <p className="font-bold">Pesanan Dibatalkan:</p>
                   <p className="mt-0.5 opacity-90">
-                    {order.cancellation_reason === 'PETANI_MENOLAK' && 'Pesanan ditolak oleh penjual/petani.'}
-                    {order.cancellation_reason === 'PEMBELI_BATAL' && 'Pesanan dibatalkan oleh pembeli.'}
+                    {order.cancellation_reason === 'TIMEOUT_PENGAMBILAN' && 'Pembatalan otomatis karena batas waktu pengambilan habis.'}
+                    {order.cancellation_reason === 'PETANI_MENOLAK' && 'Pesanan ditolak oleh penjual/petani/peternak.'}
                     {order.cancellation_reason === 'TIMEOUT_KONFIRMASI' && 'Dibatalkan otomatis oleh sistem karena penjual tidak memberikan konfirmasi pesanan tepat waktu.'}
                     {order.cancellation_reason === 'TIMEOUT_PENGAMBILAN' && 'Dibatalkan otomatis oleh sistem karena barang tidak diambil tepat waktu.'}
                   </p>
@@ -803,7 +803,7 @@ function OrderCard({
                 <div className="space-y-2.5 pt-1 text-xs font-sans">
                   <div className="flex items-center justify-between">
                     <span className="text-gr-ink-soft">Nama</span>
-                    <span className="font-bold text-gr-ink">{contactName || 'Petani'}</span>
+                    <span className="font-bold text-gr-ink">{contactName || 'Petani/Peternak'}</span>
                   </div>
                   <div className="flex justify-end pt-1">
                     <button
@@ -814,9 +814,9 @@ function OrderCard({
                       {chatLoading ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <MessageSquare className="h-3.5 w-3.5" />
+                        <MessageSquare size={13} />
                       )}
-                      <span>Chat {isIncoming ? 'Pembeli' : 'Petani'}</span>
+                      <span>Chat {isIncoming ? 'Pembeli' : 'Petani/Peternak'}</span>
                     </button>
                   </div>
                 </div>
@@ -917,7 +917,8 @@ function OrderCard({
                         setHasBuyerRated(true);
                         onUpdate();
                       }}
-                      label="Nilai Penjual/Petani"
+                      raterRole={order.seller_id === user.id ? 'PEMBELI' : 'PETANI'}
+                      label="Nilai Penjual (Petani/Peternak)"
                     />
                   </div>
                 )}
@@ -1010,8 +1011,7 @@ function DemandCard({
         throw new Error('Gagal memulai percakapan');
       }
     } catch (err: any) {
-      console.error('Failed to start chat:', err);
-      alert(err.message || 'Gagal memulai chat dengan petani');
+      alert(err.message || 'Gagal memulai chat dengan petani/peternak');
     } finally {
       setChatLoading(false);
     }
@@ -1046,8 +1046,8 @@ function DemandCard({
       return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Telah Dicocokkan' };
     }
     switch (status.toUpperCase()) {
-      case 'TERBUKA': 
-        return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Dikomit Petani' };
+      case 'DITOLAK':
+        return { icon: Clock, pillStyle: 'bg-gr-board/10 text-gr-board border-gr-board/20', label: 'Dikomit Petani/Peternak' };
       case 'TERPENUHI': 
         return { icon: CheckCircle2, pillStyle: 'bg-gr-up/10 text-gr-up border-gr-up/20', label: 'Terpenuhi' };
       case 'DIBATALKAN': 
@@ -1218,16 +1218,16 @@ function DemandCard({
               <div>
                 {isBuyer ? (
                   <div>
-                    <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-gr-ink-soft mb-2">
-                      Komitmen Petani ({demand.commitments?.length || 0})
-                    </h4>
+                    <h3 className="font-display font-semibold text-xs text-gr-ink border-b border-gr-line/45 pb-2 mb-3">
+                      Komitmen Petani/Peternak ({demand.commitments?.length || 0})
+                    </h3>
                     <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                       {demand.commitments && demand.commitments.length > 0 ? (
                         demand.commitments.map((commit: any) => {
                           return (
                             <div key={commit.id} className="py-3 flex justify-between items-center text-sm font-sans border-b border-gr-line/45 last:border-b-0">
-                              <div>
-                                <p className="text-gr-ink font-semibold">{commit.petani_name || 'Petani'}</p>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-gr-ink font-semibold">{commit.petani_name || 'Petani/Peternak'}</p>
                                 <p className="text-gr-up text-xs font-mono font-bold mt-0.5">+{commit.quantity_kg_committed} KG</p>
                               </div>
                               {commit.petani_id && (
@@ -1235,7 +1235,7 @@ function DemandCard({
                                   onClick={() => handleContactPetani(commit.petani_id)}
                                   disabled={chatLoading}
                                   className="p-2 rounded-sm bg-gr-board hover:opacity-90 text-gr-chalk transition-all cursor-pointer  disabled:opacity-50"
-                                  title="Chat Petani"
+                                  title="Chat Petani/Peternak"
                                 >
                                   {chatLoading ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1250,8 +1250,8 @@ function DemandCard({
                       ) : (
                         <div className="border border-dashed border-gr-line/60 bg-white/20 p-6 rounded-sm text-center flex flex-col items-center justify-center">
                           <Users className="h-6 w-6 text-gr-ink-soft/40 mb-2" />
-                          <p className="text-gr-ink-soft text-xs font-sans italic">
-                            Belum ada komitmen supply dari petani.
+                          <p className="text-xs font-sans text-gr-ink-soft italic">
+                            Belum ada komitmen supply dari petani/peternak.
                           </p>
                         </div>
                       )}

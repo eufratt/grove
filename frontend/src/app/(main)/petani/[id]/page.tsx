@@ -76,7 +76,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         ]);
 
         if (farmerData.role !== 'PETANI') {
-          throw new Error('Pengguna ini bukan merupakan petani mitra Grove.');
+          throw new Error('Pengguna ini bukan merupakan petani/peternak mitra Grove.');
         }
 
         setFarmer(farmerData);
@@ -92,7 +92,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         }
       } catch (err) {
         console.error('Failed to load farmer profile:', err);
-        const errMsg = err instanceof Error ? err.message : 'Gagal memuat profil petani.';
+        const errMsg = err instanceof Error ? err.message : 'Gagal memuat profil petani/peternak.';
         setError(errMsg);
       } finally {
         setLoading(false);
@@ -160,7 +160,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
         <BgPattern />
         <div className="relative z-10 max-w-md w-full bg-white/85 border border-gr-line p-8 rounded-sm text-center ">
           <h2 className="font-display text-2xl font-semibold text-gr-text-primary mb-3">Profil Tidak Ditemukan</h2>
-          <p className="font-sans text-sm text-gr-text-primary/60 mb-6">{error || 'Data profil petani tidak dapat ditampilkan.'}</p>
+          <p className="font-sans text-sm text-gr-text-primary/60 mb-6">{error || 'Data profil petani/peternak tidak dapat ditampilkan.'}</p>
           <Link
             href="/beranda"
             className="inline-flex items-center gap-2 bg-gr-board text-gr-chalk hover:opacity-90 font-mono text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-sm  transition-all"
@@ -177,7 +177,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
     ? getClosestProvince(farmer.latitude, farmer.longitude)
     : 'Nasional';
 
-  const defaultBio = 'Petani mitra terdaftar Grove yang berdedikasi menghasilkan produk pertanian segar berkualitas premium secara berkelanjutan dari ladang lokal langsung ke meja makan Anda. Berkomitmen menjaga kelestarian alam dan transparansi harga pasar.';
+  const defaultBio = 'Petani/Peternak mitra terdaftar Grove yang berdedikasi menghasilkan produk pangan segar berkualitas premium secara berkelanjutan dari lahan lokal langsung ke meja makan Anda. Berkomitmen menjaga kelestarian alam dan transparansi harga pasar.';
   const farmerBio = farmer.bio || defaultBio;
 
   // Pagination calculation
@@ -295,7 +295,7 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
                   </>
                 ) : (
                   <>
-                    <MessageSquare size={12} /> Chat Petani
+                    <MessageSquare size={12} /> Chat Petani/Peternak
                   </>
                 )}
               </button>
@@ -383,14 +383,14 @@ export default function FarmerProfilePage({ params }: { params: React.Usable<{ i
             {/* 1. Farmer Bio Card - Theme Compliant */}
             <div className="bg-[#FAF9F5] border border-gr-line p-5 rounded-sm  space-y-4">
               <h3 className="font-display text-sm font-semibold text-gr-text-primary border-b border-gr-line/50 pb-2">
-                Tentang Petani
+                Tentang Petani/Peternak
               </h3>
 
               {isEditing ? (
                 <div className="space-y-3">
                   <div className="space-y-1.5">
                     <label className="block font-mono text uppercase tracking-widest text-gr-text-primary/45 font-bold">
-                      Deskripsi / Bio Petani
+                      Deskripsi / Bio Petani/Peternak
                     </label>
                     <textarea
                       rows={5}

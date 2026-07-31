@@ -113,17 +113,17 @@ export default function UpgradeToFarmerPage() {
             <Store size={22} />
           </div>
           <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-gr-ink">
-            Mulai Jualan (Farmer)
+            Mulai Jualan (Petani/Peternak)
           </h2>
           <p className="mt-2 font-sans text-xs text-gr-ink-soft max-w-sm leading-relaxed">
-            Lengkapi data profil dan rekening bank Anda terlebih dahulu untuk mengaktifkan status Farmer/Penjual.
+            Lengkapi data profil dan rekening bank Anda terlebih dahulu untuk mengaktifkan status Petani/Peternak/Penjual.
           </p>
         </div>
 
         {success ? (
           <div className="space-y-6 text-center py-4">
             <div className="rounded-sm bg-gr-up/10 p-4 text-xs font-mono text-gr-up border border-gr-up/30">
-              Selamat! Akun Anda telah sukses diupgrade menjadi Farmer.
+              Selamat! Akun Anda telah sukses diupgrade menjadi Petani/Peternak.
             </div>
             <p className="font-sans text-xs text-gr-ink-soft/70">
               Mengalihkan ke halaman jual produk...
@@ -148,7 +148,7 @@ export default function UpgradeToFarmerPage() {
               <Info size={16} className="shrink-0 mt-0.5" />
               <div>
                 <span className="font-mono uppercase tracking-wider text-[9px] font-bold block">Catatan Peran</span>
-                Sebagai <strong>Farmer (Petani)</strong>, Anda tetap dapat membeli bahan pangan/produk dari petani lain, namun Anda <strong>tidak dapat mengajukan permintaan komoditas baru</strong>.
+                Sebagai <strong>Petani/Peternak</strong>, Anda tetap dapat membeli bahan pangan/produk dari petani/peternak lain, namun Anda <strong>tidak dapat mengajukan permintaan komoditas baru</strong>.
               </div>
             </div>
 
@@ -157,14 +157,14 @@ export default function UpgradeToFarmerPage() {
             {/* Deskripsi Ladang / Bio */}
             <div className="space-y-1.5">
               <label htmlFor="bio" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft">
-                Deskripsi / Bio Ladang Petani
+                Deskripsi / Bio Petani/Peternak
               </label>
               <textarea
                 id="bio"
                 rows={3}
                 required
                 maxLength={1000}
-                placeholder="Ceritakan tentang ladang, jenis tanaman, dan komoditas pertanian Anda..."
+                placeholder="Ceritakan tentang pertanian, peternakan, ladang, atau komoditas Anda..."
                 className="block w-full rounded-sm border border-gr-line bg-white focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-ink placeholder-gr-ink-soft/45 transition-all "
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}

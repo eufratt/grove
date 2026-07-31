@@ -104,7 +104,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
         throw new Error('Gagal memulai percakapan');
       }
     } catch (err: any) {
-      setError(err.message || 'Gagal memulai chat dengan petani');
+      setError(err.message || 'Gagal memulai chat dengan petani/peternak');
     } finally {
       setChatLoading(false);
     }
@@ -337,7 +337,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
       setRequest(updatedData);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Gagal mencocokkan permintaan dengan produk petani terpilih');
+      setError(err.message || 'Gagal mencocokkan permintaan dengan produk petani/peternak terpilih');
     } finally {
       setMatching(null);
     }
@@ -507,13 +507,13 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 <div className="space-y-1 sm:text-right shrink-0">
                   <div className="font-mono text-xl font-bold text-gr-ink leading-none">
                     {request.num_petani_committed && request.num_petani_committed > 0 ? (
-                      <span>{request.num_petani_committed} Petani</span>
+                      <span>{request.num_petani_committed} Petani/Peternak</span>
                     ) : (
                       <span className="text-sm font-sans text-gr-ink-soft italic font-normal">Belum ada komitmen masuk</span>
                     )}
                   </div>
                   <span className="font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft/70 font-bold block">
-                    Mitra Tani Berkomitmen
+                    Mitra Tani/Peternak Berkomitmen
                   </span>
                 </div>
  
@@ -701,7 +701,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                         Telah Dicocokkan
                       </span>
                       <h3 className="font-display text-base font-semibold text-gr-ink">
-                        Transaksi Rekening Bersama <span className="font-mono text-xs text-gr-ink-soft">({txs.length} petani)</span>
+                        Transaksi Rekening Bersama <span className="font-mono text-xs text-gr-ink-soft">({txs.length} petani/peternak)</span>
                       </h3>
                     </div>
                     {isPartial && (
@@ -803,12 +803,12 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         {(request.match_transactions || []).length > 0 && (
                           <div className="bg-[#D9A74A]/10 border border-[#D9A74A]/30 rounded-sm px-3 py-2 font-mono text-[10px] text-[#7A5C1E] uppercase tracking-wider">
-                            Masih butuh {Math.round(request.quantity_kg_needed - request.quantity_kg_committed)} KG lagi — cari petani tambahan
+                            Masih butuh {Math.round(request.quantity_kg_needed - request.quantity_kg_committed)} KG lagi — cari petani/peternak tambahan
                           </div>
                         )}
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={16} strokeWidth={2} className="text-gr-board" />
-                          Kandidat Produk Petani
+                          Kandidat Produk Petani/Peternak
                         </h3>
                         <div className="flex items-center justify-center py-6">
                           <Loader2 className="h-6 w-6 animate-spin text-gr-board" />
@@ -819,21 +819,21 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                       <div className="rounded-sm border border-gr-line bg-white/80 p-6 overflow-hidden space-y-4">
                         {(request.match_transactions || []).length > 0 && (
                           <div className="bg-[#D9A74A]/10 border border-[#D9A74A]/30 rounded-sm px-3 py-2 font-mono text-[10px] text-[#7A5C1E] uppercase tracking-wider">
-                            Masih butuh {Math.round(request.quantity_kg_needed - request.quantity_kg_committed)} KG lagi — cari petani tambahan
+                            Masih butuh {Math.round(request.quantity_kg_needed - request.quantity_kg_committed)} KG lagi — cari petani/peternak tambahan
                           </div>
                         )}
                         <h3 className="font-display text-xl font-semibold text-gr-ink flex items-center gap-2">
                           <Users size={16} strokeWidth={2} className="text-gr-board" />
-                          Kandidat Produk Petani
+                          Kandidat Produk Petani/Peternak
                         </h3>
                         <p className="font-sans text-[11px] text-gr-ink-soft leading-relaxed">
-                          Berikut adalah daftar hasil panen petani yang cocok secara harga dan kemiripan komoditas dengan permintaan Anda. Silakan pilih salah satu untuk bertransaksi via Rekening Bersama (Rekber).
+                          Berikut adalah daftar produk petani/peternak yang cocok secara harga dan kemiripan komoditas dengan permintaan Anda. Silakan pilih salah satu untuk bertransaksi via Rekening Bersama (Rekber).
                         </p>
 
                         {candidates.length === 0 ? (
                           <div className="text-center py-6 px-4 border border-dashed border-gr-line rounded-sm bg-gr-paper/30">
                             <p className="text-xs font-sans text-gr-ink-soft">
-                              Tidak ada produk petani yang cocok (harga ≤ Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}/KG & cocok secara embedding) saat ini.
+                              Tidak ada produk petani/peternak yang cocok (harga ≤ Rp {Math.round(request.price_per_kg).toLocaleString('id-ID')}/KG & cocok secara embedding) saat ini.
                             </p>
                           </div>
                         ) : (() => {
@@ -854,7 +854,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                                       <div className="flex justify-between items-start gap-2">
                                         <div className="min-w-0 flex-1">
                                           <h4 className="font-display font-semibold text-xs text-gr-ink line-clamp-2" title={cand.product_name}>{cand.product_name}</h4>
-                                          <p className="text-[10px] text-gr-ink-soft font-sans mt-0.5">Petani: {cand.seller_name}</p>
+                                          <p className="text-[10px] text-gr-ink-soft font-sans mt-0.5">Petani/Peternak: {cand.seller_name}</p>
                                         </div>
                                         <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xs bg-gr-up/10 text-gr-up border border-gr-up/20 shrink-0">
                                           {similarityPercentage}% Match
@@ -966,7 +966,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                   Bantu Penuhi
                 </h3>
                 <p className="font-sans text-xs text-gr-ink-soft mb-4 leading-relaxed">
-                  Apakah Anda memiliki hasil panen ini atau bersedia menanamnya? Masukkan jumlah KG yang sanggup Anda supply.
+                  Apakah Anda memiliki produk ini atau bersedia menyediakannya? Masukkan jumlah KG yang sanggup Anda pasok.
                 </p>
 
                 {commitSuccess && (
@@ -1052,7 +1052,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                             onClick={() => handleContactPetani(commit.petani_id)}
                             disabled={chatLoading}
                             className="p-2 rounded-sm bg-gr-board text-gr-chalk hover:bg-gr-board/90 transition-all cursor-pointer  disabled:opacity-50"
-                            title="Chat Petani"
+                            title="Chat Petani/Peternak"
                           >
                             {chatLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -1166,7 +1166,7 @@ export default function DemandRequestDetailPage({ params }: { params: React.Usab
                 </div>
               </div>
               <p className="font-sans text-[10px] text-gr-orange leading-normal">
-                * Transaksi Rekening Bersama (Rekber) ini akan membuat transaksi pembayaran baru dan memotong stok produk petani secara otomatis.
+                * Transaksi Rekening Bersama (Rekber) ini akan membuat transaksi pembayaran baru dan memotong stok produk petani/peternak secara otomatis.
               </p>
             </div>
           }

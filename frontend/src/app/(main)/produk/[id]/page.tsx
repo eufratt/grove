@@ -127,10 +127,10 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
     } else {
       // Legacy WhatsApp chat flow
       if (!product.seller_phone) {
-        setError('Nomor WhatsApp petani tidak tersedia.');
+        setError('Nomor WhatsApp petani/peternak tidak tersedia.');
         return;
       }
-      const msg = `Halo ${product.seller_name || 'Petani Grove'}, saya ingin bertanya tentang produk "${product.name}" yang dijual di Grove. Apakah stoknya masih tersedia?`;
+      const msg = `Halo ${product.seller_name || 'Petani/Peternak Grove'}, saya ingin bertanya tentang produk "${product.name}" yang dijual di Grove. Apakah stoknya masih tersedia?`;
       let cleaned = product.seller_phone.replace(/[^0-9]/g, '');
       if (cleaned.startsWith('0')) {
         cleaned = '62' + cleaned.slice(1);
@@ -297,12 +297,12 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
               </h1>
               
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-gr-text-primary/40 uppercase tracking-wider">
-                <span className="font-sans">
-                  Petani:{' '}
+                <div className="flex items-center gap-1">
+                  Petani/Peternak:{' '}
                   <Link href={`/petani/${product.seller_id}`} className="font-semibold text-gr-text-primary normal-case hover:text-gr-green hover:underline">
-                    {product.seller_name || 'Petani Grove'}
+                    {product.seller_name || 'Petani/Peternak Grove'}
                   </Link>
-                </span>
+                </div>
                 <span>|</span>
                 <SellerRatingBadge avgRating={product.seller_rating_avg} ratingCount={product.seller_rating_count} size="sm" />
               </div>
@@ -346,9 +346,9 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                 
                 <div className="h-px bg-gr-line/10 my-1" />
                 
-                <p className="font-sans text-[9px] text-gr-ink-soft leading-relaxed italic m-0">
-                  * Indikator membandingkan harga petani dengan harga pasar rata-rata untuk menjamin transparansi & keadilan.
-                </p>
+                <span className="font-mono text-[9px] font-bold text-gr-text-primary/45 uppercase tracking-wider block mt-1 leading-normal">
+                    * Indikator membandingkan harga petani/peternak dengan harga pasar rata-rata untuk menjamin transparansi & keadilan.
+                </span>
               </div>
             )}
   
@@ -481,8 +481,8 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                     onClick={handleContactFarmer}
                     className="flex-1 border-gr-line hover:bg-gr-chalk/60 h-11 rounded-none font-sans font-bold uppercase tracking-[0.2em] text-[11px] text-gr-text-primary"
                   >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Chat Petani
+                    <MessageSquare size={13} className="mr-2"/>
+                    Chat Petani/Peternak
                   </Button>
                 </div>
               </div>
@@ -549,9 +549,9 @@ export default function ProductDetailPage({ params }: { params: React.Usable<{ i
                 </span>
               </div>
             </div>
-            <p className="font-sans text-[10px] text-gr-orange leading-normal">
-              * Pesanan akan diteruskan ke petani.
-            </p>
+            <li className="font-sans text-[11px] text-gr-ink-soft/90 leading-relaxed">
+              * Pesanan akan diteruskan ke petani/peternak.
+            </li>
           </div>
         }
       />

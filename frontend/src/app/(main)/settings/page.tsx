@@ -337,7 +337,7 @@ export default function SettingsPage() {
                   className="w-full text-left px-3 py-2 rounded-sm font-semibold text-gr-ink hover:bg-gr-ink/5 transition-all flex items-center gap-2"
                 >
                   <Store size={14} />
-                  <span>Upgrade ke Farmer</span>
+                  <span>Upgrade ke Petani/Peternak</span>
                 </Link>
               )}
 
@@ -421,7 +421,7 @@ export default function SettingsPage() {
                       </span>
                       <div className="flex flex-col sm:flex-row gap-3">
                         {[
-                          { value: 'PETANI', label: 'Petani (Farmer)', desc: 'Menjual hasil panen & merespons permintaan' },
+                          { value: 'PETANI', label: 'Petani/Peternak', desc: 'Menjual hasil panen/ternak & merespons permintaan' },
                           { value: 'PEMBELI', label: 'Pembeli (Buyer)', desc: 'Mengajukan permintaan & membeli bahan pangan' }
                         ].map((roleOpt) => {
                           const isSelected = selectedRole === roleOpt.value;
@@ -444,7 +444,7 @@ export default function SettingsPage() {
                         })}
                       </div>
                       <span className="block font-mono text-[9px] text-gr-ink-soft/40 mt-1.5 uppercase tracking-wider">
-                        Peran tidak dapat diubah dari sini. Gunakan menu upgrade di samping jika ingin menjadi Farmer.
+                        Peran tidak dapat diubah dari sini. Gunakan menu upgrade di samping jika ingin menjadi Petani/Peternak.
                       </span>
                     </div>
 
@@ -481,13 +481,13 @@ export default function SettingsPage() {
                       <>
                         <div>
                           <label htmlFor="shopee-bio" className="block font-mono text-[10px] font-bold uppercase tracking-wider text-gr-ink-soft mb-1.5">
-                            Deskripsi / Bio Petani
+                            Deskripsi / Bio Petani/Peternak
                           </label>
                           <textarea
                             id="shopee-bio"
                             rows={4}
                             maxLength={1000}
-                            placeholder="Ceritakan tentang ladang, jenis tanaman, dan komoditas pertanian Anda..."
+                            placeholder="Ceritakan tentang pertanian, peternakan, ladang, atau komoditas Anda..."
                             className="block w-full rounded-sm border border-gr-line bg-white focus:outline-none focus:ring-1 focus:ring-gr-board/20 p-2.5 font-sans text-xs text-gr-text-primary transition-all "
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
@@ -625,7 +625,7 @@ export default function SettingsPage() {
                     <MapPin size={18} className="text-gr-board" /> Koordinat Alamat & Lokasi
                   </h2>
                   <p className="mt-1 font-sans text-xs text-gr-ink-soft">
-                    Atur lokasi koordinat peta GPS untuk menghitung jarak antar ladang petani dengan pembeli secara akurat.
+                    Atur lokasi koordinat peta GPS untuk menghitung jarak antara petani/peternak dengan pembeli secara akurat.
                   </p>
                 </div>
 
@@ -807,7 +807,7 @@ export default function SettingsPage() {
                       {buyerRatings.ratings.map((r: any) => (
                         <div key={r.id} className="text-xs font-sans border-b border-gr-line/35 last:border-0 pb-3 last:pb-0 pt-0.5">
                           <div className="flex justify-between items-center gap-2">
-                            <span className="text-gr-ink font-bold text-xs">{r.rater_name || 'Petani Anonim'}</span>
+                            <span className="text-gr-ink font-bold text-xs">{r.rater_name || 'Petani/Peternak Anonim'}</span>
                             <span className="text-gr-ink font-mono font-semibold text-[11px]">★ {r.score}</span>
                           </div>
                           {r.comment && <p className="text-gr-ink-soft italic text-xs mt-1 bg-gr-paper/20 border border-gr-line/20 p-2.5 rounded-sm">"{r.comment}"</p>}

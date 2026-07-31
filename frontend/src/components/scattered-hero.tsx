@@ -571,13 +571,13 @@ function EntriesSection() {
     {
       mark: 'A',
       title: 'Sinyal permintaan, sebelum tanam',
-      desc: 'Pembeli memasang kebutuhan sebelum musim tanam dimulai. Petani merespons permintaan nyata lewat kartu geser sederhana, bukan menebak dari harga musim lalu.',
+      desc: 'Pembeli memasang kebutuhan sebelum musim tanam dimulai. Petani/Peternak merespons permintaan nyata lewat kartu geser sederhana, bukan menebak dari harga musim lalu.',
       theory: 'Teori Cobweb · memutus lag informasi'
     },
     {
       mark: 'B',
-      title: 'Transparansi sesama petani',
-      desc: 'Setiap sinyal demand menunjukkan progres langsung — berapa persen sudah terpenuhi, berapa petani sudah berkomitmen — agar keputusan tanam tidak lagi buta terhadap keputusan petani lain.',
+      title: 'Transparansi sesama petani/peternak',
+      desc: 'Setiap sinyal demand menunjukkan progres langsung — berapa persen sudah terpenuhi, berapa petani/peternak sudah berkomitmen — agar keputusan tanam tidak lagi buta terhadap keputusan petani/peternak lain.',
       theory: 'Teori Cobweb · mencegah pasokan berlebih serentak'
     },
     {
@@ -589,7 +589,7 @@ function EntriesSection() {
     {
       mark: 'D',
       title: 'Harga wajar saat transaksi',
-      desc: 'PriceGauge membandingkan harga tiap produk terhadap acuan secara langsung, menutup celah informasi antara petani dan pembeli saat transaksi berlangsung.',
+      desc: 'PriceGauge membandingkan harga tiap produk terhadap acuan secara langsung, menutup celah informasi antara petani/peternak dan pembeli saat transaksi berlangsung.',
       theory: 'Asimetri informasi · Akerlof'
     }
   ];
@@ -641,7 +641,7 @@ export function LandingFooter() {
             Metode
           </h3>
           <p className="font-sans text-[13px] leading-relaxed text-gr-ink-soft m-0">
-            Harga produk yang diunggah petani dicocokkan ke acuan PIHPS lewat pencarian kemiripan nama komoditas, lalu dibandingkan sebagai persentase selisih dari harga referensi nasional.
+            Harga produk yang diunggah petani/peternak dicocokkan ke acuan PIHPS lewat pencarian kemiripan nama komoditas, lalu dibandingkan sebagai persentase selisih dari harga referensi nasional.
           </p>
         </div>
         <div>

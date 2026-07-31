@@ -231,7 +231,7 @@ function BerandaContent() {
             {isSearchActive && matchingFarmers.length > 0 && (
               <div className="mb-8 bg-[#FAF9F5] border border-gr-line p-5 rounded-sm  animate-in fade-in duration-200">
                 <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-gr-ink-soft mb-4 font-bold border-b border-gr-line/40 pb-2">
-                  <span>Petani berkaitan dengan "{searchQuery}"</span>
+                  <span>Petani/Peternak berkaitan dengan "{searchQuery}"</span>
                 </div>
                 <div className="space-y-3.5">
                   {matchingFarmers.slice(0, 3).map((farmer) => (

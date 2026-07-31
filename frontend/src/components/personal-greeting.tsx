@@ -84,14 +84,14 @@ export function PersonalGreeting() {
     if (user && user.role === 'PETANI') {
       return (
         <p className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/70 mt-3">
-          Kelola produk panen segar Anda dan pantau acuan harga pasar.
+          Kelola produk panen/ternak segar Anda dan pantau acuan harga pasar.
         </p>
       );
     }
 
     return (
       <p className="font-sans text-xs uppercase tracking-wider text-gr-text-primary/70 mt-3">
-        Temukan hasil panen segar langsung dari petani lokal di sekitarmu.
+        Temukan hasil panen/ternak segar langsung dari petani/peternak lokal di sekitarmu.
       </p>
     );
   };

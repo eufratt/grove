@@ -35,7 +35,7 @@ export function AccessibilityWidget() {
       <button
         onClick={toggleAccessibility}
         type="button"
-        aria-label="Alihkan Mode Aksesibilitas Petani (Teks Besar & Kontras Tinggi)"
+        aria-label="Alihkan Mode Aksesibilitas Petani/Peternak (Teks Besar & Kontras Tinggi)"
         title={isAccessibleMode ? "Matikan Mode Aksesibilitas" : "Aktifkan Mode Aksesibilitas (Teks Besar & Kontras Tinggi)"}
         className={cn(
           "group relative flex items-center justify-center p-3 rounded-sm  border transition-all duration-300 cursor-pointer",

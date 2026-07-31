@@ -290,7 +290,7 @@ export function Navbar() {
                 <div className="flex items-center gap-3">
                   {user.role === 'PETANI' && (
                     <span className="hidden xl:inline font-mono text-[9px] font-bold uppercase tracking-widest text-gr-board border border-gr-board/30 px-2 py-1">
-                      Farmer
+                      Petani/Peternak
                     </span>
                   )}
                   <Link
