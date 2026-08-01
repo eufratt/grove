@@ -6,17 +6,17 @@
 
 ## Fitur Utama
 
-- **Marketplace Produk Pertanian** — Petani dapat mempublikasikan produk, pembeli dapat mencari dan memesan langsung.
-- **Manajemen Pesanan** — Alur pesanan lengkap dari konfirmasi, pengiriman, hingga penyelesaian transaksi.
-- **Escrow Payment (Xendit)** — Dana pembeli ditahan aman dan baru dicairkan ke petani setelah barang diterima.
-- **Ajukan Permintaan (Demand Request)** — Pembeli dapat memposting kebutuhan komoditas; petani dapat berkomitmen atau langsung memenuhi permintaan.
-- **Tren Harga Referensi** — Harga pasar komoditas ditampilkan sebagai acuan, didukung data scraping dan analisis AI.
-- **AI Chat (Groq + Gemini)** — Asisten percakapan berbasis AI untuk membantu pengguna navigasi platform.
-- **Real-time Update via WebSocket** — Status pesanan dan permintaan diperbarui secara langsung tanpa refresh.
-- **Tampilan Peta Interaktif** — Visualisasi lokasi produk/petani menggunakan Leaflet.
-- **Autentikasi Google OAuth** — Login aman menggunakan akun Google.
-- **Scheduler Otomatis** — Timeout konfirmasi, pengambilan, dan auto-konfirmasi pengiriman ditangani secara otomatis oleh sistem.
-- **Sistem Rating** — Pembeli dapat memberikan penilaian setelah transaksi selesai.
+- **Marketplace Produk Pertanian** - Petani dapat mempublikasikan produk, pembeli dapat mencari dan memesan langsung.
+- **Manajemen Pesanan** - Alur pesanan lengkap dari konfirmasi, pengiriman, hingga penyelesaian transaksi.
+- **Escrow Payment (Xendit)** - Dana pembeli ditahan aman dan baru dicairkan ke petani setelah barang diterima.
+- **Ajukan Permintaan (Demand Request)** - Pembeli dapat memposting kebutuhan komoditas; petani dapat berkomitmen atau langsung memenuhi permintaan.
+- **Tren Harga Referensi** - Harga pasar komoditas ditampilkan sebagai acuan, didukung data scraping dan analisis AI.
+- **AI Chat (Groq + Gemini)** - Asisten percakapan berbasis AI untuk membantu pengguna navigasi platform.
+- **Real-time Update via WebSocket** - Status pesanan dan permintaan diperbarui secara langsung tanpa refresh.
+- **Tampilan Peta Interaktif** - Visualisasi lokasi produk/petani menggunakan Leaflet.
+- **Autentikasi Google OAuth** - Login aman menggunakan akun Google.
+- **Scheduler Otomatis** - Timeout konfirmasi, pengambilan, dan auto-konfirmasi pengiriman ditangani secara otomatis oleh sistem.
+- **Sistem Rating** - Pembeli dapat memberikan penilaian setelah transaksi selesai.
 
 ---
 
@@ -66,10 +66,10 @@ Pastikan software berikut sudah terinstall di sistem Anda:
 
 Akun & API Key eksternal yang dibutuhkan:
 
-- [Supabase](https://supabase.com/) — Database & Storage
-- [Xendit](https://www.xendit.co/) — Payment Gateway
-- [Google Cloud Console](https://console.cloud.google.com/) — OAuth Client ID & Gemini API Key
-- [Groq](https://console.groq.com/) — LLM API Key
+- [Supabase](https://supabase.com/) - Database & Storage
+- [Xendit](https://www.xendit.co/) - Payment Gateway
+- [Google Cloud Console](https://console.cloud.google.com/) - OAuth Client ID & Gemini API Key
+- [Groq](https://console.groq.com/) - LLM API Key
 
 ---
 
@@ -118,7 +118,7 @@ npm install
 
 ## Konfigurasi
 
-### Backend — `backend/.env`
+### Backend - `backend/.env`
 
 Salin file contoh lalu isi nilainya:
 
@@ -156,17 +156,17 @@ ADMIN_TOKEN=your_secure_admin_token_here
 # Environment ("development" atau "production")
 APP_ENV=development
 
-# CORS — pisahkan dengan koma jika lebih dari satu origin
+# CORS - pisahkan dengan koma jika lebih dari satu origin
 ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 
 # Timeout Alur Pesanan (dalam detik)
-TIMEOUT_KONFIRMASI=86400      # 24 jam — batas konfirmasi petani
-TIMEOUT_PENGAMBILAN=259200    # 72 jam — batas pengambilan barang
-TIMEOUT_AUTO_CONFIRM=172800   # 48 jam — auto-konfirmasi setelah pengiriman
-TIMEOUT_KOMPLAIN=86400        # 24 jam — batas pengajuan komplain
+TIMEOUT_KONFIRMASI=86400      # 24 jam - batas konfirmasi petani
+TIMEOUT_PENGAMBILAN=259200    # 72 jam - batas pengambilan barang
+TIMEOUT_AUTO_CONFIRM=172800   # 48 jam - auto-konfirmasi setelah pengiriman
+TIMEOUT_KOMPLAIN=86400        # 24 jam - batas pengajuan komplain
 ```
 
-### Frontend — `frontend/.env.local`
+### Frontend - `frontend/.env.local`
 
 Salin file contoh lalu isi nilainya:
 
@@ -202,7 +202,7 @@ alembic upgrade head
 
 Jalankan backend dan frontend secara bersamaan di dua terminal terpisah:
 
-**Terminal 1 — Backend:**
+**Terminal 1 - Backend:**
 
 ```bash
 cd backend
@@ -216,7 +216,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 Backend API akan tersedia di: `http://localhost:8000`  
 Dokumentasi API interaktif (Swagger): `http://localhost:8000/docs`
 
-**Terminal 2 — Frontend:**
+**Terminal 2 - Frontend:**
 
 ```bash
 cd frontend
@@ -350,5 +350,5 @@ grove/
 
 **WebSocket:**
 
-- `ws://localhost:8000/ws/orders/{order_id}` — Update real-time status pesanan
-- `ws://localhost:8000/ws/demand-requests/{id}` — Update real-time permintaan pasokan
+- `ws://localhost:8000/ws/orders/{order_id}` - Update real-time status pesanan
+- `ws://localhost:8000/ws/demand-requests/{id}` - Update real-time permintaan pasokan
